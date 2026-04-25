@@ -1432,7 +1432,7 @@ input[type="number"] {
 .help-message {
   overflow: auto;
   padding-right: 6px;
-  color: #243044;
+  color: #000;
   font-size: 16px;
   line-height: 1.75;
   word-break: keep-all;
@@ -1440,6 +1440,7 @@ input[type="number"] {
 
 .help-message p {
   margin: 0 0 16px;
+  color: #000;
 }
 
 .help-message blockquote {
