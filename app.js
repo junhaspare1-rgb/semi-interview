@@ -10,7 +10,7 @@ const questions = [
       "먼저 계측 이상인지 확인하고, 이후 recipe 변경 이력, chamber 상태, gas flow, pressure, RF power, ESC temperature, mask 두께를 점검합니다. 단기적으로는 lot hold와 동일 조건 재계측으로 확산을 막고, 장기적으로는 split lot 또는 DOE로 영향 인자를 검증한 뒤 관리 기준과 PM 조건을 업데이트합니다.",
   },
   {
-    text: "양산 라인에서 특정 Lot의 수율이 급락했을 때 공정기술 엔지니어가 확인해야 할 항목은 무엇인가요?",
+    text: "양산 라인에서 특정 Lot의 수율이 급락했을 때 공정기술 담당자가 확인해야 할 항목은 무엇인가요?",
     answer:
       "수율 map과 불량 bin을 먼저 보고 공간 패턴을 확인합니다. 이후 공정 이력, 장비 이력, SPC/FDC 이상, 계측 데이터, 소재 lot, recipe 변경 여부를 시간순으로 대조합니다. 의심 공정을 좁힌 뒤 동일 장비와 타 장비 비교, 전후 lot 비교, 필요 시 hold와 재작업 가능성을 검토합니다.",
   },
@@ -54,7 +54,7 @@ const questions = [
 const state = {
   config: {
     questionCount: 5,
-    prepSeconds: 60,
+    prepSeconds: 0,
     answerSeconds: 180,
     rigor: "입문",
   },
@@ -68,6 +68,9 @@ const state = {
   recorder: null,
   recordedChunks: [],
   recordings: [],
+  recordingQuestion: null,
+  recordingEnabled: true,
+  micAnimationId: null,
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -77,14 +80,36 @@ const elements = {};
 const cacheElements = () => {
   [
     "homeView",
+    "checkView",
     "interviewView",
     "resultView",
     "exitModal",
+    "finishModal",
+    "helpModal",
+    "helpButton",
+    "closeHelpButton",
+    "developerMessageTemplate",
+    "helpMessage",
     "questionCount",
+    "targetRole",
     "prepTime",
     "answerTime",
     "answerValue",
     "startInterview",
+    "cameraCheckPreview",
+    "cameraCheckPlaceholder",
+    "checkCameraButton",
+    "enterInterviewButton",
+    "micStatus",
+    "micLevel",
+    "speakerStatus",
+    "speakerTestButton",
+    "recordingModeNotice",
+    "recordingModeOn",
+    "recordingModeOff",
+    "cameraCheckState",
+    "micCheckState",
+    "speakerCheckState",
     "questionProgress",
     "rigorLabel",
     "questionText",
@@ -93,9 +118,7 @@ const cacheElements = () => {
     "timerText",
     "cameraPreview",
     "cameraPlaceholder",
-    "cameraButton",
     "skipPrepButton",
-    "recordButton",
     "nextQuestionButton",
     "finishInterviewButton",
     "resultHomeButton",
@@ -106,10 +129,13 @@ const cacheElements = () => {
     "summaryRigor",
     "cancelExitButton",
     "confirmExitButton",
+    "cancelFinishButton",
+    "confirmFinishButton",
   ].forEach((id) => {
     elements[id] = $(`#${id}`);
   });
   elements.webcamPanel = $(".webcam-panel");
+  elements.cameraCheckFrame = $(".camera-check-frame");
 };
 
 const renderIcons = () => {
@@ -136,6 +162,7 @@ const currentQuestion = () => activeQuestions()[state.currentIndex] || activeQue
 
 const setView = (view) => {
   elements.homeView.classList.toggle("active", view === "home");
+  elements.checkView.classList.toggle("active", view === "check");
   elements.interviewView.classList.toggle("active", view === "interview");
   elements.resultView.classList.toggle("active", view === "result");
   window.scrollTo({ top: 0, behavior: "instant" });
@@ -183,8 +210,14 @@ const renderQuestion = () => {
 const beginPrep = () => {
   state.phase = "prep";
   state.remaining = state.config.prepSeconds;
-  elements.skipPrepButton.disabled = false;
   renderQuestion();
+
+  if (state.config.prepSeconds <= 0) {
+    beginAnswer();
+    return;
+  }
+
+  elements.skipPrepButton.disabled = false;
   startTimer();
 };
 
@@ -193,14 +226,38 @@ const beginAnswer = () => {
   state.remaining = state.config.answerSeconds;
   elements.skipPrepButton.disabled = true;
   startTimer();
+  startRecording().catch(() => {});
 };
 
 const readConfig = () => {
   const selectedRigor = $(".rigor-card.active");
   state.config.questionCount = Math.max(1, Math.min(Number(elements.questionCount.value) || 5, questions.length));
-  state.config.prepSeconds = Number(elements.prepTime.value) || 60;
+  state.config.prepSeconds = Math.max(0, Number(elements.prepTime.value));
   state.config.answerSeconds = (Number(elements.answerTime.value) || 3) * 60;
   state.config.rigor = selectedRigor?.dataset.rigor || "입문";
+};
+
+const syncStartAvailability = () => {
+  const isAvailable = elements.targetRole.value === "process";
+  const label = elements.startInterview.querySelector("span");
+  elements.startInterview.disabled = !isAvailable;
+  elements.startInterview.setAttribute("aria-disabled", String(!isAvailable));
+  label.textContent = isAvailable ? "모의 면접 시작" : "준비중인 직무입니다";
+};
+
+const setRecordingMode = (enabled) => {
+  state.recordingEnabled = enabled;
+  elements.recordingModeOn.classList.toggle("active", enabled);
+  elements.recordingModeOff.classList.toggle("active", !enabled);
+  elements.recordingModeOn.setAttribute("aria-pressed", String(enabled));
+  elements.recordingModeOff.setAttribute("aria-pressed", String(!enabled));
+  elements.recordingModeNotice.textContent = enabled
+    ? "녹화 모드는 면접 종료 후 문항별 녹화 복기를 제공합니다."
+    : "비녹화 모드는 면접 종료 후 녹화 복기 기능이 제공되지 않습니다.";
+  elements.cameraPlaceholder.innerHTML = enabled
+    ? '<i data-lucide="video"></i><strong>사용자 웹캠 화면</strong><span>녹화 모드에서는 답변 시간이 시작되면 자동으로 녹화됩니다.</span>'
+    : '<i data-lucide="video-off"></i><strong>비녹화 모드</strong><span>이번 면접은 녹화 저장 없이 진행됩니다.</span>';
+  renderIcons();
 };
 
 const resetForInterview = (sessionQuestions) => {
@@ -209,11 +266,20 @@ const resetForInterview = (sessionQuestions) => {
   state.currentIndex = 0;
   state.recordings = [];
   state.recordedChunks = [];
+  state.recordingQuestion = null;
 };
 
 const startInterview = () => {
+  if (elements.targetRole.value !== "process") return;
   readConfig();
   resetForInterview(buildQuestionSet(state.config.questionCount));
+  setView("check");
+};
+
+const enterInterview = () => {
+  if (state.recordingEnabled) {
+    ensureCamera().catch(() => {});
+  }
   setView("interview");
   beginPrep();
 };
@@ -223,12 +289,11 @@ const startSingleQuestionPractice = (originalIndex) => {
   if (!question) return;
   resetForInterview([{ ...question, originalIndex }]);
   state.config.questionCount = 1;
-  setView("interview");
-  beginPrep();
+  setView("check");
 };
 
-const nextQuestion = () => {
-  finishRecording();
+const nextQuestion = async () => {
+  await finishRecording();
   const total = activeQuestions().length;
   if (state.currentIndex >= total - 1) {
     finishInterview();
@@ -239,16 +304,16 @@ const nextQuestion = () => {
   beginPrep();
 };
 
-const finishCurrentAnswer = () => {
-  finishRecording();
+const finishCurrentAnswer = async () => {
+  await finishRecording();
   stopTimer();
   elements.phaseLabel.textContent = "답변 종료";
   elements.timerMode.textContent = "완료";
   elements.timerText.textContent = "00:00";
 };
 
-const finishInterview = () => {
-  finishRecording();
+const finishInterview = async () => {
+  await finishRecording();
   stopTimer();
   elements.phaseLabel.textContent = "면접 종료";
   elements.timerMode.textContent = "종료";
@@ -269,10 +334,32 @@ const hideExitModal = () => {
   elements.exitModal.setAttribute("aria-hidden", "true");
 };
 
-const leaveInterview = () => {
+const showFinishModal = () => {
+  elements.finishModal.classList.add("open");
+  elements.finishModal.setAttribute("aria-hidden", "false");
+};
+
+const hideFinishModal = () => {
+  elements.finishModal.classList.remove("open");
+  elements.finishModal.setAttribute("aria-hidden", "true");
+};
+
+const showHelpModal = () => {
+  elements.helpMessage.innerHTML = elements.developerMessageTemplate.innerHTML;
+  elements.helpModal.classList.add("open");
+  elements.helpModal.setAttribute("aria-hidden", "false");
+  renderIcons();
+};
+
+const hideHelpModal = () => {
+  elements.helpModal.classList.remove("open");
+  elements.helpModal.setAttribute("aria-hidden", "true");
+};
+
+const leaveInterview = async () => {
   hideExitModal();
   stopTimer();
-  finishRecording();
+  await finishRecording();
   setView("home");
 };
 
@@ -284,28 +371,95 @@ const requestLeaveInterview = () => {
   setView("home");
 };
 
+const markReady = (element, text) => {
+  element.textContent = text;
+  element.classList.add("ready");
+};
+
+const startMicMeter = (stream) => {
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  const audioTrack = stream.getAudioTracks()[0];
+  if (!AudioContextClass || !audioTrack) return;
+
+  const audioContext = new AudioContextClass();
+  const source = audioContext.createMediaStreamSource(new MediaStream([audioTrack]));
+  const analyser = audioContext.createAnalyser();
+  const data = new Uint8Array(analyser.frequencyBinCount);
+  analyser.fftSize = 256;
+  source.connect(analyser);
+
+  const tick = () => {
+    analyser.getByteFrequencyData(data);
+    const average = data.reduce((sum, value) => sum + value, 0) / data.length;
+    const level = Math.min(100, Math.round(average * 1.6));
+    elements.micLevel.style.width = `${level}%`;
+    elements.micStatus.textContent = level > 6 ? "마이크 입력이 감지되고 있습니다." : "말을 해보면 입력 레벨이 움직입니다.";
+    if (level > 6) {
+      markReady(elements.micCheckState, "마이크 감지");
+    }
+    state.micAnimationId = requestAnimationFrame(tick);
+  };
+  tick();
+};
+
 const ensureCamera = async () => {
   if (state.cameraStream) return state.cameraStream;
 
   try {
     state.cameraStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
     elements.cameraPreview.srcObject = state.cameraStream;
+    elements.cameraCheckPreview.srcObject = state.cameraStream;
     elements.webcamPanel.classList.add("camera-on");
-    elements.cameraButton.querySelector("span").textContent = "카메라 켜짐";
+    elements.cameraCheckFrame.classList.add("camera-on");
+    elements.checkCameraButton.querySelector("span").textContent = "카메라/마이크 켜짐";
+    markReady(elements.cameraCheckState, "카메라 정상");
+    startMicMeter(state.cameraStream);
     return state.cameraStream;
   } catch (error) {
     elements.cameraPlaceholder.innerHTML =
       "<strong>카메라 접근이 필요합니다</strong><span>브라우저 권한을 허용하면 녹화 복기 기능을 사용할 수 있습니다.</span>";
+    elements.cameraCheckPlaceholder.innerHTML =
+      "<strong>카메라 접근이 필요합니다</strong><span>브라우저 권한을 허용한 뒤 다시 시도해주세요.</span>";
     renderIcons();
     throw error;
   }
 };
 
+const playSpeakerTest = () => {
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextClass) {
+    elements.speakerStatus.textContent = "이 브라우저에서는 스피커 테스트를 지원하지 않습니다.";
+    return;
+  }
+
+  const audioContext = new AudioContextClass();
+  const oscillator = audioContext.createOscillator();
+  const gain = audioContext.createGain();
+  oscillator.type = "sine";
+  oscillator.frequency.value = 660;
+  gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.18, audioContext.currentTime + 0.03);
+  gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.45);
+  oscillator.connect(gain);
+  gain.connect(audioContext.destination);
+  oscillator.start();
+  oscillator.stop(audioContext.currentTime + 0.5);
+  elements.speakerStatus.textContent = "테스트음이 재생되었습니다.";
+  markReady(elements.speakerCheckState, "스피커 완료");
+};
+
 const startRecording = async () => {
+  if (!state.recordingEnabled) return;
   const stream = await ensureCamera();
   if (state.recorder?.state === "recording") return;
 
+  const question = currentQuestion();
   state.recordedChunks = [];
+  state.recordingQuestion = {
+    questionNumber: state.currentIndex + 1,
+    questionIndex: question.originalIndex,
+    question: question.text,
+  };
   state.recorder = new MediaRecorder(stream);
   state.recorder.addEventListener("dataavailable", (event) => {
     if (event.data.size > 0) {
@@ -315,13 +469,15 @@ const startRecording = async () => {
   state.recorder.addEventListener("stop", saveRecording);
   state.recorder.start();
   elements.webcamPanel.classList.add("recording");
-  elements.recordButton.querySelector("span").textContent = "녹화 중지";
 };
 
 const finishRecording = () => {
-  if (state.recorder?.state === "recording") {
+  if (state.recorder?.state !== "recording") return Promise.resolve();
+
+  return new Promise((resolve) => {
+    state.recorder.addEventListener("stop", resolve, { once: true });
     state.recorder.stop();
-  }
+  });
 };
 
 const saveRecording = () => {
@@ -331,14 +487,14 @@ const saveRecording = () => {
   const url = URL.createObjectURL(blob);
   state.recordings.push({
     url,
-    questionNumber: state.currentIndex + 1,
-    questionIndex: currentQuestion().originalIndex,
-    question: currentQuestion().text,
+    questionNumber: state.recordingQuestion?.questionNumber ?? state.currentIndex + 1,
+    questionIndex: state.recordingQuestion?.questionIndex ?? currentQuestion().originalIndex,
+    question: state.recordingQuestion?.question ?? currentQuestion().text,
     createdAt: new Date(),
   });
   state.recordedChunks = [];
+  state.recordingQuestion = null;
   elements.webcamPanel.classList.remove("recording");
-  elements.recordButton.querySelector("span").textContent = "답변 녹화";
 };
 
 const recordingForQuestion = (questionIndex) =>
@@ -346,7 +502,7 @@ const recordingForQuestion = (questionIndex) =>
 
 const renderResultPage = () => {
   elements.summaryQuestions.textContent = state.completedQuestions.length;
-  elements.summaryRecordings.textContent = state.recordings.length;
+  elements.summaryRecordings.textContent = state.recordingEnabled ? state.recordings.length : "미제공";
   elements.summaryRigor.textContent = state.config.rigor;
 
   elements.resultList.innerHTML = state.completedQuestions
@@ -354,7 +510,9 @@ const renderResultPage = () => {
       const recording = recordingForQuestion(question.originalIndex);
       const video = recording
         ? `<video src="${recording.url}" controls></video>`
-        : `<div class="no-recording"><i data-lucide="video-off"></i><span>저장된 녹화 없음</span></div>`;
+        : state.recordingEnabled
+          ? `<div class="no-recording"><i data-lucide="video-off"></i><span>저장된 녹화 없음</span></div>`
+          : `<div class="no-recording"><i data-lucide="video-off"></i><span>비녹화 모드로 진행해 녹화 복기가 제공되지 않습니다.</span></div>`;
 
       return `
         <article class="result-card">
@@ -395,7 +553,9 @@ const bindSetupControls = () => {
     elements.answerValue.textContent = elements.answerTime.value;
   });
 
+  elements.targetRole.addEventListener("change", syncStartAvailability);
   elements.startInterview.addEventListener("click", startInterview);
+  syncStartAvailability();
 };
 
 const bindInterviewControls = () => {
@@ -403,28 +563,42 @@ const bindInterviewControls = () => {
     button.addEventListener("click", requestLeaveInterview);
   });
 
-  elements.cameraButton.addEventListener("click", () => {
+  elements.checkCameraButton.addEventListener("click", () => {
     ensureCamera().catch(() => {});
   });
 
+  elements.speakerTestButton.addEventListener("click", playSpeakerTest);
+  elements.enterInterviewButton.addEventListener("click", enterInterview);
+  elements.recordingModeOn.addEventListener("click", () => setRecordingMode(true));
+  elements.recordingModeOff.addEventListener("click", () => setRecordingMode(false));
+
   elements.skipPrepButton.addEventListener("click", beginAnswer);
 
-  elements.recordButton.addEventListener("click", () => {
-    if (state.recorder?.state === "recording") {
-      finishRecording();
-      return;
-    }
-    startRecording().catch(() => {});
-  });
-
   elements.nextQuestionButton.addEventListener("click", nextQuestion);
-  elements.finishInterviewButton.addEventListener("click", finishInterview);
+  elements.finishInterviewButton.addEventListener("click", showFinishModal);
 
   elements.cancelExitButton.addEventListener("click", hideExitModal);
   elements.confirmExitButton.addEventListener("click", leaveInterview);
+  elements.cancelFinishButton.addEventListener("click", hideFinishModal);
+  elements.confirmFinishButton.addEventListener("click", () => {
+    hideFinishModal();
+    finishInterview();
+  });
   elements.exitModal.addEventListener("click", (event) => {
     if (event.target === elements.exitModal) {
       hideExitModal();
+    }
+  });
+  elements.finishModal.addEventListener("click", (event) => {
+    if (event.target === elements.finishModal) {
+      hideFinishModal();
+    }
+  });
+  elements.helpButton.addEventListener("click", showHelpModal);
+  elements.closeHelpButton.addEventListener("click", hideHelpModal);
+  elements.helpModal.addEventListener("click", (event) => {
+    if (event.target === elements.helpModal) {
+      hideHelpModal();
     }
   });
 
@@ -451,4 +625,5 @@ window.addEventListener("load", () => {
   bindSetupControls();
   bindInterviewControls();
   bindResultControls();
+  setRecordingMode(true);
 });
