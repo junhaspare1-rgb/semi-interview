@@ -71,6 +71,8 @@ const state = {
   recordingQuestion: null,
   recordingEnabled: true,
   micAnimationId: null,
+  feedbackRating: 0,
+  feedbackSubmitting: false,
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -87,8 +89,10 @@ const cacheElements = () => {
     "interviewView",
     "resultView",
     "exitModal",
+    "launchNoticeModal",
     "finishModal",
     "reportModal",
+    "feedbackModal",
     "helpModal",
     "legalModal",
     "helpButton",
@@ -131,6 +135,11 @@ const cacheElements = () => {
     "reportText",
     "cancelReportButton",
     "sendReportButton",
+    "feedbackStars",
+    "feedbackComment",
+    "feedbackStatus",
+    "skipFeedbackButton",
+    "submitFeedbackButton",
     "phaseLabel",
     "timerMode",
     "timerText",
@@ -147,6 +156,7 @@ const cacheElements = () => {
     "summaryRigor",
     "cancelExitButton",
     "confirmExitButton",
+    "confirmLaunchNoticeButton",
     "cancelFinishButton",
     "confirmFinishButton",
   ].forEach((id) => {
@@ -338,6 +348,7 @@ const finishInterview = async () => {
   elements.timerText.textContent = "완료";
   renderResultPage();
   setView("result");
+  window.setTimeout(showFeedbackModal, 350);
 };
 
 const isInterviewOpen = () => elements.interviewView.classList.contains("active");
@@ -350,6 +361,17 @@ const showExitModal = () => {
 const hideExitModal = () => {
   elements.exitModal.classList.remove("open");
   elements.exitModal.setAttribute("aria-hidden", "true");
+};
+
+const showLaunchNoticeModal = () => {
+  if (elements.targetRole.value !== "process") return;
+  elements.launchNoticeModal.classList.add("open");
+  elements.launchNoticeModal.setAttribute("aria-hidden", "false");
+};
+
+const hideLaunchNoticeModal = () => {
+  elements.launchNoticeModal.classList.remove("open");
+  elements.launchNoticeModal.setAttribute("aria-hidden", "true");
 };
 
 const showFinishModal = () => {
@@ -374,6 +396,108 @@ const showReportModal = () => {
 const hideReportModal = () => {
   elements.reportModal.classList.remove("open");
   elements.reportModal.setAttribute("aria-hidden", "true");
+};
+
+const renderFeedbackStars = () => {
+  elements.feedbackStars.querySelectorAll(".feedback-star").forEach((button) => {
+    const rating = Number(button.dataset.rating);
+    const isActive = rating <= state.feedbackRating;
+    button.classList.toggle("active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
+  });
+};
+
+const setFeedbackRating = (rating) => {
+  state.feedbackRating = rating;
+  renderFeedbackStars();
+  elements.feedbackStatus.textContent = "";
+};
+
+const setFeedbackSubmitting = (isSubmitting) => {
+  state.feedbackSubmitting = isSubmitting;
+  elements.submitFeedbackButton.disabled = isSubmitting;
+  elements.skipFeedbackButton.disabled = isSubmitting;
+  elements.feedbackStars.querySelectorAll("button").forEach((button) => {
+    button.disabled = isSubmitting;
+  });
+};
+
+const resetFeedbackForm = () => {
+  state.feedbackRating = 0;
+  state.feedbackSubmitting = false;
+  elements.feedbackComment.value = "";
+  elements.feedbackStatus.textContent = "";
+  elements.submitFeedbackButton.disabled = false;
+  elements.skipFeedbackButton.disabled = false;
+  elements.feedbackStars.querySelectorAll("button").forEach((button) => {
+    button.disabled = false;
+  });
+  renderFeedbackStars();
+};
+
+const showFeedbackModal = () => {
+  resetFeedbackForm();
+  elements.feedbackModal.classList.add("open");
+  elements.feedbackModal.setAttribute("aria-hidden", "false");
+};
+
+const hideFeedbackModal = () => {
+  elements.feedbackModal.classList.remove("open");
+  elements.feedbackModal.setAttribute("aria-hidden", "true");
+};
+
+const buildFeedbackPayload = () => ({
+  rating: state.feedbackRating,
+  comment: elements.feedbackComment.value.trim(),
+  context: {
+    source: "result",
+    role: elements.targetRole.value,
+    rigor: state.config.rigor,
+    questionCount: state.completedQuestions.length,
+    requestedQuestionCount: state.config.questionCount,
+    prepSeconds: state.config.prepSeconds,
+    answerSeconds: state.config.answerSeconds,
+    recordingEnabled: state.recordingEnabled,
+    recordingsCount: state.recordingEnabled ? state.recordings.length : 0,
+    path: window.location.pathname,
+  },
+  client: {
+    userAgent: navigator.userAgent,
+    language: navigator.language,
+    submittedAt: new Date().toISOString(),
+  },
+});
+
+const submitFeedback = async () => {
+  if (state.feedbackSubmitting) return;
+  if (!state.feedbackRating) {
+    elements.feedbackStatus.textContent = "별점을 먼저 선택해주세요.";
+    return;
+  }
+
+  setFeedbackSubmitting(true);
+  elements.feedbackStatus.textContent = "피드백을 보내는 중입니다.";
+
+  try {
+    const response = await fetch("/api/feedback", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(buildFeedbackPayload()),
+    });
+
+    if (!response.ok) {
+      throw new Error("Feedback request failed");
+    }
+
+    elements.feedbackStatus.textContent = "소중한 의견 감사합니다. 더 나은 서비스로 다듬어볼게요.";
+    window.setTimeout(hideFeedbackModal, 900);
+  } catch (error) {
+    elements.feedbackStatus.textContent =
+      "전송에 실패했습니다. 배포 환경의 피드백 API 설정을 확인해주세요.";
+    setFeedbackSubmitting(false);
+  }
 };
 
 const sendQuestionReport = () => {
@@ -667,7 +791,7 @@ const bindSetupControls = () => {
   });
 
   elements.targetRole.addEventListener("change", syncStartAvailability);
-  elements.startInterview.addEventListener("click", startInterview);
+  elements.startInterview.addEventListener("click", showLaunchNoticeModal);
   syncStartAvailability();
 };
 
@@ -692,6 +816,10 @@ const bindInterviewControls = () => {
 
   elements.cancelExitButton.addEventListener("click", hideExitModal);
   elements.confirmExitButton.addEventListener("click", leaveInterview);
+  elements.confirmLaunchNoticeButton.addEventListener("click", () => {
+    hideLaunchNoticeModal();
+    startInterview();
+  });
   elements.cancelFinishButton.addEventListener("click", hideFinishModal);
   elements.confirmFinishButton.addEventListener("click", () => {
     hideFinishModal();
@@ -700,9 +828,21 @@ const bindInterviewControls = () => {
   elements.reportQuestionButton.addEventListener("click", showReportModal);
   elements.cancelReportButton.addEventListener("click", hideReportModal);
   elements.sendReportButton.addEventListener("click", sendQuestionReport);
+  elements.feedbackStars.addEventListener("click", (event) => {
+    const button = event.target.closest(".feedback-star");
+    if (!button || state.feedbackSubmitting) return;
+    setFeedbackRating(Number(button.dataset.rating));
+  });
+  elements.skipFeedbackButton.addEventListener("click", hideFeedbackModal);
+  elements.submitFeedbackButton.addEventListener("click", submitFeedback);
   elements.exitModal.addEventListener("click", (event) => {
     if (event.target === elements.exitModal) {
       hideExitModal();
+    }
+  });
+  elements.launchNoticeModal.addEventListener("click", (event) => {
+    if (event.target === elements.launchNoticeModal) {
+      hideLaunchNoticeModal();
     }
   });
   elements.finishModal.addEventListener("click", (event) => {
@@ -713,6 +853,11 @@ const bindInterviewControls = () => {
   elements.reportModal.addEventListener("click", (event) => {
     if (event.target === elements.reportModal) {
       hideReportModal();
+    }
+  });
+  elements.feedbackModal.addEventListener("click", (event) => {
+    if (event.target === elements.feedbackModal && !state.feedbackSubmitting) {
+      hideFeedbackModal();
     }
   });
   elements.helpButton.addEventListener("click", showHelpModal);

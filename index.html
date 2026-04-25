@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <title>반도체 면접 뿌수기</title>
     <link rel="stylesheet" href="styles.css" />
     <!-- Google tag (gtag.js) -->
@@ -369,6 +370,9 @@
         카메라와 마이크 권한은 사용자가 녹화 모드를 선택하고 브라우저에서 권한을 허용한 경우에만 사용됩니다. 녹화
         파일은 현재 브라우저 세션에서 복기 기능을 제공하기 위해 생성되며, 별도 서버로 전송하지 않습니다.
       </p>
+      <p>
+        사용자가 피드백을 제출하는 경우 별점, 의견, 면접 설정 정보와 기본 접속 환경 정보가 서비스 개선 및 오류 확인을 위해 수집될 수 있습니다.
+      </p>
       <h3>2. 쿠키 및 로컬 저장소</h3>
       <p>
         사이트는 개발자 메시지의 “하루 동안 보지 않기” 설정 등 사용자 편의 기능을 위해 브라우저의 localStorage를
@@ -437,6 +441,19 @@
       </nav>
     </footer>
 
+    <div class="exit-modal" id="launchNoticeModal" aria-hidden="true">
+      <section class="exit-dialog" role="dialog" aria-modal="true" aria-labelledby="launchNoticeTitle">
+        <h2 id="launchNoticeTitle">시험 운영 안내</h2>
+        <p>
+          현재 반도체 면접 뿌수기는 시험 운영 단계입니다. 정식 배포는 2026년 4월 26일(일요일) 예정입니다.
+          확인을 누르면 녹화 환경 체크로 이동합니다.
+        </p>
+        <div class="exit-actions single-action">
+          <button class="black-button" id="confirmLaunchNoticeButton" type="button">확인</button>
+        </div>
+      </section>
+    </div>
+
     <div class="exit-modal" id="exitModal" aria-hidden="true">
       <section class="exit-dialog" role="dialog" aria-modal="true" aria-labelledby="exitTitle">
         <h2 id="exitTitle">면접을 나가시겠습니까?</h2>
@@ -471,6 +488,30 @@
         <div class="exit-actions">
           <button class="outline-button" id="cancelReportButton" type="button">취소</button>
           <button class="black-button" id="sendReportButton" type="button">신고 보내기</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="exit-modal" id="feedbackModal" aria-hidden="true">
+      <section class="exit-dialog feedback-dialog" role="dialog" aria-modal="true" aria-labelledby="feedbackTitle">
+        <p class="module-label">서비스 피드백</p>
+        <h2 id="feedbackTitle">이번 모의면접은 어떠셨나요?</h2>
+        <p>별점과 짧은 의견을 남겨주시면 문제 품질과 사용 흐름을 개선하는 데 참고하겠습니다.</p>
+        <div class="feedback-stars" id="feedbackStars" role="group" aria-label="만족도 별점">
+          <button class="feedback-star" type="button" data-rating="1" aria-label="1점" aria-pressed="false">★</button>
+          <button class="feedback-star" type="button" data-rating="2" aria-label="2점" aria-pressed="false">★</button>
+          <button class="feedback-star" type="button" data-rating="3" aria-label="3점" aria-pressed="false">★</button>
+          <button class="feedback-star" type="button" data-rating="4" aria-label="4점" aria-pressed="false">★</button>
+          <button class="feedback-star" type="button" data-rating="5" aria-label="5점" aria-pressed="false">★</button>
+        </div>
+        <label class="report-field" for="feedbackComment">
+          <span>의견</span>
+          <textarea id="feedbackComment" rows="4" maxlength="1200" placeholder="좋았던 점, 불편했던 점, 추가되면 좋을 기능을 자유롭게 적어주세요."></textarea>
+        </label>
+        <p class="feedback-status" id="feedbackStatus" aria-live="polite"></p>
+        <div class="exit-actions">
+          <button class="outline-button" id="skipFeedbackButton" type="button">나중에</button>
+          <button class="black-button" id="submitFeedbackButton" type="button">피드백 보내기</button>
         </div>
       </section>
     </div>
