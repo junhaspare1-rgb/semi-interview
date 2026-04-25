@@ -10,7 +10,9 @@
   </head>
   <body>
     <header class="top-nav">
-      <button class="brand" type="button" data-view="home">반도체 면접 뿌수기</button>
+      <button class="brand" type="button" data-view="home">
+        <span>반</span>도체 <span>면</span>접 <span>뿌</span>수기
+      </button>
 
       <nav class="main-nav" aria-label="주요 메뉴">
         <button class="active" type="button" data-view="home">모의 면접</button>
@@ -19,12 +21,6 @@
       <div class="utility-nav" aria-label="사용자 메뉴">
         <button id="helpButton" type="button" aria-label="개발자 메시지 열기">
           <i data-lucide="circle-help"></i>
-        </button>
-        <button type="button" aria-label="설정">
-          <i data-lucide="settings"></i>
-        </button>
-        <button class="avatar" type="button" aria-label="프로필">
-          <i data-lucide="hard-hat"></i>
         </button>
       </div>
     </header>
@@ -70,10 +66,10 @@
 
       <section class="home-view app-view active" id="homeView" aria-labelledby="home-title">
         <div class="intro">
-          <div class="module-label">모의 면접 모듈</div>
-          <h1 id="home-title">공정기술 면접을 실전처럼 연습하세요.</h1>
+          <div class="module-label">직무 면접</div>
+          <h1 id="home-title">반도체 직무 면접을 실전처럼 연습하세요.</h1>
           <p class="lead">
-            반도체 양산 현장에서 요구되는 기술 논리와 문제 해결 답변을 질문, 준비, 녹화, 복기 흐름으로 훈련합니다.
+            반도체 현업에서 요구되는 기술 지식과 문제 해결 플로우를 질문, 준비, 녹화, 복기 흐름으로 훈련합니다.
           </p>
 
           <article class="standard-box">
@@ -81,10 +77,10 @@
               <span class="badge-icon">
                 <i data-lucide="badge-check"></i>
               </span>
-              <h2>산업 표준 평가</h2>
+              <h2>현직자 선별 질문 수록</h2>
             </div>
             <p>
-              실제 반도체 Fab, 공정 엔지니어, 양산기술 면접 데이터를 바탕으로 수율, 공정 조건, 불량 분석, 장비 이슈 대응 질문을 생성합니다.
+              실제 반도체 Fab, 공정 엔지니어, 양산기술 면접 데이터를 바탕으로 수율, 공정 조건, 불량 분석, 장비 이슈 대응 질문을 담았습니다.
             </p>
           </article>
         </div>
@@ -225,7 +221,7 @@
               <article class="device-check-item">
                 <div>
                   <h2>녹화 방식 선택</h2>
-                  <p id="recordingModeNotice">녹화 모드는 면접 종료 후 문항별 녹화 복기를 제공합니다.</p>
+                  <p id="recordingModeNotice">녹화 모드는 문항별 복기를 제공합니다. 녹화 파일은 별도 서버로 전송되지 않습니다.</p>
                 </div>
                 <div class="recording-mode-toggle" role="group" aria-label="녹화 방식 선택">
                   <button class="recording-mode-button active" id="recordingModeOn" type="button" data-recording-mode="on">
@@ -274,11 +270,14 @@
               <div class="question-meta">
                 <span id="questionProgress">1 / 5</span>
                 <span id="rigorLabel">입문</span>
+                <button class="report-question-button" id="reportQuestionButton" type="button">
+                  <i data-lucide="flag"></i>
+                  <span>문제 신고</span>
+                </button>
               </div>
               <p class="question-text" id="questionText">
                 1. 포토 공정에서 DOF(Depth Of Focus)를 개선하기 위한 방안을 얘기해주세요.
               </p>
-              <div class="stage-bottom-label">문제 창</div>
             </div>
 
             <aside class="webcam-panel" aria-label="사용자 웹캠 화면">
@@ -351,6 +350,80 @@
       </section>
     </main>
 
+    <template id="privacyTemplate">
+      <h3>1. 수집하는 정보</h3>
+      <p>
+        반도체 면접 뿌수기는 기본적으로 회원가입 없이 사용할 수 있으며, 이름, 연락처, 주민등록번호 등 개인을 직접
+        식별할 수 있는 정보를 요구하지 않습니다.
+      </p>
+      <p>
+        카메라와 마이크 권한은 사용자가 녹화 모드를 선택하고 브라우저에서 권한을 허용한 경우에만 사용됩니다. 녹화
+        파일은 현재 브라우저 세션에서 복기 기능을 제공하기 위해 생성되며, 별도 서버로 전송하지 않습니다.
+      </p>
+      <h3>2. 쿠키 및 로컬 저장소</h3>
+      <p>
+        사이트는 개발자 메시지의 “하루 동안 보지 않기” 설정 등 사용자 편의 기능을 위해 브라우저의 localStorage를
+        사용할 수 있습니다.
+      </p>
+      <h3>3. 광고 및 제3자 서비스</h3>
+      <p>
+        향후 Google AdSense 등 광고 서비스가 적용될 경우, 광고 제공자는 쿠키 또는 유사 기술을 사용하여 광고 측정과
+        맞춤 광고 제공을 수행할 수 있습니다.
+      </p>
+      <h3>4. 문의</h3>
+      <p>개인정보와 관련한 문의는 사이트 내 문제 신고 또는 운영자 이메일을 통해 접수할 수 있습니다.</p>
+    </template>
+
+    <template id="termsTemplate">
+      <h3>1. 서비스 목적</h3>
+      <p>
+        반도체 면접 뿌수기는 반도체 직무 면접 준비를 돕기 위한 모의면접, 질문 연습, 답변 복기 기능을 제공하는 학습
+        보조 서비스입니다.
+      </p>
+      <h3>2. 이용자의 책임</h3>
+      <p>
+        이용자는 서비스를 학습과 연습 목적으로 사용해야 하며, 질문과 답변 내용을 무단 복제, 재배포, 상업적 판매
+        목적으로 사용할 수 없습니다.
+      </p>
+      <h3>3. 녹화 기능</h3>
+      <p>
+        녹화 기능은 사용자의 브라우저 권한 허용 후 동작합니다. 사용자는 녹화 여부를 선택할 수 있으며, 비녹화 모드에서는
+        녹화 복기 기능이 제공되지 않습니다.
+      </p>
+      <h3>4. 서비스 변경</h3>
+      <p>
+        운영자는 서비스 품질 개선, 기능 추가, 정책 변경을 위해 사전 고지 후 또는 불가피한 경우 사후 고지로 서비스
+        내용을 변경할 수 있습니다.
+      </p>
+    </template>
+
+    <template id="disclaimerTemplate">
+      <h3>1. 학습 참고용 안내</h3>
+      <p>
+        반도체 면접 뿌수기의 질문, 모범 답안, 복기 기능은 면접 준비를 돕기 위한 참고 자료입니다. 특정 회사의 실제
+        면접 질문이나 합격을 보장하지 않습니다.
+      </p>
+      <h3>2. 답변 정확성</h3>
+      <p>
+        제공되는 답변은 일반적인 반도체 공정 지식과 면접 답변 구조를 바탕으로 작성되었으며, 기업별 공정, 장비,
+        직무 범위에 따라 다르게 해석될 수 있습니다.
+      </p>
+      <h3>3. 최종 판단 책임</h3>
+      <p>
+        이용자는 본인의 경험, 지원 회사의 직무 설명, 공식 자료를 바탕으로 답변을 보완해야 합니다. 서비스 이용 결과에
+        따른 최종 책임은 이용자 본인에게 있습니다.
+      </p>
+    </template>
+
+    <footer class="site-footer">
+      <span>© 2026 반도체 면접 뿌수기</span>
+      <nav aria-label="정책 문서">
+        <button type="button" data-legal="privacy">개인정보처리방침</button>
+        <button type="button" data-legal="terms">이용약관</button>
+        <button type="button" data-legal="disclaimer">면책 고지</button>
+      </nav>
+    </footer>
+
     <div class="exit-modal" id="exitModal" aria-hidden="true">
       <section class="exit-dialog" role="dialog" aria-modal="true" aria-labelledby="exitTitle">
         <h2 id="exitTitle">면접을 나가시겠습니까?</h2>
@@ -373,6 +446,22 @@
       </section>
     </div>
 
+    <div class="exit-modal" id="reportModal" aria-hidden="true">
+      <section class="exit-dialog report-dialog" role="dialog" aria-modal="true" aria-labelledby="reportTitle">
+        <h2 id="reportTitle">문제 신고</h2>
+        <p>현재 질문의 오류, 어색한 표현, 답변 보완점을 적어주세요. 신고 내용은 메일 작성창으로 전달됩니다.</p>
+        <div class="report-question-preview" id="reportQuestionPreview"></div>
+        <label class="report-field" for="reportText">
+          <span>신고 내용</span>
+          <textarea id="reportText" rows="5" placeholder="예: 질문 표현이 어색합니다. / 답변에 잘못된 개념이 있습니다."></textarea>
+        </label>
+        <div class="exit-actions">
+          <button class="outline-button" id="cancelReportButton" type="button">취소</button>
+          <button class="black-button" id="sendReportButton" type="button">신고 보내기</button>
+        </div>
+      </section>
+    </div>
+
     <div class="exit-modal" id="helpModal" aria-hidden="true">
       <section class="exit-dialog help-dialog" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
         <div class="help-dialog-head">
@@ -385,6 +474,25 @@
           </button>
         </div>
         <div class="help-message" id="helpMessage"></div>
+        <div class="help-actions">
+          <button class="outline-button" id="dismissHelpTodayButton" type="button">하루 동안 보지 않기</button>
+          <button class="black-button" id="closeHelpFooterButton" type="button">닫기</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="exit-modal" id="legalModal" aria-hidden="true">
+      <section class="exit-dialog legal-dialog" role="dialog" aria-modal="true" aria-labelledby="legalTitle">
+        <div class="help-dialog-head">
+          <div>
+            <p class="module-label">정책 문서</p>
+            <h2 id="legalTitle">개인정보처리방침</h2>
+          </div>
+          <button class="icon-close" id="closeLegalButton" type="button" aria-label="정책 문서 닫기">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <div class="legal-content" id="legalContent"></div>
       </section>
     </div>
   </body>

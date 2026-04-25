@@ -76,6 +76,9 @@ const state = {
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => document.querySelectorAll(selector);
 const elements = {};
+const HELP_DISMISS_KEY = "banmyeonppu_help_hidden_until";
+const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+const DEVELOPER_REPORT_EMAIL = "junha.spare1@google.com";
 
 const cacheElements = () => {
   [
@@ -85,11 +88,21 @@ const cacheElements = () => {
     "resultView",
     "exitModal",
     "finishModal",
+    "reportModal",
     "helpModal",
+    "legalModal",
     "helpButton",
     "closeHelpButton",
+    "closeHelpFooterButton",
+    "dismissHelpTodayButton",
     "developerMessageTemplate",
     "helpMessage",
+    "privacyTemplate",
+    "termsTemplate",
+    "disclaimerTemplate",
+    "legalTitle",
+    "legalContent",
+    "closeLegalButton",
     "questionCount",
     "targetRole",
     "prepTime",
@@ -113,6 +126,11 @@ const cacheElements = () => {
     "questionProgress",
     "rigorLabel",
     "questionText",
+    "reportQuestionButton",
+    "reportQuestionPreview",
+    "reportText",
+    "cancelReportButton",
+    "sendReportButton",
     "phaseLabel",
     "timerMode",
     "timerText",
@@ -252,8 +270,8 @@ const setRecordingMode = (enabled) => {
   elements.recordingModeOn.setAttribute("aria-pressed", String(enabled));
   elements.recordingModeOff.setAttribute("aria-pressed", String(!enabled));
   elements.recordingModeNotice.textContent = enabled
-    ? "녹화 모드는 면접 종료 후 문항별 녹화 복기를 제공합니다."
-    : "비녹화 모드는 면접 종료 후 녹화 복기 기능이 제공되지 않습니다.";
+    ? "녹화 모드는 문항별 복기를 제공합니다. 녹화 파일은 별도 서버로 전송되지 않습니다."
+    : "비녹화 모드는 녹화 복기가 제공되지 않으며, 카메라 영상도 별도 서버로 전송되지 않습니다.";
   elements.cameraPlaceholder.innerHTML = enabled
     ? '<i data-lucide="video"></i><strong>사용자 웹캠 화면</strong><span>녹화 모드에서는 답변 시간이 시작되면 자동으로 녹화됩니다.</span>'
     : '<i data-lucide="video-off"></i><strong>비녹화 모드</strong><span>이번 면접은 녹화 저장 없이 진행됩니다.</span>';
@@ -344,6 +362,45 @@ const hideFinishModal = () => {
   elements.finishModal.setAttribute("aria-hidden", "true");
 };
 
+const showReportModal = () => {
+  const question = currentQuestion();
+  elements.reportQuestionPreview.textContent = `${state.currentIndex + 1}. ${question.text}`;
+  elements.reportText.value = "";
+  elements.reportModal.classList.add("open");
+  elements.reportModal.setAttribute("aria-hidden", "false");
+  window.setTimeout(() => elements.reportText.focus(), 0);
+};
+
+const hideReportModal = () => {
+  elements.reportModal.classList.remove("open");
+  elements.reportModal.setAttribute("aria-hidden", "true");
+};
+
+const sendQuestionReport = () => {
+  const question = currentQuestion();
+  const reportText = elements.reportText.value.trim() || "신고 내용 미입력";
+  const subject = `[반면뿌 문제 신고] ${state.currentIndex + 1}번 질문`;
+  const body = [
+    "반면뿌 문제 신고",
+    "",
+    `문항 번호: ${state.currentIndex + 1} / ${activeQuestions().length}`,
+    `난이도: ${state.config.rigor}`,
+    `현재 단계: ${state.phase === "prep" ? "준비" : "답변"}`,
+    "",
+    "질문:",
+    question.text,
+    "",
+    "AI 모범 답안:",
+    question.answer,
+    "",
+    "신고 내용:",
+    reportText,
+  ].join("\n");
+  const mailto = `mailto:${DEVELOPER_REPORT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  window.location.href = mailto;
+  hideReportModal();
+};
+
 const showHelpModal = () => {
   elements.helpMessage.innerHTML = elements.developerMessageTemplate.innerHTML;
   elements.helpModal.classList.add("open");
@@ -354,6 +411,62 @@ const showHelpModal = () => {
 const hideHelpModal = () => {
   elements.helpModal.classList.remove("open");
   elements.helpModal.setAttribute("aria-hidden", "true");
+};
+
+const legalDocuments = {
+  privacy: {
+    title: "개인정보처리방침",
+    template: "privacyTemplate",
+  },
+  terms: {
+    title: "이용약관",
+    template: "termsTemplate",
+  },
+  disclaimer: {
+    title: "면책 고지",
+    template: "disclaimerTemplate",
+  },
+};
+
+const showLegalModal = (type) => {
+  const documentInfo = legalDocuments[type];
+  if (!documentInfo) return;
+
+  elements.legalTitle.textContent = documentInfo.title;
+  elements.legalContent.innerHTML = elements[documentInfo.template].innerHTML;
+  elements.legalModal.classList.add("open");
+  elements.legalModal.setAttribute("aria-hidden", "false");
+  renderIcons();
+};
+
+const hideLegalModal = () => {
+  elements.legalModal.classList.remove("open");
+  elements.legalModal.setAttribute("aria-hidden", "true");
+};
+
+const getHelpHiddenUntil = () => {
+  try {
+    return Number(localStorage.getItem(HELP_DISMISS_KEY)) || 0;
+  } catch (error) {
+    return 0;
+  }
+};
+
+const shouldShowStartupHelp = () => Date.now() >= getHelpHiddenUntil();
+
+const dismissHelpForToday = () => {
+  try {
+    localStorage.setItem(HELP_DISMISS_KEY, String(Date.now() + ONE_DAY_MS));
+  } catch (error) {
+    // localStorage may be unavailable in some privacy modes; closing still works.
+  }
+  hideHelpModal();
+};
+
+const showStartupHelp = () => {
+  if (shouldShowStartupHelp()) {
+    showHelpModal();
+  }
 };
 
 const leaveInterview = async () => {
@@ -584,6 +697,9 @@ const bindInterviewControls = () => {
     hideFinishModal();
     finishInterview();
   });
+  elements.reportQuestionButton.addEventListener("click", showReportModal);
+  elements.cancelReportButton.addEventListener("click", hideReportModal);
+  elements.sendReportButton.addEventListener("click", sendQuestionReport);
   elements.exitModal.addEventListener("click", (event) => {
     if (event.target === elements.exitModal) {
       hideExitModal();
@@ -594,11 +710,27 @@ const bindInterviewControls = () => {
       hideFinishModal();
     }
   });
+  elements.reportModal.addEventListener("click", (event) => {
+    if (event.target === elements.reportModal) {
+      hideReportModal();
+    }
+  });
   elements.helpButton.addEventListener("click", showHelpModal);
   elements.closeHelpButton.addEventListener("click", hideHelpModal);
+  elements.closeHelpFooterButton.addEventListener("click", hideHelpModal);
+  elements.dismissHelpTodayButton.addEventListener("click", dismissHelpForToday);
   elements.helpModal.addEventListener("click", (event) => {
     if (event.target === elements.helpModal) {
       hideHelpModal();
+    }
+  });
+  $$("[data-legal]").forEach((button) => {
+    button.addEventListener("click", () => showLegalModal(button.dataset.legal));
+  });
+  elements.closeLegalButton.addEventListener("click", hideLegalModal);
+  elements.legalModal.addEventListener("click", (event) => {
+    if (event.target === elements.legalModal) {
+      hideLegalModal();
     }
   });
 
@@ -626,4 +758,5 @@ window.addEventListener("load", () => {
   bindInterviewControls();
   bindResultControls();
   setRecordingMode(true);
+  showStartupHelp();
 });
