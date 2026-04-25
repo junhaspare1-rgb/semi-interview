@@ -58,6 +58,8 @@ const state = {
     answerSeconds: 180,
     rigor: "입문",
   },
+  sessionQuestions: [],
+  completedQuestions: [],
   currentIndex: 0,
   phase: "prep",
   remaining: 60,
@@ -70,13 +72,13 @@ const state = {
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => document.querySelectorAll(selector);
-
 const elements = {};
 
 const cacheElements = () => {
   [
     "homeView",
     "interviewView",
+    "resultView",
     "exitModal",
     "questionCount",
     "prepTime",
@@ -96,10 +98,12 @@ const cacheElements = () => {
     "recordButton",
     "nextQuestionButton",
     "finishInterviewButton",
-    "showAnswerButton",
-    "modelAnswer",
-    "reviewList",
+    "resultHomeButton",
     "restartInterviewButton",
+    "resultList",
+    "summaryQuestions",
+    "summaryRecordings",
+    "summaryRigor",
     "cancelExitButton",
     "confirmExitButton",
   ].forEach((id) => {
@@ -115,18 +119,25 @@ const renderIcons = () => {
 };
 
 const formatTime = (seconds) => {
-  const mins = String(Math.floor(seconds / 60)).padStart(2, "0");
-  const secs = String(seconds % 60).padStart(2, "0");
+  const safeSeconds = Math.max(0, seconds);
+  const mins = String(Math.floor(safeSeconds / 60)).padStart(2, "0");
+  const secs = String(safeSeconds % 60).padStart(2, "0");
   return `${mins}:${secs}`;
 };
 
-const activeQuestions = () => questions.slice(0, state.config.questionCount);
+const buildQuestionSet = (count) =>
+  questions.slice(0, count).map((question, index) => ({
+    ...question,
+    originalIndex: index,
+  }));
 
+const activeQuestions = () => state.sessionQuestions;
 const currentQuestion = () => activeQuestions()[state.currentIndex] || activeQuestions()[0];
 
 const setView = (view) => {
   elements.homeView.classList.toggle("active", view === "home");
   elements.interviewView.classList.toggle("active", view === "interview");
+  elements.resultView.classList.toggle("active", view === "result");
   window.scrollTo({ top: 0, behavior: "instant" });
 };
 
@@ -139,7 +150,6 @@ const stopTimer = () => {
 
 const renderTimer = () => {
   const phaseText = state.phase === "prep" ? "준비" : "답변";
-
   elements.timerText.textContent = formatTime(state.remaining);
   elements.timerMode.textContent = phaseText;
   elements.phaseLabel.textContent = `${phaseText} 시간`;
@@ -168,8 +178,6 @@ const renderQuestion = () => {
   elements.questionProgress.textContent = `${state.currentIndex + 1} / ${total}`;
   elements.rigorLabel.textContent = state.config.rigor;
   elements.questionText.textContent = `${state.currentIndex + 1}. ${question.text}`;
-  elements.modelAnswer.textContent =
-    "면접 중에는 현재 질문에 대한 핵심 키워드를 숨겨둡니다. 답변 후 모범 답안을 열어 비교해보세요.";
 };
 
 const beginPrep = () => {
@@ -180,7 +188,7 @@ const beginPrep = () => {
   startTimer();
 };
 
-const beginAnswer = async () => {
+const beginAnswer = () => {
   state.phase = "answer";
   state.remaining = state.config.answerSeconds;
   elements.skipPrepButton.disabled = true;
@@ -195,11 +203,26 @@ const readConfig = () => {
   state.config.rigor = selectedRigor?.dataset.rigor || "입문";
 };
 
-const startInterview = () => {
-  readConfig();
+const resetForInterview = (sessionQuestions) => {
+  state.sessionQuestions = sessionQuestions;
+  state.completedQuestions = [...sessionQuestions];
   state.currentIndex = 0;
   state.recordings = [];
-  renderReviewList();
+  state.recordedChunks = [];
+};
+
+const startInterview = () => {
+  readConfig();
+  resetForInterview(buildQuestionSet(state.config.questionCount));
+  setView("interview");
+  beginPrep();
+};
+
+const startSingleQuestionPractice = (originalIndex) => {
+  const question = questions[originalIndex];
+  if (!question) return;
+  resetForInterview([{ ...question, originalIndex }]);
+  state.config.questionCount = 1;
   setView("interview");
   beginPrep();
 };
@@ -230,8 +253,8 @@ const finishInterview = () => {
   elements.phaseLabel.textContent = "면접 종료";
   elements.timerMode.textContent = "종료";
   elements.timerText.textContent = "완료";
-  elements.modelAnswer.textContent =
-    "면접이 종료되었습니다. 아래 녹화 복기에서 답변을 다시 확인하고, 현재 질문 답안 보기 버튼으로 모범 답안을 비교해보세요.";
+  renderResultPage();
+  setView("result");
 };
 
 const isInterviewOpen = () => elements.interviewView.classList.contains("active");
@@ -309,34 +332,55 @@ const saveRecording = () => {
   state.recordings.push({
     url,
     questionNumber: state.currentIndex + 1,
+    questionIndex: currentQuestion().originalIndex,
     question: currentQuestion().text,
     createdAt: new Date(),
   });
   state.recordedChunks = [];
   elements.webcamPanel.classList.remove("recording");
   elements.recordButton.querySelector("span").textContent = "답변 녹화";
-  renderReviewList();
 };
 
-const renderReviewList = () => {
-  if (!state.recordings.length) {
-    elements.reviewList.innerHTML = '<p class="empty-review">아직 저장된 답변 녹화가 없습니다.</p>';
-    return;
-  }
+const recordingForQuestion = (questionIndex) =>
+  state.recordings.find((recording) => recording.questionIndex === questionIndex);
 
-  elements.reviewList.innerHTML = state.recordings
-    .map(
-      (item, index) => `
-        <div class="review-item">
-          <video src="${item.url}" controls></video>
-          <div>
-            <strong>${item.questionNumber}번 질문 답변</strong>
-            <span>${item.question}</span>
+const renderResultPage = () => {
+  elements.summaryQuestions.textContent = state.completedQuestions.length;
+  elements.summaryRecordings.textContent = state.recordings.length;
+  elements.summaryRigor.textContent = state.config.rigor;
+
+  elements.resultList.innerHTML = state.completedQuestions
+    .map((question, index) => {
+      const recording = recordingForQuestion(question.originalIndex);
+      const video = recording
+        ? `<video src="${recording.url}" controls></video>`
+        : `<div class="no-recording"><i data-lucide="video-off"></i><span>저장된 녹화 없음</span></div>`;
+
+      return `
+        <article class="result-card">
+          <div class="result-card-head">
+            <span>${index + 1}번 문항</span>
+            <button class="small-button retry-question" type="button" data-question-index="${question.originalIndex}">
+              이 문항 다시 연습
+            </button>
           </div>
-        </div>
-      `
-    )
+          <h2>${question.text}</h2>
+          <div class="result-card-body">
+            <section>
+              <h3>녹화 복기</h3>
+              ${video}
+            </section>
+            <section>
+              <h3>AI 모범 답안</h3>
+              <p>${question.answer}</p>
+            </section>
+          </div>
+        </article>
+      `;
+    })
     .join("");
+
+  renderIcons();
 };
 
 const bindSetupControls = () => {
@@ -356,9 +400,7 @@ const bindSetupControls = () => {
 
 const bindInterviewControls = () => {
   $$("[data-view='home']").forEach((button) => {
-    button.addEventListener("click", () => {
-      requestLeaveInterview();
-    });
+    button.addEventListener("click", requestLeaveInterview);
   });
 
   elements.cameraButton.addEventListener("click", () => {
@@ -377,10 +419,6 @@ const bindInterviewControls = () => {
 
   elements.nextQuestionButton.addEventListener("click", nextQuestion);
   elements.finishInterviewButton.addEventListener("click", finishInterview);
-  elements.restartInterviewButton.addEventListener("click", startInterview);
-  elements.showAnswerButton.addEventListener("click", () => {
-    elements.modelAnswer.textContent = currentQuestion().answer;
-  });
 
   elements.cancelExitButton.addEventListener("click", hideExitModal);
   elements.confirmExitButton.addEventListener("click", leaveInterview);
@@ -397,9 +435,20 @@ const bindInterviewControls = () => {
   });
 };
 
+const bindResultControls = () => {
+  elements.resultHomeButton.addEventListener("click", () => setView("home"));
+  elements.restartInterviewButton.addEventListener("click", startInterview);
+  elements.resultList.addEventListener("click", (event) => {
+    const button = event.target.closest(".retry-question");
+    if (!button) return;
+    startSingleQuestionPractice(Number(button.dataset.questionIndex));
+  });
+};
+
 window.addEventListener("load", () => {
   cacheElements();
   renderIcons();
   bindSetupControls();
   bindInterviewControls();
+  bindResultControls();
 });

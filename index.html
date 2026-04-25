@@ -38,8 +38,7 @@
           <div class="module-label">모의 면접 모듈</div>
           <h1 id="home-title">공정기술 면접을 실전처럼 연습하세요.</h1>
           <p class="lead">
-            반도체 양산 현장에서 요구되는 기술 논리와 문제 해결 답변을
-            질문, 준비, 녹화, 복기 흐름으로 훈련합니다.
+            반도체 양산 현장에서 요구되는 기술 논리와 문제 해결 답변을 질문, 준비, 녹화, 복기 흐름으로 훈련합니다.
           </p>
 
           <article class="standard-box">
@@ -50,8 +49,7 @@
               <h2>산업 표준 평가</h2>
             </div>
             <p>
-              실제 반도체 Fab, 공정 엔지니어, 양산기술 면접 데이터를 바탕으로
-              수율, 공정 조건, 불량 분석, 장비 이슈 대응 질문을 생성합니다.
+              실제 반도체 Fab, 공정 엔지니어, 양산기술 면접 데이터를 바탕으로 수율, 공정 조건, 불량 분석, 장비 이슈 대응 질문을 생성합니다.
             </p>
           </article>
         </div>
@@ -131,7 +129,7 @@
       </section>
 
       <section class="interview-view app-view" id="interviewView" aria-label="모의 면접 화면">
-        <div class="interview-shell">
+        <div class="interview-shell compact">
           <header class="timer-bar">
             <button class="ghost-button" type="button" data-view="home">
               <i data-lucide="arrow-left"></i>
@@ -191,28 +189,45 @@
               </button>
             </div>
           </section>
+        </div>
+      </section>
 
-          <section class="feedback-panel" aria-label="복기 및 모범 답안">
+      <section class="result-view app-view" id="resultView" aria-labelledby="resultTitle">
+        <div class="result-shell">
+          <header class="result-hero">
+            <div>
+              <p class="module-label">면접 결과</p>
+              <h1 id="resultTitle">답변 복기와 AI 모범 답안을 확인하세요.</h1>
+              <p>문항별 녹화와 모범 답안을 비교하고, 부족한 문항만 바로 다시 연습할 수 있습니다.</p>
+            </div>
+            <div class="result-actions">
+              <button class="outline-button" id="resultHomeButton" type="button">
+                <i data-lucide="settings"></i>
+                <span>설정으로</span>
+              </button>
+              <button class="black-button" id="restartInterviewButton" type="button">
+                <i data-lucide="repeat-2"></i>
+                <span>전체 재연습</span>
+              </button>
+            </div>
+          </header>
+
+          <section class="result-summary" aria-label="면접 요약">
             <article>
-              <div class="panel-title-row">
-                <h2>AI 모범 답안</h2>
-                <button class="small-button" id="showAnswerButton" type="button">현재 질문 답안 보기</button>
-              </div>
-              <p id="modelAnswer">
-                면접 중에는 현재 질문에 대한 핵심 키워드를 숨겨둡니다. 답변 후 모범 답안을 열어 비교해보세요.
-              </p>
+              <span>완료 문항</span>
+              <strong id="summaryQuestions">5</strong>
             </article>
-
             <article>
-              <div class="panel-title-row">
-                <h2>녹화 복기</h2>
-                <button class="small-button" id="restartInterviewButton" type="button">재연습</button>
-              </div>
-              <div class="review-list" id="reviewList">
-                <p class="empty-review">아직 저장된 답변 녹화가 없습니다.</p>
-              </div>
+              <span>녹화 답변</span>
+              <strong id="summaryRecordings">0</strong>
+            </article>
+            <article>
+              <span>난이도</span>
+              <strong id="summaryRigor">입문</strong>
             </article>
           </section>
+
+          <section class="result-list" id="resultList" aria-label="문항별 결과"></section>
         </div>
       </section>
     </main>
@@ -220,7 +235,7 @@
     <div class="exit-modal" id="exitModal" aria-hidden="true">
       <section class="exit-dialog" role="dialog" aria-modal="true" aria-labelledby="exitTitle">
         <h2 id="exitTitle">면접을 나가시겠습니까?</h2>
-        <p>진행 중인 타이머와 녹화가 중단됩니다. 저장된 복기 영상은 현재 화면 안에서만 유지됩니다.</p>
+        <p>진행 중인 타이머와 녹화가 중단됩니다. 저장된 복기 영상은 현재 브라우저 세션 안에서만 유지됩니다.</p>
         <div class="exit-actions">
           <button class="outline-button" id="cancelExitButton" type="button">계속 면접 보기</button>
           <button class="black-button" id="confirmExitButton" type="button">나가기</button>
