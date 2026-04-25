@@ -79,8 +79,9 @@ const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => document.querySelectorAll(selector);
 const elements = {};
 const HELP_DISMISS_KEY = "banmyeonppu_help_hidden_until";
+const FEEDBACK_QUEUE_KEY = "banmyeonppu_feedback_queue";
+const REPORT_QUEUE_KEY = "banmyeonppu_report_queue";
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
-const DEVELOPER_REPORT_EMAIL = "junha.spare1@google.com";
 
 const cacheElements = () => {
   [
@@ -388,6 +389,7 @@ const showReportModal = () => {
   const question = currentQuestion();
   elements.reportQuestionPreview.textContent = `${state.currentIndex + 1}. ${question.text}`;
   elements.reportText.value = "";
+  elements.sendReportButton.disabled = false;
   elements.reportModal.classList.add("open");
   elements.reportModal.setAttribute("aria-hidden", "false");
   window.setTimeout(() => elements.reportText.focus(), 0);
@@ -468,6 +470,110 @@ const buildFeedbackPayload = () => ({
   },
 });
 
+const readFeedbackQueue = () => {
+  try {
+    return JSON.parse(localStorage.getItem(FEEDBACK_QUEUE_KEY) || "[]");
+  } catch (error) {
+    return [];
+  }
+};
+
+const writeFeedbackQueue = (queue) => {
+  try {
+    localStorage.setItem(FEEDBACK_QUEUE_KEY, JSON.stringify(queue.slice(-20)));
+  } catch (error) {
+    // 저장 공간이 부족한 경우 피드백 입력 흐름을 막지 않습니다.
+  }
+};
+
+const queueFeedbackPayload = (payload) => {
+  writeFeedbackQueue([...readFeedbackQueue(), payload]);
+};
+
+const postFeedbackPayload = async (payload) => {
+  const response = await fetch("/api/feedback", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw new Error("Feedback request failed");
+  }
+
+  return response;
+};
+
+const flushQueuedFeedback = async () => {
+  const queue = readFeedbackQueue();
+  if (!queue.length) return;
+
+  const remaining = [];
+  for (const payload of queue) {
+    try {
+      await postFeedbackPayload(payload);
+    } catch (error) {
+      remaining.push(payload);
+    }
+  }
+
+  writeFeedbackQueue(remaining);
+};
+
+const readReportQueue = () => {
+  try {
+    return JSON.parse(localStorage.getItem(REPORT_QUEUE_KEY) || "[]");
+  } catch (error) {
+    return [];
+  }
+};
+
+const writeReportQueue = (queue) => {
+  try {
+    localStorage.setItem(REPORT_QUEUE_KEY, JSON.stringify(queue.slice(-20)));
+  } catch (error) {
+    // 저장 공간이 부족한 경우 신고 입력 흐름을 막지 않습니다.
+  }
+};
+
+const queueReportPayload = (payload) => {
+  writeReportQueue([...readReportQueue(), payload]);
+};
+
+const postReportPayload = async (payload) => {
+  const response = await fetch("/api/report", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw new Error("Report request failed");
+  }
+
+  return response;
+};
+
+const flushQueuedReports = async () => {
+  const queue = readReportQueue();
+  if (!queue.length) return;
+
+  const remaining = [];
+  for (const payload of queue) {
+    try {
+      await postReportPayload(payload);
+    } catch (error) {
+      remaining.push(payload);
+    }
+  }
+
+  writeReportQueue(remaining);
+};
+
 const submitFeedback = async () => {
   if (state.feedbackSubmitting) return;
   if (!state.feedbackRating) {
@@ -477,52 +583,66 @@ const submitFeedback = async () => {
 
   setFeedbackSubmitting(true);
   elements.feedbackStatus.textContent = "피드백을 보내는 중입니다.";
+  const payload = buildFeedbackPayload();
 
   try {
-    const response = await fetch("/api/feedback", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(buildFeedbackPayload()),
-    });
-
-    if (!response.ok) {
-      throw new Error("Feedback request failed");
-    }
-
+    await postFeedbackPayload(payload);
+    flushQueuedFeedback().catch(() => {});
     elements.feedbackStatus.textContent = "소중한 의견 감사합니다. 더 나은 서비스로 다듬어볼게요.";
     window.setTimeout(hideFeedbackModal, 900);
   } catch (error) {
+    queueFeedbackPayload(payload);
     elements.feedbackStatus.textContent =
-      "전송에 실패했습니다. 배포 환경의 피드백 API 설정을 확인해주세요.";
-    setFeedbackSubmitting(false);
+      "서버 저장소 연결이 불안정해 이 브라우저에 임시 저장했습니다. 연결이 복구되면 자동으로 다시 전송됩니다.";
+    window.setTimeout(() => {
+      hideFeedbackModal();
+      setFeedbackSubmitting(false);
+    }, 1300);
   }
 };
 
-const sendQuestionReport = () => {
+const sendQuestionReport = async () => {
   const question = currentQuestion();
   const reportText = elements.reportText.value.trim() || "신고 내용 미입력";
-  const subject = `[반면뿌 문제 신고] ${state.currentIndex + 1}번 질문`;
-  const body = [
-    "반면뿌 문제 신고",
-    "",
-    `문항 번호: ${state.currentIndex + 1} / ${activeQuestions().length}`,
-    `난이도: ${state.config.rigor}`,
-    `현재 단계: ${state.phase === "prep" ? "준비" : "답변"}`,
-    "",
-    "질문:",
-    question.text,
-    "",
-    "AI 모범 답안:",
-    question.answer,
-    "",
-    "신고 내용:",
+  const payload = {
     reportText,
-  ].join("\n");
-  const mailto = `mailto:${DEVELOPER_REPORT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  window.location.href = mailto;
-  hideReportModal();
+    question: {
+      number: state.currentIndex + 1,
+      total: activeQuestions().length,
+      text: question.text,
+      answer: question.answer,
+      originalIndex: question.originalIndex,
+    },
+    context: {
+      rigor: state.config.rigor,
+      phase: state.phase,
+      role: elements.targetRole.value,
+      path: window.location.pathname,
+    },
+    client: {
+      userAgent: navigator.userAgent,
+      language: navigator.language,
+      submittedAt: new Date().toISOString(),
+    },
+  };
+
+  elements.sendReportButton.disabled = true;
+
+  try {
+    await postReportPayload(payload);
+    flushQueuedReports().catch(() => {});
+    elements.reportQuestionPreview.textContent = "신고가 접수되었습니다.";
+    window.setTimeout(hideReportModal, 700);
+  } catch (error) {
+    queueReportPayload(payload);
+    elements.reportQuestionPreview.textContent =
+      "서버 저장소 연결이 불안정해 이 브라우저에 임시 저장했습니다. 연결이 복구되면 자동으로 다시 전송됩니다.";
+    window.setTimeout(hideReportModal, 1300);
+  } finally {
+    window.setTimeout(() => {
+      elements.sendReportButton.disabled = false;
+    }, 1300);
+  }
 };
 
 const showHelpModal = () => {
@@ -903,5 +1023,7 @@ window.addEventListener("load", () => {
   bindInterviewControls();
   bindResultControls();
   setRecordingMode(true);
+  flushQueuedFeedback().catch(() => {});
+  flushQueuedReports().catch(() => {});
   showStartupHelp();
 });

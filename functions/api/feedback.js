@@ -1,4 +1,3 @@
-const DEVELOPER_EMAIL = "junha.spare1@google.com";
 const MAX_COMMENT_LENGTH = 1200;
 
 const json = (body, status = 200) =>
@@ -86,42 +85,6 @@ const storeInD1 = async (env, record) => {
   return true;
 };
 
-const sendEmail = async (env, record) => {
-  if (!env.RESEND_API_KEY || !env.FEEDBACK_FROM_EMAIL) {
-    return false;
-  }
-
-  const to = env.FEEDBACK_TO_EMAIL || DEVELOPER_EMAIL;
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${env.RESEND_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: env.FEEDBACK_FROM_EMAIL,
-      to,
-      subject: `[반도체 면접 뿌수기] ${record.rating}점 피드백`,
-      text: [
-        `별점: ${record.rating} / 5`,
-        `작성 시각: ${record.createdAt}`,
-        "",
-        "의견:",
-        record.comment || "(의견 없음)",
-        "",
-        "세션 정보:",
-        JSON.stringify(record.context, null, 2),
-      ].join("\n"),
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error(`Email delivery failed: ${await response.text()}`);
-  }
-
-  return true;
-};
-
 export const onRequestOptions = () => json({ ok: true });
 
 export const onRequestPost = async ({ request, env }) => {
@@ -141,7 +104,6 @@ export const onRequestPost = async ({ request, env }) => {
   const errors = [];
   let storedInKv = false;
   let storedInD1 = false;
-  let emailed = false;
 
   try {
     storedInKv = await storeInKv(env, record);
@@ -155,17 +117,11 @@ export const onRequestPost = async ({ request, env }) => {
     errors.push(`D1: ${error.message}`);
   }
 
-  try {
-    emailed = await sendEmail(env, record);
-  } catch (error) {
-    errors.push(`Email: ${error.message}`);
-  }
-
-  if (!storedInKv && !storedInD1 && !emailed) {
+  if (!storedInKv && !storedInD1) {
     return json(
       {
         ok: false,
-        message: "피드백 저장소 또는 이메일 전송 설정이 필요합니다.",
+        message: "피드백 저장소 설정이 필요합니다.",
         errors,
       },
       errors.length ? 502 : 503,
@@ -177,7 +133,6 @@ export const onRequestPost = async ({ request, env }) => {
     id: record.id,
     storedInKv,
     storedInD1,
-    emailed,
   });
 };
 
