@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <title>반도체 면접 뿌수기</title>
-    <link rel="stylesheet" href="styles.css?v=20260426-4" />
+    <link rel="stylesheet" href="styles.css?v=20260426-5" />
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-V8PWYYDSJC"></script>
     <script>
@@ -25,7 +25,7 @@
     </script>
     <script src="data/process-questions.js?v=20260426-3" defer></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
-    <script src="app.js?v=20260426-3" defer></script>
+    <script src="app.js?v=20260426-5" defer></script>
   </head>
   <body>
     <header class="top-nav">
@@ -34,6 +34,7 @@
       </button>
 
       <nav class="main-nav" aria-label="주요 메뉴">
+        <button type="button" data-view="about">About</button>
         <button class="active" type="button" data-view="home">모의 면접</button>
       </nav>
 
@@ -46,6 +47,10 @@
 
     <main>
       <template id="developerMessageTemplate">
+        <div class="pc-notice">
+          <strong>#반면뿌는 PC 환경에 최적화되어 있습니다.</strong>
+          <p>모바일에서도 접속은 가능하지만, 카메라/녹화/복기 기능은 PC 크롬 환경에서 가장 안정적으로 사용할 수 있습니다.</p>
+        </div>
         <p>안녕하세요. 반면뿌(반도체 면접 뿌수기)를 만든 개발자입니다.</p>
         <p>이렇게 만나 뵙게 되어 반갑습니다:)</p>
         <p>
@@ -175,6 +180,48 @@
             </button>
           </form>
         </section>
+      </section>
+
+      <section class="about-view app-view" id="aboutView" aria-labelledby="about-title">
+        <div class="about-shell">
+          <p class="module-label">About</p>
+          <h1 id="about-title">반면뿌는 반도체 직무 면접을 실전처럼 연습하기 위한 서비스입니다.</h1>
+          <p class="about-lead">
+            반도체 공정기술 면접에서 필요한 지식, 사고 흐름, 말하기 연습을 한 번의 모의면접 안에서 이어갈 수 있도록 만들었습니다.
+          </p>
+
+          <div class="about-card-grid">
+            <article>
+              <span class="badge-icon">
+                <i data-lucide="monitor-play"></i>
+              </span>
+              <h2>무엇인가요?</h2>
+              <p>
+                반도체 회사의 직무 면접 질문을 기반으로 준비 시간, 답변 시간, 녹화, 결과 복기까지 한 흐름으로 연습하는 직무 면접 훈련 도구입니다.
+              </p>
+            </article>
+
+            <article>
+              <span class="badge-icon">
+                <i data-lucide="sparkles"></i>
+              </span>
+              <h2>왜 만들었나요?</h2>
+              <p>
+                이론을 알고 있어도 면접장에서는 말로 풀어내기 쉽지 않습니다. 실제처럼 질문을 받고, 제한 시간 안에 답변하는 연습을 돕기 위해 만들었습니다.
+              </p>
+            </article>
+
+            <article>
+              <span class="badge-icon">
+                <i data-lucide="repeat-2"></i>
+              </span>
+              <h2>어떻게 활용하면 좋나요?</h2>
+              <p>
+                입문/실전/심화 난이도로 반복 연습하고, 답변 후 모범 답안과 키워드를 비교해보세요. 녹화 복기로 말의 구조와 전달력도 함께 점검할 수 있습니다.
+              </p>
+            </article>
+          </div>
+        </div>
       </section>
 
       <section class="device-check-view app-view" id="checkView" aria-label="녹화 환경 체크">
@@ -381,6 +428,7 @@
       </p>
       <p>
         사용자가 피드백을 제출하는 경우 별점, 의견, 면접 설정 정보와 기본 접속 환경 정보가 서비스 개선 및 오류 확인을 위해 수집될 수 있습니다.
+        정식 릴리즈 안내 및 모의면접 응시권 지급을 신청하는 경우 이메일 주소와 관련 동의 여부가 함께 수집될 수 있습니다.
       </p>
       <h3>2. 쿠키 및 로컬 저장소</h3>
       <p>
@@ -507,6 +555,17 @@
         <label class="report-field" for="feedbackComment">
           <span>의견</span>
           <textarea id="feedbackComment" rows="4" maxlength="1200" placeholder="좋았던 점, 불편했던 점, 추가되면 좋을 기능을 자유롭게 적어주세요."></textarea>
+        </label>
+        <label class="report-field" for="feedbackEmail">
+          <span>이메일</span>
+          <input id="feedbackEmail" type="email" maxlength="254" placeholder="정식 릴리즈 응시권 안내를 받을 이메일을 입력해주세요." />
+        </label>
+        <p class="feedback-benefit">
+          이메일과 피드백을 함께 남겨주시면, 정식 릴리즈 시 모의면접 응시권 5장을 제공해드릴 예정입니다.
+        </p>
+        <label class="feedback-consent">
+          <input id="feedbackConsent" type="checkbox" />
+          <span>정식 릴리즈 안내 및 응시권 지급을 위해 이메일을 함께 저장하는 데 동의합니다.</span>
         </label>
         <p class="feedback-status" id="feedbackStatus" aria-live="polite"></p>
         <div class="exit-actions">
