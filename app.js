@@ -1,4 +1,4 @@
-const questions = [
+const legacyQuestions = [
   {
     text: "포토 공정에서 DOF(Depth Of Focus)를 개선하기 위한 방안을 얘기해주세요.",
     answer:
@@ -51,6 +51,39 @@ const questions = [
   },
 ];
 
+const MAIN_PROCESS_CATEGORIES = new Set(["포토(Lithography)", "식각(Etch)", "증착(Deposition)"]);
+const DIFFICULTY_ALIASES = {
+  실무: "실전",
+};
+const normalizeDifficulty = (difficulty) => DIFFICULTY_ALIASES[difficulty] || difficulty;
+const sourceQuestions = Array.isArray(window.BANMYEONPPU_PROCESS_QUESTIONS)
+  ? window.BANMYEONPPU_PROCESS_QUESTIONS
+  : [];
+const questionBank = sourceQuestions
+  .map((question, index) => ({
+    id: question.id ?? index + 1,
+    jobRole: question.jobRole || "공정기술",
+    category: question.category || "기타",
+    group: question.group || (MAIN_PROCESS_CATEGORIES.has(question.category) ? "main" : "other"),
+    difficulty: normalizeDifficulty(question.difficulty || "입문"),
+    text: question.question || question.text || "",
+    answer: question.answer || "",
+    keywords: Array.isArray(question.keywords) ? question.keywords : [],
+    active: question.active !== false,
+  }))
+  .filter((question) => question.active && question.difficulty !== "지엽" && question.text)
+  .map((question, index) => ({ ...question, originalIndex: index }));
+const questions = questionBank.length
+  ? questionBank
+  : legacyQuestions.map((question, index) => ({
+      ...question,
+      id: index + 1,
+      category: "기타",
+      group: "main",
+      difficulty: "실전",
+      originalIndex: index,
+    }));
+
 const state = {
   config: {
     questionCount: 5,
@@ -90,7 +123,6 @@ const cacheElements = () => {
     "interviewView",
     "resultView",
     "exitModal",
-    "launchNoticeModal",
     "finishModal",
     "reportModal",
     "feedbackModal",
@@ -157,7 +189,6 @@ const cacheElements = () => {
     "summaryRigor",
     "cancelExitButton",
     "confirmExitButton",
-    "confirmLaunchNoticeButton",
     "cancelFinishButton",
     "confirmFinishButton",
   ].forEach((id) => {
@@ -180,11 +211,58 @@ const formatTime = (seconds) => {
   return `${mins}:${secs}`;
 };
 
-const buildQuestionSet = (count) =>
-  questions.slice(0, count).map((question, index) => ({
-    ...question,
-    originalIndex: index,
-  }));
+const getSelectedRigor = () => $(".rigor-card.active")?.dataset.rigor || "입문";
+
+const shuffleQuestions = (items) => {
+  const shuffled = [...items];
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+    [shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]];
+  }
+  return shuffled;
+};
+
+const questionsForDifficulty = (difficulty) =>
+  questions.filter((question) => question.difficulty === difficulty && question.difficulty !== "지엽");
+
+const mainQuestionTarget = (count, mainAvailable, otherAvailable) => {
+  let target = Math.round(count * 0.65);
+
+  if (count >= 3) {
+    const minMain = Math.ceil(count * 0.6);
+    const maxMain = Math.max(minMain, Math.floor(count * 0.7));
+    target = Math.min(maxMain, Math.max(minMain, target));
+  }
+
+  target = Math.min(target, mainAvailable);
+
+  if (otherAvailable < count - target) {
+    target = Math.min(mainAvailable, count - otherAvailable);
+  }
+
+  return Math.max(0, target);
+};
+
+const buildQuestionSet = (count) => {
+  const difficulty = state.config.rigor;
+  const pool = questionsForDifficulty(difficulty);
+  const targetCount = Math.min(count, pool.length);
+  const mainPool = shuffleQuestions(pool.filter((question) => question.group === "main"));
+  const otherPool = shuffleQuestions(pool.filter((question) => question.group !== "main"));
+  const mainCount = mainQuestionTarget(targetCount, mainPool.length, otherPool.length);
+  const selected = [
+    ...mainPool.slice(0, mainCount),
+    ...otherPool.slice(0, targetCount - mainCount),
+  ];
+
+  if (selected.length < targetCount) {
+    const selectedIds = new Set(selected.map((question) => question.id));
+    const fillPool = shuffleQuestions(pool.filter((question) => !selectedIds.has(question.id)));
+    selected.push(...fillPool.slice(0, targetCount - selected.length));
+  }
+
+  return shuffleQuestions(selected).slice(0, targetCount).map((question) => ({ ...question }));
+};
 
 const activeQuestions = () => state.sessionQuestions;
 const currentQuestion = () => activeQuestions()[state.currentIndex] || activeQuestions()[0];
@@ -259,19 +337,29 @@ const beginAnswer = () => {
 };
 
 const readConfig = () => {
-  const selectedRigor = $(".rigor-card.active");
-  state.config.questionCount = Math.max(1, Math.min(Number(elements.questionCount.value) || 5, questions.length));
+  const selectedRigor = getSelectedRigor();
+  const availableQuestionCount = questionsForDifficulty(selectedRigor).length;
+  state.config.questionCount = Math.max(
+    1,
+    Math.min(Number(elements.questionCount.value) || 5, availableQuestionCount || questions.length),
+  );
   state.config.prepSeconds = Math.max(0, Number(elements.prepTime.value));
   state.config.answerSeconds = (Number(elements.answerTime.value) || 3) * 60;
-  state.config.rigor = selectedRigor?.dataset.rigor || "입문";
+  state.config.rigor = selectedRigor;
 };
 
 const syncStartAvailability = () => {
-  const isAvailable = elements.targetRole.value === "process";
+  const availableQuestionCount = questionsForDifficulty(getSelectedRigor()).length;
+  const isAvailable = elements.targetRole.value === "process" && availableQuestionCount > 0;
   const label = elements.startInterview.querySelector("span");
   elements.startInterview.disabled = !isAvailable;
   elements.startInterview.setAttribute("aria-disabled", String(!isAvailable));
-  label.textContent = isAvailable ? "모의 면접 시작" : "준비중인 직무입니다";
+  label.textContent =
+    elements.targetRole.value === "process"
+      ? isAvailable
+        ? "모의 면접 시작"
+        : "출제 가능한 문항이 없습니다"
+      : "준비중인 직무입니다";
 };
 
 const setRecordingMode = (enabled) => {
@@ -362,17 +450,6 @@ const showExitModal = () => {
 const hideExitModal = () => {
   elements.exitModal.classList.remove("open");
   elements.exitModal.setAttribute("aria-hidden", "true");
-};
-
-const showLaunchNoticeModal = () => {
-  if (elements.targetRole.value !== "process") return;
-  elements.launchNoticeModal.classList.add("open");
-  elements.launchNoticeModal.setAttribute("aria-hidden", "false");
-};
-
-const hideLaunchNoticeModal = () => {
-  elements.launchNoticeModal.classList.remove("open");
-  elements.launchNoticeModal.setAttribute("aria-hidden", "true");
 };
 
 const showFinishModal = () => {
@@ -857,6 +934,31 @@ const saveRecording = () => {
 const recordingForQuestion = (questionIndex) =>
   state.recordings.find((recording) => recording.questionIndex === questionIndex);
 
+const escapeHtml = (value) =>
+  String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+
+const renderKeywordBlock = (keywords = []) => {
+  const visibleKeywords = keywords.map((keyword) => String(keyword).trim()).filter(Boolean);
+
+  if (!visibleKeywords.length) {
+    return "";
+  }
+
+  return `
+    <div class="keyword-block">
+      <h4>Key word</h4>
+      <div class="keyword-list">
+        ${visibleKeywords.map((keyword) => `<span>${escapeHtml(keyword)}</span>`).join("")}
+      </div>
+    </div>
+  `;
+};
+
 const renderResultPage = () => {
   elements.summaryQuestions.textContent = state.completedQuestions.length;
   elements.summaryRecordings.textContent = state.recordingEnabled ? state.recordings.length : "미제공";
@@ -865,6 +967,7 @@ const renderResultPage = () => {
   elements.resultList.innerHTML = state.completedQuestions
     .map((question, index) => {
       const recording = recordingForQuestion(question.originalIndex);
+      const keywordBlock = renderKeywordBlock(question.keywords);
       const video = recording
         ? `<video src="${recording.url}" controls></video>`
         : state.recordingEnabled
@@ -887,6 +990,7 @@ const renderResultPage = () => {
             </section>
             <section>
               <h3>AI 모범 답안</h3>
+              ${keywordBlock}
               <p>${question.answer}</p>
             </section>
           </div>
@@ -903,6 +1007,7 @@ const bindSetupControls = () => {
     card.addEventListener("click", () => {
       $$(".rigor-card").forEach((item) => item.classList.remove("active"));
       card.classList.add("active");
+      syncStartAvailability();
     });
   });
 
@@ -911,7 +1016,7 @@ const bindSetupControls = () => {
   });
 
   elements.targetRole.addEventListener("change", syncStartAvailability);
-  elements.startInterview.addEventListener("click", showLaunchNoticeModal);
+  elements.startInterview.addEventListener("click", startInterview);
   syncStartAvailability();
 };
 
@@ -936,10 +1041,6 @@ const bindInterviewControls = () => {
 
   elements.cancelExitButton.addEventListener("click", hideExitModal);
   elements.confirmExitButton.addEventListener("click", leaveInterview);
-  elements.confirmLaunchNoticeButton.addEventListener("click", () => {
-    hideLaunchNoticeModal();
-    startInterview();
-  });
   elements.cancelFinishButton.addEventListener("click", hideFinishModal);
   elements.confirmFinishButton.addEventListener("click", () => {
     hideFinishModal();
@@ -958,11 +1059,6 @@ const bindInterviewControls = () => {
   elements.exitModal.addEventListener("click", (event) => {
     if (event.target === elements.exitModal) {
       hideExitModal();
-    }
-  });
-  elements.launchNoticeModal.addEventListener("click", (event) => {
-    if (event.target === elements.launchNoticeModal) {
-      hideLaunchNoticeModal();
     }
   });
   elements.finishModal.addEventListener("click", (event) => {
