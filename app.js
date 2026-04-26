@@ -132,6 +132,7 @@ const cacheElements = () => {
     "closeHelpButton",
     "closeHelpFooterButton",
     "dismissHelpTodayButton",
+    "startFromHelpButton",
     "developerMessageTemplate",
     "helpMessage",
     "privacyTemplate",
@@ -724,14 +725,34 @@ const sendQuestionReport = async () => {
 
 const showHelpModal = () => {
   elements.helpMessage.innerHTML = elements.developerMessageTemplate.innerHTML;
+  const canStartFromHelp =
+    elements.homeView.classList.contains("active") &&
+    elements.targetRole.value === "process" &&
+    !elements.startInterview.disabled;
+  elements.startFromHelpButton.hidden = !canStartFromHelp;
   elements.helpModal.classList.add("open");
   elements.helpModal.setAttribute("aria-hidden", "false");
   renderIcons();
 };
 
 const hideHelpModal = () => {
+  if (elements.helpModal.contains(document.activeElement)) {
+    document.activeElement.blur();
+  }
   elements.helpModal.classList.remove("open");
   elements.helpModal.setAttribute("aria-hidden", "true");
+};
+
+const handleHelpBackdropClick = (event) => {
+  if (event.target !== elements.helpModal) return;
+
+  const { clientX, clientY } = event;
+  hideHelpModal();
+
+  const underlyingElement = document.elementFromPoint(clientX, clientY);
+  if (underlyingElement?.closest("#startInterview") && !elements.startInterview.disabled) {
+    startInterview();
+  }
 };
 
 const legalDocuments = {
@@ -782,6 +803,11 @@ const dismissHelpForToday = () => {
     // localStorage may be unavailable in some privacy modes; closing still works.
   }
   hideHelpModal();
+};
+
+const startFromHelp = () => {
+  hideHelpModal();
+  startInterview();
 };
 
 const showStartupHelp = () => {
@@ -1080,11 +1106,8 @@ const bindInterviewControls = () => {
   elements.closeHelpButton.addEventListener("click", hideHelpModal);
   elements.closeHelpFooterButton.addEventListener("click", hideHelpModal);
   elements.dismissHelpTodayButton.addEventListener("click", dismissHelpForToday);
-  elements.helpModal.addEventListener("click", (event) => {
-    if (event.target === elements.helpModal) {
-      hideHelpModal();
-    }
-  });
+  elements.startFromHelpButton.addEventListener("click", startFromHelp);
+  elements.helpModal.addEventListener("click", handleHelpBackdropClick);
   $$("[data-legal]").forEach((button) => {
     button.addEventListener("click", () => showLegalModal(button.dataset.legal));
   });
