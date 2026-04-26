@@ -106,6 +106,7 @@ const state = {
   micAnimationId: null,
   feedbackRating: 0,
   feedbackSubmitting: false,
+  pendingView: "home",
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -115,10 +116,12 @@ const HELP_DISMISS_KEY = "banmyeonppu_help_hidden_until";
 const FEEDBACK_QUEUE_KEY = "banmyeonppu_feedback_queue";
 const REPORT_QUEUE_KEY = "banmyeonppu_report_queue";
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const cacheElements = () => {
   [
     "homeView",
+    "aboutView",
     "checkView",
     "interviewView",
     "resultView",
@@ -170,6 +173,8 @@ const cacheElements = () => {
     "sendReportButton",
     "feedbackStars",
     "feedbackComment",
+    "feedbackEmail",
+    "feedbackConsent",
     "feedbackStatus",
     "skipFeedbackButton",
     "submitFeedbackButton",
@@ -269,9 +274,14 @@ const currentQuestion = () => activeQuestions()[state.currentIndex] || activeQue
 
 const setView = (view) => {
   elements.homeView.classList.toggle("active", view === "home");
+  elements.aboutView.classList.toggle("active", view === "about");
   elements.checkView.classList.toggle("active", view === "check");
   elements.interviewView.classList.toggle("active", view === "interview");
   elements.resultView.classList.toggle("active", view === "result");
+  const activeNavView = view === "about" ? "about" : "home";
+  $$(".main-nav [data-view]").forEach((button) => {
+    button.classList.toggle("active", button.dataset.view === activeNavView);
+  });
   window.scrollTo({ top: 0, behavior: "instant" });
 };
 
@@ -496,6 +506,8 @@ const setFeedbackSubmitting = (isSubmitting) => {
   state.feedbackSubmitting = isSubmitting;
   elements.submitFeedbackButton.disabled = isSubmitting;
   elements.skipFeedbackButton.disabled = isSubmitting;
+  elements.feedbackEmail.disabled = isSubmitting;
+  elements.feedbackConsent.disabled = isSubmitting;
   elements.feedbackStars.querySelectorAll("button").forEach((button) => {
     button.disabled = isSubmitting;
   });
@@ -505,9 +517,13 @@ const resetFeedbackForm = () => {
   state.feedbackRating = 0;
   state.feedbackSubmitting = false;
   elements.feedbackComment.value = "";
+  elements.feedbackEmail.value = "";
+  elements.feedbackConsent.checked = false;
   elements.feedbackStatus.textContent = "";
   elements.submitFeedbackButton.disabled = false;
   elements.skipFeedbackButton.disabled = false;
+  elements.feedbackEmail.disabled = false;
+  elements.feedbackConsent.disabled = false;
   elements.feedbackStars.querySelectorAll("button").forEach((button) => {
     button.disabled = false;
   });
@@ -525,9 +541,32 @@ const hideFeedbackModal = () => {
   elements.feedbackModal.setAttribute("aria-hidden", "true");
 };
 
+const getFeedbackEmail = () => elements.feedbackEmail.value.trim();
+
+const validateFeedbackContact = () => {
+  const email = getFeedbackEmail();
+  const consent = elements.feedbackConsent.checked;
+
+  if (email && !EMAIL_PATTERN.test(email)) {
+    return "올바른 이메일 형식으로 입력해주세요.";
+  }
+
+  if (email && !consent) {
+    return "응시권 안내를 받으려면 이메일 저장 동의에 체크해주세요.";
+  }
+
+  if (!email && consent) {
+    return "동의 체크와 함께 이메일을 입력해주세요.";
+  }
+
+  return "";
+};
+
 const buildFeedbackPayload = () => ({
   rating: state.feedbackRating,
   comment: elements.feedbackComment.value.trim(),
+  email: getFeedbackEmail(),
+  releaseBenefitConsent: elements.feedbackConsent.checked,
   context: {
     source: "result",
     role: elements.targetRole.value,
@@ -655,6 +694,12 @@ const submitFeedback = async () => {
   if (state.feedbackSubmitting) return;
   if (!state.feedbackRating) {
     elements.feedbackStatus.textContent = "별점을 먼저 선택해주세요.";
+    return;
+  }
+
+  const contactError = validateFeedbackContact();
+  if (contactError) {
+    elements.feedbackStatus.textContent = contactError;
     return;
   }
 
@@ -806,18 +851,21 @@ const showStartupHelp = () => {
 };
 
 const leaveInterview = async () => {
+  const nextView = state.pendingView || "home";
+  state.pendingView = "home";
   hideExitModal();
   stopTimer();
   await finishRecording();
-  setView("home");
+  setView(nextView);
 };
 
-const requestLeaveInterview = () => {
+const requestViewChange = (view) => {
   if (isInterviewOpen()) {
+    state.pendingView = view;
     showExitModal();
     return;
   }
-  setView("home");
+  setView(view);
 };
 
 const markReady = (element, text) => {
@@ -1036,8 +1084,8 @@ const bindSetupControls = () => {
 };
 
 const bindInterviewControls = () => {
-  $$("[data-view='home']").forEach((button) => {
-    button.addEventListener("click", requestLeaveInterview);
+  $$("[data-view]").forEach((button) => {
+    button.addEventListener("click", () => requestViewChange(button.dataset.view || "home"));
   });
 
   elements.checkCameraButton.addEventListener("click", () => {
@@ -1068,6 +1116,12 @@ const bindInterviewControls = () => {
     const button = event.target.closest(".feedback-star");
     if (!button || state.feedbackSubmitting) return;
     setFeedbackRating(Number(button.dataset.rating));
+  });
+  elements.feedbackEmail.addEventListener("input", () => {
+    elements.feedbackStatus.textContent = "";
+  });
+  elements.feedbackConsent.addEventListener("change", () => {
+    elements.feedbackStatus.textContent = "";
   });
   elements.skipFeedbackButton.addEventListener("click", hideFeedbackModal);
   elements.submitFeedbackButton.addEventListener("click", submitFeedback);

@@ -1,4 +1,6 @@
 const MAX_COMMENT_LENGTH = 1200;
+const MAX_EMAIL_LENGTH = 254;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -22,15 +24,36 @@ const safeObject = (value) => {
   return value;
 };
 
+const cleanEmail = (value) => cleanText(value, MAX_EMAIL_LENGTH);
+
 const buildRecord = (payload, request) => {
   const rating = Number(payload.rating);
+  const email = cleanEmail(payload.email);
+  const releaseBenefitConsent = payload.releaseBenefitConsent === true;
 
   if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
     return { error: "별점은 1점부터 5점까지 선택해주세요." };
   }
 
+  if (email && !EMAIL_PATTERN.test(email)) {
+    return { error: "올바른 이메일 형식으로 입력해주세요." };
+  }
+
+  if (email && !releaseBenefitConsent) {
+    return { error: "이메일 저장 동의가 필요합니다." };
+  }
+
+  if (!email && releaseBenefitConsent) {
+    return { error: "이메일을 함께 입력해주세요." };
+  }
+
   const createdAt = new Date().toISOString();
   const id = crypto.randomUUID();
+  const client = {
+    ...safeObject(payload.client),
+    email: email || null,
+    releaseBenefitConsent,
+  };
 
   return {
     record: {
@@ -38,8 +61,10 @@ const buildRecord = (payload, request) => {
       createdAt,
       rating,
       comment: cleanText(payload.comment),
+      email: email || null,
+      releaseBenefitConsent,
       context: safeObject(payload.context),
-      client: safeObject(payload.client),
+      client,
       request: {
         country: request.cf?.country || null,
         userAgent: cleanText(request.headers.get("user-agent"), 300),
@@ -57,6 +82,7 @@ const storeInKv = async (env, record) => {
     metadata: {
       rating: String(record.rating),
       createdAt: record.createdAt,
+      hasEmail: String(Boolean(record.email)),
     },
   });
   return true;
