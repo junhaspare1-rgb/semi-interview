@@ -1444,33 +1444,27 @@ input[type="number"] {
   word-break: keep-all;
 }
 
-.pc-notice {
-  margin-bottom: 20px;
-  padding: 16px 18px;
-  border: 1px solid #bfdbfe;
-  border-radius: var(--radius);
-  background: #eff6ff;
+.report-dialog {
+  width: min(540px, 100%);
 }
 
-.pc-notice strong {
-  display: block;
-  margin-bottom: 8px;
+.start-environment-dialog {
+  width: min(520px, 100%);
+}
+
+.start-environment-dialog .module-label {
+  margin-bottom: 12px;
+}
+
+.start-environment-dialog h2 {
   color: #0f172a;
-  font-size: 17px;
-  font-weight: 900;
-}
-
-.pc-notice p {
-  margin: 0;
-  color: #1e3a8a;
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 1.55;
+  line-height: 1.35;
   word-break: keep-all;
 }
 
-.report-dialog {
-  width: min(540px, 100%);
+.start-environment-dialog p {
+  color: #334155;
+  font-weight: 700;
 }
 
 .feedback-dialog {

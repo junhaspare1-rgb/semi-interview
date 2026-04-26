@@ -125,6 +125,7 @@ const cacheElements = () => {
     "checkView",
     "interviewView",
     "resultView",
+    "startEnvironmentModal",
     "exitModal",
     "finishModal",
     "reportModal",
@@ -192,6 +193,8 @@ const cacheElements = () => {
     "summaryQuestions",
     "summaryRecordings",
     "summaryRigor",
+    "cancelStartEnvironmentButton",
+    "confirmStartEnvironmentButton",
     "cancelExitButton",
     "confirmExitButton",
     "cancelFinishButton",
@@ -401,6 +404,22 @@ const startInterview = () => {
   readConfig();
   resetForInterview(buildQuestionSet(state.config.questionCount));
   setView("check");
+};
+
+const showStartEnvironmentModal = () => {
+  if (elements.targetRole.value !== "process" || elements.startInterview.disabled) return;
+  elements.startEnvironmentModal.classList.add("open");
+  elements.startEnvironmentModal.setAttribute("aria-hidden", "false");
+};
+
+const hideStartEnvironmentModal = () => {
+  elements.startEnvironmentModal.classList.remove("open");
+  elements.startEnvironmentModal.setAttribute("aria-hidden", "true");
+};
+
+const confirmStartEnvironment = () => {
+  hideStartEnvironmentModal();
+  startInterview();
 };
 
 const enterInterview = () => {
@@ -790,7 +809,7 @@ const handleHelpBackdropClick = (event) => {
 
   const underlyingElement = document.elementFromPoint(clientX, clientY);
   if (underlyingElement?.closest("#startInterview") && !elements.startInterview.disabled) {
-    startInterview();
+    showStartEnvironmentModal();
   }
 };
 
@@ -1079,7 +1098,7 @@ const bindSetupControls = () => {
   });
 
   elements.targetRole.addEventListener("change", syncStartAvailability);
-  elements.startInterview.addEventListener("click", startInterview);
+  elements.startInterview.addEventListener("click", showStartEnvironmentModal);
   syncStartAvailability();
 };
 
@@ -1102,6 +1121,13 @@ const bindInterviewControls = () => {
   elements.nextQuestionButton.addEventListener("click", nextQuestion);
   elements.finishInterviewButton.addEventListener("click", showFinishModal);
 
+  elements.cancelStartEnvironmentButton.addEventListener("click", hideStartEnvironmentModal);
+  elements.confirmStartEnvironmentButton.addEventListener("click", confirmStartEnvironment);
+  elements.startEnvironmentModal.addEventListener("click", (event) => {
+    if (event.target === elements.startEnvironmentModal) {
+      hideStartEnvironmentModal();
+    }
+  });
   elements.cancelExitButton.addEventListener("click", hideExitModal);
   elements.confirmExitButton.addEventListener("click", leaveInterview);
   elements.cancelFinishButton.addEventListener("click", hideFinishModal);
