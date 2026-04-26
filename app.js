@@ -132,7 +132,6 @@ const cacheElements = () => {
     "closeHelpButton",
     "closeHelpFooterButton",
     "dismissHelpTodayButton",
-    "startFromHelpButton",
     "developerMessageTemplate",
     "helpMessage",
     "privacyTemplate",
@@ -725,11 +724,6 @@ const sendQuestionReport = async () => {
 
 const showHelpModal = () => {
   elements.helpMessage.innerHTML = elements.developerMessageTemplate.innerHTML;
-  const canStartFromHelp =
-    elements.homeView.classList.contains("active") &&
-    elements.targetRole.value === "process" &&
-    !elements.startInterview.disabled;
-  elements.startFromHelpButton.hidden = !canStartFromHelp;
   elements.helpModal.classList.add("open");
   elements.helpModal.setAttribute("aria-hidden", "false");
   renderIcons();
@@ -803,11 +797,6 @@ const dismissHelpForToday = () => {
     // localStorage may be unavailable in some privacy modes; closing still works.
   }
   hideHelpModal();
-};
-
-const startFromHelp = () => {
-  hideHelpModal();
-  startInterview();
 };
 
 const showStartupHelp = () => {
@@ -1106,7 +1095,6 @@ const bindInterviewControls = () => {
   elements.closeHelpButton.addEventListener("click", hideHelpModal);
   elements.closeHelpFooterButton.addEventListener("click", hideHelpModal);
   elements.dismissHelpTodayButton.addEventListener("click", dismissHelpForToday);
-  elements.startFromHelpButton.addEventListener("click", startFromHelp);
   elements.helpModal.addEventListener("click", handleHelpBackdropClick);
   $$("[data-legal]").forEach((button) => {
     button.addEventListener("click", () => showLegalModal(button.dataset.legal));
