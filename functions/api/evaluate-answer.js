@@ -295,7 +295,7 @@ export const onRequestPost = async ({ request, env }) => {
   const keywords = parseKeywords(formData.get("keywords"));
   const category = cleanText(formData.get("category"), 120);
   const difficulty = cleanText(formData.get("difficulty"), 60);
-  const sttModel = env.STT_MODEL || "gpt-4o-mini-transcribe";
+  const sttModel = env.STT_MODEL || "gpt-4o-transcribe";
   const scoreModel = env.AI_SCORE_MODEL || "gpt-5-mini";
 
   try {
