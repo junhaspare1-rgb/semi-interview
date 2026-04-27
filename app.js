@@ -118,7 +118,9 @@ const state = {
   timerId: null,
   cameraStream: null,
   recorder: null,
+  audioRecorder: null,
   recordedChunks: [],
+  audioRecordedChunks: [],
   recordings: [],
   recordingQuestion: null,
   recordingEnabled: true,
@@ -550,7 +552,10 @@ const resetForInterview = (sessionQuestions) => {
   state.currentIndex = 0;
   state.recordings = [];
   state.recordedChunks = [];
+  state.audioRecordedChunks = [];
   state.recordingQuestion = null;
+  state.recorder = null;
+  state.audioRecorder = null;
   state.aiEvaluations = {};
   state.aiEvaluating = false;
 };
@@ -1202,6 +1207,17 @@ const playSpeakerTest = () => {
   markReady(elements.speakerCheckState, "스피커 완료");
 };
 
+const mediaRecorderOptions = (types) => {
+  if (!window.MediaRecorder?.isTypeSupported) return undefined;
+  const mimeType = types.find((type) => MediaRecorder.isTypeSupported(type));
+  return mimeType ? { mimeType } : undefined;
+};
+
+const createMediaRecorder = (stream, types = []) => {
+  const options = mediaRecorderOptions(types);
+  return options ? new MediaRecorder(stream, options) : new MediaRecorder(stream);
+};
+
 const startRecording = async () => {
   if (!state.recordingEnabled) return;
   const stream = await ensureCamera();
@@ -1209,48 +1225,85 @@ const startRecording = async () => {
 
   const question = currentQuestion();
   state.recordedChunks = [];
+  state.audioRecordedChunks = [];
   state.recordingQuestion = {
     questionNumber: state.currentIndex + 1,
     questionIndex: question.originalIndex,
     question: question.text,
   };
-  state.recorder = new MediaRecorder(stream);
+  state.recorder = createMediaRecorder(stream, ["video/webm;codecs=vp9,opus", "video/webm;codecs=vp8,opus", "video/webm"]);
   state.recorder.addEventListener("dataavailable", (event) => {
     if (event.data.size > 0) {
       state.recordedChunks.push(event.data);
     }
   });
-  state.recorder.addEventListener("stop", saveRecording);
   state.recorder.start();
+
+  if (state.interviewMode === "ai") {
+    const audioTracks = stream.getAudioTracks();
+    if (audioTracks.length) {
+      try {
+        const audioStream = new MediaStream(audioTracks);
+        state.audioRecorder = createMediaRecorder(audioStream, ["audio/webm;codecs=opus", "audio/webm"]);
+        state.audioRecorder.addEventListener("dataavailable", (event) => {
+          if (event.data.size > 0) {
+            state.audioRecordedChunks.push(event.data);
+          }
+        });
+        state.audioRecorder.start();
+      } catch (error) {
+        state.audioRecorder = null;
+        state.audioRecordedChunks = [];
+      }
+    }
+  }
+
   elements.webcamPanel.classList.add("recording");
 };
 
-const finishRecording = () => {
-  if (state.recorder?.state !== "recording") return Promise.resolve();
+const stopMediaRecorder = (recorder) => {
+  if (!recorder || recorder.state === "inactive") return Promise.resolve();
 
   return new Promise((resolve) => {
-    state.recorder.addEventListener("stop", resolve, { once: true });
-    state.recorder.stop();
+    recorder.addEventListener("stop", resolve, { once: true });
+    recorder.stop();
   });
+};
+
+const finishRecording = async () => {
+  const wasRecording = state.recorder?.state === "recording" || state.audioRecorder?.state === "recording";
+  if (!wasRecording) return;
+
+  await Promise.all([stopMediaRecorder(state.recorder), stopMediaRecorder(state.audioRecorder)]);
+  saveRecording();
 };
 
 const saveRecording = () => {
   if (!state.recordedChunks.length) return;
 
-  const blob = new Blob(state.recordedChunks, { type: "video/webm" });
+  const blob = new Blob(state.recordedChunks, { type: state.recordedChunks[0]?.type || "video/webm" });
+  const audioBlob = state.audioRecordedChunks.length
+    ? new Blob(state.audioRecordedChunks, { type: state.audioRecordedChunks[0]?.type || "audio/webm" })
+    : null;
   const url = URL.createObjectURL(blob);
   state.recordings.push({
     url,
     blob,
+    audioBlob,
     mimeType: blob.type || "video/webm",
+    audioMimeType: audioBlob?.type || "",
     size: blob.size,
+    audioSize: audioBlob?.size || 0,
     questionNumber: state.recordingQuestion?.questionNumber ?? state.currentIndex + 1,
     questionIndex: state.recordingQuestion?.questionIndex ?? currentQuestion().originalIndex,
     question: state.recordingQuestion?.question ?? currentQuestion().text,
     createdAt: new Date(),
   });
   state.recordedChunks = [];
+  state.audioRecordedChunks = [];
   state.recordingQuestion = null;
+  state.recorder = null;
+  state.audioRecorder = null;
   elements.webcamPanel.classList.remove("recording");
 };
 
@@ -1545,12 +1598,13 @@ const postAiEvaluation = async (question, recording) => {
     throw new Error("녹화 파일을 찾을 수 없습니다.");
   }
 
-  if (recording.blob.size > MAX_AI_AUDIO_BYTES) {
+  const aiAudio = recording.audioBlob || recording.blob;
+  if (aiAudio.size > MAX_AI_AUDIO_BYTES) {
     throw new Error("녹화 파일이 25MB를 초과해 AI 채점을 진행할 수 없습니다.");
   }
 
   const formData = new FormData();
-  formData.append("audio", recording.blob, `answer-${question.originalIndex}.webm`);
+  formData.append("audio", aiAudio, `answer-${question.originalIndex}.webm`);
   formData.append("question", question.text);
   formData.append("modelAnswer", question.answer || "");
   formData.append("keywords", JSON.stringify(question.keywords || []));

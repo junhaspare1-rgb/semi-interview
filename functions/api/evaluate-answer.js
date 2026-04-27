@@ -37,6 +37,13 @@ const isUploadedFile = (value) =>
       typeof value.arrayBuffer === "function",
   );
 
+const koreanSttPrompt = `
+이 음성은 한국어로 진행되는 반도체 공정기술/양산기술 모의면접 답변입니다.
+반도체 용어와 약어를 그대로 보존해 전사하세요.
+자주 등장하는 용어: 포토, 노광, PR, 레지스트, DOF, Depth of Focus, CD, Overlay, Etch, 식각, 증착, Deposition, CVD, PVD, ALD, CMP, 이온주입, Anneal, 수율, 불량, Lot, Wafer, Chamber, Recipe, SPC, FDC, DOE, 공정 조건, 균일도, 선택비, 플라즈마, RF Power, ESC, PM.
+들리지 않는 부분은 억지로 추측하지 말고 자연스럽게 생략하세요.
+`.trim();
+
 const readOpenAiError = async (response, fallbackMessage) => {
   const responseText = await response.text().catch(() => "");
 
@@ -164,6 +171,16 @@ const transcribeAudio = async ({ apiKey, model, audio }) => {
   body.append("file", audio, audio.name || "answer.webm");
   body.append("model", model);
   body.append("response_format", "json");
+  body.append("language", "ko");
+  body.append("temperature", "0");
+
+  if (!model.includes("diarize")) {
+    body.append("prompt", koreanSttPrompt);
+  }
+
+  if (model.startsWith("gpt-4o")) {
+    body.append("chunking_strategy", "auto");
+  }
 
   const response = await fetch("https://api.openai.com/v1/audio/transcriptions", {
     method: "POST",
@@ -295,7 +312,7 @@ export const onRequestPost = async ({ request, env }) => {
   const keywords = parseKeywords(formData.get("keywords"));
   const category = cleanText(formData.get("category"), 120);
   const difficulty = cleanText(formData.get("difficulty"), 60);
-  const sttModel = env.STT_MODEL || "gpt-4o-transcribe";
+  const sttModel = "gpt-4o-transcribe";
   const scoreModel = env.AI_SCORE_MODEL || "gpt-5-mini";
 
   try {
