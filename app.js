@@ -129,7 +129,8 @@ const state = {
   aiEvaluationConsent: false,
   aiEvaluations: {},
   aiEvaluating: false,
-  pendingView: "browse",
+  aiAdminKey: "",
+  pendingView: "home",
   pendingPracticeIndex: null,
   pendingStartMode: "standard",
   studyProgress: {},
@@ -153,6 +154,8 @@ const HELP_DISMISS_KEY = "banmyeonppu_help_hidden_until";
 const FEEDBACK_QUEUE_KEY = "banmyeonppu_feedback_queue";
 const REPORT_QUEUE_KEY = "banmyeonppu_report_queue";
 const STUDY_PROGRESS_KEY = "banmyeonppu_question_progress_v1";
+const AI_ADMIN_KEY_STORAGE_KEY = "banmyeonppu_ai_admin_key";
+const AI_ADMIN_KEY = "0811";
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 const AI_INTERVIEW_CONFIG = {
   questionCount: 1,
@@ -174,6 +177,7 @@ const cacheElements = () => {
     "startEnvironmentModal",
     "exitModal",
     "finishModal",
+    "aiAdminModal",
     "reportModal",
     "feedbackModal",
     "helpModal",
@@ -271,6 +275,10 @@ const cacheElements = () => {
     "startEnvironmentDescription",
     "startEnvironmentConsentLabel",
     "startEnvironmentConsent",
+    "aiAdminKeyInput",
+    "aiAdminStatus",
+    "cancelAiAdminButton",
+    "confirmAiAdminButton",
     "cancelExitButton",
     "confirmExitButton",
     "cancelFinishButton",
@@ -297,6 +305,31 @@ const formatTime = (seconds) => {
 
 const getSelectedRigor = () => $(".rigor-card.active")?.dataset.rigor || "입문";
 const getSelectedInterviewMode = () => $(".interview-mode-card.active")?.dataset.interviewMode || "standard";
+
+const readAiAdminKey = () => {
+  try {
+    return sessionStorage.getItem(AI_ADMIN_KEY_STORAGE_KEY) || "";
+  } catch (error) {
+    return "";
+  }
+};
+
+const writeAiAdminKey = (key) => {
+  try {
+    sessionStorage.setItem(AI_ADMIN_KEY_STORAGE_KEY, key);
+  } catch (error) {
+    // sessionStorage가 막힌 환경에서는 현재 페이지 세션에서만 유지합니다.
+  }
+};
+
+const isAiAdminUnlocked = () => state.aiAdminKey === AI_ADMIN_KEY;
+
+const setInterviewMode = (mode) => {
+  $$(".interview-mode-card").forEach((item) => {
+    item.classList.toggle("active", item.dataset.interviewMode === mode);
+  });
+  syncInterviewModeUi();
+};
 
 const syncInterviewModeUi = () => {
   const isAiMode = getSelectedInterviewMode() === "ai";
@@ -372,19 +405,17 @@ const activeQuestions = () => state.sessionQuestions;
 const currentQuestion = () => activeQuestions()[state.currentIndex] || activeQuestions()[0];
 
 const setView = (view) => {
-  elements.browseView.classList.toggle("active", view === "browse");
-  elements.homeView.classList.toggle("active", view === "home");
-  elements.aboutView.classList.toggle("active", view === "about");
-  elements.checkView.classList.toggle("active", view === "check");
-  elements.interviewView.classList.toggle("active", view === "interview");
-  elements.resultView.classList.toggle("active", view === "result");
-  const activeNavView = ["about", "browse", "home"].includes(view) ? view : "home";
+  const nextView = view === "browse" ? "home" : view;
+  elements.browseView.classList.remove("active");
+  elements.homeView.classList.toggle("active", nextView === "home");
+  elements.aboutView.classList.toggle("active", nextView === "about");
+  elements.checkView.classList.toggle("active", nextView === "check");
+  elements.interviewView.classList.toggle("active", nextView === "interview");
+  elements.resultView.classList.toggle("active", nextView === "result");
+  const activeNavView = ["about", "home"].includes(nextView) ? nextView : "home";
   $$(".main-nav [data-view]").forEach((button) => {
     button.classList.toggle("active", button.dataset.view === activeNavView);
   });
-  if (view === "browse") {
-    renderBrowseView();
-  }
   window.scrollTo({ top: 0, behavior: "instant" });
 };
 
@@ -524,11 +555,44 @@ const resetForInterview = (sessionQuestions) => {
   state.aiEvaluating = false;
 };
 
+const showAiAdminModal = () => {
+  elements.aiAdminKeyInput.value = "";
+  elements.aiAdminStatus.textContent = "";
+  elements.aiAdminModal.classList.add("open");
+  elements.aiAdminModal.setAttribute("aria-hidden", "false");
+  window.setTimeout(() => elements.aiAdminKeyInput.focus(), 0);
+};
+
+const hideAiAdminModal = () => {
+  elements.aiAdminModal.classList.remove("open");
+  elements.aiAdminModal.setAttribute("aria-hidden", "true");
+  elements.aiAdminStatus.textContent = "";
+};
+
+const confirmAiAdminKey = () => {
+  const key = elements.aiAdminKeyInput.value.trim();
+
+  if (key !== AI_ADMIN_KEY) {
+    elements.aiAdminStatus.textContent = "관리자 키가 올바르지 않습니다.";
+    elements.aiAdminKeyInput.select();
+    return;
+  }
+
+  state.aiAdminKey = key;
+  writeAiAdminKey(key);
+  hideAiAdminModal();
+  setInterviewMode("ai");
+};
+
 const startInterview = () => {
   if (elements.targetRole.value !== "process") return;
   readConfig();
   if (state.interviewMode === "standard") {
     state.aiEvaluationConsent = false;
+  }
+  if (state.interviewMode === "ai" && !isAiAdminUnlocked()) {
+    showAiAdminModal();
+    return;
   }
   if (state.interviewMode === "ai" && !state.aiEvaluationConsent) {
     showStartEnvironmentModal();
@@ -546,6 +610,10 @@ const showStartEnvironmentModal = (options = {}) => {
   state.pendingPracticeIndex = hasPracticeTarget ? options.practiceIndex : null;
   state.pendingStartMode = mode;
   const isAiMode = mode === "ai";
+  if (isAiMode && !isAiAdminUnlocked()) {
+    showAiAdminModal();
+    return;
+  }
   elements.startEnvironmentTitle.textContent = isAiMode
     ? "AI 모의면접은 답변 음성 분석 동의가 필요합니다."
     : "반면뿌는 PC 환경에서 가장 안정적으로 동작합니다.";
@@ -1489,6 +1557,7 @@ const postAiEvaluation = async (question, recording) => {
   formData.append("category", question.category || "");
   formData.append("difficulty", question.difficulty || "");
   formData.append("questionIndex", String(question.originalIndex));
+  formData.append("adminKey", state.aiAdminKey || "");
 
   const response = await fetch("/api/evaluate-answer", {
     method: "POST",
@@ -1776,9 +1845,12 @@ const bindBrowseControls = () => {
 const bindSetupControls = () => {
   $$(".interview-mode-card").forEach((card) => {
     card.addEventListener("click", () => {
-      $$(".interview-mode-card").forEach((item) => item.classList.remove("active"));
-      card.classList.add("active");
-      syncInterviewModeUi();
+      const mode = card.dataset.interviewMode || "standard";
+      if (mode === "ai" && !isAiAdminUnlocked()) {
+        showAiAdminModal();
+        return;
+      }
+      setInterviewMode(mode);
     });
   });
 
@@ -1828,6 +1900,22 @@ const bindInterviewControls = () => {
   elements.startEnvironmentModal.addEventListener("click", (event) => {
     if (event.target === elements.startEnvironmentModal) {
       hideStartEnvironmentModal();
+    }
+  });
+  elements.cancelAiAdminButton.addEventListener("click", hideAiAdminModal);
+  elements.confirmAiAdminButton.addEventListener("click", confirmAiAdminKey);
+  elements.aiAdminKeyInput.addEventListener("input", () => {
+    elements.aiAdminStatus.textContent = "";
+  });
+  elements.aiAdminKeyInput.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      confirmAiAdminKey();
+    }
+  });
+  elements.aiAdminModal.addEventListener("click", (event) => {
+    if (event.target === elements.aiAdminModal) {
+      hideAiAdminModal();
     }
   });
   elements.cancelExitButton.addEventListener("click", hideExitModal);
@@ -1907,6 +1995,7 @@ const bindResultControls = () => {
 
 window.addEventListener("load", () => {
   cacheElements();
+  state.aiAdminKey = readAiAdminKey();
   state.studyProgress = readStudyProgress();
   renderBrowseCategoryOptions();
   renderIcons();
@@ -1915,7 +2004,7 @@ window.addEventListener("load", () => {
   bindInterviewControls();
   bindResultControls();
   setRecordingMode(true);
-  setView("browse");
+  setView("home");
   flushQueuedFeedback().catch(() => {});
   flushQueuedReports().catch(() => {});
   showStartupHelp();

@@ -234,6 +234,12 @@ export const onRequestPost = async ({ request, env }) => {
     return json({ ok: false, message: "multipart/form-data 요청만 지원합니다." }, 400);
   }
 
+  const expectedAdminKey = String(env.AI_ADMIN_KEY || "0811").trim();
+  const adminKey = cleanText(formData.get("adminKey"), 80);
+  if (!adminKey || adminKey !== expectedAdminKey) {
+    return json({ ok: false, message: "AI 모의면접 관리자 인증이 필요합니다." }, 403);
+  }
+
   const audio = formData.get("audio");
   if (!(audio instanceof File) || audio.size <= 0) {
     return json({ ok: false, message: "오디오 파일이 필요합니다." }, 400);
