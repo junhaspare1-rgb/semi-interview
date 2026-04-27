@@ -15,6 +15,11 @@ const cleanText = (value, maxLength = MAX_TEXT_LENGTH) =>
     .trim()
     .slice(0, maxLength);
 
+const compactText = (value, maxLength = 260) =>
+  cleanText(value, maxLength)
+    .replace(/\s+/g, " ")
+    .trim();
+
 const parseKeywords = (value) => {
   try {
     const parsed = JSON.parse(String(value || "[]"));
@@ -31,6 +36,24 @@ const isUploadedFile = (value) =>
       typeof value.size === "number" &&
       typeof value.arrayBuffer === "function",
   );
+
+const readOpenAiError = async (response, fallbackMessage) => {
+  const responseText = await response.text().catch(() => "");
+
+  try {
+    const payload = responseText ? JSON.parse(responseText) : {};
+    return payload.error?.message || payload.message || `${fallbackMessage} (HTTP ${response.status})`;
+  } catch (error) {
+    const excerpt = compactText(responseText);
+    if (!excerpt) {
+      return `${fallbackMessage} (HTTP ${response.status})`;
+    }
+    if (excerpt.startsWith("<!DOCTYPE html") || excerpt.startsWith("<html")) {
+      return `${fallbackMessage} (HTTP ${response.status}). AI 제공업체 또는 Cloudflare에서 HTML 오류 페이지를 반환했습니다.`;
+    }
+    return `${fallbackMessage} (HTTP ${response.status}): ${excerpt}`;
+  }
+};
 
 const evaluationSchema = {
   type: "object",
@@ -149,12 +172,12 @@ const transcribeAudio = async ({ apiKey, model, audio }) => {
     },
     body,
   });
-  const payload = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(payload.error?.message || "음성 전사 요청에 실패했습니다.");
+    throw new Error(await readOpenAiError(response, "음성 전사 요청에 실패했습니다."));
   }
 
+  const payload = await response.json().catch(() => ({}));
   return cleanText(payload.text, MAX_TEXT_LENGTH);
 };
 
@@ -209,12 +232,12 @@ const analyzeAnswer = async ({ apiKey, model, transcript, question, modelAnswer,
       },
     }),
   });
-  const payload = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(payload.error?.message || "AI 분석 요청에 실패했습니다.");
+    throw new Error(await readOpenAiError(response, "AI 분석 요청에 실패했습니다."));
   }
 
+  const payload = await response.json().catch(() => ({}));
   const outputText = extractResponseText(payload);
   if (!outputText) {
     throw new Error("AI 분석 결과가 비어 있습니다.");
@@ -299,7 +322,7 @@ export const onRequestPost = async ({ request, env }) => {
       },
     });
   } catch (error) {
-    return json({ ok: false, message: error.message || "AI 채점 중 오류가 발생했습니다." }, 502);
+    return json({ ok: false, message: error.message || "AI 채점 중 오류가 발생했습니다." });
   }
 };
 
