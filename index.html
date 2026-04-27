@@ -29,7 +29,7 @@
     <meta name="twitter:title" content="반도체 면접 뿌수기 | 반면뿌" />
     <meta name="twitter:description" content="반도체 공정기술 면접을 실전처럼 연습하세요." />
     <meta name="twitter:image" content="https://xn--e42b13ak0f.kr/og-image.png" />
-    <link rel="stylesheet" href="styles.css?v=20260426-6" />
+    <link rel="stylesheet" href="styles.css?v=20260427-2" />
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-V8PWYYDSJC"></script>
     <script>
@@ -49,7 +49,7 @@
     </script>
     <script src="data/process-questions.js?v=20260426-3" defer></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
-    <script src="app.js?v=20260426-6" defer></script>
+    <script src="app.js?v=20260427-2" defer></script>
   </head>
   <body>
     <header class="top-nav">
@@ -108,6 +108,136 @@
         <p class="message-signature">반면뿌 개발자 K 드림</p>
       </template>
 
+      <section class="browse-view app-view" id="browseView" aria-labelledby="browse-title" hidden>
+        <div class="browse-shell">
+          <aside class="browse-progress-panel" aria-label="학습 진행률">
+            <p class="module-label">질문 쇼츠</p>
+            <h1 id="browse-title">한 문제씩 넘기며 공정기술 면접을 익히세요.</h1>
+            <p>
+              질문을 먼저 보고, 키워드와 답안을 차례로 확인한 뒤 헷갈리는 문제만 다시 모아볼 수 있습니다.
+            </p>
+
+            <div class="browse-stats" aria-label="학습 요약">
+              <article>
+                <span>학습률</span>
+                <strong id="browseStudyPercent">0%</strong>
+              </article>
+              <article>
+                <span>아는 문제</span>
+                <strong id="browseKnownCount">0</strong>
+              </article>
+              <article>
+                <span>헷갈림</span>
+                <strong id="browseConfusedCount">0</strong>
+              </article>
+              <article>
+                <span>북마크</span>
+                <strong id="browseBookmarkedCount">0</strong>
+              </article>
+            </div>
+
+            <div class="browse-category-progress" id="browseCategoryProgress" aria-label="공정별 학습률"></div>
+          </aside>
+
+          <section class="browse-short-shell" aria-label="문제 훑기">
+            <div class="browse-toolbar">
+              <label>
+                <span>난이도</span>
+                <select id="browseDifficultyFilter">
+                  <option value="all">전체</option>
+                  <option value="입문">입문</option>
+                  <option value="실전">실전</option>
+                  <option value="심화">심화</option>
+                </select>
+              </label>
+              <label>
+                <span>공정</span>
+                <select id="browseCategoryFilter">
+                  <option value="all">전체</option>
+                </select>
+              </label>
+              <label>
+                <span>상태</span>
+                <select id="browseStatusFilter">
+                  <option value="all">전체</option>
+                  <option value="bookmarked">북마크</option>
+                  <option value="confused">헷갈림</option>
+                  <option value="known">아는 문제</option>
+                  <option value="unmarked">미분류</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="browse-card-wrap" id="browseShorts">
+              <button class="browse-nav-button prev" id="browsePrevButton" type="button" aria-label="이전 문제">
+                <i data-lucide="chevron-up"></i>
+              </button>
+
+              <article class="browse-card" id="browseCard">
+                <header class="browse-card-head">
+                  <div class="browse-chip-row">
+                    <span id="browseDifficultyChip">입문</span>
+                    <span id="browseCategoryChip">포토</span>
+                  </div>
+                  <strong id="browseCounter">1 / 184</strong>
+                </header>
+
+                <div class="browse-question-area">
+                  <p id="browseQuestionText">반도체의 정의와 도체, 부도체와의 차이점을 설명해주세요.</p>
+                </div>
+
+                <div class="browse-answer-panel" id="browseAnswerPanel" aria-hidden="true">
+                  <section class="browse-keywords">
+                    <h2>Key word</h2>
+                    <div id="browseKeywordList"></div>
+                  </section>
+                  <section>
+                    <h2>AI 모범 답안</h2>
+                    <p id="browseAnswerText"></p>
+                  </section>
+                  <section>
+                    <h2>꼬리질문</h2>
+                    <ol id="browseTailQuestions"></ol>
+                  </section>
+                </div>
+
+                <footer class="browse-card-actions">
+                  <button class="browse-action-button" id="browseBookmarkButton" type="button" aria-pressed="false">
+                    <i data-lucide="bookmark"></i>
+                    <span>북마크</span>
+                  </button>
+                  <button class="browse-action-button" id="browseConfusedButton" type="button" aria-pressed="false">
+                    <i data-lucide="help-circle"></i>
+                    <span>헷갈림</span>
+                  </button>
+                  <button class="browse-action-button" id="browseKnownButton" type="button" aria-pressed="false">
+                    <i data-lucide="check-circle-2"></i>
+                    <span>아는 문제</span>
+                  </button>
+                  <button class="browse-action-button primary" id="browseToggleAnswerButton" type="button">
+                    <i data-lucide="panel-bottom-open"></i>
+                    <span>답안 보기</span>
+                  </button>
+                  <button class="browse-action-button dark" id="browsePracticeButton" type="button">
+                    <i data-lucide="mic-vocal"></i>
+                    <span>이 질문으로 연습하기</span>
+                  </button>
+                </footer>
+              </article>
+
+              <div class="browse-empty" id="browseEmpty" hidden>
+                <strong>조건에 맞는 문제가 없습니다.</strong>
+                <span>필터를 바꾸면 다시 문제를 볼 수 있습니다.</span>
+              </div>
+
+              <button class="browse-nav-button next" id="browseNextButton" type="button" aria-label="다음 문제">
+                <i data-lucide="chevron-down"></i>
+              </button>
+            </div>
+          </section>
+        </div>
+      </section>
+
       <section class="home-view app-view active" id="homeView" aria-labelledby="home-title">
         <div class="intro">
           <div class="module-label">직무 면접</div>
@@ -131,6 +261,20 @@
 
         <section class="setup-panel" aria-labelledby="panel-title">
           <form id="setupForm">
+            <div class="field-block">
+              <span class="field-label">면접 방식</span>
+              <div class="interview-mode-grid" role="group" aria-label="면접 방식">
+                <button class="interview-mode-card active" type="button" data-interview-mode="standard">
+                  <strong>일반 모의면접</strong>
+                  <span>질문 수와 시간을 직접 설정합니다.</span>
+                </button>
+                <button class="interview-mode-card" type="button" data-interview-mode="ai">
+                  <strong>AI 모의면접</strong>
+                  <span>파일럿 테스트 · 1문항 · 준비 10초 · 답변 2분 · AI 채점</span>
+                </button>
+              </div>
+            </div>
+
             <div class="field-block">
               <label id="panel-title" for="targetRole">목표 직무 선택</label>
               <div class="select-wrap">
@@ -162,7 +306,7 @@
               </div>
             </div>
 
-            <div class="two-column">
+            <div class="two-column configurable-field">
               <div class="field-block">
                 <label for="questionCount">질문 수</label>
                 <div class="unit-input">
@@ -176,6 +320,7 @@
                 <div class="select-line">
                   <select id="prepTime">
                     <option value="0" selected>즉시 답변</option>
+                    <option value="10">10초</option>
                     <option value="30">30초</option>
                     <option value="60">1분</option>
                     <option value="120">2분</option>
@@ -184,7 +329,7 @@
               </div>
             </div>
 
-            <div class="field-block">
+            <div class="field-block configurable-field">
               <label for="answerTime">질문당 최대 답변 시간</label>
               <div class="slider-box">
                 <div>
@@ -444,7 +589,8 @@
       </p>
       <p>
         카메라와 마이크 권한은 사용자가 녹화 모드를 선택하고 브라우저에서 권한을 허용한 경우에만 사용됩니다. 녹화
-        파일은 현재 브라우저 세션에서 복기 기능을 제공하기 위해 생성되며, 별도 서버로 전송하지 않습니다.
+        파일은 현재 브라우저 세션에서 복기 기능을 제공하기 위해 생성되며, 일반 모의면접에서는 별도 서버로 전송하지 않습니다.
+        다만 사용자가 AI 모의면접을 선택하고 음성 분석에 동의한 경우, AI 채점을 위해 답변 음성 파일과 전사문이 OpenAI API로 전송될 수 있습니다.
       </p>
       <p>
         사용자가 피드백을 제출하는 경우 별점, 의견, 면접 설정 정보와 기본 접속 환경 정보가 서비스 개선 및 오류 확인을 위해 수집될 수 있습니다.
@@ -486,7 +632,7 @@
       <h3>3. 녹화 기능</h3>
       <p>
         녹화 기능은 사용자의 브라우저 권한 허용 후 동작합니다. 사용자는 녹화 여부를 선택할 수 있으며, 비녹화 모드에서는
-        녹화 복기 기능이 제공되지 않습니다.
+        녹화 복기 기능이 제공되지 않습니다. AI 모의면접은 채점을 위해 녹화가 필수이며, 시작 전 별도 동의가 필요합니다.
       </p>
       <h3>4. 서비스 변경</h3>
       <p>
@@ -526,13 +672,34 @@
       <section class="exit-dialog start-environment-dialog" role="dialog" aria-modal="true" aria-labelledby="startEnvironmentTitle">
         <p class="module-label">시작 전 안내</p>
         <h2 id="startEnvironmentTitle">반면뿌는 PC 환경에서 가장 안정적으로 동작합니다.</h2>
-        <p>
+        <p id="startEnvironmentDescription">
           모바일에서도 이용할 수 있지만, 카메라 권한, 녹화 저장, 복기 기능은 기기와 브라우저 환경에 따라 제한될 수 있습니다.
           원활한 모의면접을 위해 가능하면 PC 크롬 환경을 권장합니다.
         </p>
+        <label class="start-consent" id="startEnvironmentConsentLabel" hidden>
+          <input id="startEnvironmentConsent" type="checkbox" />
+          <span>AI 채점을 위해 답변 음성 파일과 전사문이 OpenAI API로 전송되는 데 동의합니다.</span>
+        </label>
         <div class="exit-actions">
           <button class="outline-button" id="cancelStartEnvironmentButton" type="button">닫기</button>
           <button class="black-button" id="confirmStartEnvironmentButton" type="button">확인하고 계속하기</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="exit-modal" id="aiAdminModal" aria-hidden="true">
+      <section class="exit-dialog ai-admin-dialog" role="dialog" aria-modal="true" aria-labelledby="aiAdminTitle">
+        <p class="module-label">관리자 확인</p>
+        <h2 id="aiAdminTitle">AI 모의면접 파일럿 접근</h2>
+        <p>AI 모의면접은 현재 내부 테스트용입니다. 관리자 키를 입력해야 입장할 수 있습니다.</p>
+        <label class="admin-key-field" for="aiAdminKeyInput">
+          <span>관리자 키</span>
+          <input id="aiAdminKeyInput" type="password" inputmode="numeric" autocomplete="off" placeholder="관리자 키 입력" />
+        </label>
+        <p class="admin-key-status" id="aiAdminStatus" aria-live="polite"></p>
+        <div class="exit-actions">
+          <button class="outline-button" id="cancelAiAdminButton" type="button">닫기</button>
+          <button class="black-button" id="confirmAiAdminButton" type="button">확인</button>
         </div>
       </section>
     </div>
