@@ -24,6 +24,14 @@ const parseKeywords = (value) => {
   }
 };
 
+const isUploadedFile = (value) =>
+  Boolean(
+    value &&
+      typeof value === "object" &&
+      typeof value.size === "number" &&
+      typeof value.arrayBuffer === "function",
+  );
+
 const evaluationSchema = {
   type: "object",
   additionalProperties: false,
@@ -241,7 +249,7 @@ export const onRequestPost = async ({ request, env }) => {
   }
 
   const audio = formData.get("audio");
-  if (!(audio instanceof File) || audio.size <= 0) {
+  if (!isUploadedFile(audio) || audio.size <= 0) {
     return json({ ok: false, message: "오디오 파일이 필요합니다." }, 400);
   }
 

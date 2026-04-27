@@ -1563,10 +1563,20 @@ const postAiEvaluation = async (question, recording) => {
     method: "POST",
     body: formData,
   });
-  const payload = await response.json().catch(() => ({}));
+
+  const responseText = await response.text();
+  let payload = {};
+  try {
+    payload = responseText ? JSON.parse(responseText) : {};
+  } catch (error) {
+    payload = {};
+  }
 
   if (!response.ok || !payload.ok) {
-    throw new Error(payload.message || "AI 채점 요청에 실패했습니다.");
+    const fallbackMessage = responseText
+      ? `AI 채점 요청 실패 (HTTP ${response.status}): ${responseText.slice(0, 180)}`
+      : `AI 채점 요청 실패 (HTTP ${response.status})`;
+    throw new Error(payload.message || fallbackMessage);
   }
 
   return payload.evaluation;
