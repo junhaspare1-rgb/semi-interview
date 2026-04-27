@@ -20,6 +20,17 @@ def split_keywords(value):
     return [part.strip() for part in str(value or "").split(",") if part.strip()]
 
 
+def split_tail_questions(value):
+    text = str(value or "").strip()
+    if not text:
+        return []
+    normalized = text.replace("；", ";")
+    parts = []
+    for chunk in normalized.split("\n"):
+        parts.extend(chunk.split(";"))
+    return [part.strip() for part in parts if part.strip()]
+
+
 def build_records(source):
     workbook = load_workbook(source, read_only=True, data_only=True)
     sheet = workbook.worksheets[0]
@@ -34,6 +45,7 @@ def build_records(source):
     answer_col = column("모범 답안 Script")
     keywords_col = column("핵심 키워드")
     difficulty_col = column("난이도")
+    tail_questions_col = headers.index("꼬리질문") + 1 if "꼬리질문" in headers else None
 
     records = []
     for row in range(2, sheet.max_row + 1):
@@ -53,6 +65,9 @@ def build_records(source):
                 "question": str(question).strip(),
                 "answer": str(sheet.cell(row, answer_col).value or "").strip(),
                 "keywords": split_keywords(sheet.cell(row, keywords_col).value),
+                "tailQuestions": split_tail_questions(sheet.cell(row, tail_questions_col).value)
+                if tail_questions_col
+                else [],
                 "active": difficulty != "지엽",
             }
         )

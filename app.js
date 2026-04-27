@@ -56,6 +56,22 @@ const DIFFICULTY_ALIASES = {
   실무: "실전",
 };
 const normalizeDifficulty = (difficulty) => DIFFICULTY_ALIASES[difficulty] || difficulty;
+const normalizeTailQuestions = (question) => {
+  const value = question.tailQuestions || question.tailquestions || question.followUps || question["꼬리질문"];
+
+  if (Array.isArray(value)) {
+    return value.map((item) => String(item).trim()).filter(Boolean);
+  }
+
+  if (typeof value === "string") {
+    return value
+      .split(/\n|;/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  return [];
+};
 const sourceQuestions = Array.isArray(window.BANMYEONPPU_PROCESS_QUESTIONS)
   ? window.BANMYEONPPU_PROCESS_QUESTIONS
   : [];
@@ -69,6 +85,7 @@ const questionBank = sourceQuestions
     text: question.question || question.text || "",
     answer: question.answer || "",
     keywords: Array.isArray(question.keywords) ? question.keywords : [],
+    tailQuestions: normalizeTailQuestions(question),
     active: question.active !== false,
   }))
   .filter((question) => question.active && question.difficulty !== "지엽" && question.text)
@@ -81,6 +98,8 @@ const questions = questionBank.length
       category: "기타",
       group: "main",
       difficulty: "실전",
+      keywords: [],
+      tailQuestions: [],
       originalIndex: index,
     }));
 
@@ -103,10 +122,28 @@ const state = {
   recordings: [],
   recordingQuestion: null,
   recordingEnabled: true,
+  interviewMode: "standard",
   micAnimationId: null,
   feedbackRating: 0,
   feedbackSubmitting: false,
-  pendingView: "home",
+  aiEvaluationConsent: false,
+  aiEvaluations: {},
+  aiEvaluating: false,
+  pendingView: "browse",
+  pendingPracticeIndex: null,
+  pendingStartMode: "standard",
+  studyProgress: {},
+  browse: {
+    index: 0,
+    answerOpen: false,
+    filters: {
+      difficulty: "all",
+      category: "all",
+      status: "all",
+    },
+    touchStartY: null,
+    wheelLocked: false,
+  },
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -115,11 +152,20 @@ const elements = {};
 const HELP_DISMISS_KEY = "banmyeonppu_help_hidden_until";
 const FEEDBACK_QUEUE_KEY = "banmyeonppu_feedback_queue";
 const REPORT_QUEUE_KEY = "banmyeonppu_report_queue";
+const STUDY_PROGRESS_KEY = "banmyeonppu_question_progress_v1";
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+const AI_INTERVIEW_CONFIG = {
+  questionCount: 1,
+  prepSeconds: 10,
+  answerSeconds: 120,
+};
+const MAX_AI_AUDIO_BYTES = 25 * 1024 * 1024;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const browseCategories = [...new Set(questions.map((question) => question.category))];
 
 const cacheElements = () => {
   [
+    "browseView",
     "homeView",
     "aboutView",
     "checkView",
@@ -144,6 +190,32 @@ const cacheElements = () => {
     "legalTitle",
     "legalContent",
     "closeLegalButton",
+    "browseStudyPercent",
+    "browseKnownCount",
+    "browseConfusedCount",
+    "browseBookmarkedCount",
+    "browseCategoryProgress",
+    "browseDifficultyFilter",
+    "browseCategoryFilter",
+    "browseStatusFilter",
+    "browseShorts",
+    "browseCard",
+    "browseEmpty",
+    "browsePrevButton",
+    "browseNextButton",
+    "browseDifficultyChip",
+    "browseCategoryChip",
+    "browseCounter",
+    "browseQuestionText",
+    "browseAnswerPanel",
+    "browseKeywordList",
+    "browseAnswerText",
+    "browseTailQuestions",
+    "browseBookmarkButton",
+    "browseConfusedButton",
+    "browseKnownButton",
+    "browseToggleAnswerButton",
+    "browsePracticeButton",
     "questionCount",
     "targetRole",
     "prepTime",
@@ -195,6 +267,10 @@ const cacheElements = () => {
     "summaryRigor",
     "cancelStartEnvironmentButton",
     "confirmStartEnvironmentButton",
+    "startEnvironmentTitle",
+    "startEnvironmentDescription",
+    "startEnvironmentConsentLabel",
+    "startEnvironmentConsent",
     "cancelExitButton",
     "confirmExitButton",
     "cancelFinishButton",
@@ -220,6 +296,26 @@ const formatTime = (seconds) => {
 };
 
 const getSelectedRigor = () => $(".rigor-card.active")?.dataset.rigor || "입문";
+const getSelectedInterviewMode = () => $(".interview-mode-card.active")?.dataset.interviewMode || "standard";
+
+const syncInterviewModeUi = () => {
+  const isAiMode = getSelectedInterviewMode() === "ai";
+  $$(".configurable-field").forEach((field) => {
+    field.classList.toggle("locked", isAiMode);
+    field.querySelectorAll("input, select").forEach((control) => {
+      control.disabled = isAiMode;
+    });
+  });
+
+  if (isAiMode) {
+    elements.questionCount.value = AI_INTERVIEW_CONFIG.questionCount;
+    elements.prepTime.value = String(AI_INTERVIEW_CONFIG.prepSeconds);
+    elements.answerTime.value = String(AI_INTERVIEW_CONFIG.answerSeconds / 60);
+    elements.answerValue.textContent = String(AI_INTERVIEW_CONFIG.answerSeconds / 60);
+  }
+
+  syncStartAvailability();
+};
 
 const shuffleQuestions = (items) => {
   const shuffled = [...items];
@@ -276,15 +372,19 @@ const activeQuestions = () => state.sessionQuestions;
 const currentQuestion = () => activeQuestions()[state.currentIndex] || activeQuestions()[0];
 
 const setView = (view) => {
+  elements.browseView.classList.toggle("active", view === "browse");
   elements.homeView.classList.toggle("active", view === "home");
   elements.aboutView.classList.toggle("active", view === "about");
   elements.checkView.classList.toggle("active", view === "check");
   elements.interviewView.classList.toggle("active", view === "interview");
   elements.resultView.classList.toggle("active", view === "result");
-  const activeNavView = view === "about" ? "about" : "home";
+  const activeNavView = ["about", "browse", "home"].includes(view) ? view : "home";
   $$(".main-nav [data-view]").forEach((button) => {
     button.classList.toggle("active", button.dataset.view === activeNavView);
   });
+  if (view === "browse") {
+    renderBrowseView();
+  }
   window.scrollTo({ top: 0, behavior: "instant" });
 };
 
@@ -350,40 +450,63 @@ const beginAnswer = () => {
 };
 
 const readConfig = () => {
+  state.interviewMode = getSelectedInterviewMode();
   const selectedRigor = getSelectedRigor();
   const availableQuestionCount = questionsForDifficulty(selectedRigor).length;
+  state.config.rigor = selectedRigor;
+
+  if (state.interviewMode === "ai") {
+    state.config.questionCount = Math.min(AI_INTERVIEW_CONFIG.questionCount, availableQuestionCount || questions.length);
+    state.config.prepSeconds = AI_INTERVIEW_CONFIG.prepSeconds;
+    state.config.answerSeconds = AI_INTERVIEW_CONFIG.answerSeconds;
+    state.recordingEnabled = true;
+    return;
+  }
+
   state.config.questionCount = Math.max(
     1,
     Math.min(Number(elements.questionCount.value) || 5, availableQuestionCount || questions.length),
   );
   state.config.prepSeconds = Math.max(0, Number(elements.prepTime.value));
   state.config.answerSeconds = (Number(elements.answerTime.value) || 3) * 60;
-  state.config.rigor = selectedRigor;
 };
 
 const syncStartAvailability = () => {
   const availableQuestionCount = questionsForDifficulty(getSelectedRigor()).length;
-  const isAvailable = elements.targetRole.value === "process" && availableQuestionCount > 0;
+  const isAiMode = getSelectedInterviewMode() === "ai";
+  const requiredQuestionCount = isAiMode ? AI_INTERVIEW_CONFIG.questionCount : 1;
+  const isAvailable = elements.targetRole.value === "process" && availableQuestionCount >= requiredQuestionCount;
   const label = elements.startInterview.querySelector("span");
   elements.startInterview.disabled = !isAvailable;
   elements.startInterview.setAttribute("aria-disabled", String(!isAvailable));
   label.textContent =
     elements.targetRole.value === "process"
       ? isAvailable
-        ? "모의 면접 시작"
-        : "출제 가능한 문항이 없습니다"
+        ? isAiMode
+          ? "AI 모의면접 시작"
+          : "모의 면접 시작"
+        : isAiMode
+          ? "AI 모의면접은 최소 1문항이 필요합니다"
+          : "출제 가능한 문항이 없습니다"
       : "준비중인 직무입니다";
 };
 
 const setRecordingMode = (enabled) => {
+  if (state.interviewMode === "ai" && !enabled) {
+    enabled = true;
+  }
   state.recordingEnabled = enabled;
   elements.recordingModeOn.classList.toggle("active", enabled);
   elements.recordingModeOff.classList.toggle("active", !enabled);
   elements.recordingModeOn.setAttribute("aria-pressed", String(enabled));
   elements.recordingModeOff.setAttribute("aria-pressed", String(!enabled));
-  elements.recordingModeNotice.textContent = enabled
-    ? "녹화 모드는 문항별 복기를 제공합니다. 녹화 파일은 별도 서버로 전송되지 않습니다."
-    : "비녹화 모드는 녹화 복기가 제공되지 않으며, 카메라 영상도 별도 서버로 전송되지 않습니다.";
+  elements.recordingModeOff.disabled = state.interviewMode === "ai";
+  elements.recordingModeNotice.textContent =
+    state.interviewMode === "ai"
+      ? "AI 모의면접은 녹화가 필수입니다. 면접 종료 후 동의한 답변 음성만 AI 채점을 위해 전송됩니다."
+      : enabled
+        ? "녹화 모드는 문항별 복기를 제공합니다. 녹화 파일은 별도 서버로 전송되지 않습니다."
+        : "비녹화 모드는 녹화 복기가 제공되지 않으며, 카메라 영상도 별도 서버로 전송되지 않습니다.";
   elements.cameraPlaceholder.innerHTML = enabled
     ? '<i data-lucide="video"></i><strong>사용자 웹캠 화면</strong><span>녹화 모드에서는 답변 시간이 시작되면 자동으로 녹화됩니다.</span>'
     : '<i data-lucide="video-off"></i><strong>비녹화 모드</strong><span>이번 면접은 녹화 저장 없이 진행됩니다.</span>';
@@ -397,28 +520,68 @@ const resetForInterview = (sessionQuestions) => {
   state.recordings = [];
   state.recordedChunks = [];
   state.recordingQuestion = null;
+  state.aiEvaluations = {};
+  state.aiEvaluating = false;
 };
 
 const startInterview = () => {
   if (elements.targetRole.value !== "process") return;
   readConfig();
+  if (state.interviewMode === "standard") {
+    state.aiEvaluationConsent = false;
+  }
+  if (state.interviewMode === "ai" && !state.aiEvaluationConsent) {
+    showStartEnvironmentModal();
+    return;
+  }
+  setRecordingMode(state.interviewMode === "ai" ? true : state.recordingEnabled);
   resetForInterview(buildQuestionSet(state.config.questionCount));
   setView("check");
 };
 
-const showStartEnvironmentModal = () => {
-  if (elements.targetRole.value !== "process" || elements.startInterview.disabled) return;
+const showStartEnvironmentModal = (options = {}) => {
+  const hasPracticeTarget = Number.isInteger(options.practiceIndex);
+  const mode = hasPracticeTarget ? "standard" : getSelectedInterviewMode();
+  if (!hasPracticeTarget && (elements.targetRole.value !== "process" || elements.startInterview.disabled)) return;
+  state.pendingPracticeIndex = hasPracticeTarget ? options.practiceIndex : null;
+  state.pendingStartMode = mode;
+  const isAiMode = mode === "ai";
+  elements.startEnvironmentTitle.textContent = isAiMode
+    ? "AI 모의면접은 답변 음성 분석 동의가 필요합니다."
+    : "반면뿌는 PC 환경에서 가장 안정적으로 동작합니다.";
+  elements.startEnvironmentDescription.textContent = isAiMode
+    ? "AI 채점을 위해 면접 종료 후 문항별 답변 음성 파일을 OpenAI API로 전송하고, 전사문과 모범 답안을 바탕으로 분석합니다. 현재 파일럿 테스트에서는 AI 모의면접이 1문항, 준비 10초, 답변 2분으로 진행됩니다."
+    : "모바일에서도 이용할 수 있지만, 카메라 권한, 녹화 저장, 복기 기능은 기기와 브라우저 환경에 따라 제한될 수 있습니다. 원활한 모의면접을 위해 가능하면 PC 크롬 환경을 권장합니다.";
+  elements.startEnvironmentConsentLabel.hidden = !isAiMode;
+  elements.startEnvironmentConsent.checked = false;
+  elements.confirmStartEnvironmentButton.disabled = isAiMode;
+  elements.confirmStartEnvironmentButton.textContent = isAiMode ? "동의하고 시작하기" : "확인하고 계속하기";
   elements.startEnvironmentModal.classList.add("open");
   elements.startEnvironmentModal.setAttribute("aria-hidden", "false");
 };
 
-const hideStartEnvironmentModal = () => {
+const hideStartEnvironmentModal = (clearPracticeTarget = true) => {
+  if (clearPracticeTarget) {
+    state.pendingPracticeIndex = null;
+  }
+  state.pendingStartMode = "standard";
+  elements.startEnvironmentConsent.checked = false;
+  elements.confirmStartEnvironmentButton.disabled = false;
   elements.startEnvironmentModal.classList.remove("open");
   elements.startEnvironmentModal.setAttribute("aria-hidden", "true");
 };
 
 const confirmStartEnvironment = () => {
-  hideStartEnvironmentModal();
+  const practiceIndex = state.pendingPracticeIndex;
+  const startMode = state.pendingStartMode;
+  if (startMode === "ai" && !elements.startEnvironmentConsent.checked) return;
+  state.aiEvaluationConsent = startMode === "ai";
+  hideStartEnvironmentModal(false);
+  state.pendingPracticeIndex = null;
+  if (Number.isInteger(practiceIndex)) {
+    startSingleQuestionPractice(practiceIndex);
+    return;
+  }
   startInterview();
 };
 
@@ -433,8 +596,11 @@ const enterInterview = () => {
 const startSingleQuestionPractice = (originalIndex) => {
   const question = questions[originalIndex];
   if (!question) return;
+  state.interviewMode = "standard";
+  state.aiEvaluationConsent = false;
   resetForInterview([{ ...question, originalIndex }]);
   state.config.questionCount = 1;
+  state.config.rigor = question.difficulty;
   setView("check");
 };
 
@@ -466,7 +632,11 @@ const finishInterview = async () => {
   elements.timerText.textContent = "완료";
   renderResultPage();
   setView("result");
-  window.setTimeout(showFeedbackModal, 350);
+  if (state.interviewMode === "ai") {
+    startAiEvaluations().catch(() => {});
+  } else {
+    window.setTimeout(showFeedbackModal, 350);
+  }
 };
 
 const isInterviewOpen = () => elements.interviewView.classList.contains("active");
@@ -1003,6 +1173,9 @@ const saveRecording = () => {
   const url = URL.createObjectURL(blob);
   state.recordings.push({
     url,
+    blob,
+    mimeType: blob.type || "video/webm",
+    size: blob.size,
     questionNumber: state.recordingQuestion?.questionNumber ?? state.currentIndex + 1,
     questionIndex: state.recordingQuestion?.questionIndex ?? currentQuestion().originalIndex,
     question: state.recordingQuestion?.question ?? currentQuestion().text,
@@ -1024,6 +1197,253 @@ const escapeHtml = (value) =>
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 
+const readStudyProgress = () => {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STUDY_PROGRESS_KEY) || "{}");
+    return saved && typeof saved === "object" && !Array.isArray(saved) ? saved : {};
+  } catch (error) {
+    return {};
+  }
+};
+
+const writeStudyProgress = () => {
+  try {
+    localStorage.setItem(STUDY_PROGRESS_KEY, JSON.stringify(state.studyProgress));
+  } catch (error) {
+    // localStorage가 막힌 환경에서도 문제 훑기 자체는 계속 사용할 수 있게 둡니다.
+  }
+};
+
+const progressKey = (question) => String(question.id);
+
+const getQuestionStudyState = (question) => {
+  const saved = state.studyProgress[progressKey(question)] || {};
+  return {
+    bookmarked: Boolean(saved.bookmarked),
+    status: saved.status === "known" || saved.status === "confused" ? saved.status : null,
+    updatedAt: Number(saved.updatedAt) || 0,
+  };
+};
+
+const setQuestionStudyState = (question, nextState) => {
+  const key = progressKey(question);
+  const current = getQuestionStudyState(question);
+  const merged = { ...current, ...nextState, updatedAt: Date.now() };
+
+  if (!merged.bookmarked && !merged.status) {
+    delete state.studyProgress[key];
+  } else {
+    state.studyProgress[key] = merged;
+  }
+
+  writeStudyProgress();
+};
+
+const fallbackTailQuestions = (question) => {
+  const byCategory = {
+    "포토(Lithography)": [
+      "CD와 Overlay 관점에서 이 이슈가 어떤 문제로 이어질 수 있나요?",
+      "노광 조건을 조정하기 전에 어떤 계측 데이터를 먼저 확인하겠습니까?",
+      "DOF, 해상도, 공정 윈도우를 함께 고려하면 어떤 trade-off가 생기나요?",
+    ],
+    "식각(Etch)": [
+      "식각 선택비와 프로파일을 동시에 만족시키기 어려운 이유는 무엇인가요?",
+      "Chamber condition 변화가 의심될 때 어떤 장비 데이터를 확인하겠습니까?",
+      "Over etch를 늘렸을 때 얻는 이점과 리스크를 설명해보세요.",
+    ],
+    "증착(Deposition)": [
+      "두께 균일도와 막질을 함께 관리하기 위해 어떤 파라미터를 보겠습니까?",
+      "CVD와 PVD 중 어떤 방식이 더 적절한지 판단하는 기준은 무엇인가요?",
+      "Chamber seasoning이나 PM 직후 막 특성이 흔들릴 때 어떻게 대응하겠습니까?",
+    ],
+    "CMP": [
+      "Dishing과 erosion을 구분해서 원인을 좁히려면 어떤 데이터를 봐야 하나요?",
+      "Pad, slurry, pressure 중 어떤 인자를 먼저 의심하겠습니까?",
+      "CMP 결과가 후속 공정에 미치는 영향을 설명해보세요.",
+    ],
+    "이온주입(Implant)": [
+      "Dose와 energy가 소자 특성에 어떤 영향을 주는지 설명해보세요.",
+      "Annealing 조건을 바꾸면 어떤 장점과 리스크가 생기나요?",
+      "Implant 이후 계측이나 모니터링은 어떤 항목이 중요할까요?",
+    ],
+    "세정(Cleaning)": [
+      "Particle과 metal contamination은 각각 어떻게 접근해야 하나요?",
+      "세정 강도를 높였을 때 발생할 수 있는 부작용은 무엇인가요?",
+      "세정 공정 이상을 확인하기 위한 모니터링 지표는 무엇인가요?",
+    ],
+  };
+
+  return (
+    byCategory[question.category] || [
+      "이 개념이 실제 양산 수율과 연결되는 지점을 설명해보세요.",
+      "현장에서 이 문제가 발생했다면 원인 가설을 어떤 순서로 세우겠습니까?",
+      "관련 데이터를 확인한 뒤 공정 조건을 바꿀 때 주의할 점은 무엇인가요?",
+    ]
+  );
+};
+
+const tailQuestionsFor = (question) =>
+  question.tailQuestions?.length ? question.tailQuestions.slice(0, 3) : fallbackTailQuestions(question).slice(0, 3);
+
+const filteredBrowseQuestions = () =>
+  questions.filter((question) => {
+    const { difficulty, category, status } = state.browse.filters;
+    const studyState = getQuestionStudyState(question);
+
+    if (difficulty !== "all" && question.difficulty !== difficulty) return false;
+    if (category !== "all" && question.category !== category) return false;
+    if (status === "bookmarked" && !studyState.bookmarked) return false;
+    if (status === "confused" && studyState.status !== "confused") return false;
+    if (status === "known" && studyState.status !== "known") return false;
+    if (status === "unmarked" && (studyState.bookmarked || studyState.status)) return false;
+
+    return true;
+  });
+
+const currentBrowseQuestion = () => {
+  const filtered = filteredBrowseQuestions();
+  return filtered[state.browse.index] || filtered[0] || null;
+};
+
+const syncBrowseFiltersFromInputs = () => {
+  state.browse.filters.difficulty = elements.browseDifficultyFilter.value;
+  state.browse.filters.category = elements.browseCategoryFilter.value;
+  state.browse.filters.status = elements.browseStatusFilter.value;
+};
+
+const renderBrowseCategoryOptions = () => {
+  elements.browseCategoryFilter.innerHTML = [
+    '<option value="all">전체</option>',
+    ...browseCategories.map((category) => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`),
+  ].join("");
+};
+
+const renderBrowseDashboard = () => {
+  const knownCount = questions.filter((question) => getQuestionStudyState(question).status === "known").length;
+  const confusedCount = questions.filter((question) => getQuestionStudyState(question).status === "confused").length;
+  const bookmarkedCount = questions.filter((question) => getQuestionStudyState(question).bookmarked).length;
+  const studyPercent = questions.length ? Math.round((knownCount / questions.length) * 100) : 0;
+
+  elements.browseStudyPercent.textContent = `${studyPercent}%`;
+  elements.browseKnownCount.textContent = knownCount;
+  elements.browseConfusedCount.textContent = confusedCount;
+  elements.browseBookmarkedCount.textContent = bookmarkedCount;
+
+  elements.browseCategoryProgress.innerHTML = browseCategories
+    .map((category) => {
+      const categoryQuestions = questions.filter((question) => question.category === category);
+      const categoryKnown = categoryQuestions.filter((question) => getQuestionStudyState(question).status === "known").length;
+      const percent = categoryQuestions.length ? Math.round((categoryKnown / categoryQuestions.length) * 100) : 0;
+
+      return `
+        <article class="browse-category-row">
+          <div>
+            <strong>${escapeHtml(category)}</strong>
+            <span>${categoryKnown} / ${categoryQuestions.length}</span>
+          </div>
+          <div class="browse-category-bar" aria-hidden="true">
+            <span style="width: ${percent}%"></span>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+};
+
+const renderBrowseCard = () => {
+  const filtered = filteredBrowseQuestions();
+
+  if (state.browse.index >= filtered.length) {
+    state.browse.index = Math.max(0, filtered.length - 1);
+  }
+
+  const question = filtered[state.browse.index] || null;
+  const hasQuestion = Boolean(question);
+  elements.browseCard.hidden = !hasQuestion;
+  elements.browseEmpty.hidden = hasQuestion;
+  elements.browsePrevButton.disabled = !hasQuestion || filtered.length <= 1;
+  elements.browseNextButton.disabled = !hasQuestion || filtered.length <= 1;
+
+  if (!question) {
+    renderIcons();
+    return;
+  }
+
+  const studyState = getQuestionStudyState(question);
+  const tailQuestions = tailQuestionsFor(question);
+  elements.browseDifficultyChip.textContent = question.difficulty;
+  elements.browseCategoryChip.textContent = question.category;
+  elements.browseCounter.textContent = `${state.browse.index + 1} / ${filtered.length}`;
+  elements.browseQuestionText.textContent = question.text;
+  elements.browseKeywordList.innerHTML = question.keywords?.length
+    ? question.keywords.map((keyword) => `<span>${escapeHtml(keyword)}</span>`).join("")
+    : "<span>키워드 준비중</span>";
+  elements.browseAnswerText.textContent = question.answer || "모범 답안 준비중입니다.";
+  elements.browseTailQuestions.innerHTML = tailQuestions.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+
+  elements.browseAnswerPanel.classList.toggle("open", state.browse.answerOpen);
+  elements.browseAnswerPanel.setAttribute("aria-hidden", String(!state.browse.answerOpen));
+  elements.browseToggleAnswerButton.classList.toggle("active", state.browse.answerOpen);
+  elements.browseToggleAnswerButton.querySelector("span").textContent = state.browse.answerOpen ? "답안 접기" : "답안 보기";
+
+  elements.browseBookmarkButton.classList.toggle("active", studyState.bookmarked);
+  elements.browseBookmarkButton.setAttribute("aria-pressed", String(studyState.bookmarked));
+  elements.browseConfusedButton.classList.toggle("active", studyState.status === "confused");
+  elements.browseConfusedButton.setAttribute("aria-pressed", String(studyState.status === "confused"));
+  elements.browseKnownButton.classList.toggle("active", studyState.status === "known");
+  elements.browseKnownButton.setAttribute("aria-pressed", String(studyState.status === "known"));
+
+  renderIcons();
+};
+
+const renderBrowseView = () => {
+  if (!elements.browseView) return;
+  renderBrowseDashboard();
+  renderBrowseCard();
+};
+
+const moveBrowseQuestion = (direction) => {
+  const filtered = filteredBrowseQuestions();
+  if (filtered.length <= 1) return;
+
+  state.browse.index = (state.browse.index + direction + filtered.length) % filtered.length;
+  state.browse.answerOpen = false;
+  renderBrowseView();
+};
+
+const toggleBrowseAnswer = () => {
+  state.browse.answerOpen = !state.browse.answerOpen;
+  renderBrowseCard();
+};
+
+const toggleBrowseBookmark = () => {
+  const question = currentBrowseQuestion();
+  if (!question) return;
+  const studyState = getQuestionStudyState(question);
+  setQuestionStudyState(question, { bookmarked: !studyState.bookmarked });
+  renderBrowseView();
+};
+
+const setBrowseStatus = (status) => {
+  const question = currentBrowseQuestion();
+  if (!question) return;
+  const studyState = getQuestionStudyState(question);
+  setQuestionStudyState(question, { status: studyState.status === status ? null : status });
+
+  const filtered = filteredBrowseQuestions();
+  if (!filtered.includes(question)) {
+    state.browse.index = Math.min(state.browse.index, Math.max(0, filtered.length - 1));
+  }
+
+  renderBrowseView();
+};
+
+const startBrowsePractice = () => {
+  const question = currentBrowseQuestion();
+  if (!question) return;
+  showStartEnvironmentModal({ practiceIndex: question.originalIndex });
+};
+
 const renderKeywordBlock = (keywords = []) => {
   const visibleKeywords = keywords.map((keyword) => String(keyword).trim()).filter(Boolean);
 
@@ -1041,15 +1461,217 @@ const renderKeywordBlock = (keywords = []) => {
   `;
 };
 
+const evaluationForQuestion = (questionIndex) => state.aiEvaluations[String(questionIndex)];
+
+const setAiEvaluationState = (questionIndex, nextState) => {
+  const key = String(questionIndex);
+  state.aiEvaluations[key] = {
+    ...(state.aiEvaluations[key] || {}),
+    ...nextState,
+  };
+  renderResultPage();
+};
+
+const postAiEvaluation = async (question, recording) => {
+  if (!recording?.blob) {
+    throw new Error("녹화 파일을 찾을 수 없습니다.");
+  }
+
+  if (recording.blob.size > MAX_AI_AUDIO_BYTES) {
+    throw new Error("녹화 파일이 25MB를 초과해 AI 채점을 진행할 수 없습니다.");
+  }
+
+  const formData = new FormData();
+  formData.append("audio", recording.blob, `answer-${question.originalIndex}.webm`);
+  formData.append("question", question.text);
+  formData.append("modelAnswer", question.answer || "");
+  formData.append("keywords", JSON.stringify(question.keywords || []));
+  formData.append("category", question.category || "");
+  formData.append("difficulty", question.difficulty || "");
+  formData.append("questionIndex", String(question.originalIndex));
+
+  const response = await fetch("/api/evaluate-answer", {
+    method: "POST",
+    body: formData,
+  });
+  const payload = await response.json().catch(() => ({}));
+
+  if (!response.ok || !payload.ok) {
+    throw new Error(payload.message || "AI 채점 요청에 실패했습니다.");
+  }
+
+  return payload.evaluation;
+};
+
+const startAiEvaluations = async () => {
+  if (state.interviewMode !== "ai" || state.aiEvaluating) return;
+
+  state.aiEvaluating = true;
+
+  for (const question of state.completedQuestions) {
+    const recording = recordingForQuestion(question.originalIndex);
+    if (!recording?.blob) {
+      setAiEvaluationState(question.originalIndex, {
+        status: "error",
+        message: "녹화 답변이 없어 AI 채점을 진행할 수 없습니다.",
+      });
+      continue;
+    }
+
+    setAiEvaluationState(question.originalIndex, {
+      status: "transcribing",
+      message: "답변 음성을 전사하는 중입니다.",
+    });
+
+    let analysisTimer = window.setTimeout(() => {
+      setAiEvaluationState(question.originalIndex, {
+        status: "analyzing",
+        message: "전사문과 모범 답안을 비교 분석하는 중입니다.",
+      });
+    }, 1200);
+
+    try {
+      const evaluation = await postAiEvaluation(question, recording);
+      window.clearTimeout(analysisTimer);
+      setAiEvaluationState(question.originalIndex, {
+        status: "complete",
+        message: "AI 채점이 완료되었습니다.",
+        result: evaluation,
+      });
+    } catch (error) {
+      window.clearTimeout(analysisTimer);
+      setAiEvaluationState(question.originalIndex, {
+        status: "error",
+        message: error.message || "AI 채점 중 오류가 발생했습니다.",
+      });
+    }
+  }
+
+  state.aiEvaluating = false;
+};
+
+const renderListItems = (items = []) => {
+  const safeItems = Array.isArray(items) ? items : [];
+  if (!safeItems.length) {
+    return "<li>분석 결과가 없습니다.</li>";
+  }
+  return safeItems.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+};
+
+const renderRubric = (rubric = {}) => {
+  const entries = [
+    ["technicalAccuracy", "기술 정확성"],
+    ["structure", "질문 대응성/구조화"],
+    ["problemSolving", "실무 문제해결"],
+    ["clarity", "표현 명확성"],
+    ["keywordCoverage", "키워드 커버리지"],
+  ];
+
+  return entries
+    .map(([key, label]) => {
+      const item = rubric[key] || {};
+      const score = Number.isFinite(Number(item.score)) ? Number(item.score) : 0;
+      const maxScore = Number.isFinite(Number(item.maxScore)) ? Number(item.maxScore) : "";
+      const comment = item.comment ? String(item.comment) : "";
+
+      return `
+        <article>
+          <div>
+            <strong>${label}</strong>
+            <span>${score}${maxScore ? ` / ${maxScore}` : ""}</span>
+          </div>
+          <p>${escapeHtml(comment || "세부 코멘트가 없습니다.")}</p>
+        </article>
+      `;
+    })
+    .join("");
+};
+
+const renderAiEvaluationBlock = (question, recording) => {
+  if (state.interviewMode !== "ai") return "";
+
+  const evaluation = evaluationForQuestion(question.originalIndex) || { status: "waiting" };
+  const statusText =
+    {
+      waiting: "채점 대기",
+      transcribing: "전사 중",
+      analyzing: "분석 중",
+      complete: "채점 완료",
+      error: "채점 실패",
+    }[evaluation.status] || "채점 대기";
+
+  if (!recording) {
+    return `
+      <section class="ai-evaluation-panel status-error">
+        <div class="ai-evaluation-head">
+          <h3>AI 채점</h3>
+          <span>녹화 없음</span>
+        </div>
+        <p>녹화 답변이 없어 AI 채점이 제공되지 않습니다.</p>
+      </section>
+    `;
+  }
+
+  if (evaluation.status !== "complete") {
+    return `
+      <section class="ai-evaluation-panel status-${escapeHtml(evaluation.status)}">
+        <div class="ai-evaluation-head">
+          <h3>AI 채점</h3>
+          <span>${escapeHtml(statusText)}</span>
+        </div>
+        <p>${escapeHtml(evaluation.message || "면접 종료 후 자동으로 AI 채점을 시작합니다.")}</p>
+      </section>
+    `;
+  }
+
+  const result = evaluation.result || {};
+  return `
+    <section class="ai-evaluation-panel status-complete">
+      <div class="ai-evaluation-head">
+        <h3>AI 채점</h3>
+        <span>총점 ${escapeHtml(result.totalScore ?? "-")}점</span>
+      </div>
+      <div class="ai-transcript">
+        <h4>STT 전사문</h4>
+        <p>${escapeHtml(result.transcript || "전사문이 없습니다.")}</p>
+      </div>
+      <div class="ai-rubric-grid">
+        ${renderRubric(result.rubric)}
+      </div>
+      <div class="ai-feedback-grid">
+        <article>
+          <h4>강점</h4>
+          <ul>${renderListItems(result.strengths)}</ul>
+        </article>
+        <article>
+          <h4>보완점</h4>
+          <ul>${renderListItems(result.improvements)}</ul>
+        </article>
+        <article>
+          <h4>놓친 키워드</h4>
+          <ul>${renderListItems(result.missedKeywords)}</ul>
+        </article>
+      </div>
+      <div class="ai-suggested-answer">
+        <h4>개선 답변 예시</h4>
+        <p>${escapeHtml(result.suggestedAnswer || "개선 답변 예시가 없습니다.")}</p>
+      </div>
+      <p class="ai-caution">${escapeHtml(result.caution || "AI 채점은 학습 참고용이며 최종 답변은 지원 회사와 직무에 맞게 보완해주세요.")}</p>
+    </section>
+  `;
+};
+
 const renderResultPage = () => {
   elements.summaryQuestions.textContent = state.completedQuestions.length;
-  elements.summaryRecordings.textContent = state.recordingEnabled ? state.recordings.length : "미제공";
+  elements.summaryRecordings.textContent =
+    state.interviewMode === "ai" ? `${state.recordings.length} / ${state.completedQuestions.length}` : state.recordingEnabled ? state.recordings.length : "미제공";
   elements.summaryRigor.textContent = state.config.rigor;
 
   elements.resultList.innerHTML = state.completedQuestions
     .map((question, index) => {
       const recording = recordingForQuestion(question.originalIndex);
       const keywordBlock = renderKeywordBlock(question.keywords);
+      const aiEvaluationBlock = renderAiEvaluationBlock(question, recording);
       const video = recording
         ? `<video src="${recording.url}" controls></video>`
         : state.recordingEnabled
@@ -1065,7 +1687,7 @@ const renderResultPage = () => {
             </button>
           </div>
           <h2>${question.text}</h2>
-          <div class="result-card-body">
+          <div class="result-card-body ${state.interviewMode === "ai" ? "ai-result-card-body" : ""}">
             <section>
               <h3>녹화 복기</h3>
               ${video}
@@ -1075,6 +1697,7 @@ const renderResultPage = () => {
               ${keywordBlock}
               <p>${question.answer}</p>
             </section>
+            ${aiEvaluationBlock}
           </div>
         </article>
       `;
@@ -1084,12 +1707,86 @@ const renderResultPage = () => {
   renderIcons();
 };
 
+const handleBrowseFilterChange = () => {
+  syncBrowseFiltersFromInputs();
+  state.browse.index = 0;
+  state.browse.answerOpen = false;
+  renderBrowseView();
+};
+
+const bindBrowseControls = () => {
+  elements.browseDifficultyFilter.addEventListener("change", handleBrowseFilterChange);
+  elements.browseCategoryFilter.addEventListener("change", handleBrowseFilterChange);
+  elements.browseStatusFilter.addEventListener("change", handleBrowseFilterChange);
+  elements.browsePrevButton.addEventListener("click", () => moveBrowseQuestion(-1));
+  elements.browseNextButton.addEventListener("click", () => moveBrowseQuestion(1));
+  elements.browseToggleAnswerButton.addEventListener("click", toggleBrowseAnswer);
+  elements.browseBookmarkButton.addEventListener("click", toggleBrowseBookmark);
+  elements.browseConfusedButton.addEventListener("click", () => setBrowseStatus("confused"));
+  elements.browseKnownButton.addEventListener("click", () => setBrowseStatus("known"));
+  elements.browsePracticeButton.addEventListener("click", startBrowsePractice);
+
+  elements.browseShorts.addEventListener(
+    "wheel",
+    (event) => {
+      if (!elements.browseView.classList.contains("active") || Math.abs(event.deltaY) < 24) return;
+      event.preventDefault();
+      if (state.browse.wheelLocked) return;
+      state.browse.wheelLocked = true;
+      moveBrowseQuestion(event.deltaY > 0 ? 1 : -1);
+      window.setTimeout(() => {
+        state.browse.wheelLocked = false;
+      }, 420);
+    },
+    { passive: false },
+  );
+
+  elements.browseShorts.addEventListener("touchstart", (event) => {
+    state.browse.touchStartY = event.touches[0]?.clientY ?? null;
+  });
+
+  elements.browseShorts.addEventListener("touchend", (event) => {
+    if (state.browse.touchStartY === null) return;
+    const endY = event.changedTouches[0]?.clientY ?? state.browse.touchStartY;
+    const distance = state.browse.touchStartY - endY;
+    state.browse.touchStartY = null;
+    if (Math.abs(distance) < 44) return;
+    moveBrowseQuestion(distance > 0 ? 1 : -1);
+  });
+
+  window.addEventListener("keydown", (event) => {
+    if (!elements.browseView.classList.contains("active")) return;
+    if (["INPUT", "SELECT", "TEXTAREA"].includes(document.activeElement?.tagName)) return;
+
+    if (event.key === "ArrowDown" || event.key === "PageDown") {
+      event.preventDefault();
+      moveBrowseQuestion(1);
+    }
+    if (event.key === "ArrowUp" || event.key === "PageUp") {
+      event.preventDefault();
+      moveBrowseQuestion(-1);
+    }
+    if (event.key === "Enter") {
+      event.preventDefault();
+      toggleBrowseAnswer();
+    }
+  });
+};
+
 const bindSetupControls = () => {
+  $$(".interview-mode-card").forEach((card) => {
+    card.addEventListener("click", () => {
+      $$(".interview-mode-card").forEach((item) => item.classList.remove("active"));
+      card.classList.add("active");
+      syncInterviewModeUi();
+    });
+  });
+
   $$(".rigor-card").forEach((card) => {
     card.addEventListener("click", () => {
       $$(".rigor-card").forEach((item) => item.classList.remove("active"));
       card.classList.add("active");
-      syncStartAvailability();
+      syncInterviewModeUi();
     });
   });
 
@@ -1099,7 +1796,7 @@ const bindSetupControls = () => {
 
   elements.targetRole.addEventListener("change", syncStartAvailability);
   elements.startInterview.addEventListener("click", showStartEnvironmentModal);
-  syncStartAvailability();
+  syncInterviewModeUi();
 };
 
 const bindInterviewControls = () => {
@@ -1123,6 +1820,11 @@ const bindInterviewControls = () => {
 
   elements.cancelStartEnvironmentButton.addEventListener("click", hideStartEnvironmentModal);
   elements.confirmStartEnvironmentButton.addEventListener("click", confirmStartEnvironment);
+  elements.startEnvironmentConsent.addEventListener("change", () => {
+    if (state.pendingStartMode === "ai") {
+      elements.confirmStartEnvironmentButton.disabled = !elements.startEnvironmentConsent.checked;
+    }
+  });
   elements.startEnvironmentModal.addEventListener("click", (event) => {
     if (event.target === elements.startEnvironmentModal) {
       hideStartEnvironmentModal();
@@ -1195,7 +1897,7 @@ const bindInterviewControls = () => {
 
 const bindResultControls = () => {
   elements.resultHomeButton.addEventListener("click", () => setView("home"));
-  elements.restartInterviewButton.addEventListener("click", startInterview);
+  elements.restartInterviewButton.addEventListener("click", showStartEnvironmentModal);
   elements.resultList.addEventListener("click", (event) => {
     const button = event.target.closest(".retry-question");
     if (!button) return;
@@ -1205,11 +1907,15 @@ const bindResultControls = () => {
 
 window.addEventListener("load", () => {
   cacheElements();
+  state.studyProgress = readStudyProgress();
+  renderBrowseCategoryOptions();
   renderIcons();
+  bindBrowseControls();
   bindSetupControls();
   bindInterviewControls();
   bindResultControls();
   setRecordingMode(true);
+  setView("browse");
   flushQueuedFeedback().catch(() => {});
   flushQueuedReports().catch(() => {});
   showStartupHelp();
