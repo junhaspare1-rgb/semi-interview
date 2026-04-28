@@ -1941,11 +1941,30 @@ input[type="number"] {
 }
 
 .result-card video,
+.audio-review,
 .no-recording {
   width: 100%;
   aspect-ratio: 16 / 10;
   border-radius: 6px;
   background: #0f172a;
+}
+
+.audio-review {
+  display: grid;
+  place-content: center;
+  gap: 14px;
+  padding: 20px;
+  color: #cbd5e1;
+  text-align: center;
+}
+
+.audio-review audio {
+  width: min(420px, 100%);
+}
+
+.audio-review span {
+  font-size: 14px;
+  font-weight: 800;
 }
 
 .no-recording {

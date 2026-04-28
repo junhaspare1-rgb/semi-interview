@@ -117,6 +117,7 @@ const state = {
   remaining: 60,
   timerId: null,
   cameraStream: null,
+  audioStream: null,
   sttTestStream: null,
   sttTestRecorder: null,
   sttTestChunks: [],
@@ -277,6 +278,7 @@ const cacheElements = () => {
     "timerText",
     "cameraPreview",
     "cameraPlaceholder",
+    "recordingBadge",
     "skipPrepButton",
     "nextQuestionButton",
     "finishInterviewButton",
@@ -564,11 +566,11 @@ const setRecordingMode = (enabled) => {
     state.interviewMode === "ai"
       ? "AI 모의면접은 녹화가 필수입니다. 면접 종료 후 동의한 답변 음성만 AI 채점을 위해 전송됩니다."
       : enabled
-        ? "녹화 모드는 문항별 복기를 제공합니다. 녹화 파일은 별도 서버로 전송되지 않습니다."
-        : "비녹화 모드는 녹화 복기가 제공되지 않으며, 카메라 영상도 별도 서버로 전송되지 않습니다.";
+        ? "녹화 모드는 문항별 영상 복기를 제공합니다. 녹화 파일은 별도 서버로 전송되지 않습니다."
+        : "녹화 없이 연습하면 영상은 저장하지 않고 문항별 음성만 녹음합니다. 녹음 파일은 별도 서버로 전송되지 않습니다.";
   elements.cameraPlaceholder.innerHTML = enabled
     ? '<i data-lucide="video"></i><strong>사용자 웹캠 화면</strong><span>녹화 모드에서는 답변 시간이 시작되면 자동으로 녹화됩니다.</span>'
-    : '<i data-lucide="video-off"></i><strong>비녹화 모드</strong><span>이번 면접은 녹화 저장 없이 진행됩니다.</span>';
+    : '<i data-lucide="mic"></i><strong>음성 녹음 모드</strong><span>영상은 저장하지 않고 답변 음성만 녹음합니다.</span>';
   renderIcons();
 };
 
@@ -687,6 +689,8 @@ const confirmStartEnvironment = () => {
 const enterInterview = () => {
   if (state.recordingEnabled) {
     ensureCamera().catch(() => {});
+  } else {
+    ensureAudioStream().catch(() => {});
   }
   setView("interview");
   beginPrep();
@@ -864,7 +868,8 @@ const buildFeedbackPayload = () => ({
     prepSeconds: state.config.prepSeconds,
     answerSeconds: state.config.answerSeconds,
     recordingEnabled: state.recordingEnabled,
-    recordingsCount: state.recordingEnabled ? state.recordings.length : 0,
+    captureMode: state.recordingEnabled ? "video" : "audio",
+    recordingsCount: state.recordings.length,
     path: window.location.pathname,
   },
   client: {
@@ -1210,6 +1215,37 @@ const ensureCamera = async () => {
   }
 };
 
+const ensureAudioStream = async () => {
+  const cameraAudioTracks = state.cameraStream?.getAudioTracks().filter((track) => track.readyState === "live") || [];
+  if (cameraAudioTracks.length) {
+    return new MediaStream(cameraAudioTracks);
+  }
+
+  if (state.audioStream?.getAudioTracks().some((track) => track.readyState === "live")) {
+    return state.audioStream;
+  }
+
+  try {
+    state.audioStream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true,
+      },
+    });
+    markReady(elements.micCheckState, "마이크 감지");
+    startMicMeter(state.audioStream);
+    return state.audioStream;
+  } catch (error) {
+    elements.cameraPlaceholder.innerHTML =
+      "<strong>마이크 접근이 필요합니다</strong><span>브라우저 권한을 허용하면 음성 복기 기능을 사용할 수 있습니다.</span>";
+    elements.cameraCheckPlaceholder.innerHTML =
+      "<strong>마이크 접근이 필요합니다</strong><span>브라우저 권한을 허용한 뒤 다시 시도해주세요.</span>";
+    renderIcons();
+    throw error;
+  }
+};
+
 const playSpeakerTest = () => {
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   if (!AudioContextClass) {
@@ -1244,10 +1280,24 @@ const createMediaRecorder = (stream, types = []) => {
   return options ? new MediaRecorder(stream, options) : new MediaRecorder(stream);
 };
 
+const startAudioRecorder = (stream) => {
+  const audioTracks = stream.getAudioTracks().filter((track) => track.readyState === "live");
+  if (!audioTracks.length) return;
+
+  const audioStream = new MediaStream(audioTracks);
+  state.audioRecorder = createMediaRecorder(audioStream, ["audio/webm;codecs=opus", "audio/webm"]);
+  state.audioRecorder.addEventListener("dataavailable", (event) => {
+    if (event.data.size > 0) {
+      state.audioRecordedChunks.push(event.data);
+    }
+  });
+  state.audioRecorder.start();
+};
+
 const startRecording = async () => {
-  if (!state.recordingEnabled) return;
-  const stream = await ensureCamera();
-  if (state.recorder?.state === "recording") return;
+  const shouldRecordVideo = state.recordingEnabled;
+  const stream = shouldRecordVideo ? await ensureCamera() : await ensureAudioStream();
+  if (state.recorder?.state === "recording" || state.audioRecorder?.state === "recording") return;
 
   const question = currentQuestion();
   state.recordedChunks = [];
@@ -1257,33 +1307,27 @@ const startRecording = async () => {
     questionIndex: question.originalIndex,
     question: question.text,
   };
-  state.recorder = createMediaRecorder(stream, ["video/webm;codecs=vp9,opus", "video/webm;codecs=vp8,opus", "video/webm"]);
-  state.recorder.addEventListener("dataavailable", (event) => {
-    if (event.data.size > 0) {
-      state.recordedChunks.push(event.data);
-    }
-  });
-  state.recorder.start();
 
-  if (state.interviewMode === "ai") {
-    const audioTracks = stream.getAudioTracks();
-    if (audioTracks.length) {
-      try {
-        const audioStream = new MediaStream(audioTracks);
-        state.audioRecorder = createMediaRecorder(audioStream, ["audio/webm;codecs=opus", "audio/webm"]);
-        state.audioRecorder.addEventListener("dataavailable", (event) => {
-          if (event.data.size > 0) {
-            state.audioRecordedChunks.push(event.data);
-          }
-        });
-        state.audioRecorder.start();
-      } catch (error) {
-        state.audioRecorder = null;
-        state.audioRecordedChunks = [];
+  if (shouldRecordVideo) {
+    state.recorder = createMediaRecorder(stream, ["video/webm;codecs=vp9,opus", "video/webm;codecs=vp8,opus", "video/webm"]);
+    state.recorder.addEventListener("dataavailable", (event) => {
+      if (event.data.size > 0) {
+        state.recordedChunks.push(event.data);
       }
+    });
+    state.recorder.start();
+  }
+
+  if (state.interviewMode === "ai" || !shouldRecordVideo) {
+    try {
+      startAudioRecorder(stream);
+    } catch (error) {
+      state.audioRecorder = null;
+      state.audioRecordedChunks = [];
     }
   }
 
+  elements.recordingBadge.textContent = shouldRecordVideo ? "녹화중" : "녹음중";
   elements.webcamPanel.classList.add("recording");
 };
 
@@ -1305,21 +1349,22 @@ const finishRecording = async () => {
 };
 
 const saveRecording = () => {
-  if (!state.recordedChunks.length) return;
+  if (!state.recordedChunks.length && !state.audioRecordedChunks.length) return;
 
-  const blob = new Blob(state.recordedChunks, { type: state.recordedChunks[0]?.type || "video/webm" });
+  const blob = state.recordedChunks.length ? new Blob(state.recordedChunks, { type: state.recordedChunks[0]?.type || "video/webm" }) : null;
   const audioBlob = state.audioRecordedChunks.length
     ? new Blob(state.audioRecordedChunks, { type: state.audioRecordedChunks[0]?.type || "audio/webm" })
     : null;
-  const url = URL.createObjectURL(blob);
+  const url = URL.createObjectURL(blob || audioBlob);
   state.recordings.push({
     url,
     blob,
     audioBlob,
-    mimeType: blob.type || "video/webm",
+    mimeType: blob?.type || "",
     audioMimeType: audioBlob?.type || "",
-    size: blob.size,
+    size: blob?.size || 0,
     audioSize: audioBlob?.size || 0,
+    captureMode: blob ? "video" : "audio",
     questionNumber: state.recordingQuestion?.questionNumber ?? state.currentIndex + 1,
     questionIndex: state.recordingQuestion?.questionIndex ?? currentQuestion().originalIndex,
     question: state.recordingQuestion?.question ?? currentQuestion().text,
@@ -1728,13 +1773,13 @@ const setAiEvaluationState = (questionIndex, nextState) => {
 };
 
 const postAiEvaluation = async (question, recording) => {
-  if (!recording?.blob) {
-    throw new Error("녹화 파일을 찾을 수 없습니다.");
+  const aiAudio = recording?.audioBlob || recording?.blob;
+  if (!aiAudio) {
+    throw new Error("답변 음성 파일을 찾을 수 없습니다.");
   }
 
-  const aiAudio = recording.audioBlob || recording.blob;
   if (aiAudio.size > MAX_AI_AUDIO_BYTES) {
-    throw new Error("녹화 파일이 25MB를 초과해 AI 채점을 진행할 수 없습니다.");
+    throw new Error("답변 음성 파일이 25MB를 초과해 AI 채점을 진행할 수 없습니다.");
   }
 
   const formData = new FormData();
@@ -1931,7 +1976,7 @@ const renderAiEvaluationBlock = (question, recording) => {
 const renderResultPage = () => {
   elements.summaryQuestions.textContent = state.completedQuestions.length;
   elements.summaryRecordings.textContent =
-    state.interviewMode === "ai" ? `${state.recordings.length} / ${state.completedQuestions.length}` : state.recordingEnabled ? state.recordings.length : "미제공";
+    state.interviewMode === "ai" ? `${state.recordings.length} / ${state.completedQuestions.length}` : state.recordings.length;
   elements.summaryRigor.textContent = state.config.rigor;
 
   elements.resultList.innerHTML = state.completedQuestions
@@ -1939,11 +1984,11 @@ const renderResultPage = () => {
       const recording = recordingForQuestion(question.originalIndex);
       const keywordBlock = renderKeywordBlock(question.keywords);
       const aiEvaluationBlock = renderAiEvaluationBlock(question, recording);
-      const video = recording
+      const reviewMedia = recording?.blob
         ? `<video src="${recording.url}" controls></video>`
-        : state.recordingEnabled
-          ? `<div class="no-recording"><i data-lucide="video-off"></i><span>저장된 녹화 없음</span></div>`
-          : `<div class="no-recording"><i data-lucide="video-off"></i><span>비녹화 모드로 진행해 녹화 복기가 제공되지 않습니다.</span></div>`;
+        : recording?.audioBlob
+          ? `<div class="audio-review"><audio src="${recording.url}" controls></audio><span>영상 없이 음성만 녹음된 답변입니다.</span></div>`
+          : `<div class="no-recording"><i data-lucide="mic-off"></i><span>저장된 답변 복기 자료가 없습니다.</span></div>`;
 
       return `
         <article class="result-card">
@@ -1956,8 +2001,8 @@ const renderResultPage = () => {
           <h2>${question.text}</h2>
           <div class="result-card-body ${state.interviewMode === "ai" ? "ai-result-card-body" : ""}">
             <section>
-              <h3>녹화 복기</h3>
-              ${video}
+              <h3>답변 복기</h3>
+              ${reviewMedia}
             </section>
             <section>
               <h3>AI 모범 답안</h3>
