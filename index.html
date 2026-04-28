@@ -505,7 +505,7 @@
               <article class="device-check-item recording-check-item">
                 <div>
                   <h2>녹화 방식 선택</h2>
-                  <p id="recordingModeNotice">녹화 모드는 문항별 복기를 제공합니다. 녹화 파일은 별도 서버로 전송되지 않습니다.</p>
+                  <p id="recordingModeNotice">녹화 모드는 문항별 영상 복기를 제공합니다. 녹화 파일은 별도 서버로 전송되지 않습니다.</p>
                 </div>
                 <div class="recording-mode-toggle" role="group" aria-label="녹화 방식 선택">
                   <button class="recording-mode-button active" id="recordingModeOn" type="button" data-recording-mode="on">
@@ -620,7 +620,7 @@
               <strong id="summaryQuestions">5</strong>
             </article>
             <article>
-              <span>녹화 답변</span>
+              <span>복기 자료</span>
               <strong id="summaryRecordings">0</strong>
             </article>
             <article>
@@ -641,8 +641,8 @@
         식별할 수 있는 정보를 요구하지 않습니다.
       </p>
       <p>
-        카메라와 마이크 권한은 사용자가 녹화 모드를 선택하고 브라우저에서 권한을 허용한 경우에만 사용됩니다. 녹화
-        파일은 현재 브라우저 세션에서 복기 기능을 제공하기 위해 생성되며, 일반 모의면접에서는 별도 서버로 전송하지 않습니다.
+        카메라와 마이크 권한은 사용자가 영상 녹화 또는 음성 녹음 기능을 선택하고 브라우저에서 권한을 허용한 경우에만 사용됩니다.
+        영상 녹화 파일과 음성 녹음 파일은 현재 브라우저 세션에서 복기 기능을 제공하기 위해 생성되며, 일반 모의면접에서는 별도 서버로 전송하지 않습니다.
         다만 사용자가 AI 모의면접을 선택하고 음성 분석에 동의한 경우, AI 채점을 위해 답변 음성 파일과 전사문이 OpenAI API로 전송될 수 있습니다.
       </p>
       <p>
@@ -684,8 +684,9 @@
       </p>
       <h3>3. 녹화 기능</h3>
       <p>
-        녹화 기능은 사용자의 브라우저 권한 허용 후 동작합니다. 사용자는 녹화 여부를 선택할 수 있으며, 비녹화 모드에서는
-        녹화 복기 기능이 제공되지 않습니다. AI 모의면접은 채점을 위해 녹화가 필수이며, 시작 전 별도 동의가 필요합니다.
+        녹화 기능은 사용자의 브라우저 권한 허용 후 동작합니다. 사용자는 영상 녹화 여부를 선택할 수 있으며, 녹화 없이
+        연습하는 경우에는 영상 없이 답변 음성만 녹음되어 음성 복기 기능이 제공됩니다. AI 모의면접은 채점을 위해 녹화가
+        필수이며, 시작 전 별도 동의가 필요합니다.
       </p>
       <h3>4. 서비스 변경</h3>
       <p>
