@@ -117,6 +117,10 @@ const state = {
   remaining: 60,
   timerId: null,
   cameraStream: null,
+  sttTestStream: null,
+  sttTestRecorder: null,
+  sttTestChunks: [],
+  sttTestAudioUrl: "",
   recorder: null,
   audioRecorder: null,
   recordedChunks: [],
@@ -158,6 +162,8 @@ const REPORT_QUEUE_KEY = "banmyeonppu_report_queue";
 const STUDY_PROGRESS_KEY = "banmyeonppu_question_progress_v1";
 const AI_ADMIN_KEY_STORAGE_KEY = "banmyeonppu_ai_admin_key";
 const AI_ADMIN_KEY = "0811";
+const STT_TEST_SCRIPT =
+  "CVD와 ALD의 차이는 박막의 스텝커버리지 입니다. 증착 공정에서는 박막의 유니포미티가 매우 중요합니다.";
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 const AI_INTERVIEW_CONFIG = {
   questionCount: 1,
@@ -173,6 +179,7 @@ const cacheElements = () => {
     "browseView",
     "homeView",
     "aboutView",
+    "sttTestView",
     "checkView",
     "interviewView",
     "resultView",
@@ -196,6 +203,14 @@ const cacheElements = () => {
     "legalTitle",
     "legalContent",
     "closeLegalButton",
+    "sttTestScript",
+    "sttTestAdminKey",
+    "sttTestStartButton",
+    "sttTestStopButton",
+    "sttTestStatus",
+    "sttTestTranscript",
+    "sttTestModel",
+    "sttTestAudioPlayer",
     "browseStudyPercent",
     "browseKnownCount",
     "browseConfusedCount",
@@ -326,6 +341,16 @@ const writeAiAdminKey = (key) => {
 
 const isAiAdminUnlocked = () => state.aiAdminKey === AI_ADMIN_KEY;
 
+const readHiddenSttTestKey = () => {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("stt-test") || params.get("sttKey") || "";
+};
+
+const shouldOpenSttTest = () => {
+  const params = new URLSearchParams(window.location.search);
+  return window.location.hash === "#stt-test" || params.has("stt-test") || params.has("sttKey");
+};
+
 const setInterviewMode = (mode) => {
   $$(".interview-mode-card").forEach((item) => {
     item.classList.toggle("active", item.dataset.interviewMode === mode);
@@ -411,6 +436,7 @@ const setView = (view) => {
   elements.browseView.classList.remove("active");
   elements.homeView.classList.toggle("active", nextView === "home");
   elements.aboutView.classList.toggle("active", nextView === "about");
+  elements.sttTestView.classList.toggle("active", nextView === "stt-test");
   elements.checkView.classList.toggle("active", nextView === "check");
   elements.interviewView.classList.toggle("active", nextView === "interview");
   elements.resultView.classList.toggle("active", nextView === "result");
@@ -1310,6 +1336,114 @@ const saveRecording = () => {
 const recordingForQuestion = (questionIndex) =>
   state.recordings.find((recording) => recording.questionIndex === questionIndex);
 
+const stopSttTestStream = () => {
+  state.sttTestStream?.getTracks().forEach((track) => track.stop());
+  state.sttTestStream = null;
+};
+
+const setSttTestBusy = (isBusy) => {
+  elements.sttTestStartButton.disabled = isBusy;
+  elements.sttTestStopButton.disabled = !isBusy;
+};
+
+const startSttTestRecording = async () => {
+  const adminKey = elements.sttTestAdminKey.value.trim() || state.aiAdminKey;
+  if (!adminKey) {
+    elements.sttTestStatus.textContent = "관리자 키를 입력해주세요.";
+    return;
+  }
+
+  state.aiAdminKey = adminKey;
+  writeAiAdminKey(adminKey);
+  state.sttTestChunks = [];
+  elements.sttTestTranscript.textContent = "녹음 중입니다. 문장을 읽은 뒤 녹음 종료를 눌러주세요.";
+  elements.sttTestStatus.textContent = "마이크 권한을 요청하는 중입니다.";
+  elements.sttTestAudioPlayer.hidden = true;
+
+  try {
+    state.sttTestStream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true,
+      },
+    });
+    state.sttTestRecorder = createMediaRecorder(state.sttTestStream, ["audio/webm;codecs=opus", "audio/webm"]);
+    state.sttTestRecorder.addEventListener("dataavailable", (event) => {
+      if (event.data.size > 0) {
+        state.sttTestChunks.push(event.data);
+      }
+    });
+    state.sttTestRecorder.start();
+    setSttTestBusy(true);
+    elements.sttTestStatus.textContent = "녹음 중입니다.";
+  } catch (error) {
+    stopSttTestStream();
+    setSttTestBusy(false);
+    elements.sttTestStatus.textContent = "마이크 권한을 허용한 뒤 다시 시도해주세요.";
+  }
+};
+
+const postSttTest = async (audioBlob, adminKey) => {
+  const formData = new FormData();
+  formData.append("audio", audioBlob, "stt-test.webm");
+  formData.append("adminKey", adminKey);
+  formData.append("expectedText", STT_TEST_SCRIPT);
+
+  const response = await fetch("/api/stt-test", {
+    method: "POST",
+    body: formData,
+  });
+
+  const responseText = await response.text();
+  let payload = {};
+  try {
+    payload = responseText ? JSON.parse(responseText) : {};
+  } catch (error) {
+    payload = {};
+  }
+
+  if (!response.ok || !payload.ok) {
+    throw new Error(payload.message || `STT 테스트 요청 실패 (HTTP ${response.status})`);
+  }
+
+  return payload;
+};
+
+const stopSttTestRecording = async () => {
+  if (!state.sttTestRecorder || state.sttTestRecorder.state === "inactive") return;
+
+  const adminKey = elements.sttTestAdminKey.value.trim() || state.aiAdminKey;
+  elements.sttTestStopButton.disabled = true;
+  elements.sttTestStatus.textContent = "녹음을 정리하는 중입니다.";
+
+  await stopMediaRecorder(state.sttTestRecorder);
+  stopSttTestStream();
+
+  const audioBlob = new Blob(state.sttTestChunks, { type: state.sttTestChunks[0]?.type || "audio/webm" });
+  state.sttTestChunks = [];
+  if (state.sttTestAudioUrl) {
+    URL.revokeObjectURL(state.sttTestAudioUrl);
+  }
+  state.sttTestAudioUrl = URL.createObjectURL(audioBlob);
+  elements.sttTestAudioPlayer.src = state.sttTestAudioUrl;
+  elements.sttTestAudioPlayer.hidden = false;
+
+  try {
+    elements.sttTestStatus.textContent = "전사 요청 중입니다.";
+    const payload = await postSttTest(audioBlob, adminKey);
+    elements.sttTestTranscript.textContent = payload.transcript || "전사문이 비어 있습니다.";
+    elements.sttTestModel.textContent = payload.model || "gpt-4o-transcribe";
+    elements.sttTestStatus.textContent = `전사 완료 · ${(audioBlob.size / 1024).toFixed(1)}KB`;
+  } catch (error) {
+    elements.sttTestTranscript.textContent = error.message || "STT 테스트 중 오류가 발생했습니다.";
+    elements.sttTestStatus.textContent = "전사 실패";
+  } finally {
+    setSttTestBusy(false);
+    state.sttTestRecorder = null;
+  }
+};
+
 const escapeHtml = (value) =>
   String(value ?? "")
     .replaceAll("&", "&amp;")
@@ -2057,9 +2191,24 @@ const bindResultControls = () => {
   });
 };
 
+const bindSttTestControls = () => {
+  elements.sttTestScript.textContent = STT_TEST_SCRIPT;
+  elements.sttTestAdminKey.value = state.aiAdminKey;
+  elements.sttTestStartButton.addEventListener("click", startSttTestRecording);
+  elements.sttTestStopButton.addEventListener("click", stopSttTestRecording);
+  elements.sttTestAdminKey.addEventListener("input", () => {
+    elements.sttTestStatus.textContent = "대기 중입니다.";
+  });
+};
+
 window.addEventListener("load", () => {
   cacheElements();
-  state.aiAdminKey = readAiAdminKey();
+  const hiddenSttKey = readHiddenSttTestKey();
+  const openSttTest = shouldOpenSttTest();
+  state.aiAdminKey = hiddenSttKey || readAiAdminKey();
+  if (hiddenSttKey) {
+    writeAiAdminKey(hiddenSttKey);
+  }
   state.studyProgress = readStudyProgress();
   renderBrowseCategoryOptions();
   renderIcons();
@@ -2067,9 +2216,12 @@ window.addEventListener("load", () => {
   bindSetupControls();
   bindInterviewControls();
   bindResultControls();
+  bindSttTestControls();
   setRecordingMode(true);
-  setView("home");
+  setView(openSttTest ? "stt-test" : "home");
   flushQueuedFeedback().catch(() => {});
   flushQueuedReports().catch(() => {});
-  showStartupHelp();
+  if (!openSttTest) {
+    showStartupHelp();
+  }
 });
