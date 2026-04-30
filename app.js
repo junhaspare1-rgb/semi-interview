@@ -122,8 +122,6 @@ const HELP_DISMISS_KEY = "banmyeonppu_help_hidden_until";
 const FEEDBACK_QUEUE_KEY = "banmyeonppu_feedback_queue";
 const REPORT_QUEUE_KEY = "banmyeonppu_report_queue";
 const STUDY_PROGRESS_KEY = "banmyeonppu_question_progress_v1";
-const AI_ADMIN_KEY_STORAGE_KEY = "banmyeonppu_ai_admin_key";
-const AI_ADMIN_KEY = "0811";
 const STT_TEST_SCRIPT =
   "CVD와 ALD의 차이는 박막의 스텝커버리지 입니다. 증착 공정에서는 박막의 유니포미티가 매우 중요합니다.";
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
@@ -330,32 +328,11 @@ const formatTime = (seconds) => {
 const getSelectedRigor = () => $(".rigor-card.active")?.dataset.rigor || "입문";
 const getSelectedInterviewMode = () => $(".interview-mode-card.active")?.dataset.interviewMode || "standard";
 
-const readAiAdminKey = () => {
-  try {
-    return sessionStorage.getItem(AI_ADMIN_KEY_STORAGE_KEY) || "";
-  } catch (error) {
-    return "";
-  }
-};
-
-const writeAiAdminKey = (key) => {
-  try {
-    sessionStorage.setItem(AI_ADMIN_KEY_STORAGE_KEY, key);
-  } catch (error) {
-    // sessionStorage가 막힌 환경에서는 현재 페이지 세션에서만 유지합니다.
-  }
-};
-
-const isAiAdminUnlocked = () => state.aiAdminKey === AI_ADMIN_KEY;
-
-const readHiddenSttTestKey = () => {
-  const params = new URLSearchParams(window.location.search);
-  return params.get("stt-test") || params.get("sttKey") || "";
-};
+const isAiAdminUnlocked = () => Boolean(state.aiAdminKey.trim());
 
 const shouldOpenSttTest = () => {
   const params = new URLSearchParams(window.location.search);
-  return window.location.hash === "#stt-test" || params.has("stt-test") || params.has("sttKey");
+  return window.location.hash === "#stt-test" || params.has("stt-test");
 };
 
 const setInterviewMode = (mode) => {
@@ -625,14 +602,13 @@ const hideAiAdminModal = () => {
 const confirmAiAdminKey = () => {
   const key = elements.aiAdminKeyInput.value.trim();
 
-  if (key !== AI_ADMIN_KEY) {
-    elements.aiAdminStatus.textContent = "관리자 키가 올바르지 않습니다.";
+  if (!key) {
+    elements.aiAdminStatus.textContent = "관리자 키를 입력해주세요.";
     elements.aiAdminKeyInput.select();
     return;
   }
 
   state.aiAdminKey = key;
-  writeAiAdminKey(key);
   hideAiAdminModal();
   setInterviewMode("ai");
 };
@@ -1423,7 +1399,6 @@ const startSttTestRecording = async () => {
   }
 
   state.aiAdminKey = adminKey;
-  writeAiAdminKey(adminKey);
   state.sttTestChunks = [];
   elements.sttTestTranscript.textContent = "녹음 중입니다. 문장을 읽은 뒤 녹음 종료를 눌러주세요.";
   elements.sttTestStatus.textContent = "마이크 권한을 요청하는 중입니다.";
@@ -2975,12 +2950,7 @@ const bindSttTestControls = () => {
 
 window.addEventListener("load", () => {
   cacheElements();
-  const hiddenSttKey = readHiddenSttTestKey();
   const openSttTest = shouldOpenSttTest();
-  state.aiAdminKey = hiddenSttKey || readAiAdminKey();
-  if (hiddenSttKey) {
-    writeAiAdminKey(hiddenSttKey);
-  }
   state.studyProgress = readStudyProgress();
 
   renderIcons();

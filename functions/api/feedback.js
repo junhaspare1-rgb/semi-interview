@@ -1,11 +1,16 @@
 const MAX_COMMENT_LENGTH = 1200;
 const MAX_EMAIL_LENGTH = 254;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const SECURITY_HEADERS = {
+  "X-Content-Type-Options": "nosniff",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+};
 
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), {
     status,
     headers: {
+      ...SECURITY_HEADERS,
       "Content-Type": "application/json; charset=UTF-8",
       "Cache-Control": "no-store",
     },
