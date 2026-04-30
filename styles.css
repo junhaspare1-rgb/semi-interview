@@ -3435,7 +3435,46 @@ input[type="number"] {
   }
 
   .question-bank-card {
+    width: 100%;
     grid-template-columns: 1fr;
+  }
+
+  .question-bank-card-main {
+    min-width: 0;
+    width: 100%;
+    padding: 24px 18px;
+  }
+
+  .question-bank-card h2 {
+    padding-right: 58px;
+  }
+
+  .question-bank-card-main > .bank-bookmark-button {
+    top: 22px;
+    right: 18px;
+  }
+
+  .question-bank-answer {
+    justify-self: stretch;
+    width: 100%;
+    max-width: none;
+    padding: 18px;
+  }
+
+  .question-bank-answer .model-answer-text,
+  .question-bank-answer .model-answer-text p {
+    width: 100%;
+    max-width: none;
+  }
+
+  .question-bank-answer .answer-script-toggle {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .question-bank-answer .answer-script-toggle button {
+    padding: 0 10px;
   }
 
   .question-bank-card-side {
