@@ -49,7 +49,7 @@
     </script>
     <script src="data/process-questions.js?v=20260426-3" defer></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
-    <script src="app.js?v=20260428-1" defer></script>
+    <script src="app.js?v=20260430-start-bank" defer></script>
   </head>
   <body>
     <header class="top-nav">
@@ -59,8 +59,8 @@
 
       <nav class="main-nav" aria-label="주요 메뉴">
         <button type="button" data-view="about">About</button>
-        <button type="button" data-view="question-bank">기출 질문</button>
-        <button class="active" type="button" data-view="home">모의 면접</button>
+        <button class="active" type="button" data-view="question-bank">기출 질문</button>
+        <button type="button" data-view="home">모의 면접</button>
       </nav>
 
       <div class="utility-nav" aria-label="사용자 메뉴">
@@ -109,7 +109,7 @@
         <p class="message-signature">반면뿌 개발자 K 드림</p>
       </template>
 
-      <section class="question-bank-view app-view" id="questionBankView" aria-labelledby="questionBankTitle">
+      <section class="question-bank-view app-view active" id="questionBankView" aria-labelledby="questionBankTitle">
         <aside class="question-bank-sidebar" id="questionBankSidebar" aria-label="기출 질문 필터">
           <div class="bank-filter-block">
             <label for="questionBankRole">직무 선택</label>
@@ -262,7 +262,7 @@
         </div>
       </section>
 
-      <section class="home-view app-view active" id="homeView" aria-labelledby="home-title">
+      <section class="home-view app-view" id="homeView" aria-labelledby="home-title">
         <div class="intro">
           <div class="module-label">직무 면접</div>
           <h1 id="home-title">반도체 직무 면접을 실전처럼 연습하세요.</h1>
