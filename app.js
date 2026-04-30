@@ -2908,7 +2908,7 @@ window.addEventListener("load", () => {
   bindResultControls();
   bindSttTestControls();
   setRecordingMode(true);
-  setView(openSttTest ? "stt-test" : "home");
+  setView(openSttTest ? "stt-test" : "question-bank");
   flushQueuedFeedback().catch(() => {});
   flushQueuedReports().catch(() => {});
   if (!openSttTest) {
