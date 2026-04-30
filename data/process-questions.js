@@ -15,7 +15,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "도핑",
       "전기 전도도 제어"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 1,
+    "shortAnswer": "반도체는 도체와 부도체의 중간 전기 전도도를 가진 물질입니다. 도체는 전도대와 가전자대가 겹쳐 전자가 쉽게 이동하고, 부도체는 밴드갭이 커서 전자가 거의 이동하지 못합니다. 반도체는 약 1eV 수준의 적당한 밴드갭을 가져 온도, 빛, 도핑에 따라 전도도를 조절할 수 있고, 이 제어 가능성이 트랜지스터와 다이오드의 핵심입니다. 실리콘이 널리 쓰이는 이유도 밴드갭이 안정적이고 산화막 형성이 쉬워 공정 제어성이 좋기 때문입니다. 이 점이 소자 제어의 출발점입니다."
   },
   {
     "id": 2,
@@ -34,7 +36,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "P형(붕소)",
       "5족/3족"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 1,
+    "shortAnswer": "진성 반도체는 불순물을 넣지 않은 순수한 반도체이고, 외인성 반도체는 의도적으로 도핑해 캐리어 농도를 높인 반도체입니다. 실리콘에 5족 원소를 도핑하면 전자가 다수 캐리어인 N형이 되고, 3족 원소를 도핑하면 정공이 다수 캐리어인 P형이 됩니다. 대표적인 5족 원소는 인(P), 비소(As)등이 있고, 3족 원소는 붕소(B), 갈륨(Ga) 등이 있습니다. 실제 소자는 전기적 특성을 정밀하게 제어해야 하므로 대부분 외인성 반도체를 사용합니다. 도핑 종류와 농도는 소자의 저항, 문턱전압, 전류 특성을 결정하는 기본 공정 변수입니다."
   },
   {
     "id": 3,
@@ -52,7 +56,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "순방향/역방향 바이어스",
       "정류 특성"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 1,
+    "shortAnswer": "PN 접합은 P형과 N형 반도체가 맞닿으며 전자와 정공이 서로 확산하고 재결합해 공핍영역을 만드는 구조입니다. 이 영역에는 이온화된 도펀트만 남아 내부 전기장과 빌트인 전위가 생깁니다. 순방향 바이어스에서는 장벽이 낮아져 전류가 흐르고, 역방향에서는 장벽이 커져 전류가 거의 흐르지 않아 정류 특성을 가집니다. 이 원리는 다이오드뿐 아니라 BJT, MOSFET 내부 접합과 isolation 구조를 형성하는 기초가 됩니다."
   },
   {
     "id": 4,
@@ -71,7 +77,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "전계효과",
       "High-k"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 1,
+    "shortAnswer": "MOSFET은 게이트 전압으로 소스와 드레인 사이의 채널을 제어하는 전계효과 트랜지스터입니다. 게이트, 소스, 드레인, 바디로 구성되고 게이트 아래에는 얇은 산화막이 있습니다. NMOS 기준으로 게이트에 문턱전압 이상의 전압을 걸면 표면에 전자가 모여 반전층이 생기고, 이 채널을 통해 소스에서 드레인으로 전류가 흐릅니다. 산화막은 게이트 전류를 막고 전기장만 전달하므로 두께와 계면 품질이 누설전류와 신뢰성을 좌우합니다. 채널 형성이 동작의 핵심입니다."
   },
   {
     "id": 5,
@@ -89,7 +97,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "노이즈 마진",
       "디지털 IC 표준"
     ],
-    "active": false
+    "active": true,
+    "estimatedAnswerMinutes": 1,
+    "shortAnswer": "NMOS는 전자를 주 캐리어로, PMOS는 정공을 주 캐리어로 사용합니다. 전자 이동도가 정공보다 커서 같은 조건에서는 NMOS가 더 빠른 편입니다. CMOS는 NMOS와 PMOS를 상보적으로 연결해 입력 상태에 따라 한쪽만 주로 켜지게 만들기 때문에 정적 전력 소모가 작습니다. 그래서 저전력과 안정성이 중요한 디지털 회로의 기본 구조로 쓰입니다. 특히 CMOS 인버터는 입력이 0이나 1로 고정될 때 전원과 접지가 직접 이어지지 않는 점이 장점입니다."
   },
   {
     "id": 6,
@@ -108,7 +118,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "Vt 조정 임플란트",
       "누설전류"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 1,
+    "shortAnswer": "문턱 전압은 MOSFET에서 채널이 형성되어 전류가 흐르기 시작하는 최소 게이트 전압입니다. NMOS에서는 게이트 전압이 올라가면 기판 표면의 정공이 밀려나고 전자가 모여 강반전 상태가 됩니다. 문턱 전압은 게이트 산화막 두께, 기판 도핑 농도, 게이트와 기판의 일함수 차이, 산화막 전하에 의해 결정되며 공정에서는 Vt 임플란트로 조정합니다. Vt가 너무 낮으면 누설이 커지고, 너무 높으면 구동 전류가 줄기 때문에 성능과 전력의 균형이 중요합니다."
   },
   {
     "id": 7,
@@ -127,7 +139,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "FinFET",
       "GAA"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 1,
+    "shortAnswer": "단채널 효과는 MOSFET 채널 길이가 짧아지면서 게이트가 채널을 충분히 제어하지 못하는 현상입니다. 대표적으로 문턱전압 감소, DIBL, 펀치스루, 누설전류 증가가 나타납니다. 해결 방법은 Halo 임플란트와 LDD로 전기장을 완화하고, High-k 절연막으로 게이트 제어력을 높이며, FinFET이나 GAA처럼 게이트가 채널을 더 많이 감싸는 구조를 쓰는 것입니다. 결국 미세화에서는 채널 길이를 줄이면서도 게이트 지배력을 유지하는 구조와 도핑 설계가 핵심입니다."
   },
   {
     "id": 8,
@@ -144,7 +158,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "strained silicon",
       "SiGe"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 1,
+    "shortAnswer": "캐리어 이동도는 전기장을 걸었을 때 전자나 정공이 얼마나 빠르게 이동하는지를 나타내는 값입니다. 이동도가 높으면 같은 전압에서 더 큰 전류가 흐르므로 소자 속도가 좋아집니다. 이동도는 격자 산란, 불순물 산란, 표면 거칠기, 온도, 스트레스에 영향을 받습니다. 실리콘에서는 전자 이동도가 정공보다 커서 NMOS가 PMOS보다 빠른 경향이 있습니다. 공정 관점에서는 채널 스트레스, 계면 품질, 불순물 농도를 조절해 이동도 저하를 줄이는 것이 중요합니다."
   },
   {
     "id": 9,
@@ -162,7 +178,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "100면",
       "균일성"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 1,
+    "shortAnswer": "단결정 실리콘을 사용하는 이유는 결정 구조가 균일해 전기적 특성의 재현성이 높기 때문입니다. 다결정이나 비정질 실리콘은 결정립 경계와 결함이 많아 캐리어 이동도가 낮고 누설전류가 증가할 수 있습니다. 반면 단결정 실리콘은 도핑 농도와 결정 방향 제어가 쉽고, SiO₂ 산화막 계면 품질도 좋아 MOSFET 제조에 가장 적합합니다. 또한 실리콘은 열산화막 형성이 쉬워 절연막 공정과 대량 생산 측면에서도 유리합니다. 결함 저감과 균일도 확보에도 유리합니다."
   },
   {
     "id": 10,
@@ -180,7 +198,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "평형",
       "밴드 휨"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 1,
+    "shortAnswer": "페르미 레벨은 전자가 존재할 확률이 50%인 에너지 준위로, 반도체의 캐리어 분포를 설명하는 기준입니다. 진성 반도체에서는 밴드갭 중앙 근처에 위치합니다. N형으로 도핑하면 전자가 많아져 페르미 레벨이 전도대 쪽으로 올라가고, P형으로 도핑하면 정공이 많아져 가전자대 쪽으로 내려갑니다. 따라서 도핑 상태와 전기적 특성을 연결해 설명할 수 있습니다. 소자 동작에서는 접합 형성 시 페르미 레벨 정렬과 밴드 밴딩을 통해 전위 장벽을 이해할 수 있습니다."
   },
   {
     "id": 11,
@@ -198,7 +218,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "팹리스/파운드리",
       "소품종 대량 vs 다품종 소량"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "메모리 반도체는 데이터를 저장하는 용도의 반도체이고, 시스템 반도체는 연산과 제어를 담당하는 반도체입니다. DRAM과 NAND는 메모리의 대표 예이며, CPU, GPU, AP는 시스템 반도체에 해당합니다. 메모리는 동일 셀이 반복되는 구조라 집적도와 수율이 중요하고, 시스템 반도체는 기능 구현과 회로 설계 복잡도가 핵심입니다. 공정 관점에서는 메모리는 반복 패턴 균일성이, 시스템 반도체는 다양한 소자와 배선 통합이 더 중요합니다."
   },
   {
     "id": 12,
@@ -217,7 +239,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "실린더 커패시터",
       "BCAT"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "DRAM 셀은 하나의 트랜지스터와 하나의 커패시터로 이루어진 1T1C 구조입니다. 트랜지스터는 데이터를 읽고 쓸 때 스위치 역할을 하고, 커패시터는 전하를 저장해 1과 0을 표현합니다. 다만 저장된 전하는 시간이 지나며 누설되기 때문에 주기적으로 다시 충전하는 리프레시가 필요합니다. 미세화에서는 작은 면적에서 충분한 커패시턴스를 확보하는 것이 핵심입니다. 그래서 DRAM 공정에서는 커패시터 면적을 늘리는 3D 구조와 High-k 유전체 확보가 중요합니다."
   },
   {
     "id": 13,
@@ -235,7 +259,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "3D NAND/V-NAND",
       "MLC/TLC/QLC"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "NAND Flash는 전원이 꺼져도 데이터를 유지하는 비휘발성 메모리입니다. 셀은 플로팅 게이트나 전하 트랩층에 전자를 저장하는 트랜지스터 구조이며, 저장된 전하량에 따라 문턱전압이 달라집니다. Program은 전자를 주입하고, Erase는 전자를 제거하는 방식입니다. 최근 3D NAND는 셀을 수직으로 적층해 평면 미세화 한계를 극복하고 집적도를 높입니다. MLC, TLC, QLC는 한 셀의 문턱전압 상태를 더 세분화해 저장 용량을 높이는 방식입니다."
   },
   {
     "id": 14,
@@ -250,7 +276,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "웨이퍼/산화/포토/식각/증착/임플란트/배선/EDS·패키징",
       "사이클 반복"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "반도체 8대 공정은 웨이퍼 제조, 산화, 포토, 식각, 증착, 이온주입, 금속배선, EDS와 패키징으로 설명할 수 있습니다. 웨이퍼 위에 산화막이나 박막을 만들고, 포토로 패턴을 정의한 뒤 식각으로 원하는 형상을 만듭니다. 이후 이온주입으로 전기적 특성을 부여하고 금속배선으로 소자를 연결합니다. 실제 제조에서는 이 흐름이 여러 층에서 반복됩니다. 중요한 점은 이 공정들이 한 번씩 끝나는 것이 아니라 여러 층을 쌓으며 반복된다는 것입니다. 따라서 층별 반복성과 정합성이 중요합니다."
   },
   {
     "id": 15,
@@ -267,7 +295,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "패키징·테스트",
       "Damascene"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Front-end 공정은 웨이퍼 위에 트랜지스터와 같은 소자를 형성하는 단계이고, Back-end 공정은 형성된 소자를 금속 배선으로 연결하고 패키징하는 단계입니다. FEOL은 게이트, 소스·드레인, 절연 구조처럼 소자 성능을 결정합니다. BEOL은 Cu 배선, Low-k 절연막, 비아 연결을 통해 RC 지연과 신뢰성을 관리합니다. 패키징과 테스트까지 포함하면 칩을 실제 제품으로 만드는 후공정 영역으로 확장됩니다."
   },
   {
     "id": 16,
@@ -286,7 +316,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "칩렛",
       "More than Moore"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "무어의 법칙은 반도체 칩에 집적되는 트랜지스터 수가 약 2년마다 두 배로 증가한다는 경험적 법칙입니다. 그동안 미세화를 통해 성능 향상과 단가 절감이 가능했습니다. 하지만 최근에는 양자 터널링, 발열, 공정 비용 증가로 단순 미세화만으로는 한계가 있습니다. 그래서 EUV, GAA, 칩렛, 3D 패키징처럼 구조와 통합 방식의 혁신이 함께 진행되고 있습니다. 즉 이제는 선폭 축소뿐 아니라 구조, 소재, 패키징을 함께 개선해야 성능 향상이 가능합니다."
   },
   {
     "id": 17,
@@ -304,7 +336,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "나노시트",
       "단채널 억제"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "FinFET은 채널을 지느러미처럼 세운 3차원 구조로, 게이트가 채널의 세 면을 감싸 평면 MOSFET보다 채널 제어력이 좋습니다. GAA는 게이트가 채널을 네 면에서 둘러싸는 구조라 단채널 효과 억제에 더 유리합니다. 두 기술 모두 미세화에서 누설전류를 줄이고 성능을 유지하기 위한 구조이며, GAA는 FinFET 이후 세대의 핵심 트랜지스터 구조입니다. 특히 GAA는 나노시트 채널을 사용해 전류 확보와 누설 억제를 동시에 노리는 구조입니다."
   },
   {
     "id": 18,
@@ -322,7 +356,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "웨이퍼 맵",
       "수율 향상"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 1,
+    "shortAnswer": "EDS는 웨이퍼 상태에서 각 다이의 전기적 특성을 검사해 양품과 불량을 선별하는 공정입니다. 프로브 카드가 웨이퍼 패드에 접촉하고, 테스트 장비가 전기 신호를 인가해 기능과 파라미터를 확인합니다. 불량 다이는 패키징 전에 제외하므로 비용을 줄일 수 있고, 웨이퍼 맵과 Bin 데이터를 통해 수율 저하 원인을 분석할 수 있습니다. 메모리 제품은 EDS 결과를 바탕으로 리던던시 셀을 활용해 불량 셀을 대체하기도 합니다."
   },
   {
     "id": 19,
@@ -341,7 +377,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "Bin 분석",
       "푸아송"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "수율은 투입한 칩이나 웨이퍼 중 양품이 나온 비율입니다. 반도체에서는 공정 중 손실을 보는 라인 수율, 웨이퍼 내 양품 다이 비율인 다이 수율, 패키징 이후의 패키지 수율로 나눌 수 있습니다. 수율 저하는 파티클 같은 랜덤 결함, 특정 장비나 레시피 문제인 시스템 결함, 전기적 규격 이탈인 파라메트릭 불량으로 분석합니다. 양산기술에서는 수율을 단순 숫자로 보지 않고 불량 위치, Bin, 공정 이력과 연결해 개선해야 합니다."
   },
   {
     "id": 20,
@@ -360,7 +398,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "ESD",
       "방진복"
     ],
-    "active": false
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "클린룸은 반도체 공정에서 파티클과 오염을 최소화하기 위해 청정도, 온습도, 기류, 정전기를 관리하는 공간입니다. 등급은 ISO 14644 기준으로 단위 부피당 파티클 수에 따라 구분합니다. 미세 패턴에서는 작은 파티클도 단락이나 오픈을 만들 수 있기 때문에 HEPA 또는 ULPA 필터, 다운플로우, 방진복, 작업자 동선 관리가 중요합니다. 포토 영역처럼 민감한 공정일수록 더 높은 청정도가 요구되고, 작업자 행동도 중요한 오염원입니다. 청정도는 곧 결함률로 이어지므로, 엄격한 관리가 필요합니다."
   },
   {
     "id": 21,
@@ -379,7 +419,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "산소 농도",
       "게터링"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "CZ법은 용융 실리콘에 시드 결정을 접촉시킨 뒤 천천히 회전시키며 끌어올려 단결정 잉곳을 만드는 방법입니다. 도가니 안에 고순도 다결정 실리콘과 도펀트를 넣고 녹인 뒤, 결정 방향이 맞는 시드를 사용해 단결정을 성장시킵니다. 풀링 속도와 회전 속도로 직경과 품질을 제어합니다. 대구경 웨이퍼 생산성이 좋아 현재 가장 널리 쓰입니다. 이 과정에서 산소 농도, 결정 결함, 저항 균일도를 관리해야 후속 웨이퍼 품질이 안정됩니다."
   },
   {
     "id": 22,
@@ -397,7 +439,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "200mm 한계",
       "파워 디바이스"
     ],
-    "active": false
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "FZ법은 도가니를 사용하지 않고 실리콘 봉의 일부만 고주파로 녹여 단결정을 성장시키는 방식입니다. CZ법은 석영 도가니 안의 용융 실리콘에서 결정을 끌어올리기 때문에 산소가 포함될 수 있습니다. FZ는 도가니 오염이 적어 고순도와 고비저항 웨이퍼에 유리하지만, 대구경화와 생산성에서는 CZ보다 불리해 주로 파워 디바이스나 특수 용도에 사용됩니다. 다만 FZ는 직경 확대와 생산성이 불리해 범용 메모리나 로직보다는 특수 웨이퍼에 적합합니다."
   },
   {
     "id": 23,
@@ -416,7 +460,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "CMP",
       "에피택셜"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "잉곳에서 웨이퍼를 만들 때는 먼저 외경을 균일하게 가공하고 결정 방향을 표시하는 노치나 플랫을 만듭니다. 이후 와이어소우로 얇게 슬라이싱하고, 래핑과 에지 라운딩으로 표면 손상과 가장자리 결함을 줄입니다. 마지막으로 식각, 미러 폴리싱, CMP를 통해 평탄도와 표면 거칠기를 개선합니다. 필요하면 에피택셜층을 추가로 성장시킵니다. 이 단계의 평탄도와 표면 결함은 포토 초점, 막 균일도, 최종 수율에 바로 영향을 줍니다. 초기 웨이퍼 결함은 뒤에서 회복하기 어려우므로, 정밀한 가공 과정이 필요합니다."
   },
   {
     "id": 24,
@@ -433,7 +479,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "111면(BJT/MEMS)",
       "이방성 식각"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "웨이퍼 결정면은 원자 배열이 달라 산화막 계면 특성, 이동도, 식각 특성이 달라집니다. 100면은 Si-SiO₂ 계면 결함이 적고 MOSFET 게이트 산화막 형성에 유리해 가장 많이 사용됩니다. 110면은 정공 이동도 측면에서 장점이 있어 일부 PMOS나 특수 구조에 활용됩니다. 111면은 원자 밀도가 높고 이방성 식각 특성이 뚜렷해 MEMS 등에 쓰입니다. 결정면 선택은 채널 이동도, 산화막 품질, 습식 식각 형상까지 연결되는 공정 변수입니다."
   },
   {
     "id": 25,
@@ -451,7 +499,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "EUV",
       "칩렛"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "웨이퍼 사이즈를 키우는 이유는 한 장의 웨이퍼에서 더 많은 칩을 생산해 단위 칩당 비용을 낮추기 위해서입니다. 300mm 웨이퍼는 200mm 대비 면적이 약 2.25배라 생산성이 크게 좋아집니다. 다만 450mm는 장비와 공정 인프라 투자 부담이 매우 크고 기술 전환 비용도 높아 상용화가 지연되었습니다. 현재 첨단 팹의 표준은 300mm입니다. 웨이퍼가 커질수록 장비 크기와 균일도 관리 난이도도 커져 경제성과 기술성을 함께 봐야 합니다."
   },
   {
     "id": 26,
@@ -470,7 +520,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "RTO",
       "막질 vs 속도"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "산화 공정은 실리콘 표면에 SiO₂ 막을 형성하는 공정입니다. 목적은 게이트 절연막 형성, 이온주입 마스크, 소자 분리, 표면 보호 등입니다. 산화 방식은 산소를 사용하는 Dry 산화, 수증기를 사용하는 Wet 산화, 짧은 시간에 얇은 막을 만드는 RTO로 나눌 수 있습니다. 막질이 중요하면 Dry, 성장 속도와 두꺼운 막이 중요하면 Wet을 선택합니다. 게이트 산화막처럼 얇고 품질이 중요한 막은 성장 속도보다 계면 결함과 누설 특성 관리에 더욱 신경써야합니다."
   },
   {
     "id": 27,
@@ -488,7 +540,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "STI",
       "Dry-Wet-Dry"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Dry 산화는 산소를 사용해 SiO₂를 형성하는 방식이고, Wet 산화는 수증기를 사용합니다. Dry 산화는 성장 속도는 느리지만 막이 치밀하고 계면 특성이 좋아 게이트 산화막처럼 신뢰성이 중요한 곳에 적합합니다. Wet 산화는 성장 속도가 빠르기 때문에 두꺼운 필드 산화막이나 STI 관련 산화에 유리합니다. 즉 막질은 Dry, 속도는 Wet이 장점입니다. 실제 공정에서는 Dry-Wet-Dry처럼 두 방식을 조합해 성장 속도와 계면 품질을 함께 확보하기도 합니다."
   },
   {
     "id": 28,
@@ -506,7 +560,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "B/A 상수",
       "두께 예측"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Deal-Grove 모델은 실리콘 산화막 성장 속도를 설명하는 모델입니다. 산화 초기에 막이 얇을 때는 산화제가 표면에 쉽게 도달하므로 표면 반응이 지배적이고 두께가 시간에 선형적으로 증가합니다. 산화막이 두꺼워지면 산화제가 SiO₂를 통과해 확산해야 하므로 확산이 지배적이 되어 포물선적으로 성장합니다. 산화 시간과 목표 두께 예측에 사용됩니다. 따라서 얇은 막과 두꺼운 막에서 성장 지배 메커니즘이 달라지고, 공정 시간 산정도 달라집니다."
   },
   {
     "id": 29,
@@ -525,7 +581,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "RTO",
       "NO 어닐"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "게이트 산화막 신뢰성은 두께 균일도, 계면 트랩, 핀홀, 오염, 플라즈마 손상에 영향을 받습니다. 산화막이 얇을수록 국부적으로 전계가 집중되기 쉬워 누설전류나 TDDB 같은 절연 파괴 문제가 발생할 수 있습니다. 또한 Si-SiO₂ 계면 결함은 문턱전압 변동과 이동도 저하를 만듭니다. 그래서 산화 전 세정, 오염 관리, 후속 어닐링이 중요합니다. 양산에서는 전기적 신뢰성 평가와 두께 계측을 함께 보며 산화막 품질을 관리합니다. 막의 두께가 얇을수록 관리 마진이 작습니다."
   },
   {
     "id": 30,
@@ -544,7 +602,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "메탈 게이트",
       "페르미 피닝"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "High-k 게이트 절연막을 사용하는 이유는 미세화로 SiO₂가 너무 얇아질 때 발생하는 게이트 누설전류를 줄이기 위해서입니다. HfO₂ 같은 High-k 물질은 유전율이 높아 물리적 두께는 두껍게 유지하면서도 전기적으로는 얇은 EOT를 구현할 수 있습니다. 이를 통해 게이트 제어력은 유지하면서 터널링 누설을 줄일 수 있어 HKMG 공정에 사용됩니다. 메탈 게이트를 함께 쓰는 이유는 폴리 게이트 공핍 효과와 페르미 레벨 피닝 문제를 줄이기 위해서입니다."
   },
   {
     "id": 31,
@@ -563,7 +623,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "인라인 측정",
       "비파괴/파괴"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "산화막 두께는 주로 엘립소미터, 반사율 측정, TEM, XRF 등으로 측정합니다. 양산 인라인에서는 비파괴이고 빠른 엘립소미터가 많이 사용됩니다. 편광된 빛을 입사시킨 뒤 반사광의 편광 변화를 분석해 막 두께와 광학 상수를 계산합니다. 매우 얇은 막의 실제 계면이나 물리 두께 확인이 필요할 때는 TEM 단면 분석을 사용합니다. 측정 목적이 공정 관리인지 물리 분석인지에 따라 빠른 인라인 계측과 정밀 단면 분석을 구분해 사용합니다."
   },
   {
     "id": 32,
@@ -582,7 +644,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "NO 산질화",
       "IL"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "RTO는 Rapid Thermal Oxidation의 약자로, 웨이퍼를 매우 짧은 시간 동안 고온으로 가열해 산화막을 형성하는 공정입니다. 기존 Furnace 산화보다 열 Budget이 낮아 불필요한 Dopant 확산을 줄일 수 있고, 얇고 균일한 산화막 형성에 유리합니다. 특히 Gate Oxide, Interface 개선, 표면 Passivation 등에 활용됩니다. 다만 공정 시간이 짧은 만큼 온도 균일도, Ramp Rate, 산소 분위기 제어가 산화막 두께와 품질에 큰 영향을 줍니다. 따라서 RTO는 미세공정에서 얇은 산화막을 정밀하게 제어하기 위한 핵심 열처리 공정이라고 설명할 수 있습니다."
   },
   {
     "id": 33,
@@ -599,7 +663,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "PBL",
       "STI 대체"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Bird's Beak은 LOCOS 산화에서 산화막이 마스크인 질화막 아래로 옆 방향으로 자라 들어가 활성 영역을 침식하는 현상입니다. 모양이 새 부리처럼 보여서 붙은 이름입니다. 이 현상은 소자 면적을 줄이고 집적도 향상에 한계를 만듭니다. 과거에는 버퍼 산화막과 질화막 조건으로 완화했지만, 미세 공정에서는 주로 STI가 LOCOS를 대체했습니다. STI는 트렌치를 식각한 뒤 절연막으로 채우므로 활성 영역이 옆으로 줄어드는 문제를 크게 줄입니다."
   },
   {
     "id": 34,
@@ -617,7 +683,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "thermal budget",
       "RTO"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "산화 공정 중에는 고온 열처리로 인해 웨이퍼 내부의 도펀트가 확산되어 분포가 변할 수 있습니다. 이때 Junction 깊이가 깊어지거나 농도 Profile이 완만해질 수 있고, Si/SiO₂ 계면에서는 Segregation이 발생해 도펀트가 산화막 쪽으로 이동하거나 실리콘 내부에 농축될 수 있습니다. 특히 Boron은 산화 분위기에서 확산이 빨라져 소자 특성 변화로 이어질 수 있습니다. 따라서 산화 공정에서는 온도, 시간, 분위기 제어를 통해 도펀트 재분포를 최소화하는 것이 중요합니다."
   },
   {
     "id": 35,
@@ -635,7 +703,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "TEOS",
       "HDP"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "열산화막은 실리콘 표면이 산소나 수증기와 직접 반응해 SiO₂로 변한 막이고, 증착 산화막은 CVD 같은 방식으로 외부 전구체를 사용해 쌓은 막입니다. 열산화막은 Si-SiO₂ 계면 품질이 우수해 게이트 산화막에 적합합니다. 반면 증착 산화막은 실리콘이 없는 구조 위에도 형성할 수 있어 ILD, IMD, 패시베이션 등 절연막으로 널리 사용됩니다. 또 열산화막은 실리콘을 일부 소비하며 자라지만, 증착막은 원하는 위치에 막을 쌓는 방식입니다. 용도 선택 기준이 여기서 갈립니다."
   },
   {
     "id": 36,
@@ -656,7 +726,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "CD/오버레이",
       "리워크"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "포토 공정은 먼저 웨이퍼 표면을 세정하고 탈수 Bake를 통해 수분을 제거하는 것에서 시작합니다. 이후 HMDS를 도포해 PR 접착력을 높이고, Spin Coating으로 PR을 균일하게 도포합니다. 다음으로 Soft Bake를 통해 용매를 제거한 뒤, Mask를 이용해 Exposure를 진행합니다. 노광 후에는 PEB로 반응을 안정화하고, Develop 공정으로 원하는 Pattern을 형성합니다. 마지막으로 Hard Bake와 Inspection을 통해 Pattern 품질을 확인하며, 이후 Etch나 Implant 공정으로 연결됩니다."
   },
   {
     "id": 37,
@@ -665,7 +737,7 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
     "group": "main",
     "difficulty": "입문",
     "question": "포토레지스트(PR)의 종류와 동작 원리를 설명해주세요.",
-    "answer": "포토레지스트는 빛에 반응해 현상 시 선택적으로 제거되는 감광성 고분자 재료입니다. 종류는 크게 양성 PR과 음성 PR로 나뉩니다. 양성 PR은 노광된 영역이 현상액에 잘 녹아 제거됩니다. DUV 이하 공정에서 표준으로 사용되는 CAR, 즉 화학 증폭형 레지스트가 대표적입니다. 노광 시 산 발생제에서 산이 생성되고, PEB 단계에서 산이 고분자 보호기를 탈착시켜 현상액에 용해되는 구조입니다. 소량의 빛으로도 강한 반응이 일어나 고감도이지만, 불순물에 민감하고 ADI 변동 제어가 어렵습니다. 음성 PR은 노광된 영역이 가교 반응으로 경화되어 현상액에 녹지 않고 남습니다. 마스크 패턴의 반전이 필요할 때 사용되며, 점착성이 좋습니다. 이외에 EUV 공정에서는 광자 에너지가 훨씬 높아 기존 CAR과 다른 특성이 필요하며, 메탈 계열 레지스트나 분자 글래스 레지스트 등 새로운 재료가 연구되고 있습니다.",
+    "answer": "포토레지스트, 즉 PR은 빛에 반응해 현상 시 선택적으로 제거되는 감광성 고분자 재료입니다. 종류는 크게 Positive PR과 Negative PR로 나뉩니다. Positive PR은 노광된 영역의 결합이 끊어지거나, 화학 증폭형 레지스트의 경우 산 발생제가 산을 만들고 PEB 과정에서 보호기가 탈착되면서 현상액에 잘 녹게 됩니다. 따라서 노광부가 제거되고 Mask의 밝은 영역이 Pattern으로 구현됩니다. 반대로 Negative PR은 노광된 영역에서 가교 결합이나 경화 반응이 일어나 현상액에 녹지 않고 남으며, 비노광부가 제거됩니다. Positive PR은 해상도와 미세 Pattern 형성에 유리해 DUV, EUV 등 선단 공정에서 널리 사용되고, Negative PR은 접착력이나 두꺼운 막 형성이 필요한 공정에 활용됩니다. 특히 PR 선택 시에는 감도, 해상도, Etch 내성, 막 두께 균일도, 현상 공정 Margin을 함께 고려해야 합니다. 또한 PR 특성은 CD 균일도, Line Edge Roughness, 후속 Etch Profile에도 영향을 주기 때문에 공정 목적에 맞는 재료 선정이 중요합니다. 결국 PR은 빛에 따른 용해도 차이를 이용해 Mask Pattern을 웨이퍼 위에 전사하는 핵심 재료입니다.",
     "keywords": [
       "양성/음성 PR",
       "CAR",
@@ -675,7 +747,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "EUV 레지스트",
       "메탈 레지스트"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "포토레지스트, 즉 PR은 빛에 반응해 용해도가 변하는 감광성 물질이며, 크게 Positive PR과 Negative PR로 나뉩니다. Positive PR은 노광된 부분의 결합이 약해지거나 분해되어 Developer에 잘 녹기 때문에 노광부가 제거됩니다. 반대로 Negative PR은 노광된 부분이 가교 결합을 형성해 단단해지고, 비노광부가 제거됩니다. 따라서 Mask Pattern을 웨이퍼 위에 전사할 때 원하는 구조와 공정 조건에 따라 PR 종류를 선택합니다."
   },
   {
     "id": 38,
@@ -694,7 +768,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "EUV 13.5nm",
       "NA"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "노광 파장이 짧아지는 이유는 더 작은 Pattern을 만들기 위해서입니다. Lithography 해상도는 파장 λ가 짧을수록 좋아지기 때문에, 미세화가 진행될수록 광원은 G-Line 436nm, I-Line 365nm, KrF 248nm, ArF 193nm, EUV 13.5nm 순서로 발전했습니다. ArF는 Immersion 기술과 함께 사용되어 해상도를 높였고, EUV는 선단 공정의 미세 Pattern 형성에 활용됩니다. 다만 파장이 짧아질수록 광원 출력, Mask 결함, PR 감도, 비용 문제가 커지므로 장비와 소재 기술이 함께 필요합니다."
   },
   {
     "id": 39,
@@ -703,7 +779,7 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
     "group": "main",
     "difficulty": "실전",
     "question": "해상도(Resolution)와 DOF(Depth of Focus)란 무엇이며, 서로 어떤 관계입니까?",
-    "answer": "해상도는 리소그래피에서 구현 가능한 최소 패턴 크기를 의미하며, 레일리 공식으로 R = k1 × λ / NA로 표현됩니다. 여기서 k1은 공정 인자, λ는 노광 파장, NA는 렌즈 개구수입니다. 해상도를 높이려면 파장을 줄이거나 NA를 높이거나 k1을 낮춰야 합니다. DOF는 초점 깊이로, 허용 가능한 디포커스 범위를 의미합니다. 웨이퍼 표면이 완전히 평탄하지 않고 단차가 있기 때문에, DOF가 충분히 넓어야 전체 영역에서 정확한 패턴을 형성할 수 있습니다. 문제는 해상도와 DOF가 트레이드오프 관계에 있다는 점입니다. DOF = k2 × λ / NA² 로 NA가 커지면 해상도는 좋아지지만 DOF는 더 빠르게 감소합니다. 이 트레이드오프를 해결하기 위해 CMP로 웨이퍼 표면을 평탄화해 DOF 마진을 확보하고, OPC, PSM 등의 기술로 k1을 낮추어 NA를 크게 높이지 않고도 해상도를 개선하는 방향으로 발전하고 있습니다.",
+    "answer": "Resolution은 Lithography에서 서로 가까이 있는 두 Pattern을 구분해 원하는 CD로 전사할 수 있는 능력을 의미합니다. 일반적으로 Resolution은 R = k1 × λ / NA로 표현되며, 파장 λ가 짧고 NA가 클수록 더 미세한 Pattern 형성이 가능합니다. DOF, 즉 Depth Of Focus는 초점이 약간 벗어나도 Pattern 품질과 CD가 허용 범위 안에 유지되는 초점 Margin을 뜻합니다. DOF는 대략 DOF = k2 × λ / NA²로 표현되며, NA가 커질수록 급격히 감소합니다. 즉 Resolution을 높이기 위해 NA를 키우면 DOF는 줄어드는 Trade-Off 관계가 발생합니다. 따라서 미세 Pattern을 구현할수록 초점 제어, 웨이퍼 평탄도, Photoresist 두께, Overlay 관리가 더 중요해집니다. 결국 Lithography 공정은 높은 Resolution을 확보하면서도 충분한 DOF를 유지하는 균형 최적화가 핵심입니다.",
     "keywords": [
       "레일리 공식",
       "k1",
@@ -714,7 +790,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "OPC",
       "PSM"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Resolution은 Lithography에서 가까운 두 Pattern을 구분해 원하는 CD로 전사할 수 있는 능력입니다. 파장 λ가 짧고 NA가 클수록 Resolution은 좋아집니다. 반면 DOF, 즉 Depth Of Focus는 초점이 일부 벗어나도 Pattern 품질이 유지되는 초점 Margin입니다. DOF는 NA가 커질수록 감소하므로, Resolution을 높이기 위해 NA를 키우면 DOF가 줄어드는 Trade-Off가 생깁니다. 따라서 미세공정에서는 해상도 확보와 초점 Margin 유지의 균형이 중요합니다."
   },
   {
     "id": 40,
@@ -733,7 +811,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "모델 기반 OPC",
       "AI OPC"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "OPC는 광근접 보정의 약자로, 포토 공정에서 마스크 패턴이 웨이퍼에 왜곡되어 전사되는 현상을 보정하기 위해, 마스크 형상을 미리 수정하는 기술입니다. 미세 패턴에서는 빛의 회절과 간섭, 인접 패턴 영향으로 선폭이 변하거나 모서리가 둥글어지고 CD 오차가 발생합니다. 이를 줄이기 위해 마스크 패턴의 폭, 위치, 모서리를 조정하거나 보조 패턴을 넣습니다. 결국 OPC는 최종 웨이퍼 패턴을 설계값에 가깝게 만들고, CD 균일도와 수율을 확보하기 위해 필요합니다."
   },
   {
     "id": 41,
@@ -751,7 +831,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "어텐뉴에이티드 PSM",
       "6%"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "PSM은 마스크를 통과하는 빛의 위상을 조절해 포토 공정의 해상도를 높이는 기술입니다. 일부 투과 영역에 180도 위상 차이를 주면 패턴 경계에서 빛이 상쇄 간섭을 일으켜 명암 대비가 커지고, 더 선명한 패턴을 만들 수 있습니다. 종류로는 인접 개구부에 0도와 180도 위상을 번갈아 주는 Alternating PSM, 약한 투과막으로 위상 차이를 주는 Attenuated PSM, 패턴 가장자리에 위상 반전 영역을 두는 Rim PSM이 있습니다. PSM은 미세 패턴 형성을 위한 Resolution 향상 기술입니다."
   },
   {
     "id": 42,
@@ -770,7 +852,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "CDU",
       "파괴/비파괴"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "CD는 임계 치수의 약자로, 반도체 패턴에서 소자 특성에 직접 영향을 주는 핵심 치수입니다. 대표적으로 게이트 선폭, 콘택 홀 크기, 배선 폭과 간격이 해당됩니다. CD가 변하면 전류, 저항, 누설 전류, 동작 속도와 수율이 달라질 수 있어 중요합니다. CD는 주로 현상 후 ADI, 식각 후 AEI 단계에서 측정하며, 대표 장비는 CD-SEM입니다. 전자빔으로 패턴을 관찰해 선폭이나 홀 크기를 정밀 측정하고, 결과를 노광량, Focus, 현상, 식각 조건 개선에 활용합니다."
   },
   {
     "id": 43,
@@ -788,7 +872,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "웨이퍼 변형",
       "CD의 1/3"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "오버레이는 이전 층의 패턴과 현재 노광할 패턴이 얼마나 정확히 정렬되었는지를 나타내는 지표입니다. 반도체는 여러 층의 패턴이 쌓여 동작하므로, 정렬이 어긋나면 게이트와 콘택, 배선과 비아 위치가 맞지 않아 오픈 불량, 단락, 접촉 저항 증가, 누설 전류가 발생할 수 있습니다. 오버레이는 기준 마크와 현재 층 마크의 위치 차이를 계측해 관리합니다. 미세공정에서는 공정 Margin이 작기 때문에 오버레이 제어가 수율과 신뢰성 확보에 매우 중요합니다."
   },
   {
     "id": 44,
@@ -806,7 +892,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "멀티패터닝 단계 축소",
       "High-NA EUV"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "EUV 노광은 13.5nm의 짧은 파장을 이용해 미세 패턴을 형성하는 기술입니다. 기존 ArF는 193nm 빛을 렌즈로 투과시켜 노광하지만, EUV는 물질 흡수가 커서 진공 환경과 반사형 광학계를 사용합니다. 주로 주석 Droplet에 Laser를 쏘아 Plasma를 만들고, 여기서 나온 EUV 빛을 마스크와 웨이퍼에 전달합니다. ArF보다 파장이 짧아 다중 Patterning을 줄이고 해상도를 높일 수 있지만, Mask 결함, PR 감도, Stochastic Defect, 장비 비용 관리가 어렵습니다."
   },
   {
     "id": 45,
@@ -825,7 +913,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "오버레이 오차",
       "EUV 대체"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "멀티패터닝은 한 번의 노광으로 만들기 어려운 미세 패턴을 여러 번의 포토와 식각 공정으로 나누어 형성하는 기술입니다. 대표적으로 LELE, SADP, SAQP가 있습니다. LELE는 패턴을 두 번 나누어 노광하고 식각하는 방식이고, SADP는 Mandrel 옆에 Spacer를 형성한 뒤 Mandrel을 제거해 Pitch를 줄이는 방식입니다. SAQP는 Spacer 공정을 반복해 더 미세한 Pitch를 구현합니다. 장점은 ArF 장비로 미세화를 이어갈 수 있다는 점이고, 단점은 공정 수 증가, Overlay 오차, CD 균일도 관리가 어렵다는 점입니다."
   },
   {
     "id": 46,
@@ -843,7 +933,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "열 히스토리",
       "리워크율"
     ],
-    "active": false
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "포토 공정에서 리워크는 현상 후 검사에서 불량이 확인되었지만, 식각이나 이온 주입 전이라 웨이퍼를 회수할 수 있을 때 진행합니다. 주요 조건은 CD 불량, Overlay 불량, Focus나 노광량 이상, PR 도포 불량, Particle, 현상 불량, Pattern Collapse 등입니다. 절차는 검사 결과 확인 후 PR Strip으로 기존 PR을 제거하고, Ashing 또는 Wet Cleaning으로 잔류물을 제거합니다. 이후 HMDS, PR 도포, Soft Bake, 노광, PEB, 현상을 다시 진행하고 CD와 결함을 재검사합니다."
   },
   {
     "id": 47,
@@ -862,7 +954,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "종횡비",
       "식각 내성"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "스핀 코팅에서 PR 두께는 주로 PR 물성과 회전 조건에 의해 결정됩니다. 회전 속도가 높을수록 원심력이 커져 PR이 얇아지고, 회전 시간이 길면 용매 증발과 평탄화가 진행되어 두께가 줄 수 있습니다. 또한 PR 점도와 고형분 함량이 높을수록 두꺼운 막이 형성됩니다. Dispense 양, Acceleration, 웨이퍼 중심 정렬도 막 균일도에 영향을 줍니다. 온도, 습도, 배기 흐름은 용매 증발 속도를 바꿔 Edge Bead나 두께 편차를 만들 수 있습니다."
   },
   {
     "id": 48,
@@ -881,7 +975,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "T-top",
       "린스"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "현상 공정은 노광과 PEB 이후 PR의 용해도 차이를 이용해 원하는 패턴을 만드는 단계입니다. Positive PR은 노광된 영역이 현상액에 잘 녹아 제거되고, Negative PR은 비노광부가 제거됩니다. 현상액은 주로 TMAH 계열을 사용하며, 시간, 농도, 온도, Puddle 균일도, Rinse와 Dry 조건이 CD와 Profile에 영향을 줍니다. 주요 불량은 현상 부족에 따른 잔사, 과현상에 따른 CD 감소, Pattern Collapse, Scum, Bridge, Line Edge Roughness 증가입니다."
   },
   {
     "id": 49,
@@ -900,7 +996,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "파티클",
       "세정"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "포토 마스크, 즉 레티클은 설계 패턴을 웨이퍼에 전사하기 위한 원판입니다. 보통 석영 기판 위에 빛을 차단하는 크롬막이나 위상 제어막이 형성되고, 그 위에 회로 패턴이 만들어집니다. 관리 시에는 Particle, Scratch, Haze, Pattern 손상, 오염 여부를 정기적으로 검사해야 합니다. 또한 Pellicle을 사용해 Particle 영향을 줄이고, 전용 Case와 청정 환경에서 보관합니다. 레티클 결함은 여러 웨이퍼에 반복 전사되므로 수율 관리를 위해 매우 중요합니다."
   },
   {
     "id": 50,
@@ -920,7 +1018,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "인라인 광학 검사",
       "SPC"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": ""
   },
   {
     "id": 51,
@@ -939,7 +1039,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "광학 설계",
       "하드 마스크"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "BARC는 PR 아래에 형성하는 반사 방지막으로, 하부막에서 반사되는 노광 빛을 줄이는 역할을 합니다. 반사광이 입사광과 간섭하면 Standing Wave가 생기고, PR 내부 노광량이 달라져 CD 변동, Profile 불량, Line Edge Roughness 증가가 발생할 수 있습니다. BARC는 빛을 흡수하거나 위상 차이를 조절해 반사를 억제하고, PR 패턴의 수직성과 CD 균일도를 개선합니다. 특히 금속막이나 다층막처럼 반사율이 높은 기판에서 중요합니다."
   },
   {
     "id": 52,
@@ -958,7 +1060,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "T-top",
       "지연 시간"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "PEB는 노광 후 PR 내부의 화학 반응을 안정화하기 위한 열처리 공정입니다. 특히 CAR에서는 노광 시 산 발생제에서 산이 생성되고, PEB 동안 산이 확산되며 고분자 보호기를 탈착시켜 노광부의 현상액 용해도를 높입니다. 또한 Standing Wave를 완화하고 반응 균일도를 높여 CD 변동과 Line Edge Roughness를 줄입니다. 다만 PEB 온도나 시간이 과하면 산 확산이 커져 CD Bias와 Pattern Blur가 생길 수 있어 정밀 제어가 중요합니다."
   },
   {
     "id": 53,
@@ -976,7 +1080,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "균일도",
       "ASML"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 1,
+    "shortAnswer": "스테퍼와 스캐너는 모두 레티클 패턴을 웨이퍼에 축소 전사하는 노광 장비입니다. 스테퍼는 레티클과 웨이퍼를 정지시킨 상태에서 한 Shot을 노광한 뒤, 웨이퍼를 다음 위치로 이동하는 Step-And-Repeat 방식입니다. 반면 스캐너는 레티클과 웨이퍼를 동기화해 움직이며 슬릿 형태의 빛으로 노광하는 Step-And-Scan 방식입니다. 스캐너는 넓은 노광 영역과 높은 해상도 확보에 유리하지만, 동기 제어와 Overlay 관리가 더 어렵습니다."
   },
   {
     "id": 54,
@@ -994,14 +1100,16 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "SMO",
       "OPC 최적화"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "공정 노광 윈도우는 포토 공정에서 목표 CD와 패턴 품질을 만족할 수 있는 노광량과 Focus 조건의 허용 범위입니다. 양산에서는 PR 두께, 웨이퍼 평탄도, 장비 Focus, 노광량 변동이 존재하므로 충분한 Margin 확보가 중요합니다. 평가는 주로 FEM, 즉 Focus Exposure Matrix로 진행합니다. Focus와 Dose를 바꿔 노광한 뒤 CD, Profile, Bridge, 잔사, Pattern Collapse 등을 측정하고, Spec을 만족하는 영역을 Process Window로 판단합니다."
   },
   {
     "id": 55,
     "jobRole": "공정기술",
     "category": "포토(Lithography)",
     "group": "main",
-    "difficulty": "실전",
+    "difficulty": "입문",
     "question": "HMDS 처리가 필요한 이유를 설명해주세요.",
     "answer": "HMDS는 Hexamethyldisilazane의 약자로, PR 코팅 전 웨이퍼 표면에 처리하는 접착 촉진제입니다. SiO₂나 Si₃N₄ 표면은 친수성으로, 물 분자가 흡착되어 있습니다. PR은 유기 용매에 녹인 유기 고분자이므로 친수성 표면과의 접착력이 낮아, 현상이나 식각 시 PR 패턴이 들뜨거나 무너지는 박리 현상이 발생할 수 있습니다. HMDS는 표면에 증착되면서 친수성 OH기와 반응해 소수성 메틸기로 표면을 개질합니다. 이렇게 소수성이 된 표면은 유기 재료인 PR과 친화성이 높아져 접착력이 크게 향상됩니다. 처리 방법은 HMDS 증기를 약 80~120도로 가열된 웨이퍼에 노출시키는 증기 처리 방식이 일반적이며, 기판 종류와 표면 상태에 따라 최적 온도와 시간이 다릅니다. PR이 너무 두꺼운 경우, 표면 재료가 금속이나 폴리실리콘인 경우 등 다양한 공정 조건에 맞게 HMDS 처리 조건을 최적화하는 것이 중요합니다.",
     "keywords": [
@@ -1012,7 +1120,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "박리 방지",
       "증기 처리"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "HMDS 처리는 웨이퍼 표면과 PR의 접착력을 높이기 위해 필요합니다. 산화막 표면에는 수분과 -OH기가 있어 친수성을 띠며, 이 상태에서 PR을 도포하면 접착력이 낮아져 현상 중 들뜸, 벗겨짐, Pattern Collapse가 발생할 수 있습니다. HMDS는 표면의 -OH기와 반응해 표면을 소수성으로 바꾸고, PR이 균일하게 붙도록 도와줍니다. 보통 탈수 Bake 후 Vapor Prime 방식으로 진행하며, 과도하거나 불균일하면 CD와 도포 균일도에 영향을 줄 수 있습니다."
   },
   {
     "id": 56,
@@ -1030,7 +1140,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "탑코팅",
       "멀티패터닝"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "ArF 액침 노광, 즉 ArFi는 193nm ArF 노광에서 렌즈와 웨이퍼 사이를 공기 대신 물로 채워 해상도를 높이는 기술입니다. 물은 공기보다 굴절률이 높아 렌즈의 유효 NA를 1 이상으로 키울 수 있고, 같은 파장에서도 더 미세한 패턴을 만들 수 있습니다. 다만 공정 중 초순수의 공급과 회수가 안정적이어야 하며, 기포, Water Mark, Particle, 오염을 제어해야 합니다. 또한 물과 PR 접촉에 따른 Leaching을 막기 위해 Top Coat나 PR 최적화가 필요합니다."
   },
   {
     "id": 57,
@@ -1048,7 +1160,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "OPC",
       "시뮬레이션"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "광학 근접 효과는 포토 공정에서 주변 패턴의 영향으로 노광 강도 분포가 변해, 마스크 설계와 실제 웨이퍼 패턴이 달라지는 현상입니다. 미세 패턴에서는 빛의 회절과 간섭이 커져 고립 패턴과 밀집 패턴의 CD가 다르게 형성되거나, 모서리 둥글어짐, Line End Shortening, CD Bias가 발생할 수 있습니다. 이는 공정 Margin과 수율을 저하시킬 수 있어 OPC, PSM, 보조 패턴, 조명 조건 최적화로 보정합니다."
   },
   {
     "id": 58,
@@ -1067,7 +1181,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "금속 오염",
       "자연 산화막"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "SPM, SC1, BOE 세정은 포토 공정 전후의 오염 제거와 표면 제어를 위해 필요합니다. SPM은 황산과 과산화수소 혼합액으로 유기물과 PR 잔류물 제거에 효과적입니다. SC1은 암모니아, 과산화수소, 물 혼합액으로 Particle과 일부 유기 오염을 제거합니다. BOE는 자연 산화막이나 산화막 잔류물을 제거해 표면 상태를 조절합니다. 다만 BOE는 산화막을 식각하므로 과처리 시 막 손실이 생길 수 있습니다. 이러한 세정은 PR 접착력, 결함 저감, 후속 공정 안정성 확보에 중요합니다."
   },
   {
     "id": 59,
@@ -1085,7 +1201,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "공정 윈도우",
       "SLM"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "광원 조명 조건은 마스크를 비추는 빛의 각도와 분포를 조절해 해상도와 DOF를 최적화하는 요소입니다. 원형 조명 외에 환형, 쌍극, 사극 조명을 사용하면 특정 방향의 미세 Pattern에서 공정 Margin을 넓힐 수 있습니다. SMO는 Source Mask Optimization으로, 광원 형상과 Mask Pattern을 동시에 최적화하는 기술입니다. OPC가 Mask 보정 중심이라면, SMO는 Source와 Mask를 함께 설계해 CD 균일도와 Process Window를 개선합니다. 특히 반복 노광 없이 미세 Pattern을 안정적으로 구현하는 데 중요합니다."
   },
   {
     "id": 60,
@@ -1103,7 +1221,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "EUV",
       "PR 감도"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "LER은 Line Edge Roughness로 라인 가장자리의 거칠기를 의미하고, LWR은 Line Width Roughness로 선폭 자체의 변동을 의미합니다. PR 분자 불균일, 노광 Shot Noise, 현상 변동 때문에 발생하며, 미세 Pattern에서는 몇 nm의 거칠기도 큰 영향을 줍니다. LER과 LWR이 크면 트랜지스터 채널 길이와 배선 저항이 변하고, 누설 전류와 소자 간 특성 편차가 증가합니다. 따라서 EUV 공정에서는 PR 재료, Dose, PEB, 현상 조건을 정밀하게 관리해야 합니다. 결국 관리 목표는 Roughness를 낮추면서 충분한 노광 Margin을 확보하는 것입니다."
   },
   {
     "id": 61,
@@ -1121,7 +1241,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "엘립소미터",
       "SPC"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "포토 공정의 주요 검사 항목은 CD, Overlay, 결함, PR 두께와 Profile입니다. CD는 CD-SEM으로 선폭과 홀 크기를 측정하고, Overlay는 전용 계측 장비로 이전 층과 현재 층의 정렬 오차를 확인합니다. 결함 검사는 광학 검사 장비로 Particle, Bridge, Open을 빠르게 검출하고, 필요 시 SEM Review로 원인을 확인합니다. PR 두께는 Ellipsometry나 Reflectometry로 측정합니다. 이러한 검사는 노광, 현상, Bake 조건을 피드백해 수율을 안정화하는 데 중요합니다. 양산 초기에는 모니터 웨이퍼도 함께 활용합니다."
   },
   {
     "id": 62,
@@ -1139,7 +1261,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "피치 축소",
       "컨택트 증식"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "DSA는 Directed Self-Assembly의 약자로, 블록 공중합체가 스스로 나노 구조를 형성하는 성질을 이용한 차세대 Patterning 기술입니다. 리소그래피로 가이드 Pattern을 만든 뒤, 고분자를 열처리하면 서로 다른 블록이 분리되며 규칙적인 Line이나 Hole 배열을 만듭니다. 기존 노광 한계를 보완하고 매우 미세한 Pitch를 구현할 수 있는 장점이 있습니다. 다만 결함 제어, 위치 정렬, 공정 균일도, 기존 공정과의 통합이 어려워 양산 적용에는 정밀한 관리가 필요합니다. 결국 DSA는 노광 해상도와 자기조립 정렬성을 함께 활용하는 방식입니다."
   },
   {
     "id": 63,
@@ -1157,7 +1281,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "폴리실리콘/SiN",
       "내열성"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "펠리클은 레티클 위에 부착하는 얇은 막으로, Particle이 Mask Pattern 표면에 직접 붙는 것을 막아 반복 전사 결함을 줄입니다. Particle이 펠리클 위에 있으면 초점면에서 벗어나 웨이퍼에 선명하게 전사되지 않습니다. EUV 펠리클은 특히 어렵습니다. EUV는 대부분의 물질에 흡수되므로 높은 투과율, 얇은 두께, 열적 안정성, 기계적 강도를 동시에 만족해야 합니다. 또한 고출력 EUV에서 발열과 변형이 생길 수 있어 수명과 결함 관리가 핵심입니다. 특히 Mask 결함은 여러 웨이퍼에 반복 전사되므로 펠리클 신뢰성이 수율과 직결됩니다."
   },
   {
     "id": 64,
@@ -1174,7 +1300,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "멀티레이어 미러 반사율 67%",
       "EUV 플레어"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Flare는 노광 장비의 광학계에서 산란된 빛이 원래 노광되지 않아야 할 영역에 도달하는 현상입니다. 이로 인해 비노광부 PR이 일부 반응하고, Pattern 대비가 낮아져 CD 변동이나 Profile 불량이 발생할 수 있습니다. EUV에서 문제가 큰 이유는 투과 렌즈가 아니라 다층 반사 Mirror를 사용하고, 각 Mirror 표면 거칠기와 결함에서 산란이 누적되기 때문입니다. 또한 EUV 광원 효율이 낮아 작은 산란도 노광 균일도에 민감하게 작용합니다. 결국 Flare 관리는 광학계 청정도, Mirror 품질, 노광 보정 모델의 정확도와 연결됩니다."
   },
   {
     "id": 65,
@@ -1192,7 +1320,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "EUV 소스 파워",
       "메탈 레지스트"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Stochastic Effect는 광자 수, PR 분자 반응, 산 발생과 확산이 통계적으로 변하면서 Pattern 품질이 흔들리는 현상입니다. EUV는 13.5nm 광자의 에너지는 높지만 단위 면적에 도달하는 광자 수가 적어 Shot Noise 영향이 큽니다. 그 결과 동일 Dose에서도 국부적으로 노광량이 달라져 CD 변동, LER 증가, Missing Contact, Bridge 같은 결함이 발생할 수 있습니다. 따라서 EUV에서는 감도, 해상도, Roughness의 균형을 고려한 PR와 공정 조건 최적화가 중요합니다. 결함 검출과 계측도 매우 중요합니다."
   },
   {
     "id": 66,
@@ -1211,7 +1341,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "프로파일",
       "RIE"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "식각 공정은 PR이나 Hard Mask Pattern을 이용해 노출된 막을 선택적으로 제거하고 원하는 구조를 만드는 공정입니다. 건식 식각은 진공에서 Plasma를 이용해 Ion 충격과 Radical 화학 반응으로 막을 제거하며, 방향성이 좋아 미세 Pattern의 수직 Profile 형성에 유리합니다. 습식 식각은 화학 용액으로 막을 녹이는 방식으로 속도가 빠르고 선택비가 좋지만 등방성이 강해 Under Cut이 생기기 쉽습니다. 따라서 미세공정에서는 건식 식각이 핵심적으로 사용됩니다. 건식은 장비와 Plasma 조건 제어가 복잡하지만 양산 미세화 대응력이 큽니다."
   },
   {
     "id": 67,
@@ -1230,7 +1362,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "이온 강화 화학 식각",
       "이방성"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Plasma 식각은 진공 챔버에서 RF 전력으로 가스를 이온화해 Ion과 Radical을 만들고, 이들이 웨이퍼 표면과 반응해 막을 제거하는 공정입니다. 주요 메커니즘은 세 가지입니다. Radical이 막과 반응해 휘발성 부산물을 만드는 화학적 식각, Ion 충격으로 표면 원자를 떼어내는 물리적 식각, 그리고 두 효과가 결합된 Ion 강화 화학 식각입니다. 이 방식은 이방성 Profile과 선택비를 함께 조절할 수 있어 Gate, Contact, Trench 식각에 널리 사용됩니다. 가스 조성, Bias Power, Pressure가 식각 속도와 Profile을 결정합니다."
   },
   {
     "id": 68,
@@ -1248,7 +1382,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "식각 레시피",
       "가스 조성"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "선택비는 식각 대상 막의 식각 속도를 Mask나 하부막의 식각 속도로 나눈 비율입니다. 예를 들어 산화막이 실리콘보다 10배 빠르게 식각되면 선택비는 10대 1입니다. 선택비가 높아야 목표 막만 제거하고 PR, Hard Mask, Stop Layer, 하부 소자를 보호할 수 있습니다. 선택비가 낮으면 Mask가 빨리 소모되어 CD가 변하거나 하부막이 손상될 수 있습니다. 따라서 가스 조성, Plasma 조건, 온도, Pressure를 조절해 식각 속도와 선택비를 동시에 최적화합니다. 양산에서는 목표막 제거와 하부막 보호 사이의 균형이 핵심입니다."
   },
   {
     "id": 69,
@@ -1266,7 +1402,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "게이트 패터닝",
       "CHF₃"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "이방성 식각은 식각이 옆 방향보다 수직 방향으로 주로 진행되어 수직 Profile을 만드는 특성입니다. Plasma 식각에서는 전기장에 의해 Ion이 웨이퍼 표면에 거의 수직으로 가속되면서 하부를 집중적으로 제거하고, 측벽은 Polymer Passivation으로 보호됩니다. 그 결과 Under Cut을 줄이고 미세한 Line, Trench, Contact Hole을 정확히 형성할 수 있습니다. 이방성이 부족하면 CD가 커지거나 Pattern이 무너질 수 있어 Ion Energy, Pressure, 가스 조성 제어가 중요합니다. 후속 증착 품질도 좌우합니다."
   },
   {
     "id": 70,
@@ -1284,7 +1422,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "실시간 모니터링",
       "오버에치"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Endpoint Detection은 식각이 목표 막을 모두 제거한 시점을 감지해 공정을 멈추는 기술입니다. 대표적으로 OES는 Plasma에서 나오는 빛의 Spectrum을 실시간 분석해 식각 부산물의 발광 세기 변화를 보고 끝점을 판단합니다. 또 Laser Interferometry는 반사광 간섭 변화를 이용해 막 두께 변화를 추적합니다. 끝점 검출이 없으면 과식각으로 하부막 손상과 CD 변동이 생기거나, 반대로 잔막이 남아 Open 불량이 발생할 수 있습니다. 따라서 양산 안정성 확보에 필수입니다. 특히 얇은 Stop Layer가 있는 공정에서 효과가 큽니다."
   },
   {
     "id": 71,
@@ -1302,7 +1442,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "CMP 평탄화",
       "Bird's Beak 해소"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "STI는 Shallow Trench Isolation의 약자로, 소자 사이를 전기적으로 분리하기 위해 실리콘에 얕은 Trench를 만들고 절연막으로 채우는 공정입니다. 일반적으로 Pad Oxide와 Nitride를 형성한 뒤 포토와 건식 식각으로 Trench를 만들고, 측벽 산화 후 CVD 산화막을 채웁니다. 이후 CMP로 표면을 평탄화하고 Nitride를 제거합니다. STI는 LOCOS의 Bird’s Beak 문제를 줄여 집적도 향상에 유리하지만, Trench Profile, Gap Fill, CMP Dishing, Stress 관리가 중요합니다."
   },
   {
     "id": 72,
@@ -1320,7 +1462,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "SPM 병행",
       "잔류 유기물"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "PR Ashing은 식각이나 Implant 후 남아 있는 Photoresist를 제거하는 공정입니다. 주로 산소 Plasma를 사용해 PR의 유기 성분을 CO₂와 H₂O 같은 휘발성 물질로 산화 분해하고 배기합니다. 액체 Chemical을 쓰지 않아 균일한 제거가 가능하지만, Ion Implant 후 경화된 PR은 제거가 어려워 Wet Strip과 병행하기도 합니다. 과도한 Ashing은 하부막 손상, 산화, 표면 거칠기 증가를 유발할 수 있으므로 Plasma Power, 온도, 시간, 잔류물 검사가 중요합니다. 잔류 Carbon이나 Fluorine 확인도 필요합니다."
   },
   {
     "id": 73,
@@ -1337,7 +1481,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "폴리머 잔류물",
       "Cl₂/HBr/CF₄"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Gate 식각은 트랜지스터의 채널 길이를 결정하는 Gate Pattern을 형성하는 핵심 공정입니다. 요구 사항은 높은 이방성, 정밀한 CD 제어, 우수한 선택비, 낮은 Damage입니다. Gate CD가 흔들리면 문턱전압과 구동 전류가 변하므로 웨이퍼 내 균일도가 중요합니다. 또한 Poly Silicon이나 Metal Gate를 식각하면서 Gate Oxide나 High-K 막을 손상시키지 않아야 합니다. 이를 위해 단계별 식각, Endpoint Detection, Over Etch 제어, Sidewall Profile 관리가 필요합니다."
   },
   {
     "id": 74,
@@ -1355,7 +1501,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "이온 에너지 독립 제어",
       "고밀도 플라즈마"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "CCP와 ICP는 Plasma를 만드는 방식이 다릅니다. CCP는 두 전극 사이에 RF 전력을 인가해 용량 결합으로 Plasma를 형성하며, 구조가 단순하지만 Plasma 밀도와 Ion Energy를 독립적으로 제어하기 어렵습니다. ICP는 코일에 RF 전력을 인가해 유도 결합으로 고밀도 Plasma를 만들고, Bias 전력으로 Ion Energy를 별도 제어할 수 있습니다. 그래서 ICP는 낮은 Pressure에서 높은 식각 속도와 우수한 이방성을 얻기 쉽습니다. 다만 장비 구조와 공정 제어는 더 복잡합니다. 용도에 따라 CCP는 산화막 식각, ICP는 고밀도 식각에 많이 활용됩니다."
   },
   {
     "id": 75,
@@ -1374,7 +1522,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "종횡비",
       "보잉"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Loading Effect는 식각되는 면적이나 Pattern 밀도 차이 때문에 식각 속도가 달라지는 현상입니다. 식각 면적이 넓으면 Radical 소모가 많아 속도가 느려지고, 면적이 작으면 상대적으로 빨라질 수 있습니다. Trench와 Hole에서는 종횡비가 커질수록 Ion과 Radical이 바닥까지 도달하기 어려워 깊은 구조의 식각 속도가 낮아지는 ARDE 또는 RIE Lag도 발생합니다. 이로 인해 깊이, CD, Profile 편차가 생기므로 가스 유량, Pressure, Plasma 밀도, Dummy Pattern 설계로 보정합니다."
   },
   {
     "id": 76,
@@ -1393,7 +1543,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "에지 러프니스",
       "하드마스크 제거"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Hard Mask는 PR 대신 또는 PR 위에 사용하는 식각 내성이 높은 무기 Mask입니다. 미세화로 식각 깊이와 종횡비가 커지면 PR만으로는 충분한 내성을 확보하기 어렵고, 식각 중 PR 소모가 CD 변동을 유발할 수 있습니다. Hard Mask는 산화막, 질화막, Amorphous Carbon, Metal 계열 등이 사용되며, 목표막과 높은 선택비를 갖도록 선택합니다. 장점은 깊은 식각과 수직 Profile 형성에 유리하고 Pattern 변형을 줄인다는 점입니다. 다만 추가 증착과 제거 공정이 필요합니다. 최종적으로 Hard Mask CD가 식각 결과의 기준이 됩니다."
   },
   {
     "id": 77,
@@ -1412,7 +1564,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "테이퍼",
       "ALE"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Contact Hole과 Via 식각은 작은 직경의 깊은 Hole을 형성해야 하므로 어렵습니다. 종횡비가 높아질수록 Ion과 Radical이 바닥까지 도달하기 어려워 식각 속도가 느려지고, 하부가 좁아지는 Taper Profile이나 미개구 불량이 발생할 수 있습니다. 또한 Pattern 밀도 차이에 따른 Micro Loading, 측벽 Polymer 재증착, 하부막 손상, 선택비 부족도 문제입니다. 특히 Contact은 소자 영역과 직접 연결되므로 잔사나 Over Etch가 접촉 저항과 누설 전류에 영향을 줍니다. 그래서 하부 개구율과 Profile 제어가 수율의 핵심입니다."
   },
   {
     "id": 78,
@@ -1431,7 +1585,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "Cryogenic",
       "단계적 식각"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "3D NAND의 Channel Hole 식각은 수십에서 수백 단의 Oxide와 Nitride 적층막을 수직으로 관통해야 하는 초고종횡비 식각입니다. 깊이가 매우 커 Ion과 Radical이 하부까지 도달하기 어렵고, 상부는 넓고 하부는 좁아지는 Taper나 막힘이 발생할 수 있습니다. 또한 적층막마다 식각 속도와 반응성이 달라 Profile이 불균일해지고, 측벽 거칠기와 Bowing도 문제가 됩니다. 따라서 고밀도 Plasma, 선택비, Polymer Passivation, Endpoint와 Profile 제어가 핵심입니다. 장비 안정성과 장시간 공정 재현성도 중요합니다."
   },
   {
     "id": 79,
@@ -1450,7 +1606,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "GAA",
       "고정밀"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "ALE는 Atomic Layer Etching의 약자로, 원자층 단위로 막을 정밀하게 제거하는 식각 기술입니다. 일반적으로 첫 단계에서 표면을 반응성 물질로 개질하고, 다음 단계에서 낮은 에너지 Ion이나 열 반응으로 개질된 층만 제거합니다. 이 과정을 반복하면 Cycle 수에 따라 식각량을 매우 정밀하게 제어할 수 있습니다. 장점은 낮은 Damage, 높은 선택비, 우수한 CD 제어이며, 미세 Gate, Spacer, High-K, 3D 구조 식각에 활용됩니다. 다만 식각 속도가 느리고 공정 시간이 길 수 있습니다. 그래서 고난도 미세공정의 보정 식각에 적합합니다."
   },
   {
     "id": 80,
@@ -1467,7 +1625,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "CD 손실",
       "SEM 단면"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "식각 후 Profile은 공정 조건에 따라 여러 형태로 나타납니다. 이상적인 경우는 수직 측벽을 가진 Anisotropic Profile입니다. 등방성 식각이 강하면 옆 방향도 함께 식각되어 Under Cut이 생기고, 하부가 좁아지면 Taper Profile, 중간이 파이면 Bowing이 발생합니다. 측벽 Polymer가 과도하면 식각이 막혀 Notching이나 잔사가 남을 수 있고, 하부막 전하 축적으로 Footing이 생기기도 합니다. Profile은 CD, 접촉 저항, 후속 증착의 스텝 커버리지에 영향을 주므로 중요합니다. 따라서 공정 조건별 Profile 계측이 필요합니다."
   },
   {
     "id": 81,
@@ -1485,7 +1645,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "컨택트 저항",
       "EDX"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "식각 후 세정은 Polymer, 금속 오염, Particle, 식각 부산물, PR 잔사를 제거하기 위해 필요합니다. 잔류물이 남으면 후속 증착의 접착 불량, Via 저항 증가, 누설 전류, Pattern 결함으로 이어질 수 있습니다. 특히 플라즈마 식각은 측벽 보호막이나 불소계 부산물이 남기 쉬워 Ashing, Wet Cleaning, Solvent, SPM, SC1, DHF 등을 조합해 제거합니다. 다만 과도한 세정은 하부막 손상이나 CD Loss를 만들 수 있으므로, 잔류물 제거력과 Pattern 보존성을 함께 고려해야 합니다."
   },
   {
     "id": 82,
@@ -1503,7 +1665,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "CD 변동",
       "ALE"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "RIE Lag는 Reactive Ion Etching에서 같은 조건이라도 Hole이나 Trench의 폭과 종횡비에 따라 식각 깊이가 달라지는 현상입니다. 작은 개구부나 높은 종횡비 구조에서는 Ion과 Radical이 바닥까지 도달하기 어렵고, 부산물 배출도 제한되어 식각 속도가 낮아집니다. 마이크로 로딩은 주변 Pattern 밀도 차이에 의해 식각 속도와 Profile이 달라지는 현상입니다. 두 현상 모두 국부적인 반응종 공급과 소모 차이에서 발생하며, CD와 깊이 균일도 저하를 유발합니다. 공정 조건과 Dummy Pattern으로 보정합니다."
   },
   {
     "id": 83,
@@ -1522,7 +1686,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "선택비",
       "등방성"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "습식 식각에는 막 종류에 따라 다양한 Chemical이 사용됩니다. SiO₂는 HF나 BOE로 식각하며, BOE는 NH₄F를 섞어 식각 속도와 pH를 완충합니다. Silicon은 KOH나 TMAH로 이방성 식각할 수 있고, 금속막은 전용 산성 또는 산화성 용액을 사용합니다. Nitride는 고온 Phosphoric Acid로 식각합니다. 습식 식각은 선택비와 처리량이 좋지만 등방성이 강해 Under Cut이 생기기 쉽고, 농도, 온도, 시간, 교반 상태가 식각 속도와 균일도에 큰 영향을 줍니다. 또한 세정 후 Water Mark와 금속 오염 관리도 함께 필요합니다."
   },
   {
     "id": 84,
@@ -1540,7 +1706,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "컨포멀 증착",
       "피치 1/2"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "SADP에서 식각은 단순히 막을 제거하는 단계가 아니라 Pitch를 줄이는 핵심 역할을 합니다. 먼저 Mandrel Pattern을 형성하고, 그 위에 Spacer 막을 균일하게 증착한 뒤 Anisotropic Etch Back으로 측벽 Spacer만 남깁니다. 이후 Mandrel을 선택적으로 제거하면 원래 Pattern 양옆의 Spacer가 최종 Mask가 되어 Pitch가 절반으로 줄어듭니다. 이 과정에서 Spacer 식각의 이방성, 선택비, CD 균일도가 최종 Pattern을 결정합니다. 따라서 SADP는 식각 제어력이 해상도와 수율을 좌우합니다."
   },
   {
     "id": 85,
@@ -1558,7 +1726,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "측벽 패시베이션",
       "오버에치"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "CD Loss는 식각 전후에 Pattern의 Critical Dimension이 줄어드는 현상입니다. PR이나 Hard Mask가 식각 중 소모되거나 측벽이 추가로 식각되면 Line 폭이 줄고 Hole 크기가 커질 수 있습니다. CD Loss가 크면 소자 전류, 저항, Overlay Margin, 후속 공정 정렬에 영향을 줍니다. 관리는 식각 전 ADI CD와 식각 후 AEI CD를 비교해 Bias를 확인하고, 가스 조성, Bias Power, Pressure, Over Etch 시간, Mask 두께를 최적화하는 방식으로 진행합니다. 필요한 경우 OPC나 Etch Bias를 설계에 반영합니다."
   },
   {
     "id": 86,
@@ -1576,7 +1746,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "Cl₂/BCl₃/SF₆",
       "금속 오염"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Metal 식각은 금속막의 화학적 반응성이 낮거나 부산물이 휘발되기 어려워 공정 난이도가 높습니다. Aluminum은 Chlorine 계열 Plasma로 식각하지만 부식과 잔류물 관리가 필요하고, Copper는 휘발성 부산물 형성이 어려워 건식 식각보다 Damascene 공정과 CMP를 주로 사용합니다. Metal 식각에서는 선택비, 측벽 부식, Micro Masking, 잔사, Plasma Damage가 주요 이슈입니다. 또한 금속 오염은 소자 신뢰성에 치명적이므로 Chamber 관리와 후세정이 중요합니다. 따라서 Metal 식각은 식각보다 통합 공정 설계가 중요합니다."
   },
   {
     "id": 87,
@@ -1594,7 +1766,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "가스 분배",
       "PM"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Etch Uniformity는 웨이퍼 전체와 Lot 간 식각 속도, 깊이, CD, Profile이 얼마나 균일한지를 의미합니다. 균일성이 나쁘면 같은 설계라도 위치별 소자 특성이 달라지고, 잔막이나 과식각으로 수율이 저하됩니다. 개선 방법은 가스 유량과 Showerhead 분포, Pressure, RF Power, Chuck 온도, Plasma 밀도 균일도를 최적화하는 것입니다. 또한 Edge Ring 상태, Chamber Wall Condition, Loading Effect, Recipe Matching을 관리해야 합니다. 정기적인 모니터 웨이퍼와 계측 피드백도 필수입니다."
   },
   {
     "id": 88,
@@ -1613,7 +1787,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "소프트 랜딩",
       "H₂ 어닐"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Polysilicon Gate 식각 후 Gate Oxide는 여러 손상을 받을 수 있습니다. 과도한 Ion 충격은 산화막을 얇게 만들거나 표면 결함을 만들고, Plasma Charging은 산화막에 전하를 축적시켜 절연 파괴나 Threshold Voltage 변동을 유발할 수 있습니다. 또한 Over Etch가 길면 Oxide Loss가 발생하고, 식각 부산물이나 금속 오염이 계면 품질을 떨어뜨립니다. 이러한 손상은 Gate 누설 전류와 신뢰성 저하로 이어지므로 높은 선택비, 낮은 Bias, Endpoint 제어, 후세정과 Annealing 관리가 중요합니다."
   },
   {
     "id": 89,
@@ -1631,7 +1807,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "CMP 정지층",
       "과식각 방지"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Etch Stop Layer는 식각이 특정 깊이에서 멈추도록 넣는 막으로, 목표막과 높은 선택비를 갖는 재료를 사용합니다. 식각 중 하부막 손상을 막고 깊이 균일도와 공정 Margin을 확보하는 역할을 합니다. 예를 들어 Contact Etch에서 Nitride를 Stop Layer로 사용하거나, Damascene 공정에서 SiCN, SiN 같은 막을 사용해 Low-K 절연막을 보호합니다. Etch Stop Layer가 있으면 Over Etch를 적용해도 하부 구조 손상을 줄일 수 있지만, 추가 막에 따른 Stress와 RC 증가도 고려해야 합니다."
   },
   {
     "id": 90,
@@ -1650,7 +1828,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "결함 검사",
       "SPC"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "식각 공정의 주요 계측 항목은 식각 깊이, 잔막 두께, CD 변화, Profile, 선택비, 균일도, 결함입니다. CD-SEM으로 식각 후 선폭과 Hole 크기를 측정하고, Cross-Section SEM이나 TEM으로 측벽 각도와 깊이를 확인합니다. 잔막 두께는 Ellipsometry나 Reflectometry로 측정하며, 결함 검사는 광학 검사와 SEM Review를 사용합니다. 또한 Endpoint Signal과 Chamber Data를 함께 분석해 Recipe 안정성을 확인합니다. 이 계측 결과는 Over Etch, Gas, RF Power, Pressure 조건 개선에 활용됩니다."
   },
   {
     "id": 91,
@@ -1669,7 +1849,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "스퍼터링",
       "전구체"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "CVD, PVD, ALD는 박막을 형성하는 대표 증착 방식입니다. CVD는 기체 전구체가 웨이퍼 표면에서 화학 반응해 막을 형성하며, 스텝 커버리지가 좋고 대량 공정에 적합합니다. PVD는 Target 물질을 물리적으로 튀겨 웨이퍼에 증착하는 방식으로 금속막에 많이 쓰지만, 고종횡비 구조에서는 스텝 커버리지가 제한됩니다. ALD는 전구체와 반응가스를 번갈아 주입해 한 층씩 성장시키므로 두께 제어와 균일도가 뛰어납니다. 대신 증착 속도는 느립니다. 공정 선택은 막 종류, 두께 균일도, 스텝 커버리지, 온도 제한, 처리량을 기준으로 결정합니다."
   },
   {
     "id": 92,
@@ -1686,7 +1868,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "IMD/ILD",
       "저온 공정"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "LPCVD, PECVD, APCVD는 CVD의 압력과 에너지 공급 방식에 따른 구분입니다. LPCVD는 저압에서 높은 온도로 반응시켜 막질과 균일도가 좋고, Polysilicon이나 Nitride 증착에 사용됩니다. PECVD는 Plasma 에너지로 반응을 도와 낮은 온도에서도 증착이 가능해 온도에 민감한 BEOL 공정에 적합합니다. APCVD는 대기압에서 진행되어 장비 구조가 단순하고 처리량이 높지만 균일도와 Particle 관리가 어렵습니다. 따라서 막질, 온도 제한, 생산성을 고려해 방식을 선택합니다. 즉 온도 Budget과 막 품질 요구가 선택 기준입니다."
   },
   {
     "id": 93,
@@ -1705,7 +1889,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "ALD 100%",
       "SEM"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "스텝 커버리지는 Trench, Hole, 측벽처럼 단차가 있는 구조에서 증착막이 상부와 하부, 측벽에 얼마나 균일하게 형성되는지를 나타냅니다. 스텝 커버리지가 낮으면 상부는 두껍고 하부나 측벽은 얇아져 Void, Seam, 단선, Barrier 불량이 발생할 수 있습니다. 특히 Contact, Via, 3D NAND처럼 고종횡비 구조에서는 매우 중요합니다. CVD와 ALD는 비교적 스텝 커버리지가 좋고, PVD는 방향성이 강해 한계가 있습니다. 개선을 위해 ALD, 고밀도 Plasma, 전구체 확산 조건을 최적화합니다. 결국 균일한 막 형성이 소자 연결 신뢰성을 좌우합니다."
   },
   {
     "id": 94,
@@ -1724,7 +1910,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "Al 배선",
       "스텝 커버리지"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Sputtering은 PVD 방식 중 하나로, 진공 챔버에서 Argon Plasma를 만들고 Ar Ion을 Target에 충돌시켜 Target 원자를 튀어나오게 한 뒤 웨이퍼에 증착하는 공정입니다. 주로 Al, Ti, Ta, Cu Seed 같은 금속막 형성에 사용됩니다. 장점은 막 조성이 Target과 유사하고 공정이 비교적 단순하며 금속막 품질이 좋다는 점입니다. 단점은 입자가 직진성으로 이동해 고종횡비 구조의 측벽과 바닥 스텝 커버리지가 떨어질 수 있다는 점입니다. 압력, Power, Bias, Target 상태가 막질에 영향을 줍니다."
   },
   {
     "id": 95,
@@ -1743,7 +1931,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "DRAM 유전체",
       "3D NAND"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "ALD는 Atomic Layer Deposition의 약자로, 전구체와 반응가스를 순차적으로 주입해 표면에서 자기 제한 반응을 일으키며 막을 한 층씩 성장시키는 공정입니다. 한 Cycle당 성장량이 일정해 두께 제어가 매우 정밀하고, 고종횡비 구조에서도 우수한 스텝 커버리지와 균일도를 얻을 수 있습니다. 장점은 얇은 막 제어, 높은 재현성, 낮은 결함 밀도입니다. 반도체에서는 High-K Gate 절연막, Barrier, Spacer, Capacitor Dielectric, 3D NAND 구조 등에 활용됩니다. 단점은 증착 속도가 느린 점입니다."
   },
   {
     "id": 96,
@@ -1762,7 +1952,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "HARP",
       "종횡비"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "HDP-CVD는 High Density Plasma CVD로, 고밀도 Plasma를 이용해 증착과 동시에 약한 Sputter Etch 효과를 발생시키는 공정입니다. 이 때문에 막을 채우면서 상부 모서리의 과도한 증착을 줄이고, 좁은 Gap 안으로 막이 들어가도록 도와줍니다. STI나 금속 배선 사이 절연막 Gap Fill에 활용되며, Void와 Seam을 줄이는 데 유리합니다. 다만 Plasma Damage, 막 Stress, 재증착, Pattern 의존성 문제가 생길 수 있어 Bias Power, 가스 조성, Pressure, 온도 조건을 정밀하게 조절해야 합니다."
   },
   {
     "id": 97,
@@ -1780,7 +1972,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "strained silicon",
       "CESL"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "박막 Stress는 증착된 막 내부에 존재하는 인장 또는 압축 응력을 의미합니다. 인장 Stress가 크면 막이 갈라지거나 박리될 수 있고, 압축 Stress가 크면 Wafer Bow, Pattern 변형, 들뜸이 발생할 수 있습니다. Stress는 증착 온도, 열팽창 계수 차이, 막 조성, 밀도, 불순물, Plasma 조건에 의해 결정됩니다. 과도한 Stress는 Overlay와 Focus에도 영향을 주고, 소자 신뢰성을 낮출 수 있습니다. 따라서 막 두께, Annealing, 증착 조건, 적층 구조를 조정해 목표 Stress 범위로 관리합니다."
   },
   {
     "id": 98,
@@ -1798,7 +1992,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "스텝 커버리지",
       "패시베이션"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "TEOS 기반 CVD는 Tetraethyl Orthosilicate 전구체를 이용해 SiO₂ 계열 절연막을 증착하는 공정입니다. TEOS는 반응성이 안정적이고 비교적 균일한 산화막을 만들 수 있어 ILD, Spacer, Gap Fill 보조막 등에 사용됩니다. LPCVD나 PECVD 방식으로 적용할 수 있으며, PECVD TEOS는 낮은 온도에서 증착 가능해 BEOL 공정에도 유리합니다. 막질은 온도, O₃ 또는 O₂ 공급, Plasma 조건, 압력에 따라 달라집니다. 장점은 균일도와 공정 안정성이고, 수분 흡수와 막 Stress 관리는 필요합니다."
   },
   {
     "id": 99,
@@ -1817,7 +2013,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "컨택트 저항",
       "Mo/Co/Ru"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "W Plug는 Contact이나 Via 내부를 텅스텐으로 채워 수직 전기 연결을 만드는 공정입니다. 일반적으로 하부에 Ti/TiN Barrier와 Adhesion Layer를 형성한 뒤, WF₆ 기반 CVD로 W를 증착합니다. 초기에는 SiH₄나 B₂H₆로 Nucleation Layer를 만들고 이후 H₂ Reduction으로 Bulk W를 채웁니다. 증착 후 CMP나 Etch Back으로 표면의 과잉 W를 제거해 Plug만 남깁니다. W는 저항과 열 안정성이 좋지만, WF₆ 반응에 따른 하부막 손상, Seam, Void, 불소 잔류물 관리가 중요합니다."
   },
   {
     "id": 100,
@@ -1835,7 +2033,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "S/D 에피",
       "이동도 향상"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Epitaxial 성장은 기판 결정 방향을 따라 단결정 박막을 성장시키는 공정입니다. 일반 증착과 달리 기판과 동일하거나 유사한 결정 구조를 이어서 성장시키므로 결함이 적고 전기적 특성이 우수합니다. 반도체에서는 Si Epi, SiGe Epi, III-V Epi 등에 사용되며, Source/Drain 영역의 Strain Engineering, 채널 이동도 향상, Well 형성, 결함 차단층 등에 활용됩니다. 성장 온도, 전구체, 도핑 가스, 표면 청정도가 품질을 좌우하며, 자연 산화막 제거가 중요합니다. 결국 결정 품질과 계면 청정도 관리가 성능을 결정합니다."
   },
   {
     "id": 101,
@@ -1855,7 +2055,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "k값",
       "갭필"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "ILD와 IMD는 소자와 배선 사이, 또는 배선 층 사이를 전기적으로 절연하는 층간 절연막입니다. ILD는 트랜지스터 위 첫 배선 전까지의 절연막, IMD는 금속 배선 사이 절연막으로 이해할 수 있습니다. 역할은 배선 간 단락 방지, Capacitance 감소, 표면 평탄화, 후속 배선 형성 기반 제공입니다. 주요 재료는 SiO₂, TEOS Oxide, FSG, SiCN, Low-K 절연막 등이 있습니다. 미세화에서는 RC 지연을 줄이기 위해 낮은 유전율과 충분한 기계적 강도를 동시에 만족해야 합니다. 후속 CMP와 배선 신뢰성에도 영향을 줍니다."
   },
   {
     "id": 102,
@@ -1874,7 +2076,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "이방성 식각",
       "단채널 억제"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Gate Spacer는 Gate 측벽에 형성되는 절연막 구조로, Source/Drain Implant 위치와 전기장을 제어하는 역할을 합니다. 일반적으로 Nitride나 Oxide 계열 막을 증착한 뒤 Anisotropic Etch Back으로 측벽에만 남깁니다. Spacer가 있으면 LDD와 고농도 Source/Drain 영역 사이 거리를 확보해 Hot Carrier 효과와 단채널 효과를 줄일 수 있습니다. 또한 Silicide 형성 시 Gate와 Source/Drain 사이 단락을 방지합니다. Spacer 두께와 Profile은 저항, 기생 Capacitance, 신뢰성에 영향을 줍니다."
   },
   {
     "id": 103,
@@ -1894,7 +2098,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "갭필 특성",
       "CMP 오픈"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Void와 Seam은 Gap Fill 공정에서 막이 완전히 채워지지 않아 생기는 결함입니다. Void는 내부에 빈 공간이 갇힌 형태이고, Seam은 양쪽에서 자란 막이 만나는 중앙부에 선형 약점이나 틈이 남는 형태입니다. 고종횡비 Trench나 Via에서 상부가 먼저 닫히면 하부에 Void가 생기기 쉽습니다. 이런 결함은 배선 단선, 누설, 신뢰성 저하로 이어집니다. 방지는 ALD, HDP-CVD, Bottom-Up Fill, 적절한 전구체 확산, 증착 속도 조절, Pre-Clean과 Profile 최적화를 통해 수행합니다. 결국 충전성 평가는 단면 분석으로 확인합니다."
   },
   {
     "id": 104,
@@ -1913,7 +2119,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "인시츄 세정",
       "진공 전달"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "자연 산화막은 실리콘 표면이 공기나 수분에 노출될 때 얇게 형성되는 SiO₂ 막입니다. 증착 전에 자연 산화막이 남아 있으면 계면 저항이 증가하고, Epi 성장이나 Silicide 형성처럼 깨끗한 결정 계면이 필요한 공정에서 결함을 유발할 수 있습니다. 또한 금속 접촉부에서는 Contact 저항 증가와 접착 불량을 만들 수 있습니다. 반대로 일부 산화막 공정에서는 보호막 역할을 하기도 합니다. 보통 HF Last, DHF Clean, In-Situ Plasma Clean으로 제거하고, 대기 노출 시간을 최소화해 관리합니다. 증착 직전 표면 상태 확인이 필요합니다."
   },
   {
     "id": 105,
@@ -1932,7 +2140,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "접촉 저항",
       "직렬 저항"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Silicide는 실리콘과 금속을 반응시켜 저저항 금속 실리사이드 층을 만드는 공정입니다. Source/Drain과 Gate 위에 Ni, Co, Ti 같은 금속을 증착한 뒤 열처리하면 금속이 실리콘과 반응해 Silicide가 형성됩니다. 이후 반응하지 않은 금속은 선택적으로 제거합니다. Silicide는 Contact 저항과 Sheet 저항을 낮춰 소자 속도를 개선합니다. 다만 Junction Spiking, 과도한 실리콘 소모, Bridging, 열 안정성 문제가 있어 금속 종류, 두께, Annealing 온도와 시간을 정밀하게 제어해야 합니다."
   },
   {
     "id": 106,
@@ -1950,7 +2160,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "결정 입자",
       "HSG"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "CVD로 Polysilicon을 증착할 때 주요 변수는 온도, 압력, 전구체 유량, 도핑 가스, 증착 시간입니다. 보통 SiH₄나 SiCl₄ 계열 전구체를 사용하며, 온도가 높을수록 결정립 성장과 증착 속도가 달라집니다. 압력과 유량은 막 두께 균일도와 반응 속도에 영향을 주고, PH₃나 B₂H₆를 넣으면 In-Situ 도핑이 가능합니다. Polysilicon 막은 Gate 전극이나 Capacitor 전극에 쓰이므로 두께, 저항, Grain Size, Stress, 계면 청정도가 중요합니다. 후속 Annealing으로 저항과 결정성을 조정합니다."
   },
   {
     "id": 107,
@@ -1970,7 +2182,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "기계 강도",
       "기생 커패시턴스"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Low-K 절연막은 배선 사이 Capacitance를 줄이기 위해 유전율 k를 낮춘 절연막입니다. 미세화가 진행되면 배선 간 간격이 줄어 RC 지연과 Crosstalk이 커지는데, 금속 저항과 함께 절연막 Capacitance를 낮춰야 신호 지연을 줄일 수 있습니다. 기존 SiO₂보다 유전율이 낮은 FSG, Carbon-Doped Oxide, Porous Low-K 등이 사용됩니다. 다만 Low-K는 기계적 강도와 열 안정성이 낮고 Plasma Damage, 수분 흡수, CMP 손상에 취약합니다. 따라서 막질과 통합 공정 신뢰성 관리가 중요합니다."
   },
   {
     "id": 108,
@@ -1989,7 +2203,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "PM",
       "전구체 분해"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "CVD 장비에서 전구체 전달 시스템은 막 두께, 조성, 균일도, 재현성을 좌우하는 핵심 요소입니다. 전구체가 안정적인 유량과 농도로 Chamber에 공급되어야 표면 반응이 일정하게 일어납니다. 액체 전구체는 Vaporizer와 Carrier Gas, 온도 제어가 중요하고, 고체나 저증기압 전구체는 라인 가열과 응축 방지가 필요합니다. 공급이 불안정하면 막 두께 편차, Particle, 조성 불량, 막질 저하가 발생합니다. 따라서 MFC, Valve, Line 온도, Purge, Delivery Pressure를 정밀 관리해야 합니다."
   },
   {
     "id": 109,
@@ -2007,7 +2223,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "LED/HEMT/파워 디바이스",
       "다중 접합"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "MOCVD는 Metal Organic CVD의 약자로, 금속 유기 전구체와 Hydride 가스를 이용해 화합물 반도체 박막을 성장시키는 공정입니다. III-V족 반도체인 GaAs, GaN, InP, AlGaN 성장에 많이 사용되며, LED, Laser Diode, RF 소자, 전력 반도체에 활용됩니다. 장점은 조성 조절과 다층 Epi 성장에 유리하고 대면적 균일성을 확보할 수 있다는 점입니다. 다만 전구체 독성, Carbon 잔류, 성장 온도, 계면 Abruptness 관리가 중요합니다. 특히 도핑과 조성 균일도가 소자 성능을 결정합니다."
   },
   {
     "id": 110,
@@ -2026,7 +2244,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "파티클 모니터",
       "수율"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "증착 공정의 Particle 오염은 Chamber 벽 박리, 전구체 분해 부산물, Target Flake, Wafer Handling, Pump 역류, Cleaning 잔류물 등에서 발생합니다. Particle이 막 안에 포함되면 Pattern 결함, 단락, Open, 누설 전류, 신뢰성 저하를 유발할 수 있습니다. 관리는 정기 PM, Chamber Seasoning, Pre-Clean, Gas와 Chemical 순도 관리, Robot와 Chuck 청정도 관리로 수행합니다. 또한 Monitor Wafer와 Particle Counter로 추세를 확인합니다."
   },
   {
     "id": 111,
@@ -2046,7 +2266,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "흡습",
       "SOC"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "SOD는 Spin On Dielectric의 약자로, 절연막 재료를 액상으로 웨이퍼에 도포한 뒤 Bake와 Cure를 통해 고체 절연막으로 만드는 공정입니다. Spin Coating을 사용하기 때문에 장비가 비교적 단순하고, 액상이 좁은 Gap에 흘러 들어가 Gap Fill에 유리합니다. 적용 예로는 SOG, Low-K 보조막, 평탄화 절연막이 있습니다. 다만 용매 제거와 수축 과정에서 Void, Crack, 막 Stress, 수분 흡수 문제가 발생할 수 있습니다. 따라서 점도, Spin 조건, Bake 온도, Cure 분위기와 수축률 관리가 중요합니다."
   },
   {
     "id": 112,
@@ -2065,7 +2287,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "전하 축적",
       "균일성"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "PECVD에서 Plasma는 낮은 온도에서도 전구체를 분해하고 반응성을 높여 막을 증착할 수 있게 합니다. 그래서 열 Budget이 제한된 BEOL 공정이나 온도에 민감한 기판에 유리합니다. 그러나 Plasma Ion과 Radical은 막 밀도, Hydrogen 함량, Stress, 굴절률, Wet Etch Rate에 영향을 줍니다. Plasma가 강하면 막질은 치밀해질 수 있지만, 표면 Damage나 Charging 문제가 생길 수 있습니다. 따라서 RF Power, Pressure, Gas Ratio, 온도, Bias 조건을 조절해 증착 속도와 막질, Damage를 균형 있게 맞춥니다."
   },
   {
     "id": 113,
@@ -2085,7 +2309,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "Cu 확산",
       "RC 지연"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Cu Damascene 공정은 Copper를 직접 식각하기 어렵기 때문에 절연막에 배선 Trench와 Via를 먼저 만든 뒤 Cu를 채우고 CMP로 제거하는 방식입니다. 먼저 Low-K 절연막을 증착하고 포토와 식각으로 Pattern을 형성합니다. 이후 Barrier와 Seed Layer를 증착하고 Electroplating으로 Cu를 채웁니다. 마지막으로 CMP로 표면의 과잉 Cu와 Barrier를 제거해 배선만 남깁니다. Dual Damascene은 Via와 Trench를 함께 형성해 공정 수를 줄입니다. 핵심은 Barrier 연속성, Seed 품질, Void 없는 Fill, CMP 결함 관리입니다."
   },
   {
     "id": 114,
@@ -2104,7 +2330,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "엘립소미터",
       "0.1nm/사이클"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "ALD에서 막 두께는 Cycle 수와 Cycle당 성장량인 GPC로 제어합니다. 한 Cycle은 전구체 주입, Purge, 반응가스 주입, Purge로 구성되며, 표면 반응이 자기 제한적이기 때문에 한 번에 일정량만 성장합니다. 따라서 원하는 두께는 GPC에 Cycle 수를 곱해 계산할 수 있습니다. ALD는 원자층 수준의 두께 제어와 우수한 균일도가 장점입니다. 다만 표면 포화가 충분하지 않거나 Purge가 부족하면 CVD 성분이 섞여 두께와 조성이 흔들릴 수 있습니다. 온도 Window와 전구체 반응성 관리가 중요합니다. 막 두께 Target과 균일도 검증도 함께 수행합니다."
   },
   {
     "id": 115,
@@ -2123,7 +2351,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "FG 어닐",
       "thermal budget"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "증착 후 Annealing은 박막의 물성 안정화와 결함 개선을 위해 수행합니다. 열처리를 통해 막 밀도를 높이고, 수분이나 Hydrogen 같은 잔류 불순물을 제거하며, 결정성을 향상시킬 수 있습니다. 금속막에서는 Grain 성장과 저항 감소가 일어나고, 절연막에서는 Stress 완화와 누설 전류 개선 효과가 있습니다. 또한 계면 반응을 유도해 Silicide나 Contact 특성을 개선하기도 합니다. 다만 온도가 높거나 시간이 길면 확산, Stress 변화, Low-K 손상, 막 박리 문제가 생길 수 있어 Thermal Budget 관리가 필요합니다."
   },
   {
     "id": 116,
@@ -2142,7 +2372,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "활성화 어닐",
       "결함 치유"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "이온 주입은 원하는 불순물 이온을 전기장으로 가속해 웨이퍼 내부에 주입하는 공정입니다. 목적은 반도체의 전기적 특성을 조절하는 것으로, Source/Drain, Well, LDD, Halo, Vt 조정 영역 형성에 사용됩니다. 이온 종류는 Boron, Phosphorus, Arsenic 등이 대표적이며, Dose는 주입량, Energy는 침투 깊이를 결정합니다. 장점은 농도와 위치를 정밀하게 제어할 수 있다는 점입니다. 다만 주입 과정에서 결정 손상과 Channeling이 발생할 수 있어 Tilt, Rotation, Screen Oxide와 후속 활성화 Annealing이 필요합니다."
   },
   {
     "id": 117,
@@ -2160,7 +2392,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "PAI",
       "Ge 비정질화"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Channeling은 이온 주입 시 이온이 실리콘 결정의 열린 결정 방향을 따라 깊게 침투하는 현상입니다. 의도한 Projection Range보다 깊게 들어가면 Junction이 깊어지고 농도 Profile이 넓어져 소자 특성이 변할 수 있습니다. 방지 방법은 웨이퍼를 일정 각도로 Tilt와 Rotation해 결정축과 이온 빔을 어긋나게 하는 것입니다. 또한 Screen Oxide를 형성하거나, 사전 Amorphization Implant로 표면 결정을 비정질화해 Channel 경로를 줄일 수 있습니다. 특히 얕은 Junction 형성에서 중요한 관리 항목입니다."
   },
   {
     "id": 118,
@@ -2179,7 +2413,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "LSA",
       "확산 최소화"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "이온 주입 후 활성화 Annealing은 주입된 도펀트를 전기적으로 활성화하고 주입 손상을 회복하기 위해 필요합니다. Implant 과정에서 도펀트는 격자 위치가 아닌 곳에 존재하거나 결정 결함을 만들기 때문에 바로 전도에 기여하지 못합니다. 열처리를 하면 도펀트가 치환 격자 위치로 이동해 활성화되고, 결함이 재결정화됩니다. 다만 열처리가 과도하면 도펀트 확산으로 얕은 Junction이 깊어질 수 있습니다. 그래서 RTA나 Spike Anneal처럼 짧은 시간 고온 공정을 사용해 활성화와 확산 억제를 동시에 달성합니다. 활성화율은 Sheet Resistance로 확인합니다."
   },
   {
     "id": 119,
@@ -2198,7 +2434,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "직렬 저항",
       "스페이서"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "LDD는 Lightly Doped Drain의 약자로, Gate 옆 Source/Drain 근처에 낮은 농도의 도핑 영역을 두는 구조입니다. 목적은 Drain 근처의 강한 전기장을 완화해 Hot Carrier Injection과 Gate Oxide 손상을 줄이는 것입니다. 공정은 Gate 형성 후 낮은 Dose로 LDD Implant를 진행하고, Spacer 형성 뒤 고농도 Source/Drain Implant를 수행하는 순서입니다. LDD가 없으면 고전계로 인해 전자가 Oxide에 주입되어 문턱전압 변동과 신뢰성 저하가 생길 수 있습니다. 다만 직렬 저항 증가도 함께 고려해야 합니다."
   },
   {
     "id": 120,
@@ -2217,7 +2455,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "시트 저항",
       "접합 깊이"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "이온 주입에서 Dose는 단위 면적당 주입된 이온 수로, 최종 도펀트 농도와 Sheet Resistance를 결정합니다. Dose가 높을수록 캐리어 농도는 증가하지만 결정 손상과 결함도 커질 수 있습니다. Energy는 이온이 웨이퍼 내부로 들어가는 깊이를 결정합니다. Energy가 높으면 Projection Range가 깊어지고 Junction 깊이가 증가하며, 낮으면 얕은 Junction 형성에 유리합니다. 실제 Profile은 이온 종류, 기판 재료, Tilt, Screen Oxide, 후속 Annealing에 의해 함께 결정됩니다. 따라서 Dose와 Energy는 소자 특성 제어의 핵심 변수입니다."
   },
   {
     "id": 121,
@@ -2236,7 +2476,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "20~30도 틸트",
       "4방향"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Halo Implant는 단채널 효과를 억제하기 위해 Source/Drain 근처 채널 가장자리에 반대 극성의 도펀트를 비스듬히 주입하는 공정입니다. 예를 들어 NMOS에서는 P형 도펀트를 채널 양쪽에 넣어 Drain 공핍 영역이 채널로 침투하는 것을 줄입니다. 이를 통해 문턱전압 Roll-Off, DIBL, Punch Through를 완화할 수 있습니다. 공정은 Gate를 Mask로 사용하고 Tilt와 Rotation을 적용해 측면 방향으로 주입합니다. 다만 Halo 농도가 과하면 이동도 저하와 Junction Capacitance 증가가 생길 수 있어 최적화가 필요합니다."
   },
   {
     "id": 122,
@@ -2254,7 +2496,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "래치업 방지",
       "다중 임플란트"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Well 형성 공정은 CMOS에서 NMOS와 PMOS가 동작할 기판 영역을 만드는 단계입니다. P형 기판 위에 PMOS용 N-Well을 만들거나, Twin Well 구조에서는 N-Well과 P-Well을 각각 형성합니다. 포토로 영역을 정의한 뒤 고Energy 이온 주입으로 도펀트를 깊게 넣고, 고온 Drive-In이나 Annealing으로 농도 Profile을 안정화합니다. Well은 소자의 문턱전압, Body Effect, Isolation, Latch-Up 특성에 영향을 줍니다. 따라서 Well 농도, 깊이, 균일도, 열 Budget 관리가 매우 중요합니다."
   },
   {
     "id": 123,
@@ -2272,7 +2516,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "PCM 모니터",
       "저전력/고성능 균형"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Vt Implant는 MOSFET의 문턱전압을 원하는 값으로 맞추기 위해 채널 영역에 도펀트를 주입하는 공정입니다. Gate Oxide 형성 전후에 낮은 Energy와 정밀한 Dose로 채널 표면 근처 농도를 조절합니다. NMOS와 PMOS는 각각 목표 Vt에 맞춰 도펀트 종류와 농도를 달리합니다. 문턱전압이 너무 낮으면 Off 누설 전류가 증가하고, 너무 높으면 구동 전류와 속도가 저하됩니다. 따라서 Vt Implant는 성능, 전력, 누설의 균형을 잡는 핵심 공정이며, Dose 균일도와 Channeling 방지가 중요합니다. 제품별 Spec 관리가 필수입니다."
   },
   {
     "id": 124,
@@ -2291,7 +2537,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "도즈 제어",
       "균일성"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "이온 주입 장비는 이온 Source, Mass Analyzer, 가속 Column, Beam Line, Scanner, End Station으로 구성됩니다. Source는 도펀트 가스를 이온화하고, Mass Analyzer는 자기장으로 필요한 질량의 이온만 선택합니다. 가속부는 Energy를 부여해 주입 깊이를 정하며, Scanner와 End Station은 웨이퍼 전체에 균일하게 Dose를 분포시키고 Tilt와 Rotation을 제어합니다. Faraday Cup은 Beam Current를 측정해 Dose 정확도를 관리합니다. 장비 안정성은 농도 균일도와 직결됩니다."
   },
   {
     "id": 125,
@@ -2310,7 +2558,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "클러스터 이온",
       "접합 깊이"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "초저에너지 이온 주입은 매우 얕은 Junction과 얇은 채널 도핑 Profile을 만들기 위해 필요합니다. 소자가 미세화될수록 Source/Drain Extension과 Vt 조정 영역이 얕아져야 하므로 낮은 Energy로 이온을 주입합니다. 어려움은 낮은 Energy에서 Beam 전류가 약해 처리량이 떨어지고, Beam 전달과 균일도 제어가 어렵다는 점입니다. 또한 표면 오염, Screen Oxide 두께, Channeling, 후속 Annealing 중 확산이 Profile에 큰 영향을 줍니다. 따라서 Beam 안정성, Tilt, Dose 정확도, 빠른 Annealing 제어가 중요합니다."
   },
   {
     "id": 126,
@@ -2329,7 +2579,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "PAI",
       "카본 공동 주입"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "EOR 결함은 End Of Range Defect의 약자로, 이온 주입 후 이온이 멈추는 깊이 부근에 형성되는 결정 결함입니다. Implant 과정에서 표면 근처는 비정질화되고, 그 아래 끝 지점에는 점결함과 전위 Loop가 남기 쉽습니다. 후속 Annealing으로 많은 손상이 회복되지만, EOR 결함이 남으면 누설 전류 증가, Junction 신뢰성 저하, 소자 특성 변동이 발생할 수 있습니다. 특히 고Dose 주입이나 사전 Amorphization 후에 중요합니다. 관리 방법은 Annealing 조건, 주입 Energy, Dose, 기판 온도 최적화입니다."
   },
   {
     "id": 127,
@@ -2347,7 +2599,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "이온 소스 안정성",
       "SPC 모니터링"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "이온 주입 Dose 측정은 주로 Beam Current를 적분해 단위 면적당 주입량을 계산하는 방식으로 관리합니다. Faraday Cup이나 Beam Monitor가 이온 전류를 측정하고, 웨이퍼 Scan 속도와 면적을 반영해 목표 Dose를 맞춥니다. 균일성 관리는 웨이퍼 전면에 Beam이 일정하게 분포하도록 Scan, Tilt, Rotation, Beam Shape를 제어하는 것이 핵심입니다. 공정 후에는 Sheet Resistance 측정이나 SIMS 분석으로 도펀트 분포와 활성화 결과를 확인합니다. Dose 오차는 Vt, 저항, Junction 특성 변화로 이어집니다."
   },
   {
     "id": 128,
@@ -2366,7 +2620,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "F 오염",
       "클러스터 이온"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "BF₂와 순수 B 이온은 모두 P형 도펀트 주입에 사용되지만 특성이 다릅니다. B는 질량이 작아 같은 Energy에서 깊게 들어가고 Channeling이 발생하기 쉽습니다. BF₂는 분자 이온으로 질량이 커서 낮은 속도로 얕은 주입이 가능하고, Fluorine이 결정 손상 회복과 Boron 확산 억제에 도움을 줄 수 있습니다. 그래서 얕은 Junction 형성에 유리합니다. 다만 BF₂는 질량 분해, Fluorine 잔류, 장비 오염, 후속 Annealing 영향까지 고려해야 합니다. 공정 목적에 따라 Dose와 Energy를 선택합니다."
   },
   {
     "id": 129,
@@ -2384,7 +2640,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "스테이지 교정",
       "PM 후 확인"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "이온 주입 장비의 주요 관리 항목은 Beam Current 안정성, Energy 정확도, Mass 분리, Dose 균일도, 진공도, Wafer Charging, Particle입니다. PM 포인트는 Ion Source Cleaning, Analyzer Magnet, Aperture 오염, Beam Line Deposit, Faraday Cup 교정, Wafer Clamp와 Cooling 점검입니다. Beam Line이 오염되면 금속 오염이나 Particle이 생기고, Source 상태가 나쁘면 Beam 불안정과 Dose 오차가 발생합니다. 따라서 정기 PM과 Monitor Wafer 관리가 필요합니다."
   },
   {
     "id": 130,
@@ -2401,7 +2659,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "4점 탐침",
       "SPC 관리"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "In-Situ Monitoring은 이온 주입 중 장비와 Beam 상태를 실시간으로 확인해 공정 이상을 조기에 감지하는 방법입니다. Beam Current, Beam Energy, 진공도, Wafer Charging, Scan Uniformity, Source Arc 상태 등을 모니터링합니다. 이상이 생기면 Dose 부족, 과주입, 비균일 주입, Particle 문제가 발생할 수 있습니다. Faraday Cup과 Beam Profile Monitor는 Dose와 균일도 제어에 활용되고, Data Trend는 장비 Drift와 PM 시점 판단에 쓰입니다."
   },
   {
     "id": 131,
@@ -2420,7 +2680,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "STI",
       "다층 배선"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "CMP는 Chemical Mechanical Planarization의 약자로, 화학 반응과 기계적 마찰을 함께 이용해 웨이퍼 표면을 평탄화하는 공정입니다. Slurry 속 Chemical이 막 표면을 반응성 있게 만들고, Polishing Pad와 Abrasive 입자가 이를 기계적으로 제거합니다. 목적은 증착이나 패터닝 후 생긴 단차를 줄여 다음 포토 공정의 Focus Margin과 배선 형성성을 확보하는 것입니다. STI, Cu 배선, W Plug, ILD 평탄화에 사용됩니다. Removal Rate, 선택비, 결함, Dishing, Erosion 관리가 핵심입니다."
   },
   {
     "id": 132,
@@ -2438,7 +2700,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "슬러리 최적화",
       "다단계 CMP"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Dishing은 CMP 중 금속이나 산화막 Pattern의 중앙부가 주변보다 더 많이 깎여 접시처럼 패이는 결함입니다. Erosion은 Pattern 밀도가 높은 영역에서 주변 절연막까지 과도하게 제거되어 전체 높이가 낮아지는 현상입니다. 두 결함은 배선 저항 증가, 단선, RC 지연, 후속 공정 불량을 유발합니다. 방지는 Slurry 선택비, Down Force, Pad Condition, CMP 시간, Dummy Pattern, Endpoint 제어를 통해 수행합니다. 특히 Cu CMP에서는 금속과 Barrier, 절연막 간 제거율 균형이 중요합니다."
   },
   {
     "id": 133,
@@ -2456,7 +2720,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "선택비",
       "파티클 응집"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "CMP Slurry는 연마를 위한 화학적, 기계적 성분이 섞인 액체입니다. 기본 성분은 Abrasive 입자, 산화제, pH 조절제, Complexing Agent, 부식 억제제, 계면활성제입니다. Abrasive는 SiO₂나 Al₂O₃ 입자로 기계적 제거를 담당하고, 산화제는 금속 표면을 산화시켜 쉽게 제거되도록 만듭니다. pH와 첨가제는 제거율, 선택비, 분산 안정성, 부식을 조절합니다. Slurry 조성이 맞지 않으면 Scratch, Particle, Dishing, 부식이 발생하므로 막 종류와 목표 공정에 맞게 선택해야 합니다."
   },
   {
     "id": 134,
@@ -2474,7 +2740,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "실시간 두께",
       "Cu CMP"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "CMP Endpoint Detection은 원하는 막이 제거되거나 목표 두께에 도달한 시점을 감지해 연마를 멈추는 기술입니다. 대표 방법은 Motor Current나 Torque 변화를 보는 방식, 광학 신호로 막 두께 변화를 보는 방식, 마찰 계수나 진동 변화를 이용하는 방식입니다. Cu CMP에서는 금속에서 Barrier 또는 절연막으로 바뀔 때 마찰과 전기적 특성이 달라지는 점을 활용합니다. Endpoint가 부정확하면 과연마로 Dishing과 Erosion이 생기거나 잔막으로 단락이 발생합니다. 따라서 In-Situ 신호와 Post Metrology를 함께 사용합니다."
   },
   {
     "id": 135,
@@ -2492,7 +2760,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "TaN 배리어",
       "광학 끝점"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "STI CMP와 Cu CMP는 제거 대상과 관리 포인트가 다릅니다. STI CMP는 Trench에 채운 Oxide를 평탄화하고 Nitride Stop Layer 위에서 멈추는 공정입니다. Oxide와 Nitride 선택비, Dishing, Active 영역 손상이 중요합니다. Cu CMP는 전기도금된 Copper와 Barrier를 제거해 배선만 남기는 공정으로, Cu 부식, Dishing, Erosion, Barrier 잔류물 관리가 핵심입니다. STI는 절연막 평탄화가 목적이고, Cu CMP는 금속 배선 형성과 전기적 신뢰성이 목적입니다. Slurry와 Pad 조건도 막 특성에 맞게 달라집니다."
   },
   {
     "id": 136,
@@ -2510,7 +2780,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "다이아몬드 컨디셔닝",
       "인시츄/엑스시츄"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "CMP Pad는 웨이퍼와 접촉해 기계적 마찰을 제공하고 Slurry를 균일하게 공급하는 역할을 합니다. Pad의 경도, 기공 구조, 표면 거칠기는 Removal Rate, 평탄화 효율, Scratch 발생에 영향을 줍니다. 사용 중 Pad 표면은 눌리고 Slurry 부산물로 막혀 연마 성능이 떨어지므로 Conditioning이 필요합니다. Conditioner의 Diamond Disk가 Pad 표면을 긁어 기공을 열고 거칠기를 회복시킵니다. Conditioning 조건이 과하면 Pad 수명이 줄고 결함이 증가하며, 부족하면 제거율과 균일도가 나빠집니다."
   },
   {
     "id": 137,
@@ -2528,7 +2800,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "깊은 준위 트랩",
       "재세정"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Post-CMP Cleaning은 CMP 후 웨이퍼 표면에 남은 Slurry 입자, 금속 이온, 유기물, Pad 잔류물, 부식 부산물을 제거하는 공정입니다. CMP는 표면을 직접 문지르는 공정이므로 Particle과 금속 오염이 남기 쉽고, 이를 제거하지 않으면 단락, 누설, 접착 불량, 신뢰성 저하가 발생합니다. 세정은 Brush Scrub, Megasonic, Chemical Clean, Rinse, Dry를 조합해 진행합니다. 특히 Cu CMP 후에는 Cu 이온 오염과 부식을 억제해야 합니다. 세정력과 Pattern 손상 방지의 균형이 중요합니다."
   },
   {
     "id": 138,
@@ -2547,7 +2821,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "온도",
       "SPC"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "CMP Removal Rate는 단위 시간당 제거되는 막 두께이며, Slurry 조성, Abrasive 농도, 산화제, pH, Pad 상태, Down Force, Platen 속도, Carrier 속도, 온도에 영향을 받습니다. Preston 식에 따르면 제거율은 압력과 상대 속도에 비례하는 경향이 있습니다. 그러나 실제 공정에서는 막 종류와 화학 반응성, Pattern 밀도, Pad Conditioning 상태도 중요합니다. Removal Rate가 너무 낮으면 처리량이 떨어지고, 너무 높으면 Dishing, Erosion, Scratch가 증가할 수 있습니다. 균일도와 선택비까지 함께 관리해야 합니다."
   },
   {
     "id": 139,
@@ -2565,7 +2841,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "전위 제어",
       "슬러리 단순화"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "ECMP는 Electro-Chemical Mechanical Planarization의 약자로, 전기화학적 용해와 약한 기계적 연마를 함께 이용해 금속을 평탄화하는 공정입니다. 주로 Cu 배선에서 낮은 압력으로 Copper를 전기화학적으로 제거해 Low-K 손상과 기계적 Stress를 줄이는 목적이 있습니다. 전압이나 전류를 제어해 금속 제거 속도를 조절하고, Pad와 Slurry는 표면 평탄화와 부산물 제거를 돕습니다. 장점은 Dishing과 Erosion 감소, 저압 공정 가능성입니다. 다만 전해액 관리, 균일한 전류 분포, 부식 억제가 중요합니다."
   },
   {
     "id": 140,
@@ -2583,7 +2861,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "AFM 거칠기",
       "Dishing/Erosion 측정"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "CMP의 주요 계측 항목은 제거율, 잔막 두께, 두께 균일도, 표면 평탄도, Dishing, Erosion, Scratch, Particle, 금속 오염입니다. 막 두께는 Ellipsometry, Reflectometry, Four Point Probe로 측정하고, 표면 형상은 AFM이나 Profilometer로 확인합니다. 결함은 광학 검사와 SEM Review로 분석합니다. 계측 결과는 Polishing Time, Down Force, Slurry, Pad Conditioning, Endpoint 조건 조정에 활용됩니다. 안정적인 CMP는 후속 포토와 배선 신뢰성에 직접 연결됩니다."
   },
   {
     "id": 141,
@@ -2602,7 +2882,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "시퀀스",
       "파티클/금속 계측"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "반도체 세정 공정의 목적은 웨이퍼 표면의 오염을 제거해 후속 공정의 결함과 신뢰성 문제를 예방하는 것입니다. 주요 오염은 Particle, 유기물, 금속 이온, 자연 산화막, Chemical 잔류물, 수분, Photoresist 잔사입니다. 오염이 남으면 Pattern 결함, 접착 불량, 누설 전류, Contact 저항 증가, 막질 저하가 발생할 수 있습니다. 세정은 습식 세정, 건식 세정, Megasonic, Brush, Plasma 등을 조합해 수행합니다. 핵심은 오염 제거력과 표면 손상, 재오염 방지의 균형입니다. 공정 전후 표면 상태 계측도 필요합니다."
   },
   {
     "id": 142,
@@ -2619,7 +2901,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "SC2/HPM HCl+H₂O₂",
       "금속 이온 제거"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "SC1과 SC2는 RCA 세정의 대표 단계입니다. SC1은 NH₄OH, H₂O₂, H₂O 혼합액으로 Particle과 유기 오염 제거에 효과적입니다. 과산화수소가 표면을 산화하고, 암모니아가 입자와 표면의 전하 상태를 조절해 Particle을 떨어뜨립니다. SC2는 HCl, H₂O₂, H₂O 혼합액으로 금속 이온 오염 제거에 사용됩니다. 염산이 금속을 염화물 형태로 용해해 제거하고, 과산화수소가 산화 반응을 돕습니다. 두 세정 모두 온도, 농도, 시간 관리가 중요하며 과처리 시 표면 거칠기가 증가할 수 있습니다. 후속 산화막 품질과 금속 오염 수준에 직접 연결됩니다."
   },
   {
     "id": 143,
@@ -2638,7 +2922,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "인시츄",
       "자연산화막"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "DHF 세정은 Diluted HF를 이용해 실리콘 표면의 자연 산화막이나 산화막 잔류물을 제거하는 공정입니다. HF는 SiO₂를 선택적으로 식각해 깨끗한 Si 표면을 만들며, Epi, Metal Contact, Silicide, Gate Oxide 전 Pre-Clean에 활용됩니다. 주의할 점은 HF가 산화막을 계속 식각하므로 시간과 농도가 과하면 막 두께 손실과 CD 변화가 생길 수 있다는 것입니다. 또한 세정 후 표면이 수소 종단되어 소수성이 되며, 대기 노출 시 다시 산화되므로 건조와 다음 공정 연결 시간을 관리해야 합니다. 산화막 두께 Monitor가 필요합니다."
   },
   {
     "id": 144,
@@ -2657,7 +2943,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "황 오염",
       "오존수 대안"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "SPM은 Sulfuric Acid와 Hydrogen Peroxide 혼합액으로, 강한 산화력을 이용해 유기물과 PR 잔사를 제거하는 세정입니다. 고온 황산이 유기물을 분해하고 과산화수소가 산화 반응을 강화해 포토 리워크, PR Strip 후 잔류물 제거에 효과적입니다. 장점은 유기 오염 제거력이 매우 크다는 점입니다. 다만 금속 오염이나 무기 Particle 제거에는 한계가 있고, 온도와 혼합비가 불안정하면 반응성이 급격히 변할 수 있습니다. 안전 측면에서도 발열과 Chemical 취급 관리가 중요합니다. 이후 DI Rinse와 건조 조건도 중요합니다."
   },
   {
     "id": 145,
@@ -2676,7 +2964,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "재부착 방지",
       "pH"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Particle 제거는 입자와 웨이퍼 표면 사이의 부착력을 줄이고 외부 힘으로 떼어내는 방식입니다. SC1은 표면을 약하게 산화하고 전하 반발을 만들어 Particle을 분리하며, Megasonic이나 Brush는 물리적 힘을 제공합니다. 재부착을 막으려면 입자와 표면이 같은 전하를 갖도록 pH와 Zeta Potential을 조절하고, 충분한 Rinse와 배수 흐름을 유지해야 합니다. 또한 세정액 내 Particle 관리, Filter, Chemical 순도, Dry 과정의 Water Mark 방지도 중요합니다. 과도한 힘은 Pattern Damage를 유발할 수 있습니다."
   },
   {
     "id": 146,
@@ -2694,7 +2984,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "워터마크 없음",
       "폐액 절감"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Dry Cleaning은 액체 Chemical 대신 Gas, Plasma, Vapor를 이용해 표면 오염이나 잔류물을 제거하는 방법입니다. 대표적으로 O₂ Plasma Ashing은 PR 유기물을 제거하고, Vapor HF는 산화막을 선택적으로 제거할 수 있습니다. UV/Ozone 세정은 유기 오염을 산화 분해하며, Remote Plasma 세정은 Ion Damage를 줄이면서 Radical 반응을 활용합니다. 장점은 Water Mark와 액체 침투 문제가 적고, 고종횡비 구조에서 건조 결함을 줄일 수 있다는 점입니다. 다만 선택비, 표면 Damage, 부산물 배출 관리가 필요합니다."
   },
   {
     "id": 147,
@@ -2713,7 +3005,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "SPC",
       "장비 격리"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "EPC는 Equipment Particle Count로, 장비가 공정 중 발생시키는 Particle 수준을 관리하는 지표입니다. 장비 내부 오염, Robot 마찰, Chamber 박리, Filter 문제는 웨이퍼 결함과 수율 저하로 이어질 수 있습니다. 세정 공정에서는 Chemical과 DI Water Particle, Bath 오염, Nozzle 상태, Dry 과정의 재오염을 관리해야 합니다. Monitor Wafer로 공정 전후 Particle 증가량을 측정하고, Spec을 벗어나면 PM, Filter 교체, Line Flush를 수행합니다. 추세 관리는 장비 이상 조기 발견에 중요합니다."
   },
   {
     "id": 148,
@@ -2731,7 +3025,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "패턴 손상",
       "에너지 최적화"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Megasonic 세정은 수백 kHz에서 MHz 수준의 초음파 에너지를 DI Water나 Chemical에 전달해 Particle을 떼어내는 방식입니다. 음향 압력과 미세 유동이 입자 주변의 경계층을 흔들어 제거력을 높입니다. 하지만 에너지가 과하면 기포 Cavitation이 강해져 미세 Pattern이 손상되거나 Collapse가 발생할 수 있습니다. 특히 고종횡비 구조와 얇은 막에서는 출력, 주파수, 시간, 웨이퍼 간격을 정밀 제어해야 합니다. 세정 효과와 Pattern Damage 사이의 균형이 핵심입니다. 출력 Calibration과 결함 검사가 병행됩니다."
   },
   {
     "id": 149,
@@ -2750,7 +3046,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "Cu 확산",
       "Co/Ru"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Al 배선은 공정이 단순하고 식각이 가능하며 Si 공정과 호환성이 좋지만, 저항이 Cu보다 높고 Electromigration 신뢰성이 낮은 편입니다. Cu 배선은 저항이 낮아 RC 지연을 줄이고 고속 동작에 유리하며 EM 내성도 우수합니다. 그러나 Cu는 쉽게 확산되어 소자를 오염시키므로 Barrier Metal이 필요하고, 휘발성 부산물 형성이 어려워 직접 식각 대신 Damascene과 CMP 공정을 사용합니다. 따라서 Al은 공정 단순성이 장점이고, Cu는 성능이 장점이지만 통합 난이도가 높습니다. 공정 세대와 구조에 맞춰 선택합니다."
   },
   {
     "id": 150,
@@ -2769,7 +3067,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "캡핑막",
       "HTOL"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "EM은 Electromigration의 약자로, 금속 배선에 높은 전류가 흐를 때 전자가 금속 원자를 이동시켜 배선 신뢰성을 저하시키는 현상입니다. 원자가 이동하면 한쪽에는 Void가 생겨 Open 불량이 발생하고, 다른 쪽에는 Hillock이 생겨 Short 불량이 생길 수 있습니다. EM은 전류 밀도, 온도, 배선 폭, Grain Structure, 재료에 영향을 받습니다. 방지 방법은 전류 밀도 저감, 배선 폭 확대, Cu와 Barrier 최적화, Grain 크기 제어, 열 관리, 신뢰성 Test를 통한 Design Rule 확보입니다."
   },
   {
     "id": 151,
@@ -2788,7 +3088,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "비저항",
       "Mn 자기 형성 배리어"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Barrier Metal은 금속 배선과 절연막 또는 실리콘 사이에서 확산과 반응을 막는 얇은 금속막입니다. 특히 Cu는 Si와 SiO₂ 안으로 쉽게 확산되어 누설과 신뢰성 문제를 만들기 때문에 Ta, TaN, TiN, WN 같은 Barrier가 필요합니다. Barrier는 확산 방지뿐 아니라 접착력 향상, 계면 안정화, 전기도금 Seed와의 연결에도 중요합니다. 하지만 Barrier가 너무 두꺼우면 유효 Cu 단면적이 줄어 배선 저항이 증가합니다. 따라서 얇고 연속적인 막을 고종횡비 구조에 균일하게 형성하는 것이 핵심입니다. ALD 적용이 증가하는 이유입니다."
   },
   {
     "id": 152,
@@ -2806,7 +3108,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "억제제/가속제/레벨러",
       "보이드 없는 갭필"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Cu 전기 도금은 Seed Layer 위에 전해액 속 Cu 이온을 환원시켜 배선 Trench와 Via를 채우는 공정입니다. 먼저 Barrier와 Cu Seed를 형성한 뒤, 전해액에서 전류를 인가하면 Cu²⁺가 전자를 받아 금속 Cu로 석출됩니다. 첨가제인 Accelerator, Suppressor, Leveler를 조절해 Bottom-Up Fill을 유도하고 Void를 방지합니다. 도금 후에는 Annealing으로 Grain을 안정화하고 CMP로 과잉 Cu를 제거합니다. 핵심 관리 항목은 Seed 연속성, 전류 분포, 첨가제 농도, Void, Seam, 표면 거칠기입니다."
   },
   {
     "id": 153,
@@ -2825,7 +3129,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "CMP",
       "Co/Mo 대체"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Tungsten Plug는 Contact이나 Via를 W로 채워 상하층을 전기적으로 연결하는 구조입니다. 일반적으로 Contact Hole을 식각하고 세정한 뒤 Ti/TiN Barrier와 Adhesion Layer를 형성합니다. 이후 WF₆ 기반 CVD로 W를 증착해 Hole을 채우고, CMP나 Etch Back으로 표면의 W를 제거합니다. W는 열 안정성과 스텝 커버리지가 좋아 작은 Contact 충전에 유리합니다. 다만 WF₆ 반응에 의한 불소 잔류, 하부 Si 소모, Seam과 Void, Contact 저항, Barrier 연속성 관리가 중요합니다."
   },
   {
     "id": 154,
@@ -2844,7 +3150,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "EM",
       "종횡비"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "다층 배선은 여러 금속층과 Via를 이용해 회로를 3차원적으로 연결하는 구조입니다. 하부층은 소자와 가까워 미세 Pitch와 낮은 Contact 저항이 중요하고, 상부층은 긴 신호나 전원 배선이 많아 낮은 저항과 전류 용량이 중요합니다. 설계 원칙은 배선 저항과 Capacitance를 줄이고, EM과 IR Drop을 방지하며, 충분한 Via redundancy를 확보하는 것입니다. 또한 Low-K 절연막, Barrier, CMP 평탄화, Overlay Margin을 고려해야 합니다. 결국 성능과 신뢰성, 공정 가능성의 균형이 핵심입니다."
   },
   {
     "id": 155,
@@ -2863,7 +3171,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "TLM 패턴",
       "소자 저항"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Contact 저항은 소자 영역과 금속 배선 사이 접촉부에서 발생하는 저항입니다. 값이 크면 Source/Drain 전류가 줄고, 회로 속도가 느려지며, 발열과 전압 강하가 증가합니다. 특히 미세화로 Contact 면적이 작아질수록 저항 영향이 커집니다. 원인은 자연 산화막 잔류, Silicide 불량, Barrier 과두께, 금속 충전 불량, 계면 오염 등이 있습니다. 관리는 Pre-Clean, Silicide 최적화, Barrier 두께 제어, W Plug 또는 Cu Fill 품질 관리, Kelvin 구조 측정으로 수행합니다. 이는 WAT와 Inline 저항 계측으로 확인합니다."
   },
   {
     "id": 156,
@@ -2882,7 +3192,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "배선 저항",
       "기생 커패시턴스"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "BEOL에서 RC 지연은 배선 저항 R과 배선 사이 Capacitance C 때문에 신호 전달이 늦어지는 현상입니다. 미세화로 배선 폭이 줄면 저항이 증가하고, 배선 간격이 좁아지면 Capacitance가 증가해 지연이 커집니다. 이를 줄이기 위해 저저항 Cu 배선을 사용하고, Low-K 절연막으로 Capacitance를 낮춥니다. 또한 배선 폭과 층 배치를 최적화하고, 상부 Metal을 전원과 장거리 신호에 활용합니다. Barrier 두께를 줄이면서도 신뢰성을 확보하는 것도 중요합니다. RC 지연은 고속 Logic 성능의 핵심 제약입니다."
   },
   {
     "id": 157,
@@ -2901,7 +3213,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "셀 크기 축소",
       "DRAM"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "SAC는 Self-Aligned Contact의 약자로, Gate와 Contact 사이 정렬 Margin을 확보하기 위해 Contact이 구조적으로 자기 정렬되도록 만든 공정입니다. 미세화로 Overlay Margin이 줄어들면 Contact이 Gate와 겹쳐 Short가 발생할 수 있습니다. SAC는 Gate 측벽 Spacer나 Etch Stop Layer를 이용해 Contact Etch가 Gate를 침범하지 않도록 보호합니다. 이를 통해 작은 Cell 면적 구현에 유리합니다. 핵심은 Spacer 선택비, 식각 Profile, 하부 손상, 접촉 저항 관리입니다."
   },
   {
     "id": 158,
@@ -2919,7 +3233,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "오버레이",
       "종횡비"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Contact은 트랜지스터의 Source/Drain 또는 Gate와 첫 금속 배선을 연결하는 구조이고, Via는 금속 배선 층과 층 사이를 연결하는 구조입니다. 둘 다 수직 연결이라는 점은 같지만 위치와 연결 대상이 다릅니다. 형성 방법은 절연막 증착 후 포토와 식각으로 Hole을 만들고, 세정 후 Barrier와 금속을 채운 뒤 CMP로 평탄화하는 순서입니다. Contact은 소자 영역과 직접 맞닿아 자연 산화막 제거와 접촉 저항 관리가 중요하고, Via는 배선 신뢰성과 Void 없는 충전이 중요합니다. 두 구조 모두 세정과 금속 충전 품질이 핵심입니다."
   },
   {
     "id": 159,
@@ -2938,7 +3254,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "단락",
       "평탄성"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Hillock은 금속 배선 표면에서 금속 원자가 돌출되어 언덕처럼 솟아오르는 현상입니다. 주로 Al 배선에서 열 Stress나 Electromigration에 의해 원자가 이동하면서 발생합니다. Hillock이 커지면 상부 배선이나 인접 배선과 Short를 만들 수 있고, 절연막을 뚫어 신뢰성 문제를 유발합니다. 원인은 열팽창 차이, 잔류 Stress, 높은 전류 밀도, Grain Boundary 확산입니다. 방지 방법은 Alloy 첨가, Barrier와 Capping Layer 적용, 열처리 조건 최적화, 전류 밀도 감소, 배선 구조 설계 개선입니다."
   },
   {
     "id": 160,
@@ -2957,7 +3275,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "파괴 시간",
       "외삽"
     ],
-    "active": false
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "배선 신뢰성 평가는 주로 TDDB와 EM Test로 진행합니다. TDDB는 절연막에 전압 Stress를 가해 시간이 지남에 따라 절연 파괴가 발생하는지 평가하는 방법으로, 배선 간 절연 신뢰성을 확인합니다. EM Test는 높은 전류와 온도 조건에서 금속 원자 이동으로 저항 증가나 Open이 발생하는 시간을 측정합니다. 두 시험은 가속 조건에서 진행한 뒤 실제 사용 조건의 수명을 예측합니다. 평가 결과는 배선 폭, 전류 밀도, Barrier, Low-K, 공정 조건, Design Rule 설정에 반영됩니다. 통계적 수명 예측 모델도 함께 사용합니다."
   },
   {
     "id": 161,
@@ -2975,7 +3295,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "공정 드리프트",
       "예지 보전"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "SPC는 Statistical Process Control의 약자로, 공정 데이터를 통계적으로 관리해 이상 변동을 조기에 발견하는 방법입니다. 반도체 양산에서는 CD, 두께, Overlay, Defect, 저항 같은 Inline 데이터를 Control Chart로 관리합니다. 평균과 관리 한계를 설정하고, 점이 한계를 벗어나거나 특정 Trend가 나타나면 공정 이상으로 판단합니다. SPC는 불량이 대량 발생하기 전에 장비 Drift, Recipe 이상, 원자재 변동을 감지하는 데 중요합니다. 이를 통해 수율 안정화와 공정 재현성을 확보할 수 있습니다."
   },
   {
     "id": 162,
@@ -2994,7 +3316,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "규격 이탈",
       "Cp vs Cpk"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Cpk는 공정 능력 지수로, 공정 분포가 Spec 안에 얼마나 안정적으로 들어와 있는지를 나타냅니다. 단순히 산포만 보는 Cp와 달리 Cpk는 평균이 Spec 중심에서 얼마나 벗어났는지도 반영합니다. 값이 클수록 공정 Margin이 크고 불량 가능성이 낮습니다. 일반적으로 Cpk가 1이면 Spec 한계와 3 Sigma 수준이 맞고, 1.33 이상이면 양산 공정에서 비교적 안정적이라고 봅니다. Cpk가 낮으면 평균 이동이나 산포 증가가 원인이므로 Centering 조정, 장비 점검, 공정 조건 최적화가 필요합니다. 양산에서는 주기적 Trend 관리가 필요합니다."
   },
   {
     "id": 163,
@@ -3013,7 +3337,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "레티클 결함",
       "중복 분석"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Wafer Map 분석은 웨이퍼 위치별 전기적 Test 결과나 결함 분포를 시각화해 수율 저하 원인을 찾는 방법입니다. 불량이 Edge에 몰리면 온도, Plasma, CMP, Coating 균일도 문제가 의심되고, 특정 Zone이나 Ring Pattern이면 장비 분포 이상을 볼 수 있습니다. Random 불량은 Particle 가능성이 크고, 반복적 Die 위치 불량은 Mask나 설계 문제와 연관될 수 있습니다. Wafer Map은 Lot, 장비, Recipe, 공정 단계별 데이터와 함께 비교해야 정확합니다. 공간 패턴을 통해 원인 공정을 좁히는 데 유용합니다."
   },
   {
     "id": 164,
@@ -3032,7 +3358,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "FA 연계",
       "공정 이탈"
     ],
-    "active": false
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Bin 분석은 최종 Test에서 Chip을 성능이나 불량 유형별 그룹인 Bin으로 분류하고, 각 Bin 비율을 분석해 수율 손실 원인을 찾는 방법입니다. 예를 들어 특정 전기적 항목 불량 Bin이 증가하면 관련 공정이나 소자 구조를 추적할 수 있습니다. Wafer Map과 결합하면 불량이 위치 의존적인지, Lot 의존적인지, 장비 의존적인지 파악할 수 있습니다. Bin Trend를 보면 공정 변경, 장비 PM, 원자재 교체 전후의 영향을 평가할 수 있습니다. 따라서 Bin 분석은 전기적 수율과 공정 원인을 연결하는 핵심 도구입니다."
   },
   {
     "id": 165,
@@ -3050,7 +3378,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "Pareto",
       "8D"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "수율 손실 요인은 Random Defect, Systematic Defect, Parametric Failure, Reliability Failure로 나눌 수 있습니다. Random Defect는 Particle이나 오염처럼 우발적으로 발생하므로 청정도와 장비 PM으로 관리합니다. Systematic Defect는 설계나 공정 조건에서 반복적으로 생기므로 OPC, Layout, Recipe 개선이 필요합니다. Parametric Failure는 Vt, 저항, 두께가 Spec을 벗어난 경우로 SPC와 공정 보정으로 관리합니다. Reliability Failure는 Stress Test와 재료, 구조 개선이 중요합니다."
   },
   {
     "id": 166,
@@ -3069,7 +3399,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "규격 이탈",
       "공정 모니터"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "PCM은 Process Control Monitor의 약자로, 제품 칩 주변이나 전용 영역에 만든 Test 구조를 통해 공정 상태를 전기적으로 확인하는 구조입니다. 대표 항목은 Contact 저항, Sheet 저항, Vt, Junction Leakage, Gate Oxide 특성, 배선 저항, Via Chain입니다. PCM은 각 공정 모듈의 결과를 빠르게 확인해 제품 수율 저하 전에 이상을 감지하는 데 사용됩니다. 예를 들어 Contact 저항이 높으면 세정, Silicide, Plug 공정을 의심할 수 있습니다. 따라서 PCM은 공정과 전기적 성능을 연결하는 Inline 관리 도구입니다."
   },
   {
     "id": 167,
@@ -3090,7 +3422,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "불량 메커니즘",
       "원인 규명"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "FA는 Failure Analysis의 약자로, 불량 원인을 규명하기 위한 분석 절차입니다. 먼저 Test 결과와 Wafer Map, 공정 이력을 확인해 불량 형태를 분류합니다. 이후 Curve Trace, OBIRCH, Emission Microscope 등으로 전기적 이상 위치를 찾고, 필요 시 FIB로 단면을 가공해 SEM, TEM, EDX로 구조와 성분을 분석합니다. 불량 원인이 Particle, Open, Short, 박막 결함, 공정 Damage인지 판단한 뒤 재발 방지 대책을 수립합니다. FA는 수율 개선과 고객 불량 대응에 중요한 역할을 합니다."
   },
   {
     "id": 168,
@@ -3109,7 +3443,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "자동 hold",
       "품질 인증"
     ],
-    "active": false
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Lot Traveler는 웨이퍼 Lot이 거친 공정 순서, 장비, Recipe, 작업 시간, 검사 결과를 기록한 이력 문서 또는 시스템입니다. 반도체 공정은 수백 단계로 구성되므로 특정 불량이 발생했을 때 어떤 장비와 조건을 거쳤는지 추적하는 것이 중요합니다. 공정 이력 관리는 이상 Lot 격리, 원인 장비 추적, Rework 판단, 공정 변경 영향 분석에 사용됩니다. 또한 동일 조건을 거친 Lot과 정상 Lot을 비교해 수율 저하 원인을 좁힐 수 있습니다. 결국 Lot Traveler는 양산 추적성과 품질 보증의 기본입니다. 책임 추적에도 활용됩니다."
   },
   {
     "id": 169,
@@ -3128,7 +3464,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "예방 대책",
       "PFMEA"
     ],
-    "active": false
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "FMEA는 Failure Mode And Effect Analysis의 약자로, 발생 가능한 고장 형태와 영향을 사전에 분석해 위험도를 낮추는 방법입니다. 반도체 공정에서는 각 공정 단계별로 가능한 불량, 원인, 검출 방법, 영향도를 정리합니다. 예를 들어 식각 과다, PR 잔사, Particle, Overlay 불량이 어떤 전기적 Fail로 이어지는지 평가합니다. 보통 심각도, 발생도, 검출도를 점수화해 RPN을 계산하고, 높은 항목부터 개선합니다. FMEA는 신규 공정 도입, Recipe 변경, 장비 변경 시 위험을 사전에 줄이는 데 유용합니다."
   },
   {
     "id": 170,
@@ -3147,7 +3485,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "추적성",
       "미승인 변경 금지"
     ],
-    "active": false
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "ECN은 Engineering Change Notice의 약자로, 공정이나 설계, 재료, 장비 조건을 변경할 때 공식적으로 검토하고 승인하는 절차입니다. 변경 요청이 발생하면 목적, 변경 내용, 영향 범위, Risk를 정의하고 관련 부서가 검토합니다. 이후 DOE나 Split Lot으로 전기적 특성, 수율, 신뢰성, 공정 안정성을 검증합니다. 문제가 없으면 승인 후 양산에 반영하고, Traveler, Recipe, Spec, Control Plan을 업데이트합니다. ECN 절차가 중요한 이유는 작은 조건 변경도 수율과 신뢰성에 영향을 줄 수 있기 때문입니다."
   },
   {
     "id": 171,
@@ -3166,7 +3506,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "클러스터링",
       "수율 예측"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "푸아송 수율 모델은 결함이 웨이퍼나 Die에 무작위로 분포한다고 가정해 수율을 예측하는 모델입니다. 기본식은 Y = Exp(-D₀A)로, D₀는 단위 면적당 결함 밀도, A는 Die 면적입니다. 결함 밀도가 높거나 Die 면적이 클수록 한 Die 안에 결함이 포함될 확률이 증가해 수율이 낮아집니다. 이 모델은 Random Defect 중심의 수율 추정에 유용하며, 공정 청정도 개선과 Die Size 영향 분석에 사용됩니다. 다만 Systematic Defect나 결함 군집이 있는 경우에는 실제 수율과 차이가 날 수 있습니다. 초기 수율 예측에 활용됩니다."
   },
   {
     "id": 172,
@@ -3185,7 +3527,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "SPC 연계",
       "자동 hold"
     ],
-    "active": false
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Inline Inspection은 공정 중간 단계에서 결함과 공정 변동을 확인해 불량을 조기에 차단하는 검사입니다. 종류로는 CD 측정, Overlay 측정, 막 두께 측정, Particle 검사, Defect Review, 전기적 PCM 측정이 있습니다. 포토 후에는 CD와 Overlay를 확인하고, 식각 후에는 Profile과 잔사를 확인하며, CMP 후에는 평탄도와 Scratch를 봅니다. Inline 결과가 Spec을 벗어나면 Lot Hold, Rework, Recipe 조정, 장비 점검을 수행합니다. 최종 Test 전에 문제를 잡아 수율 손실을 줄이는 역할을 합니다."
   },
   {
     "id": 173,
@@ -3205,7 +3549,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "수평 전개",
       "재발 방지"
     ],
-    "active": false
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "8D Report는 반복 불량이나 고객 불량에 대해 원인을 분석하고 재발 방지 대책을 정리하는 문제 해결 양식입니다. 일반적으로 팀 구성, 문제 정의, 임시 조치, 근본 원인 분석, 개선 대책 선정, 대책 검증, 재발 방지, 팀 공유 순서로 구성됩니다. 반도체 공정에서는 불량 Lot 격리, 영향 범위 산정, FA와 공정 이력 분석, 개선 Recipe 적용, 효과 검증을 체계적으로 기록합니다. 8D의 핵심은 임시 대응에 그치지 않고 근본 원인과 검증된 예방 조치를 남기는 것입니다. 문서화된 대응은 고객 보고와 내부 지식 축적에도 활용됩니다."
   },
   {
     "id": 174,
@@ -3223,7 +3569,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "저온 공정 선호",
       "공정 순서 최적화"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Thermal Budget은 공정 중 웨이퍼가 받은 열 이력의 총량을 의미하며, 온도와 시간이 함께 영향을 줍니다. 고온 공정이 길어지면 도펀트 확산, Junction 깊이 증가, 계면 반응, 막 Stress 변화가 발생할 수 있습니다. 반대로 열처리가 부족하면 도펀트 활성화나 막 치밀화가 충분하지 않을 수 있습니다. 관리 방법은 RTA, Spike Anneal처럼 짧은 고온 공정을 사용하고, 공정 순서를 최적화하며, 각 공정의 온도와 시간을 Spec으로 관리하는 것입니다. 미세공정에서는 얕은 Junction과 계면 품질 유지를 위해 특히 중요합니다."
   },
   {
     "id": 175,
@@ -3242,7 +3590,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "능동적 제어",
       "예측 모델"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "APC는 Advanced Process Control의 약자로, 계측 데이터와 장비 데이터를 활용해 공정 조건을 자동 보정하는 제어 기술입니다. 대표적인 방식이 R2R, 즉 Run-To-Run 제어입니다. 이전 Lot이나 Wafer의 CD, 두께, Overlay 결과를 분석해 다음 Run의 Dose, Etch Time, Deposition Time 같은 Recipe Parameter를 보정합니다. 이를 통해 장비 Drift와 원자재 변동에도 목표값을 유지할 수 있습니다. APC는 SPC가 이상을 감시하는 역할이라면, 공정 결과를 기반으로 능동적으로 조건을 조정해 산포를 줄이는 역할을 합니다."
   },
   {
     "id": 176,
@@ -3261,7 +3611,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "수율 예측",
       "패턴 최적화"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "결함 밀도는 단위 면적당 발생하는 결함 수이고, 임계 면적은 특정 결함이 실제 회로 Fail로 이어질 수 있는 민감한 영역입니다. 같은 결함 밀도라도 회로 구조와 Layout에 따라 수율 영향은 달라집니다. 임계 면적이 큰 설계는 결함 하나가 배선을 끊거나 Short를 만들 확률이 높아 수율이 낮아질 수 있습니다. 따라서 수율은 단순 Defect Count뿐 아니라 결함 크기, 위치, 회로 민감도를 함께 고려해야 합니다. 공정에서는 결함 밀도를 낮추고, 설계에서는 DFM으로 임계 면적을 줄이는 것이 중요합니다. Layout 최적화와 결함 저감 활동이 함께 필요합니다."
   },
   {
     "id": 177,
@@ -3279,7 +3631,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "VPD-ICP-MS",
       "클린룸"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "오염 관리는 반도체 공정에서 수율과 신뢰성을 확보하기 위한 기본 조건입니다. Particle은 Pattern 결함과 Open, Short를 만들고, 금속 오염은 Junction Leakage와 산화막 신뢰성 저하를 유발합니다. 유기물과 수분은 접착 불량, 막질 저하, 계면 결함을 만들 수 있습니다. 관리 방법은 Cleanroom 등급 유지, Chemical과 Gas 순도 관리, 장비 PM, Wafer Handling, 세정 공정, Cross Contamination 방지입니다. 미세화될수록 허용 결함 크기가 작아져 오염 한 개의 영향도 커지므로 체계적인 관리가 중요합니다."
   },
   {
     "id": 178,
@@ -3299,7 +3653,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "3D 패키징",
       "More than Moore"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "반도체 패키징 공정은 완성된 Wafer의 Chip을 보호하고 외부 회로와 연결하기 위한 후공정입니다. 주요 단계는 Wafer Back Grinding, Dicing, Die Attach, Wire Bonding 또는 Flip Chip Bonding, Molding, Marking, Singulation, Test입니다. 고성능 제품에서는 Bump 형성, Redistribution Layer, TSV, 2.5D와 3D Packaging도 사용됩니다. 패키징은 전기적 연결뿐 아니라 열 방출, 기계적 보호, 신호 무결성에 영향을 줍니다. 따라서 접합 신뢰성, 열 저항, Warpage, 수분 민감도 관리가 중요합니다."
   },
   {
     "id": 179,
@@ -3318,7 +3674,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "EDA",
       "수율 최적화"
     ],
-    "active": false
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "DFM은 Design For Manufacturability의 약자로, 설계 단계에서 공정으로 안정적으로 만들 수 있는 구조를 반영하는 방법입니다. 미세공정에서는 설계 Layout이 OPC, Lithography Margin, Etch Loading, CMP Dishing, 배선 신뢰성에 직접 영향을 줍니다. 예를 들어 Pattern 밀도 균일화, Dummy Pattern 삽입, 금지 Pitch 회피, Via Redundancy 확보가 DFM에 해당합니다. 설계와 공정이 분리되면 Systematic Defect가 증가할 수 있으므로, 공정 능력과 Design Rule을 함께 고려해야 수율과 성능을 확보할 수 있습니다."
   },
   {
     "id": 180,
@@ -3336,7 +3694,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "R2R APC",
       "SPC"
     ],
-    "active": false
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Process Variation은 공정 결과가 목표값에서 변동하는 현상으로, 크게 Wafer 내 변동, Wafer 간 변동, Lot 간 변동, 장비 간 변동으로 나눌 수 있습니다. 원인은 온도, Pressure, Gas Flow, Plasma 밀도, PR 두께, CMP Pad 상태, 장비 Drift, 원자재 차이 등입니다. 변동이 커지면 CD, Vt, 저항, 누설 전류가 흔들려 수율과 성능이 저하됩니다. 관리는 SPC, APC, Recipe Matching, 정기 PM, Inline Metrology, DOE를 통해 수행합니다. 핵심은 변동 원인을 계층별로 분리해 산포를 줄이는 것입니다."
   },
   {
     "id": 181,
@@ -3355,7 +3715,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "불량 분석",
       "협력"
     ],
-    "active": false
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "공정기술 직무는 특정 공정 모듈의 조건을 개발하고 최적화해 목표 특성과 수율을 확보하는 역할입니다. 예를 들어 포토, 식각, 증착, CMP 조건을 DOE로 평가하고 CD, 두께, Profile, 결함을 개선합니다. 양산기술 직무는 이미 개발된 공정을 안정적으로 대량 생산에 적용하고, 장비 이슈와 수율 변동을 관리하는 역할이 큽니다. Lot 이력 분석, SPC, 장비 PM, Recipe Matching, 불량 대응이 중요합니다. 두 직무 모두 데이터 분석과 공정 이해가 필요하며, 개발과 양산 안정화의 비중이 다르다고 볼 수 있습니다."
   },
   {
     "id": 182,
@@ -3374,7 +3736,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "공정 윈도우",
       "다구치"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "DOE는 Design Of Experiment의 약자로, 여러 공정 변수를 체계적으로 변화시켜 결과에 미치는 영향을 분석하는 실험 설계 방법입니다. 반도체에서는 Dose와 Focus, Etch Power와 Pressure, 증착 온도와 Gas Flow처럼 변수가 많기 때문에 DOE를 통해 주요 인자와 상호작용을 효율적으로 찾습니다. 실험 후 CD, 두께, 결함, 전기적 특성을 분석해 최적 조건과 공정 Window를 정합니다. 단순 One Factor 실험보다 실험 수를 줄이면서 원인 분석이 가능하다는 장점이 있습니다. 통계적 해석과 재현성 검증이 중요합니다."
   },
   {
     "id": 183,
@@ -3392,7 +3756,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "돌발 고장 방지",
       "수율 안정"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "장비 PM은 Preventive Maintenance로, 고장이 발생하기 전에 장비를 점검하고 부품을 교체해 공정 안정성을 유지하는 활동입니다. 반도체 장비는 Chamber 오염, 소모품 마모, Gas Line 막힘, Robot 오차, Pad나 Target 열화가 수율에 직접 영향을 줍니다. PM 절차는 장비 Down, 안전 확인, Chamber Cleaning, 소모품 교체, Leak Check, Calibration, Monitor Wafer 검증 순서로 진행됩니다. PM 후에는 Recipe 결과가 정상인지 확인하고 SPC Trend를 관찰해야 합니다. PM은 돌발 불량과 장비 Drift를 줄이는 핵심 관리입니다."
   },
   {
     "id": 184,
@@ -3410,7 +3776,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "도구 간 불일치",
       "백업"
     ],
-    "active": false
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Recipe는 장비가 공정을 수행하기 위한 조건 집합입니다. 구성 요소는 온도, 압력, Gas Flow, RF Power, 시간, Chuck 온도, 회전 속도, Chemical 농도, Step 순서 등 공정별 Parameter입니다. Recipe 관리는 승인된 조건만 양산에 사용하고, 변경 시 ECN이나 Change Control 절차를 거치는 것이 중요합니다. 무단 변경은 CD, 두께, Profile, 전기적 특성 변동을 만들 수 있습니다. 또한 장비 간 Matching, Version 관리, Backup, 권한 관리, 변경 이력 추적이 필요합니다. Recipe는 공정 재현성의 기준입니다."
   },
   {
     "id": 185,
@@ -3430,7 +3798,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "생산성",
       "KPI"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "OEE는 Overall Equipment Effectiveness의 약자로, 장비가 얼마나 효율적으로 운영되는지 나타내는 지표입니다. 일반적으로 Availability, Performance, Quality 세 요소를 곱해 계산합니다. Availability는 장비가 계획된 시간 중 실제 가동된 비율, Performance는 목표 속도 대비 실제 처리 속도, Quality는 양품 비율을 의미합니다. 반도체 Fab에서는 장비 가격이 높고 병목 공정이 수율과 생산량에 큰 영향을 주기 때문에 OEE 관리가 중요합니다. OEE를 높이려면 Down Time 감소, PM 최적화, 공정 불량 감소, 처리량 개선이 필요합니다."
   },
   {
     "id": 186,
@@ -3448,7 +3818,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "챔버 컨디셔닝",
       "수율 산포"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Recipe Matching은 공정을 여러 장비나 Chamber에서 수행할 때 결과가 동일하게 나오도록 맞추는 활동입니다. 장비 간 Plasma 밀도, 온도, Gas Flow, Chuck 상태, Chamber Wall Condition이 다르면 CD, 두께, 식각 깊이, 결함 수준이 달라질 수 있습니다. Matching은 Golden Tool 기준을 정하고 Monitor Wafer로 결과를 비교해 Recipe Parameter나 장비 Calibration을 조정하는 방식으로 진행합니다. 양산에서는 장비를 유연하게 배정하고 병목을 줄이기 위해 중요합니다. Matching이 부족하면 Lot 간 산포와 수율 변동이 커집니다."
   },
   {
     "id": 187,
@@ -3466,7 +3838,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "규격 확인",
       "제품 투입 전"
     ],
-    "active": false
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "모니터 웨이퍼는 공정이나 장비 상태를 확인하기 위해 사용하는 평가용 웨이퍼이고, 제품 웨이퍼는 실제 고객 제품이 형성되는 웨이퍼입니다. 모니터 웨이퍼는 두께, 식각 속도, Particle, 균일도, 장비 Matching 확인에 사용되며 불량 발생 위험 없이 장비 상태를 점검할 수 있습니다. 제품 웨이퍼는 실제 Pattern과 구조가 있어 공정 영향이 더 현실적으로 반영되지만 비용과 리스크가 큽니다. 따라서 PM 후 검증, Recipe 개발, SPC 관리에는 모니터 웨이퍼를 활용하고, 최종 판단은 제품 데이터와 함께 봅니다. 비용 절감에도 도움이 됩니다."
   },
   {
     "id": 188,
@@ -3485,7 +3859,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "ALD",
       "CMP"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Gate 공정은 트랜지스터 채널을 제어하는 Gate 구조를 형성하는 과정입니다. 일반적으로 Well과 Isolation 형성 후 표면 세정, Gate Oxide 또는 High-K 절연막 형성, Gate Electrode 증착, 포토, Gate 식각 순서로 진행됩니다. 이후 LDD Implant, Spacer 형성, Source/Drain Implant, 활성화 Annealing, Silicide 형성으로 이어집니다. Gate CD와 산화막 품질은 문턱전압, 누설 전류, 구동 전류를 결정하므로 매우 중요합니다. 핵심 관리 항목은 계면 청정도, CD 균일도, 식각 Damage, Overlay입니다."
   },
   {
     "id": 189,
@@ -3505,7 +3881,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "High-k",
       "누설 전류"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "DRAM Capacitor는 작은 Cell 면적에서 충분한 전하를 저장하기 위해 형성되는 구조입니다. 공정은 Cell Contact 형성 후 하부 전극을 만들고, 고유전율 Dielectric을 증착한 뒤 상부 전극을 형성하는 순서입니다. 집적도가 높아지면서 3D Cylinder나 Stack 구조를 사용해 면적을 늘리고 Capacitance를 확보합니다. Dielectric으로는 High-K 물질을 사용하며, 누설 전류와 막 균일도 관리가 중요합니다. 하부 전극 식각, 고종횡비 증착의 스텝 커버리지, Void 없는 구조 형성, 열 Budget 제어가 핵심입니다."
   },
   {
     "id": 190,
@@ -3524,7 +3902,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "SPC/DOE",
       "지속 학습"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "공정 기술자가 갖춰야 할 핵심 역량은 공정 원리 이해, 데이터 분석력, 문제 해결력, 협업 능력입니다. 공정 조건이 CD, 두께, Profile, 전기적 특성에 어떻게 연결되는지 이해해야 원인을 정확히 추정할 수 있습니다. 또한 SPC, DOE, Wafer Map, Inline Data를 해석해 장비 문제와 공정 문제를 구분해야 합니다. 불량 발생 시에는 가설을 세우고 실험으로 검증해 재발 방지 대책을 만드는 능력이 필요합니다. Fab 업무는 장비, 제조, 품질, 설계 부서와 연결되므로 명확한 소통과 기록 습관도 중요합니다. 꾸준한 학습 태도도 필요합니다."
   },
   {
     "id": 191,
@@ -3543,7 +3923,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "스크러버",
       "비상 절차"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "반도체 공정에서는 독성, 가연성, 부식성, 질식성 가스를 많이 사용하므로 가스 안전 관리가 매우 중요합니다. 예를 들어 Silane은 자연 발화 위험이 있고, Chlorine과 HCl은 부식성과 독성이 있으며, Arsine과 Phosphine은 고독성 가스입니다. 누출 시 인명 사고와 장비 손상, 생산 중단으로 이어질 수 있습니다. 관리는 Gas Cabinet, Leak Detector, Scrubber, Interlock, 배기 시스템, 정기 점검, 작업자 교육으로 수행합니다. 또한 가스 교체나 PM 시 Purge 절차와 비상 대응 매뉴얼을 반드시 준수해야 합니다."
   },
   {
     "id": 192,
@@ -3562,7 +3944,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "표준화",
       "SPC 모니터링"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "수율 개선 프로젝트는 먼저 불량 현상을 명확히 정의하고, 수율 Trend와 Bin, Wafer Map, Inline Data를 분석하는 것에서 시작합니다. 이후 특정 공정, 장비, Lot, 시간대와의 상관관계를 찾아 가설을 세웁니다. 가설은 DOE나 Split Lot, 모니터 웨이퍼로 검증하고, 효과가 확인되면 Recipe 변경, 장비 PM, 세정 강화, Spec 조정 같은 개선안을 적용합니다. 적용 후에는 수율과 신뢰성, 부작용을 모니터링해 표준화합니다. 핵심은 데이터 기반 원인 분석과 재발 방지 대책까지 연결하는 것입니다. 개선 전후 비교 기준을 명확히 해야 합니다."
   },
   {
     "id": 193,
@@ -3581,7 +3965,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "MSDS",
       "PPE"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Chemical 관리는 공정 성능과 안전을 동시에 확보하기 위한 활동입니다. 반도체 Chemical은 농도, 금속 불순물, Particle, 수분 함량이 공정 결과에 직접 영향을 줍니다. 따라서 입고 검사, 보관 조건, 사용 기한, Filter, 배관 청정도, 농도 모니터링을 관리해야 합니다. Wet 공정에서는 온도와 혼합비, Bath Life, 교체 주기가 중요하고, 폐액은 규정에 맞게 처리해야 합니다. 또한 산, 염기, 산화제, 유기 Solvent는 반응 위험이 있어 전용 보관과 PPE, 배기, 누출 대응 절차가 필요합니다. 작업자 안전 교육도 필수입니다."
   },
   {
     "id": 194,
@@ -3600,7 +3986,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "공기 청정",
       "케미컬 필터"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "반도체 수율에 영향을 미치는 환경 요인은 Particle, 온도, 습도, 진동, 정전기, Chemical과 Gas 순도, 공기 흐름입니다. Particle은 Pattern 결함을 만들고, 온습도 변화는 PR 두께, 현상, 정전기 발생에 영향을 줄 수 있습니다. 진동은 노광 Overlay와 장비 정밀도에 영향을 주며, 정전기는 소자 손상과 Particle 부착을 유발할 수 있습니다. Cleanroom 등급, FFU, 배기 균형, AMC 관리, DI Water와 Gas 순도 관리가 필요합니다. 미세공정일수록 작은 환경 변동도 수율에 큰 영향을 줄 수 있습니다."
   },
   {
     "id": 195,
@@ -3620,7 +4008,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "SPC 관리",
       "양산 적합성"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "WAT는 Wafer Acceptance Test의 약자로, Wafer 상태에서 Test Pattern이나 PCM 구조를 측정해 공정이 정상적으로 완료되었는지 확인하는 전기적 검사입니다. 측정 항목은 Transistor Vt, Drive Current, Leakage, Contact 저항, Sheet 저항, Via 저항, Capacitor 특성, Gate Oxide 신뢰성 등이 있습니다. WAT 결과는 공정 Module의 이상을 조기에 확인하고, 제품 Test 수율과의 상관관계를 분석하는 데 사용됩니다. Spec을 벗어나면 Lot Hold, 원인 공정 추적, 장비 점검, 공정 조건 조정이 이루어집니다."
   },
   {
     "id": 196,
@@ -3639,7 +4029,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "확인 실험",
       "문서화"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "실험 설계 후 결과 분석은 먼저 목표와 응답 변수를 명확히 정의하는 것에서 시작합니다. 예를 들어 CD, 두께, 저항, 결함 수, 수율을 기준으로 각 인자의 영향을 봅니다. DOE 결과는 Main Effect Plot, Interaction Plot, ANOVA, 회귀분석으로 분석해 어떤 변수가 유의한지 판단합니다. 이후 최적 조건을 예측하고 Confirmation Run으로 재현성을 검증합니다. 또한 평균뿐 아니라 산포, 공정 Margin, 부작용을 함께 봐야 합니다. 최종적으로 개선 조건은 SPC와 양산 Lot에서 안정성을 확인한 뒤 표준화합니다."
   },
   {
     "id": 197,
@@ -3657,7 +4049,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "ALD/ALE 확대",
       "AI 공정 최적화"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "차세대 반도체 공정 트렌드는 미세화 한계 극복과 성능, 전력 효율 개선에 집중됩니다. 노광에서는 EUV와 High-NA EUV가 핵심이고, 소자 구조는 FinFET에서 GAA, Nanosheet로 이동하고 있습니다. 메모리에서는 3D NAND 고단화와 DRAM Capacitor 고집적화가 중요합니다. 배선에서는 Low-K, Ru나 Co 같은 신소재, Backside Power Delivery가 연구됩니다. 또한 Chiplet, 2.5D, 3D Packaging처럼 패키징 기술도 중요해지고 있습니다. 공정기술자는 새로운 구조를 양산 가능한 공정으로 안정화하는 역할이 커집니다."
   },
   {
     "id": 198,
@@ -3676,7 +4070,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "재현성",
       "수율 향상 기여"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "공정기술자로서 제 강점은 데이터를 기반으로 원인을 좁히고, 공정 원리와 연결해 개선안을 도출하는 태도입니다. 단순히 결과만 보는 것이 아니라 CD, 두께, 결함, 전기적 특성이 어떤 공정 변수와 연결되는지 구조적으로 이해하려고 합니다. 또한 문제가 발생했을 때 가설을 세우고 DOE나 Trend 분석으로 검증하는 방식에 익숙합니다. Fab 업무는 장비, 제조, 품질 부서와 협업이 필수이므로 기록과 소통도 중요하게 생각합니다. 이러한 역량으로 수율 안정화와 공정 개선에 기여하겠습니다. 또한 현장에서는 작은 이상 신호를 놓치지 않고 끝까지 추적하는 책임감이 필요하다고 생각합니다."
   },
   {
     "id": 199,
@@ -3695,7 +4091,9 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "가설 검증",
       "8D 문서화"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "수율 저하가 발생하면 먼저 저하 범위와 시점을 파악해 영향 Lot을 격리합니다. 이후 Bin Trend, Wafer Map, Inline Data, 장비 이력, Recipe 변경, PM 이력을 확인해 공통 원인을 찾습니다. 불량이 특정 장비, 공정, 위치, 시간대와 연관되는지 분석하고, 필요하면 FA와 단면 분석으로 물리적 원인을 확인합니다. 원인이 추정되면 Split Lot이나 DOE로 검증하고, Recipe 수정, 장비 점검, 세정 강화 같은 대책을 적용합니다. 이후 개선 효과와 부작용을 모니터링하고 재발 방지 기준을 문서화합니다."
   },
   {
     "id": 200,
@@ -3716,6 +4114,8 @@ window.BANMYEONPPU_PROCESS_QUESTIONS = [
       "수율 향상",
       "신기술 도입"
     ],
-    "active": true
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "반도체 산업의 최신 트렌드는 미세화 지속, 3D 구조 확대, 첨단 패키징, 전력 효율 개선, AI용 고성능 반도체 수요 증가로 볼 수 있습니다. 공정 측면에서는 EUV와 High-NA EUV, GAA, 3D NAND 고단화, Low-K와 신금속 배선, Backside Power Delivery가 중요해지고 있습니다. 공정기술 엔지니어의 역할은 이러한 기술을 양산 가능한 조건으로 안정화하고, 수율과 신뢰성을 확보하는 것입니다. 결국 공정 이해, 데이터 분석, 장비 제어, 부서 간 협업을 통해 기술 경쟁력을 만드는 역할을 수행해야 합니다."
   }
 ];
