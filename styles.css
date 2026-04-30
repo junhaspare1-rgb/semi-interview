@@ -915,6 +915,378 @@ button {
   word-break: keep-all;
 }
 
+.quick-practice-view {
+  min-height: calc(100vh - 124px);
+  padding: 30px clamp(24px, 4vw, 64px);
+  background: #f6f9fc;
+}
+
+.quick-practice-phone {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  width: min(1120px, 100%);
+  min-height: calc(100vh - 184px);
+  margin: 0 auto;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.1);
+}
+
+.quick-practice-top {
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+  gap: 12px;
+  min-height: 62px;
+  padding: 10px 22px;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.quick-practice-top strong {
+  text-align: center;
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.quick-practice-back,
+.quick-practice-bookmark {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #0f172a;
+}
+
+.quick-practice-bookmark {
+  color: #f59e0b;
+}
+
+.quick-practice-bookmark.active svg {
+  fill: currentColor;
+}
+
+.quick-practice-body {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(420px, 1.08fr);
+  align-content: start;
+  gap: 24px;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.quick-practice-question-pane,
+.quick-practice-work-pane {
+  display: grid;
+  align-content: start;
+  gap: 16px;
+}
+
+.quick-practice-question-pane {
+  position: sticky;
+  top: 24px;
+}
+
+.quick-practice-work-pane {
+  min-width: 0;
+}
+
+.quick-practice-meta {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.quick-practice-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.quick-practice-status.recording {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.quick-practice-status.done {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.quick-practice-status.error {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.quick-practice-body h1 {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(28px, 3vw, 42px);
+  line-height: 1.22;
+  font-weight: 900;
+  word-break: keep-all;
+}
+
+.quick-practice-keywords,
+.quick-keyword-block div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.quick-practice-keywords span,
+.quick-keyword-block span:not(:first-child),
+.quick-keyword-block div span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.quick-practice-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.quick-practice-tabs button {
+  min-height: 34px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.quick-practice-tabs button.active {
+  background: #ffffff;
+  color: #111827;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+}
+
+.quick-practice-panel {
+  display: grid;
+  gap: 13px;
+  align-content: start;
+  max-height: calc(100vh - 332px);
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.quick-guide-card {
+  display: grid;
+  gap: 8px;
+  border: 1px solid #fde68a;
+  border-radius: 12px;
+  padding: 14px;
+  background: #fffbeb;
+  color: #b45309;
+}
+
+.quick-guide-card strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.quick-guide-card p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  word-break: keep-all;
+}
+
+.quick-record-card {
+  display: grid;
+  place-items: center;
+  gap: 13px;
+  min-height: 246px;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 28px 22px;
+  background: #f8fafc;
+  text-align: center;
+}
+
+.quick-record-card p {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.quick-record-button {
+  display: grid;
+  place-items: center;
+  width: 92px;
+  height: 92px;
+  border: 0;
+  border-radius: 50%;
+  background: #3b82f6;
+  color: #ffffff;
+  box-shadow: 0 16px 26px rgba(59, 130, 246, 0.32);
+}
+
+.quick-record-button.recording {
+  background: #ef4444;
+  box-shadow: 0 16px 26px rgba(239, 68, 68, 0.28);
+}
+
+.quick-record-button svg {
+  width: 36px;
+  height: 36px;
+}
+
+.quick-record-card strong {
+  color: #0f172a;
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.quick-record-notice {
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.quick-audio-review {
+  width: 100%;
+  display: grid;
+  gap: 8px;
+}
+
+.quick-audio-review audio {
+  width: 100%;
+}
+
+.quick-record-card.has-audio {
+  min-height: 214px;
+}
+
+.quick-keyword-block {
+  display: grid;
+  gap: 9px;
+}
+
+.quick-keyword-block > span {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.quick-keyword-block em {
+  color: #94a3b8;
+  font-size: 13px;
+  font-style: normal;
+}
+
+.quick-answer-card {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 22px;
+  background: #f8fafc;
+}
+
+.quick-answer-card h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.quick-related-list {
+  display: grid;
+  gap: 10px;
+}
+
+.quick-related-item {
+  display: grid;
+  gap: 6px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px;
+  background: #ffffff;
+  color: var(--ink);
+  text-align: left;
+}
+
+.quick-related-item span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.quick-related-item strong {
+  font-size: 14px;
+  line-height: 1.45;
+  word-break: keep-all;
+}
+
+.quick-practice-footer {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.5fr) minmax(220px, 0.5fr);
+  justify-content: end;
+  gap: 10px;
+  padding: 16px 24px 20px;
+  border-top: 1px solid #eef2f7;
+  background: rgba(255, 255, 255, 0.94);
+}
+
+.quick-secondary-button,
+.quick-primary-button {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 12px;
+  font-weight: 900;
+}
+
+.quick-secondary-button {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.quick-primary-button {
+  background: #111827;
+  color: #ffffff;
+}
+
+.quick-primary-button svg {
+  width: 17px;
+  height: 17px;
+}
+
 .home-view {
   display: none;
   grid-template-columns: minmax(430px, 0.88fr) minmax(600px, 1.12fr);
@@ -2998,6 +3370,16 @@ input[type="number"] {
 }
 
 @media (max-width: 760px) {
+  body.quick-practice-active {
+    padding-bottom: 0;
+    background: #ffffff;
+  }
+
+  body.quick-practice-active .top-nav,
+  body.quick-practice-active .site-footer {
+    display: none;
+  }
+
   .top-nav {
     grid-template-columns: 1fr auto;
     height: auto;
@@ -3068,6 +3450,88 @@ input[type="number"] {
 
   .bank-practice-button {
     width: 100%;
+  }
+
+  .quick-practice-view {
+    min-height: 100vh;
+    padding: 0;
+    background: #ffffff;
+  }
+
+  .quick-practice-phone {
+    width: 100%;
+    min-height: 100vh;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .quick-practice-top {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(10px);
+  }
+
+  .quick-practice-body {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding: 0 17px 88px;
+  }
+
+  .quick-practice-question-pane,
+  .quick-practice-work-pane {
+    gap: 14px;
+  }
+
+  .quick-practice-question-pane {
+    position: static;
+  }
+
+  .quick-practice-body h1 {
+    font-size: 22px;
+    line-height: 1.32;
+  }
+
+  .quick-practice-panel {
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+  }
+
+  .quick-record-card {
+    min-height: 164px;
+    border: 0;
+    border-radius: 14px;
+    padding: 20px 16px;
+  }
+
+  .quick-record-card.has-audio {
+    min-height: 170px;
+  }
+
+  .quick-record-button {
+    width: 72px;
+    height: 72px;
+  }
+
+  .quick-record-button svg {
+    width: 30px;
+    height: 30px;
+  }
+
+  .quick-record-card strong {
+    font-size: 14px;
+  }
+
+  .quick-practice-footer {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 6;
+    padding: 12px 17px max(16px, env(safe-area-inset-bottom));
   }
 
   .about-view {
