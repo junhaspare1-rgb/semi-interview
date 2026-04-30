@@ -3,11 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
     <title>반도체 면접 뿌수기</title>
     <meta
       name="description"
-      content="반도체 공정기술 면접을 실전처럼 연습하는 모의면접 서비스입니다. 질문, 답변 시간, 녹화 복기, 모범 답안 확인까지 한 번에 준비하세요."
+      content="반도체 공정기술 면접을 실전처럼 연습하는 모의면접 서비스입니다. 질문, 답변 시간, 녹화 복기, 답변 예시 확인까지 한 번에 준비하세요."
     />
     <link rel="canonical" href="https://xn--e42b13ak0f.kr/" />
     <meta property="og:type" content="website" />
@@ -16,7 +16,7 @@
     <meta property="og:title" content="반도체 면접 뿌수기 | 반면뿌" />
     <meta
       property="og:description"
-      content="반도체 공정기술 면접 질문, 답변 연습, 녹화 복기, 모범 답안 확인까지 실전처럼 준비하세요."
+      content="반도체 공정기술 면접 질문, 답변 연습, 녹화 복기, 답변 예시 확인까지 실전처럼 준비하세요."
     />
     <meta property="og:url" content="https://xn--e42b13ak0f.kr/" />
     <meta property="og:image" content="https://xn--e42b13ak0f.kr/og-image.png" />
@@ -59,6 +59,7 @@
 
       <nav class="main-nav" aria-label="주요 메뉴">
         <button type="button" data-view="about">About</button>
+        <button type="button" data-view="question-bank">기출 질문</button>
         <button class="active" type="button" data-view="home">모의 면접</button>
       </nav>
 
@@ -108,134 +109,109 @@
         <p class="message-signature">반면뿌 개발자 K 드림</p>
       </template>
 
-      <section class="browse-view app-view" id="browseView" aria-labelledby="browse-title" hidden>
-        <div class="browse-shell">
-          <aside class="browse-progress-panel" aria-label="학습 진행률">
-            <p class="module-label">질문 쇼츠</p>
-            <h1 id="browse-title">한 문제씩 넘기며 공정기술 면접을 익히세요.</h1>
-            <p>
-              질문을 먼저 보고, 키워드와 답안을 차례로 확인한 뒤 헷갈리는 문제만 다시 모아볼 수 있습니다.
-            </p>
+      <section class="question-bank-view app-view" id="questionBankView" aria-labelledby="questionBankTitle">
+        <aside class="question-bank-sidebar" id="questionBankSidebar" aria-label="기출 질문 필터">
+          <div class="bank-filter-block">
+            <label for="questionBankRole">직무 선택</label>
+            <select id="questionBankRole">
+              <option value="process">공정기술 (양산기술)</option>
+              <option value="design">회로설계 (준비중)</option>
+              <option value="device">소자 (준비중)</option>
+              <option value="equipment">장비기술 (준비중)</option>
+            </select>
+          </div>
 
-            <div class="browse-stats" aria-label="학습 요약">
-              <article>
-                <span>학습률</span>
-                <strong id="browseStudyPercent">0%</strong>
-              </article>
-              <article>
-                <span>아는 문제</span>
-                <strong id="browseKnownCount">0</strong>
-              </article>
-              <article>
-                <span>헷갈림</span>
-                <strong id="browseConfusedCount">0</strong>
-              </article>
-              <article>
-                <span>북마크</span>
-                <strong id="browseBookmarkedCount">0</strong>
-              </article>
+          <div class="bank-filter-block bank-filter-collapsible">
+            <button
+              class="bank-filter-toggle"
+              type="button"
+              data-filter-toggle="difficulty"
+              aria-expanded="true"
+              aria-controls="questionBankDifficultyList"
+            >
+              <span>난이도</span>
+              <i data-lucide="chevron-up"></i>
+            </button>
+            <div class="bank-difficulty-list" id="questionBankDifficultyList" aria-label="난이도 필터"></div>
+          </div>
+
+          <div class="bank-filter-block bank-filter-collapsible">
+            <button
+              class="bank-filter-toggle"
+              type="button"
+              data-filter-toggle="category"
+              aria-expanded="true"
+              aria-controls="questionBankCategoryList"
+            >
+              <span>카테고리</span>
+              <i data-lucide="chevron-up"></i>
+            </button>
+            <div class="bank-category-list" id="questionBankCategoryList" aria-label="카테고리 필터"></div>
+          </div>
+
+        </aside>
+
+        <section class="question-bank-main">
+          <header class="question-bank-hero">
+            <div>
+              <p class="bank-breadcrumb">기출 질문 <span>/</span> <strong id="questionBankRoleName">공정기술</strong></p>
+              <h1 id="questionBankTitle">공정기술 면접 문제</h1>
+              <p id="questionBankDescription">실제 면접에서 나온 문제와 모범 답변 예시를 함께 확인해보세요.</p>
             </div>
+            <label class="bank-search" for="questionBankSearch">
+              <i data-lucide="search"></i>
+              <input id="questionBankSearch" type="search" placeholder="질문, 키워드, 공정명 검색" autocomplete="off" />
+            </label>
+          </header>
 
-            <div class="browse-category-progress" id="browseCategoryProgress" aria-label="공정별 학습률"></div>
-          </aside>
-
-          <section class="browse-short-shell" aria-label="문제 훑기">
-            <div class="browse-toolbar">
-              <label>
-                <span>난이도</span>
-                <select id="browseDifficultyFilter">
-                  <option value="all">전체</option>
-                  <option value="입문">입문</option>
-                  <option value="실전">실전</option>
-                  <option value="심화">심화</option>
-                </select>
-              </label>
-              <label>
-                <span>공정</span>
-                <select id="browseCategoryFilter">
-                  <option value="all">전체</option>
-                </select>
-              </label>
-              <label>
-                <span>상태</span>
-                <select id="browseStatusFilter">
-                  <option value="all">전체</option>
-                  <option value="bookmarked">북마크</option>
-                  <option value="confused">헷갈림</option>
-                  <option value="known">아는 문제</option>
-                  <option value="unmarked">미분류</option>
-                </select>
-              </label>
+          <section class="question-bank-study-summary" id="questionBankStudySummary" aria-label="문제 연습 상태 요약">
+            <div class="bank-study-summary-head">
+              <span>나의 진도</span>
+              <strong id="questionBankProgressPercent">0%</strong>
             </div>
-
-            <div class="browse-card-wrap" id="browseShorts">
-              <button class="browse-nav-button prev" id="browsePrevButton" type="button" aria-label="이전 문제">
-                <i data-lucide="chevron-up"></i>
-              </button>
-
-              <article class="browse-card" id="browseCard">
-                <header class="browse-card-head">
-                  <div class="browse-chip-row">
-                    <span id="browseDifficultyChip">입문</span>
-                    <span id="browseCategoryChip">포토</span>
-                  </div>
-                  <strong id="browseCounter">1 / 184</strong>
-                </header>
-
-                <div class="browse-question-area">
-                  <p id="browseQuestionText">반도체의 정의와 도체, 부도체와의 차이점을 설명해주세요.</p>
-                </div>
-
-                <div class="browse-answer-panel" id="browseAnswerPanel" aria-hidden="true">
-                  <section class="browse-keywords">
-                    <h2>Key word</h2>
-                    <div id="browseKeywordList"></div>
-                  </section>
-                  <section>
-                    <h2>AI 모범 답안</h2>
-                    <p id="browseAnswerText"></p>
-                  </section>
-                  <section>
-                    <h2>꼬리질문</h2>
-                    <ol id="browseTailQuestions"></ol>
-                  </section>
-                </div>
-
-                <footer class="browse-card-actions">
-                  <button class="browse-action-button" id="browseBookmarkButton" type="button" aria-pressed="false">
-                    <i data-lucide="bookmark"></i>
-                    <span>북마크</span>
-                  </button>
-                  <button class="browse-action-button" id="browseConfusedButton" type="button" aria-pressed="false">
-                    <i data-lucide="help-circle"></i>
-                    <span>헷갈림</span>
-                  </button>
-                  <button class="browse-action-button" id="browseKnownButton" type="button" aria-pressed="false">
-                    <i data-lucide="check-circle-2"></i>
-                    <span>아는 문제</span>
-                  </button>
-                  <button class="browse-action-button primary" id="browseToggleAnswerButton" type="button">
-                    <i data-lucide="panel-bottom-open"></i>
-                    <span>답안 보기</span>
-                  </button>
-                  <button class="browse-action-button dark" id="browsePracticeButton" type="button">
-                    <i data-lucide="mic-vocal"></i>
-                    <span>이 질문으로 연습하기</span>
-                  </button>
-                </footer>
-              </article>
-
-              <div class="browse-empty" id="browseEmpty" hidden>
-                <strong>조건에 맞는 문제가 없습니다.</strong>
-                <span>필터를 바꾸면 다시 문제를 볼 수 있습니다.</span>
-              </div>
-
-              <button class="browse-nav-button next" id="browseNextButton" type="button" aria-label="다음 문제">
-                <i data-lucide="chevron-down"></i>
-              </button>
+            <div class="bank-study-stacked-meter" aria-hidden="true">
+              <span class="known" id="questionBankKnownMeter"></span>
+              <span class="practice" id="questionBankPracticeMeter"></span>
+            </div>
+            <div class="bank-study-legend">
+              <span class="known">대답 가능 <strong id="questionBankKnownCount">0 / 0</strong></span>
+              <span class="practice">연습 필요 <strong id="questionBankPracticeCount">0 / 0</strong></span>
             </div>
           </section>
-        </div>
+
+          <div class="question-bank-toolbar">
+            <span id="questionBankCount">0개 문제</span>
+            <div class="bank-toolbar-actions">
+              <label class="bank-sort" for="questionBankPageSize">
+                <span>보기</span>
+                <select id="questionBankPageSize">
+                  <option value="10">10개씩</option>
+                  <option value="20">20개씩</option>
+                  <option value="50">50개씩</option>
+                  <option value="all">전체</option>
+                </select>
+              </label>
+              <label class="bank-sort" for="questionBankSort">
+                <span id="questionBankSortLabel">정렬</span>
+                <select id="questionBankSort">
+                  <option value="default">기본순</option>
+                  <option value="practiceNeeded">연습 필요 우선</option>
+                  <option value="bookmarked">북마크 우선</option>
+                  <option value="difficultyAsc">난이도 낮은순</option>
+                  <option value="difficultyDesc">난이도 높은순</option>
+                </select>
+              </label>
+            </div>
+          </div>
+
+          <section class="question-bank-list" id="questionBankList" aria-label="문제 목록"></section>
+          <nav class="question-bank-pagination" id="questionBankPagination" aria-label="기출 질문 페이지"></nav>
+
+          <div class="question-bank-empty" id="questionBankEmpty" hidden>
+            <strong>조건에 맞는 문제가 없습니다.</strong>
+            <span>직무, 카테고리, 난이도 또는 검색어를 조정해보세요.</span>
+          </div>
+        </section>
       </section>
 
       <section class="home-view app-view active" id="homeView" aria-labelledby="home-title">
@@ -382,7 +358,7 @@
               </span>
               <h2>어떻게 활용하면 좋나요?</h2>
               <p>
-                입문/실전/심화 난이도로 반복 연습하고, 답변 후 모범 답안과 키워드를 비교해보세요. 녹화 복기로 말의 구조와 전달력도 함께 점검할 수 있어요.
+                입문/실전/심화 난이도로 반복 연습하고, 답변 후 답변 예시와 키워드를 비교해보세요. 녹화 복기로 말의 구조와 전달력도 함께 점검할 수 있어요.
               </p>
             </article>
           </div>
@@ -599,8 +575,8 @@
           <header class="result-hero">
             <div>
               <p class="module-label">면접 결과</p>
-              <h1 id="resultTitle">답변 복기와 AI 모범 답안을 확인하세요.</h1>
-              <p>문항별 녹화와 모범 답안을 비교하고, 부족한 문항만 바로 다시 연습할 수 있습니다.</p>
+              <h1 id="resultTitle">답변 복기와 모범 답안을 확인하세요.</h1>
+              <p>문항별 녹화와 답변 예시를 비교하고, 부족한 문항만 바로 다시 연습할 수 있습니다.</p>
             </div>
             <div class="result-actions">
               <button class="outline-button" id="resultHomeButton" type="button">
@@ -698,7 +674,7 @@
     <template id="disclaimerTemplate">
       <h3>1. 학습 참고용 안내</h3>
       <p>
-        반도체 면접 뿌수기의 질문, 모범 답안, 복기 기능은 면접 준비를 돕기 위한 참고 자료입니다. 특정 회사의 실제
+        반도체 면접 뿌수기의 질문, 답변 예시, 복기 기능은 면접 준비를 돕기 위한 참고 자료입니다. 특정 회사의 실제
         면접 질문이나 합격을 보장하지 않습니다.
       </p>
       <h3>2. 답변 정확성</h3>
@@ -772,7 +748,7 @@
     <div class="exit-modal" id="finishModal" aria-hidden="true">
       <section class="exit-dialog" role="dialog" aria-modal="true" aria-labelledby="finishTitle">
         <h2 id="finishTitle">면접을 종료할까요?</h2>
-        <p>현재 문항의 녹화를 저장하고 결과 페이지로 이동합니다. 종료 후에는 문항별 복기와 AI 모범 답안을 확인할 수 있습니다.</p>
+        <p>현재 문항의 녹화를 저장하고 결과 페이지로 이동합니다. 종료 후에는 문항별 복기와 모범 답안을 확인할 수 있습니다.</p>
         <div class="exit-actions">
           <button class="outline-button" id="cancelFinishButton" type="button">계속 답변하기</button>
           <button class="black-button" id="confirmFinishButton" type="button">면접 종료</button>

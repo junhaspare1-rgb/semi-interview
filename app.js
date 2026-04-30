@@ -1,77 +1,8 @@
-const legacyQuestions = [
-  {
-    text: "포토 공정에서 DOF(Depth Of Focus)를 개선하기 위한 방안을 얘기해주세요.",
-    answer:
-      "DOF는 노광 공정에서 초점 허용 범위를 의미합니다. 개선 방향은 먼저 focus/exposure matrix로 공정 윈도우를 확인하고, 레지스트 두께와 평탄도, NA와 조명 조건, 웨이퍼 topography 영향을 분리해 봅니다. 양산 관점에서는 overlay와 CD uniformity를 함께 확인하면서 공정 조건 변경 전후의 수율, 결함, 계측 신뢰도를 검증해야 합니다.",
-  },
-  {
-    text: "Etch 공정 후 CD가 타깃보다 크게 나왔을 때 원인 가설과 대응 순서를 설명해주세요.",
-    answer:
-      "먼저 계측 이상인지 확인하고, 이후 recipe 변경 이력, chamber 상태, gas flow, pressure, RF power, ESC temperature, mask 두께를 점검합니다. 단기적으로는 lot hold와 동일 조건 재계측으로 확산을 막고, 장기적으로는 split lot 또는 DOE로 영향 인자를 검증한 뒤 관리 기준과 PM 조건을 업데이트합니다.",
-  },
-  {
-    text: "양산 라인에서 특정 Lot의 수율이 급락했을 때 공정기술 담당자가 확인해야 할 항목은 무엇인가요?",
-    answer:
-      "수율 map과 불량 bin을 먼저 보고 공간 패턴을 확인합니다. 이후 공정 이력, 장비 이력, SPC/FDC 이상, 계측 데이터, 소재 lot, recipe 변경 여부를 시간순으로 대조합니다. 의심 공정을 좁힌 뒤 동일 장비와 타 장비 비교, 전후 lot 비교, 필요 시 hold와 재작업 가능성을 검토합니다.",
-  },
-  {
-    text: "CMP 공정에서 dishing 또는 erosion이 커졌을 때 어떤 방식으로 문제를 접근하시겠습니까?",
-    answer:
-      "패턴 밀도와 layout 영향, pad condition, slurry, down force, platen speed, endpoint 조건을 분리해 봅니다. 계측 데이터로 위치별 경향을 확인하고, pad life와 conditioner 상태 같은 소모품 변수를 함께 봅니다. 개선은 제거율 안정화, dummy pattern 검토, recipe window 재설정 순서로 접근합니다.",
-  },
-  {
-    text: "공정 recipe 변경을 양산에 적용하기 전에 어떤 검증이 필요하다고 생각하나요?",
-    answer:
-      "변경 목적과 위험도를 정의한 뒤 split lot, DOE, 신뢰성 영향, 계측 repeatability, 수율 영향, downstream 공정 영향을 확인해야 합니다. 품질 gate와 승인 절차를 통과한 뒤에는 초기 적용 lot을 모니터링하고, 이상 발생 시 rollback 기준을 명확히 둬야 합니다.",
-  },
-  {
-    text: "Overlay 불량이 증가했을 때 포토 공정 관점에서 확인할 원인을 설명해주세요.",
-    answer:
-      "Alignment mark 상태, reticle 이슈, stage drift, wafer chucking, 노광 장비 matching, 전공정 막 두께 변화와 열 이력을 확인합니다. 단순히 노광 조건만 보지 않고 계측 recipe와 lot 흐름도 같이 봐야 하며, 장비별/slot별/wafer zone별 패턴으로 원인을 좁힙니다.",
-  },
-  {
-    text: "박막 증착 공정에서 두께 균일도가 악화되었을 때 점검할 항목은 무엇인가요?",
-    answer:
-      "가스 유량, pressure, temperature, plasma 상태, showerhead 오염, wafer spacing, chamber seasoning 상태를 확인합니다. 장비 PM 직후인지, 특정 zone에서만 발생하는지, 전후 lot과 같은 패턴인지 비교하고 SPC 추세로 서서히 변한 문제인지 급격한 문제인지 구분합니다.",
-  },
-  {
-    text: "공정기술 직무에서 데이터 기반 문제 해결이 중요한 이유를 설명해주세요.",
-    answer:
-      "양산 문제는 원인이 복합적이라 직감만으로 판단하면 잘못된 recipe 변경이나 불필요한 장비 조치를 할 수 있습니다. 데이터 기반 접근은 불량 패턴, 공정 이력, 장비 신호, 계측값을 연결해 원인을 좁히고 재현성 있는 개선안을 만들게 해줍니다. 결국 수율, 품질, 생산성을 동시에 지키기 위해 필요합니다.",
-  },
-  {
-    text: "공정 조건을 바꾸면 수율은 좋아졌지만 공정 시간이 늘어났습니다. 어떻게 판단하시겠습니까?",
-    answer:
-      "수율 개선 효과와 throughput 손실을 정량화해 전체 생산성과 비용 관점에서 비교합니다. 고객 품질, 병목 공정 여부, 장비 capacity, 장기 안정성도 함께 봐야 합니다. 필요하면 조건을 세분화해 핵심 제품이나 취약 layer에만 적용하는 방식도 검토할 수 있습니다.",
-  },
-  {
-    text: "면접관이 '왜 공정기술 직무인가요?'라고 물으면 어떻게 답변하시겠습니까?",
-    answer:
-      "공정기술은 물리, 화학, 장비, 데이터가 실제 제품 수율로 연결되는 지점이라 문제 해결의 결과가 명확합니다. 저는 원인을 구조화하고 데이터로 검증하는 과정에 흥미가 있고, 양산 현장에서 안정적인 공정 조건을 만들어 제품 경쟁력에 기여하고 싶다고 답변하면 좋습니다.",
-  },
-];
-
 const MAIN_PROCESS_CATEGORIES = new Set(["포토(Lithography)", "식각(Etch)", "증착(Deposition)"]);
 const DIFFICULTY_ALIASES = {
   실무: "실전",
 };
 const normalizeDifficulty = (difficulty) => DIFFICULTY_ALIASES[difficulty] || difficulty;
-const normalizeTailQuestions = (question) => {
-  const value = question.tailQuestions || question.tailquestions || question.followUps || question["꼬리질문"];
-
-  if (Array.isArray(value)) {
-    return value.map((item) => String(item).trim()).filter(Boolean);
-  }
-
-  if (typeof value === "string") {
-    return value
-      .split(/\n|;/)
-      .map((item) => item.trim())
-      .filter(Boolean);
-  }
-
-  return [];
-};
 const sourceQuestions = Array.isArray(window.BANMYEONPPU_PROCESS_QUESTIONS)
   ? window.BANMYEONPPU_PROCESS_QUESTIONS
   : [];
@@ -84,24 +15,15 @@ const questionBank = sourceQuestions
     difficulty: normalizeDifficulty(question.difficulty || "입문"),
     text: question.question || question.text || "",
     answer: question.answer || "",
+    shortAnswer: question.shortAnswer || question["40초 Script"] || "",
     keywords: Array.isArray(question.keywords) ? question.keywords : [],
-    tailQuestions: normalizeTailQuestions(question),
+
+    estimatedAnswerMinutes: Number(question.estimatedAnswerMinutes || question["예상 답변 시간(분)"]) || null,
     active: question.active !== false,
   }))
   .filter((question) => question.active && question.difficulty !== "지엽" && question.text)
   .map((question, index) => ({ ...question, originalIndex: index }));
-const questions = questionBank.length
-  ? questionBank
-  : legacyQuestions.map((question, index) => ({
-      ...question,
-      id: index + 1,
-      category: "기타",
-      group: "main",
-      difficulty: "실전",
-      keywords: [],
-      tailQuestions: [],
-      originalIndex: index,
-    }));
+const questions = questionBank;
 
 const state = {
   config: {
@@ -141,16 +63,16 @@ const state = {
   pendingPracticeIndex: null,
   pendingStartMode: "standard",
   studyProgress: {},
-  browse: {
-    index: 0,
-    answerOpen: false,
-    filters: {
-      difficulty: "all",
-      category: "all",
-      status: "all",
-    },
-    touchStartY: null,
-    wheelLocked: false,
+  answerScriptMode: "short",
+  questionBank: {
+    role: "process",
+    categories: [],
+    difficulties: [],
+    sort: "default",
+    search: "",
+    expandedId: null,
+    pageSize: 10,
+    page: 1,
   },
 };
 
@@ -173,11 +95,47 @@ const AI_INTERVIEW_CONFIG = {
 };
 const MAX_AI_AUDIO_BYTES = 25 * 1024 * 1024;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const browseCategories = [...new Set(questions.map((question) => question.category))];
+
+const QUESTION_BANK_DIFFICULTIES = ["입문", "실전", "심화"];
+const QUESTION_BANK_DIFFICULTY_RANK = {
+  입문: 0,
+  실전: 1,
+  심화: 2,
+};
+const QUESTION_BANK_ROLES = [
+  {
+    id: "process",
+    label: "공정기술 (양산기술)",
+    shortLabel: "공정기술",
+    description: "반도체 양산 현장의 수율, 공정 조건, 불량 분석, 장비 이슈 대응 질문",
+    enabled: true,
+  },
+  {
+    id: "design",
+    label: "회로설계",
+    shortLabel: "회로설계",
+    description: "디지털/아날로그 회로설계 직무 문제는 준비중입니다.",
+    enabled: false,
+  },
+  {
+    id: "device",
+    label: "소자",
+    shortLabel: "소자",
+    description: "소자 물리와 디바이스 특성 직무 문제는 준비중입니다.",
+    enabled: false,
+  },
+  {
+    id: "equipment",
+    label: "장비기술",
+    shortLabel: "장비기술",
+    description: "반도체 장비기술 직무 문제는 준비중입니다.",
+    enabled: false,
+  },
+];
 
 const cacheElements = () => {
   [
-    "browseView",
+    "questionBankView",
     "homeView",
     "aboutView",
     "sttTestView",
@@ -212,32 +170,27 @@ const cacheElements = () => {
     "sttTestTranscript",
     "sttTestModel",
     "sttTestAudioPlayer",
-    "browseStudyPercent",
-    "browseKnownCount",
-    "browseConfusedCount",
-    "browseBookmarkedCount",
-    "browseCategoryProgress",
-    "browseDifficultyFilter",
-    "browseCategoryFilter",
-    "browseStatusFilter",
-    "browseShorts",
-    "browseCard",
-    "browseEmpty",
-    "browsePrevButton",
-    "browseNextButton",
-    "browseDifficultyChip",
-    "browseCategoryChip",
-    "browseCounter",
-    "browseQuestionText",
-    "browseAnswerPanel",
-    "browseKeywordList",
-    "browseAnswerText",
-    "browseTailQuestions",
-    "browseBookmarkButton",
-    "browseConfusedButton",
-    "browseKnownButton",
-    "browseToggleAnswerButton",
-    "browsePracticeButton",
+    "questionBankSidebar",
+    "questionBankRole",
+    "questionBankStudySummary",
+    "questionBankProgressPercent",
+    "questionBankKnownCount",
+    "questionBankKnownMeter",
+    "questionBankPracticeCount",
+    "questionBankPracticeMeter",
+    "questionBankDifficultyList",
+    "questionBankCategoryList",
+    "questionBankRoleName",
+    "questionBankTitle",
+    "questionBankDescription",
+    "questionBankSearch",
+    "questionBankCount",
+    "questionBankPageSize",
+    "questionBankSortLabel",
+    "questionBankSort",
+    "questionBankList",
+    "questionBankPagination",
+    "questionBankEmpty",
     "questionCount",
     "targetRole",
     "prepTime",
@@ -434,19 +387,22 @@ const activeQuestions = () => state.sessionQuestions;
 const currentQuestion = () => activeQuestions()[state.currentIndex] || activeQuestions()[0];
 
 const setView = (view) => {
-  const nextView = view === "browse" ? "home" : view;
-  elements.browseView.classList.remove("active");
+  const nextView = view;
+  elements.questionBankView.classList.toggle("active", nextView === "question-bank");
   elements.homeView.classList.toggle("active", nextView === "home");
   elements.aboutView.classList.toggle("active", nextView === "about");
   elements.sttTestView.classList.toggle("active", nextView === "stt-test");
   elements.checkView.classList.toggle("active", nextView === "check");
   elements.interviewView.classList.toggle("active", nextView === "interview");
   elements.resultView.classList.toggle("active", nextView === "result");
-  const activeNavView = ["about", "home"].includes(nextView) ? nextView : "home";
+  const activeNavView = ["about", "question-bank", "home"].includes(nextView) ? nextView : "home";
   $$(".main-nav [data-view]").forEach((button) => {
     button.classList.toggle("active", button.dataset.view === activeNavView);
   });
-  window.scrollTo({ top: 0, behavior: "instant" });
+  if (nextView === "question-bank") {
+    renderQuestionBank();
+  }
+  window.scrollTo(0, 0);
 };
 
 const stopTimer = () => {
@@ -651,7 +607,7 @@ const showStartEnvironmentModal = (options = {}) => {
     ? "AI 모의면접은 답변 음성 분석 동의가 필요합니다."
     : "반면뿌는 PC 환경에서 가장 안정적으로 동작합니다.";
   elements.startEnvironmentDescription.textContent = isAiMode
-    ? "AI 채점을 위해 면접 종료 후 문항별 답변 음성 파일을 OpenAI API로 전송하고, 전사문과 모범 답안을 바탕으로 분석합니다. 현재 파일럿 테스트에서는 AI 모의면접이 1문항, 준비 10초, 답변 2분으로 진행됩니다."
+    ? "AI 채점을 위해 면접 종료 후 문항별 답변 음성 파일을 OpenAI API로 전송하고, 전사문과 답변 예시를 바탕으로 분석합니다. 현재 파일럿 테스트에서는 AI 모의면접이 1문항, 준비 10초, 답변 2분으로 진행됩니다."
     : "모바일에서도 이용할 수 있지만, 카메라 권한, 녹화 저장, 복기 기능은 기기와 브라우저 환경에 따라 제한될 수 있습니다. 원활한 모의면접을 위해 가능하면 PC 크롬 환경을 권장합니다.";
   elements.startEnvironmentConsentLabel.hidden = !isAiMode;
   elements.startEnvironmentConsent.checked = false;
@@ -1497,6 +1453,53 @@ const escapeHtml = (value) =>
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 
+const answerParagraphs = (answer) => {
+  const cleaned = String(answer || "").replace(/\s+/g, " ").trim();
+  if (!cleaned) return ["모범 답안 준비중입니다."];
+
+  const sentences = cleaned.split(/(?<=[.!?])\s+/).map((sentence) => sentence.trim()).filter(Boolean);
+  const paragraphs = [];
+  let current = "";
+
+  sentences.forEach((sentence) => {
+    const next = current ? `${current} ${sentence}` : sentence;
+    if (current && next.length > 260) {
+      paragraphs.push(current);
+      current = sentence;
+    } else {
+      current = next;
+    }
+  });
+
+  if (current) {
+    paragraphs.push(current);
+  }
+
+  return paragraphs;
+};
+
+const renderModelAnswerHtml = (answer) =>
+  answerParagraphs(answer)
+    .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
+    .join("");
+
+const modelAnswerForQuestion = (question) =>
+  state.answerScriptMode === "short" && question.shortAnswer ? question.shortAnswer : question.answer;
+
+const renderAnswerScriptToggle = () => `
+  <div class="answer-script-toggle" role="group" aria-label="답변 예시 길이 선택">
+    <button class="${state.answerScriptMode === "short" ? "active" : ""}" type="button" data-answer-script-mode="short">
+      40초 Script
+    </button>
+    <button class="${state.answerScriptMode === "full" ? "active" : ""}" type="button" data-answer-script-mode="full">
+      2분 Script
+    </button>
+  </div>
+`;
+
+const renderModelAnswerBlock = (question) =>
+  `${renderAnswerScriptToggle()}${renderModelAnswerHtml(modelAnswerForQuestion(question))}`;
+
 const readStudyProgress = () => {
   try {
     const saved = JSON.parse(localStorage.getItem(STUDY_PROGRESS_KEY) || "{}");
@@ -1510,7 +1513,7 @@ const writeStudyProgress = () => {
   try {
     localStorage.setItem(STUDY_PROGRESS_KEY, JSON.stringify(state.studyProgress));
   } catch (error) {
-    // localStorage가 막힌 환경에서도 문제 훑기 자체는 계속 사용할 수 있게 둡니다.
+    // localStorage가 막힌 환경에서도 기출 질문 자체는 계속 사용할 수 있게 둡니다.
   }
 };
 
@@ -1539,209 +1542,410 @@ const setQuestionStudyState = (question, nextState) => {
   writeStudyProgress();
 };
 
-const fallbackTailQuestions = (question) => {
-  const byCategory = {
-    "포토(Lithography)": [
-      "CD와 Overlay 관점에서 이 이슈가 어떤 문제로 이어질 수 있나요?",
-      "노광 조건을 조정하기 전에 어떤 계측 데이터를 먼저 확인하겠습니까?",
-      "DOF, 해상도, 공정 윈도우를 함께 고려하면 어떤 trade-off가 생기나요?",
-    ],
-    "식각(Etch)": [
-      "식각 선택비와 프로파일을 동시에 만족시키기 어려운 이유는 무엇인가요?",
-      "Chamber condition 변화가 의심될 때 어떤 장비 데이터를 확인하겠습니까?",
-      "Over etch를 늘렸을 때 얻는 이점과 리스크를 설명해보세요.",
-    ],
-    "증착(Deposition)": [
-      "두께 균일도와 막질을 함께 관리하기 위해 어떤 파라미터를 보겠습니까?",
-      "CVD와 PVD 중 어떤 방식이 더 적절한지 판단하는 기준은 무엇인가요?",
-      "Chamber seasoning이나 PM 직후 막 특성이 흔들릴 때 어떻게 대응하겠습니까?",
-    ],
-    "CMP": [
-      "Dishing과 erosion을 구분해서 원인을 좁히려면 어떤 데이터를 봐야 하나요?",
-      "Pad, slurry, pressure 중 어떤 인자를 먼저 의심하겠습니까?",
-      "CMP 결과가 후속 공정에 미치는 영향을 설명해보세요.",
-    ],
-    "이온주입(Implant)": [
-      "Dose와 energy가 소자 특성에 어떤 영향을 주는지 설명해보세요.",
-      "Annealing 조건을 바꾸면 어떤 장점과 리스크가 생기나요?",
-      "Implant 이후 계측이나 모니터링은 어떤 항목이 중요할까요?",
-    ],
-    "세정(Cleaning)": [
-      "Particle과 metal contamination은 각각 어떻게 접근해야 하나요?",
-      "세정 강도를 높였을 때 발생할 수 있는 부작용은 무엇인가요?",
-      "세정 공정 이상을 확인하기 위한 모니터링 지표는 무엇인가요?",
-    ],
-  };
+const questionBankRole = () =>
+  QUESTION_BANK_ROLES.find((role) => role.id === state.questionBank.role) || QUESTION_BANK_ROLES[0];
 
-  return (
-    byCategory[question.category] || [
-      "이 개념이 실제 양산 수율과 연결되는 지점을 설명해보세요.",
-      "현장에서 이 문제가 발생했다면 원인 가설을 어떤 순서로 세우겠습니까?",
-      "관련 데이터를 확인한 뒤 공정 조건을 바꿀 때 주의할 점은 무엇인가요?",
-    ]
-  );
+const questionBankQuestionsForRole = () => {
+  if (state.questionBank.role !== "process") return [];
+  return questions;
 };
 
-const tailQuestionsFor = (question) =>
-  question.tailQuestions?.length ? question.tailQuestions.slice(0, 3) : fallbackTailQuestions(question).slice(0, 3);
+const questionBankQuestionById = (questionId) =>
+  questionBankQuestionsForRole().find((question) => String(question.id) === String(questionId));
 
-const filteredBrowseQuestions = () =>
-  questions.filter((question) => {
-    const { difficulty, category, status } = state.browse.filters;
-    const studyState = getQuestionStudyState(question);
-
-    if (difficulty !== "all" && question.difficulty !== difficulty) return false;
-    if (category !== "all" && question.category !== category) return false;
-    if (status === "bookmarked" && !studyState.bookmarked) return false;
-    if (status === "confused" && studyState.status !== "confused") return false;
-    if (status === "known" && studyState.status !== "known") return false;
-    if (status === "unmarked" && (studyState.bookmarked || studyState.status)) return false;
-
-    return true;
+const questionBankCategories = () => {
+  const categoryCounts = new Map();
+  questionBankQuestionsForRole().forEach((question) => {
+    categoryCounts.set(question.category, (categoryCounts.get(question.category) || 0) + 1);
   });
-
-const currentBrowseQuestion = () => {
-  const filtered = filteredBrowseQuestions();
-  return filtered[state.browse.index] || filtered[0] || null;
-};
-
-const syncBrowseFiltersFromInputs = () => {
-  state.browse.filters.difficulty = elements.browseDifficultyFilter.value;
-  state.browse.filters.category = elements.browseCategoryFilter.value;
-  state.browse.filters.status = elements.browseStatusFilter.value;
-};
-
-const renderBrowseCategoryOptions = () => {
-  elements.browseCategoryFilter.innerHTML = [
-    '<option value="all">전체</option>',
-    ...browseCategories.map((category) => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`),
-  ].join("");
-};
-
-const renderBrowseDashboard = () => {
-  const knownCount = questions.filter((question) => getQuestionStudyState(question).status === "known").length;
-  const confusedCount = questions.filter((question) => getQuestionStudyState(question).status === "confused").length;
-  const bookmarkedCount = questions.filter((question) => getQuestionStudyState(question).bookmarked).length;
-  const studyPercent = questions.length ? Math.round((knownCount / questions.length) * 100) : 0;
-
-  elements.browseStudyPercent.textContent = `${studyPercent}%`;
-  elements.browseKnownCount.textContent = knownCount;
-  elements.browseConfusedCount.textContent = confusedCount;
-  elements.browseBookmarkedCount.textContent = bookmarkedCount;
-
-  elements.browseCategoryProgress.innerHTML = browseCategories
-    .map((category) => {
-      const categoryQuestions = questions.filter((question) => question.category === category);
-      const categoryKnown = categoryQuestions.filter((question) => getQuestionStudyState(question).status === "known").length;
-      const percent = categoryQuestions.length ? Math.round((categoryKnown / categoryQuestions.length) * 100) : 0;
-
-      return `
-        <article class="browse-category-row">
-          <div>
-            <strong>${escapeHtml(category)}</strong>
-            <span>${categoryKnown} / ${categoryQuestions.length}</span>
-          </div>
-          <div class="browse-category-bar" aria-hidden="true">
-            <span style="width: ${percent}%"></span>
-          </div>
-        </article>
-      `;
+  return [...categoryCounts.entries()]
+    .sort((a, b) => {
+      const aIsMain = MAIN_PROCESS_CATEGORIES.has(a[0]) ? 0 : 1;
+      const bIsMain = MAIN_PROCESS_CATEGORIES.has(b[0]) ? 0 : 1;
+      if (aIsMain !== bIsMain) return aIsMain - bIsMain;
+      return a[0].localeCompare(b[0], "ko");
     })
+    .map(([category, count]) => ({ category, count }));
+};
+
+const questionBankSearchMatches = (question, search = state.questionBank.search) => {
+  const query = search.trim().toLowerCase();
+  if (!query) return true;
+
+  const haystack = [
+    question.text,
+    question.answer,
+    question.category,
+    question.difficulty,
+    ...(question.keywords || []),
+  ]
+    .join(" ")
+    .toLowerCase();
+  return haystack.includes(query);
+};
+
+const questionBankMatches = (
+  question,
+  {
+    categories = state.questionBank.categories,
+    difficulties = state.questionBank.difficulties,
+    search = state.questionBank.search,
+  } = {},
+) => {
+  if (categories.length && !categories.includes(question.category)) return false;
+  if (difficulties.length && !difficulties.includes(question.difficulty)) return false;
+  return questionBankSearchMatches(question, search);
+};
+
+const questionBankDifficultyCounts = () => {
+  const counts = { all: 0, 입문: 0, 실전: 0, 심화: 0 };
+  questionBankQuestionsForRole()
+    .filter((question) => questionBankMatches(question, { difficulties: [] }))
+    .forEach((question) => {
+      counts.all += 1;
+      if (counts[question.difficulty] !== undefined) {
+        counts[question.difficulty] += 1;
+      }
+    });
+  return counts;
+};
+
+const questionBankCategoryCounts = () => {
+  const counts = new Map();
+  let all = 0;
+  questionBankQuestionsForRole()
+    .filter((question) => questionBankMatches(question, { categories: [] }))
+    .forEach((question) => {
+      all += 1;
+      counts.set(question.category, (counts.get(question.category) || 0) + 1);
+    });
+  return { all, counts };
+};
+
+const questionBankBaseSort = (a, b) => {
+  const aIsMain = MAIN_PROCESS_CATEGORIES.has(a.category) ? 0 : 1;
+  const bIsMain = MAIN_PROCESS_CATEGORIES.has(b.category) ? 0 : 1;
+  if (aIsMain !== bIsMain) return aIsMain - bIsMain;
+
+  const categoryCompare = a.category.localeCompare(b.category, "ko");
+  if (categoryCompare !== 0) return categoryCompare;
+
+  return a.originalIndex - b.originalIndex;
+};
+
+const sortQuestionBankQuestions = (questionsToSort) => {
+  const sorted = [...questionsToSort];
+  const difficultyRank = (question) => QUESTION_BANK_DIFFICULTY_RANK[question.difficulty] ?? 99;
+
+  if (state.questionBank.sort === "bookmarked") {
+    return sorted.sort((a, b) => {
+      const bookmarkCompare = Number(getQuestionStudyState(b).bookmarked) - Number(getQuestionStudyState(a).bookmarked);
+      return bookmarkCompare || questionBankBaseSort(a, b);
+    });
+  }
+
+  if (state.questionBank.sort === "practiceNeeded") {
+    return sorted.sort((a, b) => {
+      const practiceCompare =
+        Number(getQuestionStudyState(b).status === "confused") - Number(getQuestionStudyState(a).status === "confused");
+      return practiceCompare || questionBankBaseSort(a, b);
+    });
+  }
+
+  if (state.questionBank.sort === "difficultyAsc") {
+    return sorted.sort((a, b) => difficultyRank(a) - difficultyRank(b) || questionBankBaseSort(a, b));
+  }
+
+  if (state.questionBank.sort === "difficultyDesc") {
+    return sorted.sort((a, b) => difficultyRank(b) - difficultyRank(a) || questionBankBaseSort(a, b));
+  }
+
+  return sorted.sort(questionBankBaseSort);
+};
+
+const filteredQuestionBankQuestions = () =>
+  sortQuestionBankQuestions(questionBankQuestionsForRole().filter((question) => questionBankMatches(question)));
+
+const questionBankPageSizeValue = () =>
+  state.questionBank.pageSize === "all" ? "all" : Math.max(1, Number(state.questionBank.pageSize) || 10);
+
+const questionBankPageCount = (totalCount) => {
+  const pageSize = questionBankPageSizeValue();
+  if (pageSize === "all") return 1;
+  return Math.max(1, Math.ceil(totalCount / pageSize));
+};
+
+const clampQuestionBankPage = (totalCount) => {
+  const pageCount = questionBankPageCount(totalCount);
+  state.questionBank.page = Math.min(Math.max(1, state.questionBank.page), pageCount);
+  return pageCount;
+};
+
+const paginatedQuestionBankQuestions = (filtered) => {
+  const pageSize = questionBankPageSizeValue();
+  const pageCount = clampQuestionBankPage(filtered.length);
+
+  if (pageSize === "all") {
+    return {
+      pageQuestions: filtered,
+      pageCount,
+      startIndex: 0,
+      endIndex: filtered.length,
+    };
+  }
+
+  const startIndex = (state.questionBank.page - 1) * pageSize;
+  const endIndex = Math.min(startIndex + pageSize, filtered.length);
+
+  return {
+    pageQuestions: filtered.slice(startIndex, endIndex),
+    pageCount,
+    startIndex,
+    endIndex,
+  };
+};
+
+const questionBankDifficultyClass = (difficulty) =>
+  ({
+    입문: "beginner",
+    실전: "intermediate",
+    심화: "advanced",
+  })[difficulty] || "intermediate";
+
+const renderQuestionBankCategoryList = () => {
+  const categories = questionBankCategories();
+  const categoryCounts = questionBankCategoryCounts();
+  const buttons = [
+    `<button class="bank-category-chip ${state.questionBank.categories.length === 0 ? "active" : ""}" type="button" data-bank-category="all">
+      전체 <span>${categoryCounts.all}</span>
+    </button>`,
+    ...categories.map(
+      ({ category }) => `
+        <button class="bank-category-chip ${state.questionBank.categories.includes(category) ? "active" : ""}" type="button" data-bank-category="${escapeHtml(category)}">
+          ${escapeHtml(category)} <span>${categoryCounts.counts.get(category) || 0}</span>
+        </button>
+      `,
+    ),
+  ];
+  elements.questionBankCategoryList.innerHTML = buttons.join("");
+};
+
+const renderQuestionBankDifficultyList = () => {
+  const counts = questionBankDifficultyCounts();
+  const difficulties = [
+    ["all", "전체"],
+    ...QUESTION_BANK_DIFFICULTIES.map((difficulty) => [difficulty, difficulty]),
+  ];
+  elements.questionBankDifficultyList.innerHTML = difficulties
+    .map(
+      ([value, label]) => `
+        <button class="bank-difficulty-item ${
+          value === "all"
+            ? state.questionBank.difficulties.length === 0
+              ? "active"
+              : ""
+            : state.questionBank.difficulties.includes(value)
+              ? "active"
+              : ""
+        }" type="button" data-bank-difficulty="${value}">
+          <span>${label}</span>
+          <strong>${counts[value] || 0}</strong>
+        </button>
+      `,
+    )
     .join("");
 };
 
-const renderBrowseCard = () => {
-  const filtered = filteredBrowseQuestions();
+const renderQuestionBankStudySummary = () => {
+  const role = questionBankRole();
+  const roleQuestions = questionBankQuestionsForRole();
+  const totalCount = roleQuestions.length;
+  const knownCount = roleQuestions.filter((question) => getQuestionStudyState(question).status === "known").length;
+  const practiceCount = roleQuestions.filter((question) => getQuestionStudyState(question).status === "confused").length;
+  const knownPercent = totalCount ? Math.round((knownCount / totalCount) * 100) : 0;
+  const practicePercent = totalCount ? Math.round((practiceCount / totalCount) * 100) : 0;
+  const progressPercent = totalCount ? Math.round(((knownCount + practiceCount) / totalCount) * 100) : 0;
 
-  if (state.browse.index >= filtered.length) {
-    state.browse.index = Math.max(0, filtered.length - 1);
+  elements.questionBankStudySummary.hidden = !role.enabled;
+  elements.questionBankProgressPercent.textContent = `${progressPercent}%`;
+  elements.questionBankKnownCount.textContent = `${knownCount} / ${totalCount}`;
+  elements.questionBankPracticeCount.textContent = `${practiceCount} / ${totalCount}`;
+  elements.questionBankKnownMeter.style.width = `${knownPercent}%`;
+  elements.questionBankPracticeMeter.style.width = `${practicePercent}%`;
+};
+
+const renderQuestionBankPagination = ({ totalCount, pageCount, startIndex, endIndex }) => {
+  if (!elements.questionBankPagination) return;
+
+  if (!totalCount) {
+    elements.questionBankPagination.innerHTML = "";
+    elements.questionBankPagination.hidden = true;
+    return;
   }
 
-  const question = filtered[state.browse.index] || null;
-  const hasQuestion = Boolean(question);
-  elements.browseCard.hidden = !hasQuestion;
-  elements.browseEmpty.hidden = hasQuestion;
-  elements.browsePrevButton.disabled = !hasQuestion || filtered.length <= 1;
-  elements.browseNextButton.disabled = !hasQuestion || filtered.length <= 1;
+  const currentPage = state.questionBank.page;
+  const pageItems = [1, currentPage - 1, currentPage, currentPage + 1, pageCount]
+    .filter((page) => page >= 1 && page <= pageCount)
+    .filter((page, index, pages) => pages.indexOf(page) === index)
+    .sort((a, b) => a - b);
 
-  if (!question) {
+  const pageButtons = [];
+  pageItems.forEach((page, index) => {
+    if (index > 0 && page - pageItems[index - 1] > 1) {
+      pageButtons.push('<span class="bank-page-ellipsis">...</span>');
+    }
+
+    pageButtons.push(`
+      <button class="bank-page-button ${page === currentPage ? "active" : ""}" type="button" data-bank-page="${page}" aria-label="${page}페이지">
+        ${page}
+      </button>
+    `);
+  });
+
+  elements.questionBankPagination.hidden = false;
+  elements.questionBankPagination.innerHTML = `
+    <span class="bank-page-summary">${startIndex + 1}-${endIndex} / ${totalCount}개 표시</span>
+    <div class="bank-page-buttons">
+      <button class="bank-page-button" type="button" data-bank-page="prev" ${currentPage <= 1 ? "disabled" : ""} aria-label="이전 페이지">
+        <i data-lucide="chevron-left"></i>
+      </button>
+      ${pageButtons.join("")}
+      <button class="bank-page-button" type="button" data-bank-page="next" ${currentPage >= pageCount ? "disabled" : ""} aria-label="다음 페이지">
+        <i data-lucide="chevron-right"></i>
+      </button>
+    </div>
+  `;
+};
+
+const renderQuestionBankList = () => {
+  const role = questionBankRole();
+  const filtered = filteredQuestionBankQuestions();
+  const { pageQuestions, pageCount, startIndex, endIndex } = paginatedQuestionBankQuestions(filtered);
+  elements.questionBankCount.textContent = `${filtered.length}개 문제`;
+  elements.questionBankPageSize.value = String(state.questionBank.pageSize);
+  elements.questionBankSortLabel.textContent = role.enabled ? "정렬" : "준비중";
+  elements.questionBankSort.disabled = !role.enabled;
+  elements.questionBankPageSize.disabled = !role.enabled;
+  elements.questionBankEmpty.hidden = filtered.length > 0;
+
+  if (!role.enabled) {
+    elements.questionBankList.innerHTML = `
+      <article class="question-bank-coming-soon">
+        <i data-lucide="construction"></i>
+        <strong>${escapeHtml(role.shortLabel)} 기출 질문은 준비중입니다.</strong>
+        <p>${escapeHtml(role.description)}</p>
+      </article>
+    `;
+    elements.questionBankEmpty.hidden = true;
+    renderQuestionBankPagination({ totalCount: 0, pageCount: 1, startIndex: 0, endIndex: 0 });
     renderIcons();
     return;
   }
 
-  const studyState = getQuestionStudyState(question);
-  const tailQuestions = tailQuestionsFor(question);
-  elements.browseDifficultyChip.textContent = question.difficulty;
-  elements.browseCategoryChip.textContent = question.category;
-  elements.browseCounter.textContent = `${state.browse.index + 1} / ${filtered.length}`;
-  elements.browseQuestionText.textContent = question.text;
-  elements.browseKeywordList.innerHTML = question.keywords?.length
-    ? question.keywords.map((keyword) => `<span>${escapeHtml(keyword)}</span>`).join("")
-    : "<span>키워드 준비중</span>";
-  elements.browseAnswerText.textContent = question.answer || "모범 답안 준비중입니다.";
-  elements.browseTailQuestions.innerHTML = tailQuestions.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
-
-  elements.browseAnswerPanel.classList.toggle("open", state.browse.answerOpen);
-  elements.browseAnswerPanel.setAttribute("aria-hidden", String(!state.browse.answerOpen));
-  elements.browseToggleAnswerButton.classList.toggle("active", state.browse.answerOpen);
-  elements.browseToggleAnswerButton.querySelector("span").textContent = state.browse.answerOpen ? "답안 접기" : "답안 보기";
-
-  elements.browseBookmarkButton.classList.toggle("active", studyState.bookmarked);
-  elements.browseBookmarkButton.setAttribute("aria-pressed", String(studyState.bookmarked));
-  elements.browseConfusedButton.classList.toggle("active", studyState.status === "confused");
-  elements.browseConfusedButton.setAttribute("aria-pressed", String(studyState.status === "confused"));
-  elements.browseKnownButton.classList.toggle("active", studyState.status === "known");
-  elements.browseKnownButton.setAttribute("aria-pressed", String(studyState.status === "known"));
-
+  elements.questionBankList.innerHTML = pageQuestions
+    .map((question) => {
+      const expanded = state.questionBank.expandedId === question.id;
+      const studyState = getQuestionStudyState(question);
+      const keywords = question.keywords?.length
+        ? question.keywords.slice(0, 5).map((keyword) => `<span>${escapeHtml(keyword)}</span>`).join("")
+        : "<span>키워드 준비중</span>";
+      const preview = modelAnswerForQuestion(question) || "모범 답안 준비중입니다.";
+      return `
+        <article class="question-bank-card ${expanded ? "expanded" : ""}" data-bank-card="${question.id}">
+          <div class="question-bank-card-main">
+            <button class="bank-icon-button bank-bookmark-button ${studyState.bookmarked ? "active" : ""}" type="button" data-bank-bookmark="${question.id}" aria-label="${studyState.bookmarked ? "북마크 해제" : "북마크"}" aria-pressed="${studyState.bookmarked}">
+              <i data-lucide="bookmark"></i>
+            </button>
+            <div class="question-bank-card-meta">
+              <span class="bank-difficulty-badge ${questionBankDifficultyClass(question.difficulty)}">${escapeHtml(question.difficulty)}</span>
+              <span>${escapeHtml(question.category)}</span>
+            </div>
+            <h2>${escapeHtml(question.text)}</h2>
+            <p class="question-bank-preview" ${expanded ? "hidden" : ""}>${escapeHtml(preview)}</p>
+            <div class="question-bank-keywords">${keywords}</div>
+            <div class="question-bank-answer" ${expanded ? "" : "hidden"}>
+              <h3>모범 답안</h3>
+              <div class="model-answer-text">${renderModelAnswerBlock(question)}</div>
+            </div>
+          </div>
+          <aside class="question-bank-card-side">
+            <div class="bank-status-actions" aria-label="문제 연습 상태">
+              <button class="bank-status-button known ${studyState.status === "known" ? "active" : ""}" type="button" data-bank-status-id="${question.id}" data-bank-status="known" aria-pressed="${studyState.status === "known"}">
+                <i data-lucide="check-circle-2"></i>
+                <span>대답 가능</span>
+              </button>
+              <button class="bank-status-button practice ${studyState.status === "confused" ? "active" : ""}" type="button" data-bank-status-id="${question.id}" data-bank-status="confused" aria-pressed="${studyState.status === "confused"}">
+                <i data-lucide="alert-circle"></i>
+                <span>연습 필요</span>
+              </button>
+            </div>
+            <button class="small-button bank-practice-button" type="button" data-bank-practice="${question.originalIndex}">
+              <span>연습하기</span>
+              <i data-lucide="arrow-right"></i>
+            </button>
+          </aside>
+        </article>
+      `;
+    })
+    .join("");
+  renderQuestionBankPagination({ totalCount: filtered.length, pageCount, startIndex, endIndex });
   renderIcons();
 };
 
-const renderBrowseView = () => {
-  if (!elements.browseView) return;
-  renderBrowseDashboard();
-  renderBrowseCard();
+const renderQuestionBank = () => {
+  const role = questionBankRole();
+  elements.questionBankRole.value = state.questionBank.role;
+  elements.questionBankSort.value = state.questionBank.sort;
+  elements.questionBankRoleName.textContent = role.shortLabel;
+  elements.questionBankTitle.textContent = `${role.shortLabel} 면접 문제`;
+  elements.questionBankDescription.textContent = "실제 면접에서 나온 문제와 모범 답변 예시를 함께 확인해보세요.";
+  renderQuestionBankStudySummary();
+  renderQuestionBankDifficultyList();
+  renderQuestionBankCategoryList();
+  renderQuestionBankList();
 };
 
-const moveBrowseQuestion = (direction) => {
-  const filtered = filteredBrowseQuestions();
-  if (filtered.length <= 1) return;
-
-  state.browse.index = (state.browse.index + direction + filtered.length) % filtered.length;
-  state.browse.answerOpen = false;
-  renderBrowseView();
+const setQuestionBankRole = (roleId) => {
+  state.questionBank.role = roleId;
+  state.questionBank.categories = [];
+  state.questionBank.difficulties = [];
+  state.questionBank.sort = "default";
+  state.questionBank.search = "";
+  state.questionBank.expandedId = null;
+  state.questionBank.page = 1;
+  elements.questionBankSearch.value = "";
+  renderQuestionBank();
 };
 
-const toggleBrowseAnswer = () => {
-  state.browse.answerOpen = !state.browse.answerOpen;
-  renderBrowseCard();
+const toggleQuestionBankFilter = (filterName, value) => {
+  if (value === "all") {
+    state.questionBank[filterName] = [];
+  } else {
+    const currentValues = state.questionBank[filterName];
+    state.questionBank[filterName] = currentValues.includes(value)
+      ? currentValues.filter((item) => item !== value)
+      : [...currentValues, value];
+  }
+  state.questionBank.page = 1;
+  state.questionBank.expandedId = null;
+  renderQuestionBank();
 };
 
-const toggleBrowseBookmark = () => {
-  const question = currentBrowseQuestion();
+const toggleQuestionBankBookmark = (questionId) => {
+  const question = questionBankQuestionById(questionId);
   if (!question) return;
   const studyState = getQuestionStudyState(question);
   setQuestionStudyState(question, { bookmarked: !studyState.bookmarked });
-  renderBrowseView();
+  renderQuestionBankList();
 };
 
-const setBrowseStatus = (status) => {
-  const question = currentBrowseQuestion();
+const toggleQuestionBankStatus = (questionId, status) => {
+  const question = questionBankQuestionById(questionId);
   if (!question) return;
   const studyState = getQuestionStudyState(question);
   setQuestionStudyState(question, { status: studyState.status === status ? null : status });
-
-  const filtered = filteredBrowseQuestions();
-  if (!filtered.includes(question)) {
-    state.browse.index = Math.min(state.browse.index, Math.max(0, filtered.length - 1));
-  }
-
-  renderBrowseView();
-};
-
-const startBrowsePractice = () => {
-  const question = currentBrowseQuestion();
-  if (!question) return;
-  showStartEnvironmentModal({ practiceIndex: question.originalIndex });
+  renderQuestionBankStudySummary();
+  renderQuestionBankList();
 };
 
 const renderKeywordBlock = (keywords = []) => {
@@ -1838,7 +2042,7 @@ const startAiEvaluations = async () => {
     let analysisTimer = window.setTimeout(() => {
       setAiEvaluationState(question.originalIndex, {
         status: "analyzing",
-        message: "전사문과 모범 답안을 비교 분석하는 중입니다.",
+        message: "전사문과 답변 예시를 비교 분석하는 중입니다.",
       });
     }, 1200);
 
@@ -2005,9 +2209,9 @@ const renderResultPage = () => {
               ${reviewMedia}
             </section>
             <section>
-              <h3>AI 모범 답안</h3>
+              <h3>모범 답안</h3>
               ${keywordBlock}
-              <p>${question.answer}</p>
+              <div class="model-answer-text">${renderModelAnswerBlock(question)}</div>
             </section>
             ${aiEvaluationBlock}
           </div>
@@ -2019,69 +2223,120 @@ const renderResultPage = () => {
   renderIcons();
 };
 
-const handleBrowseFilterChange = () => {
-  syncBrowseFiltersFromInputs();
-  state.browse.index = 0;
-  state.browse.answerOpen = false;
-  renderBrowseView();
+const renderActiveAnswerScriptView = () => {
+  if (elements.questionBankView.classList.contains("active")) {
+    renderQuestionBankList();
+  }
+  if (elements.resultView.classList.contains("active")) {
+    renderResultPage();
+  }
 };
 
-const bindBrowseControls = () => {
-  elements.browseDifficultyFilter.addEventListener("change", handleBrowseFilterChange);
-  elements.browseCategoryFilter.addEventListener("change", handleBrowseFilterChange);
-  elements.browseStatusFilter.addEventListener("change", handleBrowseFilterChange);
-  elements.browsePrevButton.addEventListener("click", () => moveBrowseQuestion(-1));
-  elements.browseNextButton.addEventListener("click", () => moveBrowseQuestion(1));
-  elements.browseToggleAnswerButton.addEventListener("click", toggleBrowseAnswer);
-  elements.browseBookmarkButton.addEventListener("click", toggleBrowseBookmark);
-  elements.browseConfusedButton.addEventListener("click", () => setBrowseStatus("confused"));
-  elements.browseKnownButton.addEventListener("click", () => setBrowseStatus("known"));
-  elements.browsePracticeButton.addEventListener("click", startBrowsePractice);
+const bindAnswerScriptControls = () => {
+  document.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-answer-script-mode]");
+    if (!button) return;
+    state.answerScriptMode = button.dataset.answerScriptMode === "full" ? "full" : "short";
+    renderActiveAnswerScriptView();
+  });
+};
 
-  elements.browseShorts.addEventListener(
-    "wheel",
-    (event) => {
-      if (!elements.browseView.classList.contains("active") || Math.abs(event.deltaY) < 24) return;
-      event.preventDefault();
-      if (state.browse.wheelLocked) return;
-      state.browse.wheelLocked = true;
-      moveBrowseQuestion(event.deltaY > 0 ? 1 : -1);
-      window.setTimeout(() => {
-        state.browse.wheelLocked = false;
-      }, 420);
-    },
-    { passive: false },
-  );
+const bindQuestionBankControls = () => {
+  elements.questionBankSidebar.addEventListener("click", (event) => {
+    const toggle = event.target.closest("[data-filter-toggle]");
+    if (!toggle) return;
 
-  elements.browseShorts.addEventListener("touchstart", (event) => {
-    state.browse.touchStartY = event.touches[0]?.clientY ?? null;
+    const block = toggle.closest(".bank-filter-collapsible");
+    const isCollapsed = block.classList.toggle("collapsed");
+    toggle.setAttribute("aria-expanded", String(!isCollapsed));
   });
 
-  elements.browseShorts.addEventListener("touchend", (event) => {
-    if (state.browse.touchStartY === null) return;
-    const endY = event.changedTouches[0]?.clientY ?? state.browse.touchStartY;
-    const distance = state.browse.touchStartY - endY;
-    state.browse.touchStartY = null;
-    if (Math.abs(distance) < 44) return;
-    moveBrowseQuestion(distance > 0 ? 1 : -1);
+  elements.questionBankRole.addEventListener("change", () => {
+    setQuestionBankRole(elements.questionBankRole.value);
   });
 
-  window.addEventListener("keydown", (event) => {
-    if (!elements.browseView.classList.contains("active")) return;
-    if (["INPUT", "SELECT", "TEXTAREA"].includes(document.activeElement?.tagName)) return;
+  elements.questionBankSearch.addEventListener("input", () => {
+    state.questionBank.search = elements.questionBankSearch.value;
+    state.questionBank.page = 1;
+    state.questionBank.expandedId = null;
+    renderQuestionBank();
+  });
 
-    if (event.key === "ArrowDown" || event.key === "PageDown") {
-      event.preventDefault();
-      moveBrowseQuestion(1);
+  elements.questionBankSort.addEventListener("change", () => {
+    state.questionBank.sort = elements.questionBankSort.value;
+    state.questionBank.page = 1;
+    state.questionBank.expandedId = null;
+    renderQuestionBankList();
+  });
+
+  elements.questionBankPageSize.addEventListener("change", () => {
+    const value = elements.questionBankPageSize.value;
+    state.questionBank.pageSize = value === "all" ? "all" : Number(value) || 10;
+    state.questionBank.page = 1;
+    state.questionBank.expandedId = null;
+    renderQuestionBankList();
+  });
+
+  elements.questionBankDifficultyList.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-bank-difficulty]");
+    if (!button) return;
+    toggleQuestionBankFilter("difficulties", button.dataset.bankDifficulty || "all");
+  });
+
+  elements.questionBankCategoryList.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-bank-category]");
+    if (!button) return;
+    toggleQuestionBankFilter("categories", button.dataset.bankCategory || "all");
+  });
+
+  elements.questionBankList.addEventListener("click", (event) => {
+    if (event.target.closest("[data-answer-script-mode]")) {
+      return;
     }
-    if (event.key === "ArrowUp" || event.key === "PageUp") {
-      event.preventDefault();
-      moveBrowseQuestion(-1);
+
+    const practiceButton = event.target.closest("[data-bank-practice]");
+    if (practiceButton) {
+      startSingleQuestionPractice(Number(practiceButton.dataset.bankPractice));
+      return;
     }
-    if (event.key === "Enter") {
-      event.preventDefault();
-      toggleBrowseAnswer();
+
+    const bookmarkButton = event.target.closest("[data-bank-bookmark]");
+    if (bookmarkButton) {
+      toggleQuestionBankBookmark(bookmarkButton.dataset.bankBookmark);
+      return;
     }
+
+    const statusButton = event.target.closest("[data-bank-status]");
+    if (statusButton) {
+      toggleQuestionBankStatus(statusButton.dataset.bankStatusId, statusButton.dataset.bankStatus);
+      return;
+    }
+
+    const card = event.target.closest("[data-bank-card]");
+    if (card) {
+      const questionId = Number(card.dataset.bankCard);
+      state.questionBank.expandedId = state.questionBank.expandedId === questionId ? null : questionId;
+      renderQuestionBankList();
+    }
+  });
+
+  elements.questionBankPagination.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-bank-page]");
+    if (!button || button.disabled) return;
+
+    const targetPage = button.dataset.bankPage;
+    const pageCount = questionBankPageCount(filteredQuestionBankQuestions().length);
+
+    if (targetPage === "prev") {
+      state.questionBank.page = Math.max(1, state.questionBank.page - 1);
+    } else if (targetPage === "next") {
+      state.questionBank.page = Math.min(pageCount, state.questionBank.page + 1);
+    } else {
+      state.questionBank.page = Math.min(pageCount, Math.max(1, Number(targetPage) || 1));
+    }
+
+    state.questionBank.expandedId = null;
+    renderQuestionBankList();
   });
 };
 
@@ -2255,9 +2510,11 @@ window.addEventListener("load", () => {
     writeAiAdminKey(hiddenSttKey);
   }
   state.studyProgress = readStudyProgress();
-  renderBrowseCategoryOptions();
+
   renderIcons();
-  bindBrowseControls();
+  bindAnswerScriptControls();
+
+  bindQuestionBankControls();
   bindSetupControls();
   bindInterviewControls();
   bindResultControls();

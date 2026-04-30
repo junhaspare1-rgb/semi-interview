@@ -9,68 +9,88 @@ MAIN_CATEGORIES = {"포토(Lithography)", "식각(Etch)", "증착(Deposition)"}
 DIFFICULTY_ALIASES = {
     "실무": "실전",
 }
+REQUIRED_HEADERS = {
+    "No.": "id",
+    "카테고리": "category",
+    "면접 질문": "question",
+    "모범 답안 Script": "answer",
+    "40초 Script": "shortAnswer",
+    "핵심 키워드": "keywords",
+    "난이도": "difficulty",
+    "예상 답변 시간(분)": "estimatedAnswerMinutes",
+}
+
+
+def normalize_text(value):
+    return " ".join(str(value or "").split())
 
 
 def normalize_difficulty(value):
-    text = str(value or "").strip()
-    return DIFFICULTY_ALIASES.get(text, text)
+    text = normalize_text(value)
+    return DIFFICULTY_ALIASES.get(text, text or "입문")
 
 
 def split_keywords(value):
-    return [part.strip() for part in str(value or "").split(",") if part.strip()]
+    text = str(value or "")
+    chunks = []
+    for line in text.splitlines():
+        chunks.extend(line.split(","))
+    return [chunk.strip() for chunk in chunks if chunk.strip()]
 
 
-def split_tail_questions(value):
-    text = str(value or "").strip()
-    if not text:
-        return []
-    normalized = text.replace("；", ";")
-    parts = []
-    for chunk in normalized.split("\n"):
-        parts.extend(chunk.split(";"))
-    return [part.strip() for part in parts if part.strip()]
+def positive_number_or_none(value):
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+    return int(number) if number.is_integer() else number
+
+
+def header_map(sheet):
+    headers = [normalize_text(sheet.cell(1, col).value) for col in range(1, sheet.max_column + 1)]
+    missing = [header for header in REQUIRED_HEADERS if header not in headers]
+    if missing:
+        raise ValueError(f"Missing required headers: {', '.join(missing)}")
+    return {header: headers.index(header) + 1 for header in REQUIRED_HEADERS}
 
 
 def build_records(source):
     workbook = load_workbook(source, read_only=True, data_only=True)
     sheet = workbook.worksheets[0]
-    headers = [sheet.cell(1, col).value for col in range(1, sheet.max_column + 1)]
-
-    def column(name):
-        return headers.index(name) + 1
-
-    no_col = column("No.")
-    category_col = column("카테고리")
-    question_col = column("면접 질문")
-    answer_col = column("모범 답안 Script")
-    keywords_col = column("핵심 키워드")
-    difficulty_col = column("난이도")
-    tail_questions_col = headers.index("꼬리질문") + 1 if "꼬리질문" in headers else None
+    columns = header_map(sheet)
 
     records = []
     for row in range(2, sheet.max_row + 1):
-        question = sheet.cell(row, question_col).value
+        question = normalize_text(sheet.cell(row, columns["면접 질문"]).value)
         if not question:
             continue
 
-        category = str(sheet.cell(row, category_col).value or "").strip()
-        difficulty = normalize_difficulty(sheet.cell(row, difficulty_col).value)
+        id_value = sheet.cell(row, columns["No."]).value
+        category = normalize_text(sheet.cell(row, columns["카테고리"]).value)
+        difficulty = normalize_difficulty(sheet.cell(row, columns["난이도"]).value)
+
         records.append(
             {
-                "id": int(sheet.cell(row, no_col).value),
+                "id": int(id_value),
                 "jobRole": "공정기술",
                 "category": category,
                 "group": "main" if category in MAIN_CATEGORIES else "other",
                 "difficulty": difficulty,
-                "question": str(question).strip(),
-                "answer": str(sheet.cell(row, answer_col).value or "").strip(),
-                "keywords": split_keywords(sheet.cell(row, keywords_col).value),
-                "tailQuestions": split_tail_questions(sheet.cell(row, tail_questions_col).value)
-                if tail_questions_col
-                else [],
-                "active": difficulty != "지엽",
+                "question": question,
+                "answer": normalize_text(sheet.cell(row, columns["모범 답안 Script"]).value),
+                "keywords": split_keywords(sheet.cell(row, columns["핵심 키워드"]).value),
+                "active": True,
+                "estimatedAnswerMinutes": positive_number_or_none(
+                    sheet.cell(row, columns["예상 답변 시간(분)"]).value
+                ),
+                "shortAnswer": normalize_text(sheet.cell(row, columns["40초 Script"]).value),
             }
         )
+
+    records.sort(key=lambda record: record["id"])
+    ids = [record["id"] for record in records]
+    if len(ids) != len(set(ids)):
+        raise ValueError("Duplicate question No. values found.")
 
     return records
 
@@ -96,13 +116,14 @@ def main():
         encoding="utf-8",
     )
 
-    counts = {}
+    difficulty_counts = {}
     for record in records:
-        if record["active"]:
-            counts[record["difficulty"]] = counts.get(record["difficulty"], 0) + 1
+        difficulty_counts[record["difficulty"]] = difficulty_counts.get(record["difficulty"], 0) + 1
 
+    active_count = sum(1 for record in records if record["difficulty"] != "지엽")
     print(f"Wrote {len(records)} records to {json_path} and {js_path}")
-    print(counts)
+    print(f"Active question count excluding 지엽: {active_count}")
+    print(difficulty_counts)
 
 
 if __name__ == "__main__":
