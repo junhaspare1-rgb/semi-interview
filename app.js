@@ -90,6 +90,34 @@ const state = {
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => document.querySelectorAll(selector);
 const elements = {};
+
+const cleanAnalyticsParams = (params = {}) =>
+  Object.fromEntries(
+    Object.entries(params).filter(([, value]) => value !== undefined && value !== null && value !== ""),
+  );
+
+const trackEvent = (eventName, params = {}) => {
+  if (typeof window.gtag !== "function") return;
+
+  try {
+    window.gtag("event", eventName, {
+      page_path: window.location.pathname,
+      ...cleanAnalyticsParams(params),
+    });
+  } catch (error) {
+    // Analytics failures should never interrupt interview practice.
+  }
+};
+
+const analyticsQuestionPayload = (question, extra = {}) =>
+  cleanAnalyticsParams({
+    question_id: question?.id,
+    original_index: question?.originalIndex,
+    category: question?.category,
+    difficulty: question?.difficulty,
+    ...extra,
+  });
+
 const HELP_DISMISS_KEY = "banmyeonppu_help_hidden_until";
 const FEEDBACK_QUEUE_KEY = "banmyeonppu_feedback_queue";
 const REPORT_QUEUE_KEY = "banmyeonppu_report_queue";
@@ -624,6 +652,14 @@ const startInterview = () => {
     return;
   }
   setRecordingMode(state.interviewMode === "ai" ? true : state.recordingEnabled);
+  trackEvent("mock_interview_start", {
+    interview_mode: state.interviewMode,
+    question_count: state.config.questionCount,
+    difficulty: state.config.rigor,
+    prep_seconds: state.config.prepSeconds,
+    answer_seconds: state.config.answerSeconds,
+    recording_enabled: state.interviewMode === "ai" || state.recordingEnabled ? 1 : 0,
+  });
   resetForInterview(buildQuestionSet(state.config.questionCount));
   setView("check");
 };
@@ -672,7 +708,7 @@ const confirmStartEnvironment = () => {
   hideStartEnvironmentModal(false);
   state.pendingPracticeIndex = null;
   if (Number.isInteger(practiceIndex)) {
-    startSingleQuestionPractice(practiceIndex);
+    startSingleQuestionPractice(practiceIndex, "environment_confirm");
     return;
   }
   startInterview();
@@ -688,9 +724,10 @@ const enterInterview = () => {
   beginPrep();
 };
 
-const startSingleQuestionPractice = (originalIndex) => {
+const startSingleQuestionPractice = (originalIndex, source = "unknown") => {
   const question = questions[originalIndex];
   if (!question) return;
+  trackEvent("practice_click", analyticsQuestionPayload(question, { source }));
   openQuickPractice(question);
 };
 
@@ -1531,6 +1568,18 @@ const renderAnswerScriptToggle = () => `
 const renderModelAnswerBlock = (question) =>
   `${renderAnswerScriptToggle()}${renderModelAnswerHtml(modelAnswerForQuestion(question))}`;
 
+const activeAnswerQuestionForAnalytics = () => {
+  if (elements.quickPracticeView?.classList.contains("active")) {
+    return { question: quickPracticeQuestion(), source: "quick_practice" };
+  }
+
+  if (elements.questionBankView?.classList.contains("active") && state.questionBank.expandedId) {
+    return { question: questionBankQuestionById(state.questionBank.expandedId), source: "question_bank" };
+  }
+
+  return { question: null, source: "unknown" };
+};
+
 const readStudyProgress = () => {
   try {
     const saved = JSON.parse(localStorage.getItem(STUDY_PROGRESS_KEY) || "{}");
@@ -1966,7 +2015,16 @@ const toggleQuestionBankBookmark = (questionId) => {
   const question = questionBankQuestionById(questionId);
   if (!question) return;
   const studyState = getQuestionStudyState(question);
-  setQuestionStudyState(question, { bookmarked: !studyState.bookmarked });
+  const nextBookmarked = !studyState.bookmarked;
+  setQuestionStudyState(question, { bookmarked: nextBookmarked });
+  trackEvent(
+    "bookmark_click",
+    analyticsQuestionPayload(question, {
+      source: "question_bank",
+      bookmarked: nextBookmarked ? 1 : 0,
+      action: nextBookmarked ? "add" : "remove",
+    }),
+  );
   renderQuestionBankList();
 };
 
@@ -2290,7 +2348,16 @@ const toggleQuickPracticeBookmark = () => {
   const question = quickPracticeQuestion();
   if (!question) return;
   const studyState = getQuestionStudyState(question);
-  setQuestionStudyState(question, { bookmarked: !studyState.bookmarked });
+  const nextBookmarked = !studyState.bookmarked;
+  setQuestionStudyState(question, { bookmarked: nextBookmarked });
+  trackEvent(
+    "bookmark_click",
+    analyticsQuestionPayload(question, {
+      source: "quick_practice",
+      bookmarked: nextBookmarked ? 1 : 0,
+      action: nextBookmarked ? "add" : "remove",
+    }),
+  );
   renderQuickPractice();
 };
 
@@ -2585,7 +2652,13 @@ const bindAnswerScriptControls = () => {
   document.addEventListener("click", (event) => {
     const button = event.target.closest("[data-answer-script-mode]");
     if (!button) return;
-    state.answerScriptMode = button.dataset.answerScriptMode === "full" ? "full" : "short";
+    const scriptMode = button.dataset.answerScriptMode === "full" ? "full" : "short";
+    const { question, source } = activeAnswerQuestionForAnalytics();
+    trackEvent(
+      scriptMode === "full" ? "script_2min_click" : "script_40_click",
+      analyticsQuestionPayload(question, { source, script_mode: scriptMode }),
+    );
+    state.answerScriptMode = scriptMode;
     renderActiveAnswerScriptView();
   });
 };
@@ -2645,7 +2718,7 @@ const bindQuestionBankControls = () => {
 
     const practiceButton = event.target.closest("[data-bank-practice]");
     if (practiceButton) {
-      startSingleQuestionPractice(Number(practiceButton.dataset.bankPractice));
+      startSingleQuestionPractice(Number(practiceButton.dataset.bankPractice), "question_bank");
       return;
     }
 
@@ -2664,7 +2737,12 @@ const bindQuestionBankControls = () => {
     const card = event.target.closest("[data-bank-card]");
     if (card) {
       const questionId = Number(card.dataset.bankCard);
-      state.questionBank.expandedId = state.questionBank.expandedId === questionId ? null : questionId;
+      const isOpening = state.questionBank.expandedId !== questionId;
+      state.questionBank.expandedId = isOpening ? questionId : null;
+      if (isOpening) {
+        const question = questionBankQuestionById(questionId);
+        trackEvent("answer_open", analyticsQuestionPayload(question, { source: "question_bank" }));
+      }
       renderQuestionBankList();
     }
   });
@@ -2693,6 +2771,9 @@ const bindQuickPracticeControls = () => {
   elements.quickPracticeBackButton.addEventListener("click", () => setView("question-bank"));
   elements.quickPracticeBookmarkButton.addEventListener("click", toggleQuickPracticeBookmark);
   elements.quickPracticeAnswerButton.addEventListener("click", () => {
+    if (state.quickPractice.tab !== "answer") {
+      trackEvent("answer_open", analyticsQuestionPayload(quickPracticeQuestion(), { source: "quick_practice" }));
+    }
     state.quickPractice.tab = "answer";
     renderQuickPractice();
   });
@@ -2700,7 +2781,11 @@ const bindQuickPracticeControls = () => {
 
   $$(".quick-practice-tabs [data-quick-tab]").forEach((button) => {
     button.addEventListener("click", () => {
-      state.quickPractice.tab = button.dataset.quickTab || "practice";
+      const nextTab = button.dataset.quickTab || "practice";
+      if (nextTab === "answer" && state.quickPractice.tab !== "answer") {
+        trackEvent("answer_open", analyticsQuestionPayload(quickPracticeQuestion(), { source: "quick_practice" }));
+      }
+      state.quickPractice.tab = nextTab;
       renderQuickPractice();
     });
   });
@@ -2874,7 +2959,7 @@ const bindResultControls = () => {
   elements.resultList.addEventListener("click", (event) => {
     const button = event.target.closest(".retry-question");
     if (!button) return;
-    startSingleQuestionPractice(Number(button.dataset.questionIndex));
+    startSingleQuestionPractice(Number(button.dataset.questionIndex), "result");
   });
 };
 
