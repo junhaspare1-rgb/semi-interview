@@ -1,10 +1,15 @@
 const MAX_AUDIO_BYTES = 25 * 1024 * 1024;
 const MAX_TEXT_LENGTH = 6000;
+const SECURITY_HEADERS = {
+  "X-Content-Type-Options": "nosniff",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+};
 
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), {
     status,
     headers: {
+      ...SECURITY_HEADERS,
       "Content-Type": "application/json; charset=UTF-8",
       "Cache-Control": "no-store",
     },
@@ -282,7 +287,11 @@ export const onRequestPost = async ({ request, env }) => {
     return json({ ok: false, message: "multipart/form-data 요청만 지원합니다." }, 400);
   }
 
-  const expectedAdminKey = String(env.AI_ADMIN_KEY || "0811").trim();
+  const expectedAdminKey = String(env.AI_ADMIN_KEY || "").trim();
+  if (!expectedAdminKey) {
+    return json({ ok: false, message: "AI_ADMIN_KEY 설정이 필요합니다." }, 503);
+  }
+
   const adminKey = cleanText(formData.get("adminKey"), 80);
   if (!adminKey || adminKey !== expectedAdminKey) {
     return json({ ok: false, message: "AI 모의면접 관리자 인증이 필요합니다." }, 403);
