@@ -58,6 +58,7 @@ button {
   font-size: 23px;
   font-weight: 900;
   letter-spacing: 0;
+  text-decoration: none;
   white-space: nowrap;
 }
 
@@ -71,7 +72,8 @@ button {
   gap: 34px;
 }
 
-.main-nav button {
+.main-nav button,
+.main-nav a {
   position: relative;
   border: 0;
   padding: 0;
@@ -80,14 +82,17 @@ button {
   font-size: 17px;
   font-weight: 700;
   letter-spacing: 0;
+  text-decoration: none;
   white-space: nowrap;
 }
 
-.main-nav button.active {
+.main-nav button.active,
+.main-nav a.active {
   color: var(--ink);
 }
 
-.main-nav button.active::after {
+.main-nav button.active::after,
+.main-nav a.active::after {
   content: "";
   position: absolute;
   left: 0;
@@ -160,7 +165,8 @@ button {
   gap: 14px;
 }
 
-.site-footer button {
+.site-footer button,
+.site-footer a {
   border: 0;
   padding: 0;
   background: transparent;
@@ -170,7 +176,8 @@ button {
   text-underline-offset: 3px;
 }
 
-.site-footer button:hover {
+.site-footer button:hover,
+.site-footer a:hover {
   color: var(--blue);
 }
 
@@ -3256,6 +3263,122 @@ input[type="number"] {
   margin: 0 0 14px;
 }
 
+.legal-page-body {
+  padding-bottom: 0;
+  background: #f8fafc;
+}
+
+.legal-page {
+  min-height: calc(100vh - 76px);
+  padding: 64px 20px 96px;
+}
+
+.legal-page-shell {
+  width: min(920px, 100%);
+  margin: 0 auto;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: clamp(28px, 5vw, 54px);
+  background: #ffffff;
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.08);
+}
+
+.legal-page-eyebrow {
+  margin: 0 0 12px;
+  color: var(--blue);
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.legal-page-shell h1 {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(32px, 5vw, 46px);
+  line-height: 1.18;
+  font-weight: 900;
+  letter-spacing: 0;
+  word-break: keep-all;
+}
+
+.legal-page-updated {
+  margin: 14px 0 34px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.legal-page-content {
+  display: grid;
+  gap: 28px;
+}
+
+.legal-page-content section {
+  display: grid;
+  gap: 10px;
+}
+
+.legal-page-content h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 22px;
+  line-height: 1.35;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.legal-page-content p,
+.legal-page-content li {
+  margin: 0;
+  color: #334155;
+  font-size: 16px;
+  line-height: 1.78;
+  word-break: keep-all;
+}
+
+.legal-page-content ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.legal-page-content a {
+  color: var(--blue);
+  font-weight: 900;
+}
+
+.legal-page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 38px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+
+.legal-page-actions a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0 16px;
+  background: #ffffff;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.legal-page-actions a.primary {
+  border-color: #111827;
+  background: #111827;
+  color: #ffffff;
+}
+
 .help-actions {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -3398,7 +3521,8 @@ input[type="number"] {
     overflow-x: auto;
   }
 
-  .main-nav button {
+  .main-nav button,
+  .main-nav a {
     font-size: 16px;
   }
 
