@@ -74,6 +74,17 @@ const state = {
     pageSize: 10,
     page: 1,
   },
+  quickPractice: {
+    questionId: null,
+    tab: "practice",
+    recorder: null,
+    stream: null,
+    chunks: [],
+    audioUrl: "",
+    elapsed: 0,
+    timerId: null,
+    status: "idle",
+  },
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -136,6 +147,7 @@ const QUESTION_BANK_ROLES = [
 const cacheElements = () => {
   [
     "questionBankView",
+    "quickPracticeView",
     "homeView",
     "aboutView",
     "sttTestView",
@@ -191,6 +203,18 @@ const cacheElements = () => {
     "questionBankList",
     "questionBankPagination",
     "questionBankEmpty",
+    "quickPracticeBackButton",
+    "quickPracticeCounter",
+    "quickPracticeBookmarkButton",
+    "quickPracticeDifficulty",
+    "quickPracticeCategory",
+    "quickPracticeStatusChip",
+    "quickPracticeTitle",
+    "quickPracticeTopKeywords",
+    "quickPracticeAudioDock",
+    "quickPracticePanel",
+    "quickPracticeAnswerButton",
+    "quickPracticeNextButton",
     "questionCount",
     "targetRole",
     "prepTime",
@@ -388,19 +412,31 @@ const currentQuestion = () => activeQuestions()[state.currentIndex] || activeQue
 
 const setView = (view) => {
   const nextView = view;
+  if (nextView !== "quick-practice") {
+    cleanupQuickPracticeRecording();
+  }
   elements.questionBankView.classList.toggle("active", nextView === "question-bank");
+  elements.quickPracticeView.classList.toggle("active", nextView === "quick-practice");
   elements.homeView.classList.toggle("active", nextView === "home");
   elements.aboutView.classList.toggle("active", nextView === "about");
   elements.sttTestView.classList.toggle("active", nextView === "stt-test");
   elements.checkView.classList.toggle("active", nextView === "check");
   elements.interviewView.classList.toggle("active", nextView === "interview");
   elements.resultView.classList.toggle("active", nextView === "result");
-  const activeNavView = ["about", "question-bank", "home"].includes(nextView) ? nextView : "home";
+  document.body.classList.toggle("quick-practice-active", nextView === "quick-practice");
+  const activeNavView = ["about", "question-bank", "quick-practice", "home"].includes(nextView)
+    ? nextView === "quick-practice"
+      ? "question-bank"
+      : nextView
+    : "home";
   $$(".main-nav [data-view]").forEach((button) => {
     button.classList.toggle("active", button.dataset.view === activeNavView);
   });
   if (nextView === "question-bank") {
     renderQuestionBank();
+  }
+  if (nextView === "quick-practice") {
+    renderQuickPractice();
   }
   window.scrollTo(0, 0);
 };
@@ -655,12 +691,7 @@ const enterInterview = () => {
 const startSingleQuestionPractice = (originalIndex) => {
   const question = questions[originalIndex];
   if (!question) return;
-  state.interviewMode = "standard";
-  state.aiEvaluationConsent = false;
-  resetForInterview([{ ...question, originalIndex }]);
-  state.config.questionCount = 1;
-  state.config.rigor = question.difficulty;
-  setView("check");
+  openQuickPractice(question);
 };
 
 const nextQuestion = async () => {
@@ -1948,6 +1979,321 @@ const toggleQuestionBankStatus = (questionId, status) => {
   renderQuestionBankList();
 };
 
+const quickPracticeQuestion = () => questionBankQuestionById(state.quickPractice.questionId);
+
+const quickPracticeSequence = () => {
+  const filtered = filteredQuestionBankQuestions();
+  if (filtered.some((question) => String(question.id) === String(state.quickPractice.questionId))) {
+    return filtered;
+  }
+  return questionBankQuestionsForRole();
+};
+
+const quickPracticeQuestionPosition = (question) => {
+  const sequence = quickPracticeSequence();
+  const index = sequence.findIndex((item) => String(item.id) === String(question.id));
+  return {
+    current: index >= 0 ? index + 1 : 1,
+    total: sequence.length || 1,
+  };
+};
+
+const quickPracticeEstimate = (question) => {
+  const minutes = Number(question.estimatedAnswerMinutes);
+  if (!minutes) return "1-2분";
+  if (minutes <= 1) return "1분 내외";
+  return `${minutes}분 내외`;
+};
+
+const quickPracticeGuide = (question) => {
+  const keywords = (question.keywords || []).slice(0, 4);
+  if (keywords.length >= 3) {
+    return `${keywords.join(" → ")} 순서로 답변해보세요.`;
+  }
+  if (keywords.length) {
+    return `${keywords.join(", ")}를 먼저 짚고 공정상 의미를 연결해보세요.`;
+  }
+  return "핵심 개념을 먼저 정의하고, 원리와 공정상 의미를 차례로 답변해보세요.";
+};
+
+const quickPracticeRelatedQuestions = (question) =>
+  questionBankQuestionsForRole()
+    .filter((item) => item.id !== question.id && item.category === question.category)
+    .slice(0, 4);
+
+const quickPracticeKeywordHtml = (question) =>
+  (question.keywords || []).slice(0, 5).map((keyword) => `<span>${escapeHtml(keyword)}</span>`).join("");
+
+const setQuickPracticeStatus = (status) => {
+  state.quickPractice.status = status;
+  if (!elements.quickPracticeStatusChip) return;
+  elements.quickPracticeStatusChip.className = `quick-practice-status ${status}`;
+  elements.quickPracticeStatusChip.textContent =
+    {
+      idle: "연습 전",
+      recording: "녹음 중",
+      done: "녹음 완료",
+      error: "확인 필요",
+    }[status] || "연습 전";
+};
+
+const stopQuickPracticeTimer = () => {
+  if (state.quickPractice.timerId) {
+    clearInterval(state.quickPractice.timerId);
+    state.quickPractice.timerId = null;
+  }
+};
+
+const stopQuickPracticeStream = () => {
+  state.quickPractice.stream?.getTracks().forEach((track) => track.stop());
+  state.quickPractice.stream = null;
+};
+
+const cleanupQuickPracticeRecording = () => {
+  stopQuickPracticeTimer();
+  if (state.quickPractice.recorder?.state === "recording") {
+    state.quickPractice.recorder.stop();
+  }
+  stopQuickPracticeStream();
+  state.quickPractice.recorder = null;
+  state.quickPractice.chunks = [];
+};
+
+const updateQuickPracticeRecorderUi = () => {
+  const timeElement = $("#quickPracticeRecordTime");
+  const button = $("#quickPracticeRecordButton");
+  const prompt = $("#quickPracticeRecordPrompt");
+  const recording = state.quickPractice.status === "recording";
+  if (prompt) {
+    prompt.textContent = recording ? "답변을 녹음하고 있습니다" : "녹음 버튼을 눌러 답변 연습";
+  }
+  if (timeElement) {
+    timeElement.textContent = formatTime(state.quickPractice.elapsed);
+  }
+  if (button) {
+    button.classList.toggle("recording", recording);
+    button.setAttribute("aria-pressed", String(recording));
+    button.setAttribute("aria-label", recording ? "녹음 중지" : "녹음 시작");
+    button.innerHTML = recording ? '<i data-lucide="square"></i>' : '<i data-lucide="mic"></i>';
+    renderIcons();
+  }
+};
+
+const startQuickPracticeRecording = async () => {
+  const question = quickPracticeQuestion();
+  if (!question) return;
+  cleanupQuickPracticeRecording();
+  if (state.quickPractice.audioUrl) {
+    URL.revokeObjectURL(state.quickPractice.audioUrl);
+  }
+  state.quickPractice.audioUrl = "";
+  state.quickPractice.elapsed = 0;
+  state.quickPractice.chunks = [];
+  renderQuickPracticeAudioDock();
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    state.quickPractice.stream = stream;
+    const recorder = createMediaRecorder(stream, ["audio/webm;codecs=opus", "audio/webm"]);
+    state.quickPractice.recorder = recorder;
+    recorder.addEventListener("dataavailable", (event) => {
+      if (event.data.size > 0) {
+        state.quickPractice.chunks.push(event.data);
+      }
+    });
+    recorder.addEventListener("stop", () => {
+      stopQuickPracticeTimer();
+      stopQuickPracticeStream();
+      if (state.quickPractice.audioUrl) {
+        URL.revokeObjectURL(state.quickPractice.audioUrl);
+      }
+      const blob = new Blob(state.quickPractice.chunks, { type: state.quickPractice.chunks[0]?.type || "audio/webm" });
+      state.quickPractice.audioUrl = URL.createObjectURL(blob);
+      state.quickPractice.recorder = null;
+      state.quickPractice.chunks = [];
+      setQuickPracticeStatus("done");
+      renderQuickPracticeAudioDock();
+      renderQuickPracticePanel();
+    });
+    recorder.start();
+    setQuickPracticeStatus("recording");
+    updateQuickPracticeRecorderUi();
+    state.quickPractice.timerId = setInterval(() => {
+      state.quickPractice.elapsed += 1;
+      updateQuickPracticeRecorderUi();
+    }, 1000);
+  } catch (error) {
+    cleanupQuickPracticeRecording();
+    setQuickPracticeStatus("error");
+    renderQuickPracticeAudioDock("마이크 권한을 허용하면 바로 녹음 연습을 시작할 수 있습니다.");
+    renderQuickPracticePanel("마이크 권한을 허용하면 바로 녹음 연습을 시작할 수 있습니다.");
+  }
+};
+
+const stopQuickPracticeRecording = () => {
+  if (state.quickPractice.recorder?.state === "recording") {
+    state.quickPractice.recorder.stop();
+  }
+};
+
+const renderQuickPracticePracticePanel = (question, notice = "") => {
+  const keywordHtml = quickPracticeKeywordHtml(question);
+
+  return `
+    <div class="quick-guide-card">
+      <strong><i data-lucide="zap"></i> 답변 가이드</strong>
+      <p>${escapeHtml(quickPracticeGuide(question))}</p>
+    </div>
+    <div class="quick-keyword-block">
+      <span>답변에 포함하면 좋은 키워드</span>
+      <div>${keywordHtml || "<em>키워드 준비중</em>"}</div>
+    </div>
+  `;
+};
+
+const renderQuickPracticeAudioDock = (notice = "") => {
+  if (!elements.quickPracticeAudioDock) return;
+  const question = quickPracticeQuestion();
+  if (!question) return;
+  const hasAudio = Boolean(state.quickPractice.audioUrl && state.quickPractice.status === "done");
+  const status = state.quickPractice.status || "idle";
+  const audioUrl = hasAudio ? state.quickPractice.audioUrl : "";
+  const existingAudio = elements.quickPracticeAudioDock.querySelector("audio[data-quick-audio='current']");
+
+  if (
+    hasAudio &&
+    existingAudio?.dataset.audioUrl === audioUrl &&
+    elements.quickPracticeAudioDock.dataset.status === status &&
+    elements.quickPracticeAudioDock.dataset.notice === notice
+  ) {
+    return;
+  }
+
+  elements.quickPracticeAudioDock.dataset.status = status;
+  elements.quickPracticeAudioDock.dataset.notice = notice;
+  elements.quickPracticeAudioDock.innerHTML = `
+    <div class="quick-record-card ${hasAudio ? "has-audio" : ""}">
+      <p id="quickPracticeRecordPrompt">${status === "recording" ? "답변을 녹음하고 있습니다" : hasAudio ? "내 답변을 들으며 답안을 비교해보세요" : "녹음 버튼을 눌러 답변 연습"}</p>
+      <button class="quick-record-button ${status === "recording" ? "recording" : ""}" id="quickPracticeRecordButton" type="button" aria-pressed="${status === "recording"}" aria-label="${status === "recording" ? "녹음 중지" : "녹음 시작"}">
+        <i data-lucide="${status === "recording" ? "square" : "mic"}"></i>
+      </button>
+      <strong id="quickPracticeRecordTime">${status === "recording" ? formatTime(state.quickPractice.elapsed) : `예상 시간 ${quickPracticeEstimate(question)}`}</strong>
+      ${notice ? `<span class="quick-record-notice">${escapeHtml(notice)}</span>` : ""}
+      ${
+        hasAudio
+          ? `<div class="quick-audio-review"><audio data-quick-audio="current" data-audio-url="${escapeHtml(audioUrl)}" src="${escapeHtml(audioUrl)}" controls></audio></div>`
+          : ""
+      }
+    </div>
+  `;
+  renderIcons();
+};
+
+const renderQuickPracticeAnswerPanel = (question) => `
+  <div class="quick-answer-card">
+    <h2>모범 답안</h2>
+    <div class="model-answer-text">${renderModelAnswerBlock(question)}</div>
+  </div>
+`;
+
+const renderQuickPracticeRelatedPanel = (question) => {
+  const related = quickPracticeRelatedQuestions(question);
+  if (!related.length) {
+    return `
+      <div class="quick-answer-card">
+        <h2>관련 질문</h2>
+        <p>같은 카테고리의 관련 질문이 아직 없습니다.</p>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="quick-related-list">
+      ${related
+        .map(
+          (item) => `
+            <button class="quick-related-item" type="button" data-quick-related-id="${item.id}">
+              <span>${escapeHtml(item.difficulty)} · ${escapeHtml(item.category)}</span>
+              <strong>${escapeHtml(item.text)}</strong>
+            </button>
+          `,
+        )
+        .join("")}
+    </div>
+  `;
+};
+
+const renderQuickPracticePanel = (notice = "") => {
+  const question = quickPracticeQuestion();
+  if (!question) return;
+
+  if (state.quickPractice.tab === "answer") {
+    elements.quickPracticePanel.innerHTML = renderQuickPracticeAnswerPanel(question);
+  } else if (state.quickPractice.tab === "related") {
+    elements.quickPracticePanel.innerHTML = renderQuickPracticeRelatedPanel(question);
+  } else {
+    elements.quickPracticePanel.innerHTML = renderQuickPracticePracticePanel(question, notice);
+  }
+  renderIcons();
+};
+
+const renderQuickPractice = () => {
+  const question = quickPracticeQuestion();
+  if (!question) return;
+  const position = quickPracticeQuestionPosition(question);
+  const studyState = getQuestionStudyState(question);
+  const keywordHtml = quickPracticeKeywordHtml(question);
+
+  elements.quickPracticeCounter.textContent = `${position.current} / ${position.total}`;
+  elements.quickPracticeDifficulty.className = `bank-difficulty-badge ${questionBankDifficultyClass(question.difficulty)}`;
+  elements.quickPracticeDifficulty.textContent = question.difficulty;
+  elements.quickPracticeCategory.textContent = question.category;
+  elements.quickPracticeTitle.textContent = question.text;
+  elements.quickPracticeTopKeywords.innerHTML = keywordHtml || "<span>#키워드 준비중</span>";
+  elements.quickPracticeBookmarkButton.classList.toggle("active", studyState.bookmarked);
+  elements.quickPracticeBookmarkButton.setAttribute("aria-pressed", String(studyState.bookmarked));
+  setQuickPracticeStatus(state.quickPractice.status || "idle");
+
+  $$(".quick-practice-tabs [data-quick-tab]").forEach((button) => {
+    button.classList.toggle("active", button.dataset.quickTab === state.quickPractice.tab);
+  });
+
+  renderQuickPracticeAudioDock();
+  renderQuickPracticePanel();
+};
+
+const openQuickPractice = (question) => {
+  cleanupQuickPracticeRecording();
+  if (state.quickPractice.audioUrl) {
+    URL.revokeObjectURL(state.quickPractice.audioUrl);
+  }
+  state.quickPractice.questionId = question.id;
+  state.quickPractice.tab = "practice";
+  state.quickPractice.audioUrl = "";
+  state.quickPractice.elapsed = 0;
+  state.quickPractice.status = "idle";
+  setView("quick-practice");
+};
+
+const openNextQuickPracticeQuestion = () => {
+  const question = quickPracticeQuestion();
+  if (!question) return;
+  const sequence = quickPracticeSequence();
+  const currentIndex = sequence.findIndex((item) => String(item.id) === String(question.id));
+  const nextQuestion = sequence[(currentIndex + 1 + sequence.length) % sequence.length] || sequence[0];
+  if (nextQuestion) {
+    openQuickPractice(nextQuestion);
+  }
+};
+
+const toggleQuickPracticeBookmark = () => {
+  const question = quickPracticeQuestion();
+  if (!question) return;
+  const studyState = getQuestionStudyState(question);
+  setQuestionStudyState(question, { bookmarked: !studyState.bookmarked });
+  renderQuickPractice();
+};
+
 const renderKeywordBlock = (keywords = []) => {
   const visibleKeywords = keywords.map((keyword) => String(keyword).trim()).filter(Boolean);
 
@@ -2227,6 +2573,9 @@ const renderActiveAnswerScriptView = () => {
   if (elements.questionBankView.classList.contains("active")) {
     renderQuestionBankList();
   }
+  if (elements.quickPracticeView.classList.contains("active")) {
+    renderQuickPracticePanel();
+  }
   if (elements.resultView.classList.contains("active")) {
     renderResultPage();
   }
@@ -2337,6 +2686,44 @@ const bindQuestionBankControls = () => {
 
     state.questionBank.expandedId = null;
     renderQuestionBankList();
+  });
+};
+
+const bindQuickPracticeControls = () => {
+  elements.quickPracticeBackButton.addEventListener("click", () => setView("question-bank"));
+  elements.quickPracticeBookmarkButton.addEventListener("click", toggleQuickPracticeBookmark);
+  elements.quickPracticeAnswerButton.addEventListener("click", () => {
+    state.quickPractice.tab = "answer";
+    renderQuickPractice();
+  });
+  elements.quickPracticeNextButton.addEventListener("click", openNextQuickPracticeQuestion);
+
+  $$(".quick-practice-tabs [data-quick-tab]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.quickPractice.tab = button.dataset.quickTab || "practice";
+      renderQuickPractice();
+    });
+  });
+
+  elements.quickPracticeAudioDock.addEventListener("click", (event) => {
+    const recordButton = event.target.closest("#quickPracticeRecordButton");
+    if (recordButton) {
+      if (state.quickPractice.status === "recording") {
+        stopQuickPracticeRecording();
+      } else {
+        startQuickPracticeRecording();
+      }
+    }
+  });
+
+  elements.quickPracticePanel.addEventListener("click", (event) => {
+    const relatedButton = event.target.closest("[data-quick-related-id]");
+    if (relatedButton) {
+      const question = questionBankQuestionById(relatedButton.dataset.quickRelatedId);
+      if (question) {
+        openQuickPractice(question);
+      }
+    }
   });
 };
 
@@ -2515,6 +2902,7 @@ window.addEventListener("load", () => {
   bindAnswerScriptControls();
 
   bindQuestionBankControls();
+  bindQuickPracticeControls();
   bindSetupControls();
   bindInterviewControls();
   bindResultControls();

@@ -214,6 +214,54 @@
         </section>
       </section>
 
+      <section class="quick-practice-view app-view" id="quickPracticeView" aria-labelledby="quickPracticeTitle">
+        <div class="quick-practice-phone">
+          <header class="quick-practice-top">
+            <button class="quick-practice-back" id="quickPracticeBackButton" type="button" aria-label="기출 질문으로 돌아가기">
+              <i data-lucide="chevron-left"></i>
+            </button>
+            <strong id="quickPracticeCounter">1 / 1</strong>
+            <button class="quick-practice-bookmark" id="quickPracticeBookmarkButton" type="button" aria-label="북마크">
+              <i data-lucide="bookmark"></i>
+            </button>
+          </header>
+
+          <main class="quick-practice-body">
+            <section class="quick-practice-question-pane">
+              <div class="quick-practice-meta">
+                <span class="bank-difficulty-badge beginner" id="quickPracticeDifficulty">입문</span>
+                <span id="quickPracticeCategory">공정기술</span>
+                <span class="quick-practice-status" id="quickPracticeStatusChip">연습 전</span>
+              </div>
+
+              <h1 id="quickPracticeTitle">질문을 선택해주세요.</h1>
+
+              <div class="quick-practice-keywords" id="quickPracticeTopKeywords"></div>
+
+              <section class="quick-practice-audio-dock" id="quickPracticeAudioDock" aria-live="polite"></section>
+            </section>
+
+            <section class="quick-practice-work-pane">
+              <div class="quick-practice-tabs" role="tablist" aria-label="연습 보기">
+                <button class="active" type="button" data-quick-tab="practice">답변 연습</button>
+                <button type="button" data-quick-tab="answer">모범 답안</button>
+                <button type="button" data-quick-tab="related">관련 질문</button>
+              </div>
+
+              <section class="quick-practice-panel" id="quickPracticePanel" aria-live="polite"></section>
+            </section>
+          </main>
+
+          <footer class="quick-practice-footer">
+            <button class="quick-secondary-button" id="quickPracticeAnswerButton" type="button">모범 답안</button>
+            <button class="quick-primary-button" id="quickPracticeNextButton" type="button">
+              <span>다음 질문</span>
+              <i data-lucide="arrow-right"></i>
+            </button>
+          </footer>
+        </div>
+      </section>
+
       <section class="home-view app-view active" id="homeView" aria-labelledby="home-title">
         <div class="intro">
           <div class="module-label">직무 면접</div>
