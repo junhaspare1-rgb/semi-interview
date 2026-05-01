@@ -335,6 +335,11 @@ const shouldOpenSttTest = () => {
   return window.location.hash === "#stt-test" || params.has("stt-test");
 };
 
+const readPracticeQuestionId = () => {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("practiceQuestion") || "";
+};
+
 const setInterviewMode = (mode) => {
   $$(".interview-mode-card").forEach((item) => {
     item.classList.toggle("active", item.dataset.interviewMode === mode);
@@ -2308,6 +2313,17 @@ const openQuickPractice = (question) => {
   setView("quick-practice");
 };
 
+const openPracticeQuestionFromUrl = () => {
+  const questionId = readPracticeQuestionId();
+  if (!questionId) return false;
+
+  const question = questionBankQuestionById(questionId);
+  if (!question) return false;
+
+  openQuickPractice(question);
+  return true;
+};
+
 const openNextQuickPracticeQuestion = () => {
   const question = quickPracticeQuestion();
   if (!question) return;
@@ -2963,10 +2979,13 @@ window.addEventListener("load", () => {
   bindResultControls();
   bindSttTestControls();
   setRecordingMode(true);
-  setView(openSttTest ? "stt-test" : "question-bank");
+  const openedPracticeQuestion = !openSttTest && openPracticeQuestionFromUrl();
+  if (!openedPracticeQuestion) {
+    setView(openSttTest ? "stt-test" : "question-bank");
+  }
   flushQueuedFeedback().catch(() => {});
   flushQueuedReports().catch(() => {});
-  if (!openSttTest) {
+  if (!openSttTest && !openedPracticeQuestion) {
     showStartupHelp();
   }
 });
