@@ -42,6 +42,7 @@ const questionBanksByRole = {
 };
 const questionBank = questionBanksByRole.process;
 const questions = questionBank;
+const THEME_KEY = "banmyeonppu_theme_v1";
 
 const state = {
   config: {
@@ -117,7 +118,9 @@ const state = {
     search: "",
     sort: "recent",
     selectedKeys: [],
+    pendingRemoveKeys: [],
   },
+  theme: "light",
   quickPractice: {
     questionId: null,
     questionKey: "",
@@ -241,8 +244,6 @@ const cacheElements = () => {
     "questionBankView",
     "myPageView",
     "myPageSignedIn",
-    "myPageUserEmail",
-    "myPageSignOutButton",
     "myPageBookmarkCount",
     "myPageRoleFilter",
     "myPageDifficultyFilter",
@@ -263,6 +264,9 @@ const cacheElements = () => {
     "myPracticeAnswerTime",
     "cancelMyPracticeButton",
     "confirmMyPracticeButton",
+    "myBookmarkConfirmModal",
+    "cancelMyBookmarkRemoveButton",
+    "confirmMyBookmarkRemoveButton",
     "quickPracticeView",
     "homeView",
     "aboutView",
@@ -283,6 +287,12 @@ const cacheElements = () => {
     "helpButton",
     "authButton",
     "authButtonLabel",
+    "accountMenu",
+    "accountMenuEmail",
+    "accountMenuBookmarksButton",
+    "accountThemeLightButton",
+    "accountThemeDarkButton",
+    "accountMenuLogoutButton",
     "closeAuthButton",
     "authSignedOutPanel",
     "authSignedInPanel",
@@ -419,6 +429,57 @@ const cacheElements = () => {
 const renderIcons = () => {
   if (window.lucide) {
     window.lucide.createIcons();
+  }
+};
+
+const readThemePreference = () => {
+  try {
+    return localStorage.getItem(THEME_KEY) === "dark" ? "dark" : "light";
+  } catch (error) {
+    return "light";
+  }
+};
+
+const updateAccountThemeButtons = () => {
+  if (!elements.accountThemeLightButton || !elements.accountThemeDarkButton) return;
+  elements.accountThemeLightButton.classList.toggle("active", state.theme === "light");
+  elements.accountThemeDarkButton.classList.toggle("active", state.theme === "dark");
+};
+
+const applyTheme = (theme, persist = true) => {
+  const nextTheme = theme === "dark" ? "dark" : "light";
+  state.theme = nextTheme;
+  document.documentElement.dataset.theme = nextTheme;
+  updateAccountThemeButtons();
+  if (!persist) return;
+  try {
+    localStorage.setItem(THEME_KEY, nextTheme);
+  } catch (error) {
+    // Theme persistence is optional.
+  }
+};
+
+const hideAccountMenu = () => {
+  if (!elements.accountMenu) return;
+  elements.accountMenu.classList.remove("open");
+  elements.accountMenu.setAttribute("aria-hidden", "true");
+  elements.authButton?.setAttribute("aria-expanded", "false");
+};
+
+const showAccountMenu = () => {
+  if (!elements.accountMenu || !state.auth.user) return;
+  elements.accountMenu.classList.add("open");
+  elements.accountMenu.setAttribute("aria-hidden", "false");
+  elements.authButton?.setAttribute("aria-expanded", "true");
+  renderIcons();
+};
+
+const toggleAccountMenu = () => {
+  if (!elements.accountMenu) return;
+  if (elements.accountMenu.classList.contains("open")) {
+    hideAccountMenu();
+  } else {
+    showAccountMenu();
   }
 };
 
@@ -1373,7 +1434,16 @@ const renderAuthUi = () => {
   const email = state.auth.user?.email || "";
   elements.authButton.classList.toggle("signed-in", signedIn);
   elements.authButton.setAttribute("aria-label", signedIn ? `${email} 마이 페이지` : "로그인");
+  elements.authButton.setAttribute("aria-haspopup", signedIn ? "menu" : "dialog");
+  elements.authButton.setAttribute("aria-expanded", elements.accountMenu?.classList.contains("open") ? "true" : "false");
   elements.authButtonLabel.textContent = signedIn ? "마이 페이지" : "로그인";
+  if (elements.accountMenuEmail) {
+    elements.accountMenuEmail.textContent = email || "-";
+  }
+  if (!signedIn) {
+    hideAccountMenu();
+  }
+  updateAccountThemeButtons();
 
   if (elements.authSignedOutPanel && elements.authSignedInPanel) {
     elements.authSignedOutPanel.hidden = signedIn;
@@ -1559,6 +1629,7 @@ const signInWithGoogle = async () => {
 };
 
 const signOut = async () => {
+  hideAccountMenu();
   if (!state.auth.client || state.auth.loading) return;
   setAuthLoading(true);
 
@@ -2780,8 +2851,8 @@ const renderQuestionBankList = () => {
             <div class="question-bank-card-meta">
               <span class="bank-difficulty-badge ${questionBankDifficultyClass(question.difficulty)}">${escapeHtml(question.difficulty)}</span>
               <span>${escapeHtml(question.category)}</span>
+              <h2>${escapeHtml(question.text)}</h2>
             </div>
-            <h2>${escapeHtml(question.text)}</h2>
             <p class="question-bank-preview" ${expanded ? "hidden" : ""}>${escapeHtml(preview)}</p>
             <div class="question-bank-keywords">${keywords}</div>
             <div class="question-bank-answer" ${expanded ? "" : "hidden"}>
@@ -3031,7 +3102,6 @@ const renderMyPage = () => {
   state.myPage.selectedKeys = state.myPage.selectedKeys.filter((key) => bookmarkKeys.has(key));
   const visibleQuestions = myPageFilteredBookmarks();
 
-  elements.myPageUserEmail.textContent = state.auth.user?.email || "-";
   elements.myPageBookmarkCount.textContent = bookmarks.length;
   renderMyPageFilters(bookmarks);
 
@@ -3081,8 +3151,15 @@ const renderMyPage = () => {
             <strong>${escapeHtml(question.text)}</strong>
           </div>
           <div class="my-bookmark-actions">
-            <button class="outline-button" type="button" data-my-page-practice="${escapeHtml(key)}">빠른 연습</button>
-            <button class="danger-outline-button" type="button" data-my-page-unbookmark="${escapeHtml(key)}">북마크 해제</button>
+            <button class="my-bookmark-icon-button quick" type="button" data-my-page-practice="${escapeHtml(key)}" aria-label="빠른 연습" title="빠른 연습">
+              <i data-lucide="mic"></i>
+            </button>
+            <button class="my-bookmark-icon-button mock" type="button" data-my-page-mock="${escapeHtml(key)}" aria-label="모의면접 연습" title="모의면접 연습">
+              <i data-lucide="video"></i>
+            </button>
+            <button class="my-bookmark-icon-button bookmark" type="button" data-my-page-unbookmark="${escapeHtml(key)}" aria-label="북마크 해제" title="북마크 해제">
+              <i data-lucide="bookmark-x"></i>
+            </button>
           </div>
         </article>
       `;
@@ -3143,6 +3220,26 @@ const showMyPracticeModal = () => {
 const hideMyPracticeModal = () => {
   elements.myPracticeModal.classList.remove("open");
   elements.myPracticeModal.setAttribute("aria-hidden", "true");
+};
+
+const showMyBookmarkRemoveModal = (keys) => {
+  const keysToRemove = [...new Set(keys)].filter((key) => questionByProgressKey(key));
+  if (!keysToRemove.length) return;
+  state.myPage.pendingRemoveKeys = keysToRemove;
+  elements.myBookmarkConfirmModal.classList.add("open");
+  elements.myBookmarkConfirmModal.setAttribute("aria-hidden", "false");
+};
+
+const hideMyBookmarkRemoveModal = () => {
+  state.myPage.pendingRemoveKeys = [];
+  elements.myBookmarkConfirmModal.classList.remove("open");
+  elements.myBookmarkConfirmModal.setAttribute("aria-hidden", "true");
+};
+
+const confirmMyBookmarkRemove = () => {
+  const keysToRemove = [...state.myPage.pendingRemoveKeys];
+  hideMyBookmarkRemoveModal();
+  removeMyPageBookmarks(keysToRemove);
 };
 
 const startSelectedQuestionInterview = (questionsToInterview) => {
@@ -4033,8 +4130,6 @@ const bindQuickPracticeControls = () => {
 };
 
 const bindMyPageControls = () => {
-  elements.myPageSignOutButton.addEventListener("click", signOut);
-
   elements.myPageRoleFilter.addEventListener("change", () => {
     state.myPage.role = elements.myPageRoleFilter.value;
     state.myPage.category = "all";
@@ -4075,7 +4170,7 @@ const bindMyPageControls = () => {
   elements.myPageClearSelection.addEventListener("click", () => setMyPageSelection([]));
   elements.myPageQuickPracticeButton.addEventListener("click", () => startMyPageQuickPractice());
   elements.myPageMockPracticeButton.addEventListener("click", showMyPracticeModal);
-  elements.myPageRemoveSelectedButton.addEventListener("click", () => removeMyPageBookmarks(state.myPage.selectedKeys));
+  elements.myPageRemoveSelectedButton.addEventListener("click", () => showMyBookmarkRemoveModal(state.myPage.selectedKeys));
 
   elements.myPageList.addEventListener("change", (event) => {
     const checkbox = event.target.closest("[data-my-page-select]");
@@ -4095,9 +4190,16 @@ const bindMyPageControls = () => {
       return;
     }
 
+    const mockButton = event.target.closest("[data-my-page-mock]");
+    if (mockButton) {
+      setMyPageSelection([mockButton.dataset.myPageMock]);
+      showMyPracticeModal();
+      return;
+    }
+
     const unbookmarkButton = event.target.closest("[data-my-page-unbookmark]");
     if (unbookmarkButton) {
-      removeMyPageBookmarks([unbookmarkButton.dataset.myPageUnbookmark]);
+      showMyBookmarkRemoveModal([unbookmarkButton.dataset.myPageUnbookmark]);
     }
   });
 
@@ -4106,6 +4208,13 @@ const bindMyPageControls = () => {
   elements.myPracticeModal.addEventListener("click", (event) => {
     if (event.target === elements.myPracticeModal) {
       hideMyPracticeModal();
+    }
+  });
+  elements.cancelMyBookmarkRemoveButton.addEventListener("click", hideMyBookmarkRemoveModal);
+  elements.confirmMyBookmarkRemoveButton.addEventListener("click", confirmMyBookmarkRemove);
+  elements.myBookmarkConfirmModal.addEventListener("click", (event) => {
+    if (event.target === elements.myBookmarkConfirmModal) {
+      hideMyBookmarkRemoveModal();
     }
   });
 };
@@ -4258,9 +4367,26 @@ const bindInterviewControls = () => {
   });
   elements.authButton.addEventListener("click", () => {
     if (state.auth.user) {
-      requestViewChange("my-page");
+      toggleAccountMenu();
     } else {
       showAuthModal();
+    }
+  });
+  elements.accountMenuBookmarksButton.addEventListener("click", () => {
+    hideAccountMenu();
+    requestViewChange("my-page");
+  });
+  elements.accountThemeLightButton.addEventListener("click", () => applyTheme("light"));
+  elements.accountThemeDarkButton.addEventListener("click", () => applyTheme("dark"));
+  elements.accountMenuLogoutButton.addEventListener("click", signOut);
+  document.addEventListener("click", (event) => {
+    if (!elements.accountMenu?.classList.contains("open")) return;
+    if (elements.accountMenu.contains(event.target) || elements.authButton.contains(event.target)) return;
+    hideAccountMenu();
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      hideAccountMenu();
     }
   });
   elements.closeAuthButton.addEventListener("click", hideAuthModal);
@@ -4331,6 +4457,7 @@ const bindSttTestControls = () => {
 
 window.addEventListener("load", () => {
   cacheElements();
+  applyTheme(readThemePreference(), false);
   state.studyProgress = readStudyProgress();
 
   renderIcons();

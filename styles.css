@@ -15,6 +15,20 @@
   --radius: 8px;
 }
 
+:root[data-theme="dark"] {
+  --page: #050505;
+  --surface: #111111;
+  --surface-soft: #1b1b1b;
+  --ink: #f8fafc;
+  --muted: #c7c7c7;
+  --line: #2a2a2a;
+  --line-strong: #3a3a3a;
+  --blue: #60a5fa;
+  --blue-dark: #93c5fd;
+  --blue-soft: #111827;
+  --shadow: 0 18px 48px rgba(0, 0, 0, 0.48);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -104,6 +118,7 @@ button {
 }
 
 .utility-nav {
+  position: relative;
   justify-self: end;
   display: flex;
   align-items: center;
@@ -147,6 +162,102 @@ button {
   font-size: 13px;
   line-height: 1;
   white-space: nowrap;
+}
+
+.account-menu {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 50px;
+  z-index: 120;
+  display: none;
+  width: 292px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+}
+
+.account-menu.open {
+  display: block;
+}
+
+.account-menu-email {
+  padding: 16px 16px 14px;
+  border-bottom: 1px solid var(--line);
+  font-size: 15px;
+  font-weight: 900;
+  word-break: break-all;
+}
+
+.account-menu-section {
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.account-menu-section p {
+  margin: 0;
+  padding: 0 16px 8px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.utility-nav .account-menu-item {
+  display: flex;
+  width: 100%;
+  height: auto;
+  min-height: 42px;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  border: 0;
+  border-radius: 0;
+  padding: 10px 16px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 850;
+  text-align: left;
+}
+
+.utility-nav .account-menu-item:hover {
+  background: var(--surface-soft);
+  color: var(--ink);
+}
+
+.utility-nav .account-menu-item svg {
+  width: 17px;
+  height: 17px;
+}
+
+.account-theme-option.active {
+  color: var(--blue);
+}
+
+.account-theme-option.active::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  margin-left: auto;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.account-menu-logout {
+  color: var(--red) !important;
+}
+
+:root[data-theme="dark"] .top-nav {
+  background: rgba(8, 8, 8, 0.94);
+}
+
+:root[data-theme="dark"] .utility-nav .auth-nav-button.signed-in {
+  border-color: #3a3a3a;
+  background: #111111;
+  color: #bfdbfe;
 }
 
 .utility-nav svg {
@@ -1288,6 +1399,7 @@ button {
 .question-bank-list.list-layout .question-bank-card {
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
+  min-height: 50px;
   border-radius: 12px;
   box-shadow: none;
 }
@@ -1311,44 +1423,48 @@ button {
   padding: 22px 76px 22px 22px;
 }
 
+.question-bank-card-meta h2 {
+  flex: 1 1 260px;
+}
+
 .question-bank-list.list-layout .question-bank-card-main {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   min-width: 0;
-  padding: 12px 12px 12px 16px;
+  padding: 8px 10px 8px 14px;
 }
 
 .question-bank-list.list-layout .question-bank-card.expanded .question-bank-card-main {
   display: grid;
   grid-template-columns: 1fr;
   align-items: start;
-  gap: 12px;
+  gap: 10px;
   padding: 22px 76px 22px 22px;
 }
 
 .question-bank-list.list-layout .question-bank-card.expanded .question-bank-card-meta,
-.question-bank-list.list-layout .question-bank-card.expanded h2,
 .question-bank-list.list-layout .question-bank-card.expanded .question-bank-keywords,
 .question-bank-list.list-layout .question-bank-card.expanded .question-bank-answer {
   grid-column: 1;
 }
 
 .question-bank-list.list-layout .question-bank-card-meta {
-  flex: 0 0 auto;
+  flex: 1 1 auto;
   gap: 6px;
-  white-space: nowrap;
+  min-width: 0;
 }
 
 .question-bank-list.list-layout .bank-difficulty-badge {
-  min-height: 22px;
-  padding: 0 8px;
+  min-height: 20px;
+  padding: 0 7px;
   font-size: 10px;
 }
 
 .question-bank-card-meta {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
   color: var(--muted);
@@ -1384,27 +1500,28 @@ button {
 .question-bank-card h2 {
   margin: 0;
   color: var(--ink);
-  font-size: 18px;
-  line-height: 1.38;
+  font-size: 15px;
+  line-height: 1.45;
   font-weight: 900;
   letter-spacing: 0;
   word-break: keep-all;
 }
 
 .question-bank-list.list-layout .question-bank-card h2 {
-  flex: 1 1 auto;
+  flex: 1 1 240px;
   overflow: hidden;
   min-width: 0;
   font-size: 15px;
-  line-height: 1.32;
+  line-height: 1.38;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .question-bank-list.list-layout .question-bank-card.expanded h2 {
+  flex: 1 1 360px;
   overflow: visible;
-  font-size: 18px;
-  line-height: 1.38;
+  font-size: 15px;
+  line-height: 1.45;
   text-overflow: clip;
   white-space: normal;
 }
@@ -1541,17 +1658,17 @@ button {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 6px;
+  gap: 5px;
   width: auto;
   border-left: 0;
-  padding: 8px 10px;
+  padding: 6px 8px;
 }
 
 .question-bank-list.list-layout .question-bank-card-side > .bank-bookmark-list-button {
   display: grid;
-  flex: 0 0 34px;
-  width: 34px;
-  height: 34px;
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
 }
 
 .question-bank-list.list-layout .question-bank-card.expanded .question-bank-card-side {
@@ -1604,11 +1721,11 @@ button {
 }
 
 .question-bank-list.list-layout .bank-status-button {
-  width: 34px;
-  min-width: 34px;
-  min-height: 32px;
+  width: 30px;
+  min-width: 30px;
+  min-height: 30px;
   padding: 0;
-  border-radius: 10px;
+  border-radius: 9px;
   font-size: 12px;
 }
 
@@ -1735,9 +1852,9 @@ button {
 }
 
 .question-bank-list.list-layout .bank-practice-button {
-  width: 38px;
-  min-width: 38px;
-  min-height: 34px;
+  width: 30px;
+  min-width: 30px;
+  min-height: 30px;
   padding: 0;
   font-size: 13px;
 }
@@ -1879,7 +1996,6 @@ button {
   line-height: 1.7;
 }
 
-.my-page-summary-card,
 .my-page-filter-card,
 .my-page-empty,
 .my-bookmark-item {
@@ -1906,58 +2022,49 @@ button {
   gap: 16px;
 }
 
-.my-page-summary-card {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
-  align-items: center;
-  gap: 16px;
-  padding: 18px 20px;
-}
-
-.my-page-summary-card div {
-  display: grid;
-  gap: 5px;
-}
-
-.my-page-summary-card span {
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 900;
-}
-
-.my-page-summary-card strong {
-  color: var(--ink);
-  font-size: 18px;
-}
-
 .my-page-filter-card {
   display: grid;
   grid-template-columns: repeat(3, minmax(150px, 1fr)) minmax(220px, 1.5fr) minmax(160px, 0.9fr);
-  gap: 12px;
-  padding: 16px;
+  gap: 10px;
+  padding: 12px;
+}
+
+:root[data-theme="dark"] input,
+:root[data-theme="dark"] select,
+:root[data-theme="dark"] textarea {
+  background: #0d0d0d;
+  color: var(--ink);
 }
 
 .my-page-filter-card label {
   display: grid;
-  gap: 8px;
+  gap: 5px;
   min-width: 0;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 900;
 }
 
 .my-page-filter-card input,
-.my-page-filter-card select,
-.my-practice-grid select {
+.my-page-filter-card select {
   width: 100%;
-  min-height: 42px;
+  height: 34px;
+  min-height: 34px;
   border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 0 12px;
+  border-radius: 9px;
+  padding: 0 10px;
   background: #ffffff;
   color: var(--ink);
   font: inherit;
+  font-size: 13px;
   font-weight: 800;
+}
+
+:root[data-theme="dark"] .my-page-filter-card input,
+:root[data-theme="dark"] .my-page-filter-card select,
+:root[data-theme="dark"] .my-bookmark-icon-button {
+  background: #0d0d0d;
+  color: var(--ink);
 }
 
 .my-page-list-head {
@@ -1977,15 +2084,16 @@ button {
 
 .my-bookmark-list {
   display: grid;
-  gap: 10px;
+  gap: 6px;
 }
 
 .my-bookmark-item {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 14px;
-  padding: 16px;
+  gap: 10px;
+  min-height: 54px;
+  padding: 10px 12px;
   transition: border-color 160ms ease, background 160ms ease;
 }
 
@@ -1995,43 +2103,59 @@ button {
 }
 
 .my-bookmark-check input {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   accent-color: var(--blue);
 }
 
 .my-bookmark-main {
   display: grid;
   min-width: 0;
-  gap: 8px;
+  gap: 5px;
 }
 
 .my-bookmark-meta {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.my-page-list-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.my-page-bookmark-total {
   color: var(--muted);
   font-size: 13px;
   font-weight: 900;
 }
 
+.my-page-bookmark-total strong {
+  color: var(--ink);
+}
+
 .my-bookmark-main strong {
   color: var(--ink);
-  font-size: 17px;
-  line-height: 1.45;
+  font-size: 15px;
+  line-height: 1.5;
   word-break: keep-all;
 }
 
 .my-bookmark-status {
   display: inline-flex;
   align-items: center;
-  min-height: 24px;
+  min-height: 22px;
   border-radius: 999px;
-  padding: 0 9px;
+  padding: 0 8px;
   background: #f1f5f9;
   color: #64748b;
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .my-bookmark-status.known {
@@ -2047,7 +2171,51 @@ button {
 .my-bookmark-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
+}
+
+.my-bookmark-icon-button {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--muted);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+}
+
+.my-bookmark-icon-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+.my-bookmark-icon-button.quick {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+  color: var(--blue);
+}
+
+.my-bookmark-icon-button.mock {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+  color: #334155;
+}
+
+.my-bookmark-icon-button.bookmark {
+  border-color: #fde68a;
+  background: #fffbeb;
+  color: #d97706;
+}
+
+.my-bookmark-icon-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.1);
+}
+
+.my-bookmark-confirm-dialog .danger-outline-button {
+  min-height: 44px;
 }
 
 .my-page-empty {
@@ -2233,8 +2401,8 @@ button {
 .quick-practice-body h1 {
   margin: 0;
   color: var(--ink);
-  font-size: clamp(22px, 2.1vw, 30px);
-  line-height: 1.3;
+  font-size: 14px;
+  line-height: 1.55;
   font-weight: 900;
   word-break: keep-all;
 }
@@ -5499,7 +5667,7 @@ input[type="number"] {
   .question-bank-list.list-layout .question-bank-card-main {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    padding: 14px 104px 12px 16px;
+    padding: 10px 90px 10px 14px;
   }
 
   .question-bank-list.list-layout .question-bank-card.expanded .question-bank-card-main {
@@ -5507,7 +5675,13 @@ input[type="number"] {
   }
 
   .question-bank-list.list-layout .question-bank-card h2 {
+    flex-basis: 100%;
     white-space: normal;
+  }
+
+  .question-bank-card-meta h2 {
+    flex-basis: 100%;
+    order: 2;
   }
 
   .question-bank-list.list-layout .question-bank-card:not(.expanded) h2 {
@@ -5527,9 +5701,9 @@ input[type="number"] {
   }
 
   .question-bank-card h2 {
-    padding-right: 58px;
-    font-size: 17px;
-    line-height: 1.34;
+    padding-right: 0;
+    font-size: 14px;
+    line-height: 1.45;
   }
 
   .question-bank-card-main > .bank-bookmark-button {
@@ -5585,7 +5759,7 @@ input[type="number"] {
     top: 50%;
     right: 12px;
     display: grid;
-    grid-template-columns: repeat(2, 38px);
+    grid-template-columns: repeat(2, 34px);
     align-items: center;
     justify-content: center;
     gap: 6px;
@@ -5617,8 +5791,8 @@ input[type="number"] {
   .question-bank-list.list-layout .bank-practice-button {
     grid-column: 2;
     grid-row: 2;
-    width: 38px;
-    min-width: 38px;
+    width: 34px;
+    min-width: 34px;
   }
 
   .question-bank-list.list-layout .question-bank-card.expanded .question-bank-card-side {
@@ -5699,8 +5873,8 @@ input[type="number"] {
   }
 
   .quick-practice-body h1 {
-    font-size: 19px;
-    line-height: 1.36;
+    font-size: 14px;
+    line-height: 1.55;
   }
 
   .quick-practice-panel {
@@ -6030,6 +6204,11 @@ input[type="number"] {
 }
 
 @media (max-width: 760px) {
+  .account-menu {
+    right: 0;
+    width: min(292px, calc(100vw - 28px));
+  }
+
   .utility-nav .auth-nav-button {
     width: 36px;
     padding: 0;
@@ -6059,11 +6238,6 @@ input[type="number"] {
     font-size: 34px;
   }
 
-  .my-page-summary-card {
-    grid-template-columns: 1fr;
-    align-items: stretch;
-  }
-
   .my-page-filter-card {
     grid-template-columns: 1fr;
     padding: 14px;
@@ -6076,13 +6250,14 @@ input[type="number"] {
 
   .my-bookmark-item {
     grid-template-columns: auto minmax(0, 1fr);
-    align-items: start;
+    align-items: center;
+    padding: 10px 12px;
   }
 
   .my-bookmark-actions {
     grid-column: 1 / -1;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    justify-content: flex-end;
     width: 100%;
   }
 
