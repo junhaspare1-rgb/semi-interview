@@ -401,17 +401,6 @@
           </header>
 
           <section class="my-page-content" id="myPageSignedIn" hidden>
-            <div class="my-page-summary-card">
-              <div>
-                <strong id="myPageUserEmail">-</strong>
-              </div>
-              <div>
-                <span>북마크</span>
-                <strong><span id="myPageBookmarkCount">0</span>개</strong>
-              </div>
-              <button class="outline-button" id="myPageSignOutButton" type="button">로그아웃</button>
-            </div>
-
             <section class="my-page-filter-card" aria-label="북마크 질문 필터">
               <label>
                 <span>직무</span>
@@ -445,7 +434,10 @@
                 <input id="myPageSelectAll" type="checkbox" />
                 <span>현재 목록 전체 선택</span>
               </label>
-              <button class="text-button" id="myPageClearSelection" type="button">선택 해제</button>
+              <div class="my-page-list-actions">
+                <span class="my-page-bookmark-total">북마크 <strong><span id="myPageBookmarkCount">0</span>개</strong></span>
+                <button class="text-button" id="myPageClearSelection" type="button">선택 해제</button>
+              </div>
             </div>
 
             <section class="my-bookmark-list" id="myPageList" aria-label="북마크 질문 목록"></section>
