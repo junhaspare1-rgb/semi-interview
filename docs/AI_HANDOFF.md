@@ -278,3 +278,4 @@ git diff --check HEAD~1 HEAD
 - 결제, 관리자 페이지, 직무별 문제 관리는 추후 DB 구조로 이관할 수 있게 데이터 필드와 URL slug를 안정적으로 유지한다.
 - 계정 시스템은 Supabase 선택 로그인 1차 구조가 들어가 있다. 환경변수는 `SUPABASE_URL`, `SUPABASE_ANON_KEY`이며, 스키마와 설정법은 `docs/SUPABASE_AUTH_SETUP.md`와 `supabase/schema.sql`을 확인한다.
 - 사용자의 학습 상태는 기본적으로 localStorage 키 `banmyeonppu_question_progress_v1`에 저장되고, 로그인 사용자는 `question_progress`와 병합 동기화된다. 키를 바꾸면 기존 사용자 학습 상태가 초기화될 수 있다.
+- 질문 원본은 Supabase `question_roles`, `question_categories`, `questions` 테이블로 관리할 수 있는 기반이 있다. 앱은 여전히 정적 `data/*.js`를 읽으며, 업로드/다운로드 흐름은 `docs/QUESTION_DB_WORKFLOW.md`, `scripts/supabase_push_questions.py`, `scripts/supabase_pull_questions.py`를 확인한다.

@@ -1158,6 +1158,36 @@ const authRedirectUrl = () => {
   return `${window.location.origin}${window.location.pathname}`;
 };
 
+const authCallbackParams = () => {
+  const params = new URLSearchParams(window.location.search);
+  const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+  return { params, hashParams };
+};
+
+const readAuthCallbackError = () => {
+  const { params, hashParams } = authCallbackParams();
+  return (
+    hashParams.get("error_description") ||
+    hashParams.get("error") ||
+    params.get("error_description") ||
+    params.get("error") ||
+    ""
+  );
+};
+
+const clearAuthCallbackFragments = () => {
+  if (window.location.protocol === "file:" || (!window.location.hash && !window.location.search)) return;
+  const url = new URL(window.location.href);
+  const hasAuthParams =
+    url.hash.includes("access_token") ||
+    url.hash.includes("error") ||
+    url.searchParams.has("code") ||
+    url.searchParams.has("error") ||
+    url.searchParams.has("error_description");
+  if (!hasAuthParams) return;
+  window.history.replaceState({}, document.title, `${url.origin}${url.pathname}`);
+};
+
 const localAuthConfig = () => {
   const config = window.BANMYEONPPU_AUTH_CONFIG || {};
   return {
@@ -1266,8 +1296,16 @@ const initAuth = async () => {
   });
 
   try {
+    const callbackError = readAuthCallbackError();
     const { data } = await state.auth.client.auth.getSession();
     applyAuthSession(data?.session || null);
+    if (callbackError && !data?.session) {
+      showAuthModal();
+      setAuthStatus(`Google 로그인 실패: ${callbackError}`, "warning");
+    }
+    if (callbackError || data?.session) {
+      clearAuthCallbackFragments();
+    }
     if (data?.session) {
       syncAccountData({ silent: true }).catch((error) => {
         reportAuthSyncError("initial account sync", error);
@@ -1362,7 +1400,12 @@ const signInWithGoogle = async () => {
     const redirectTo = authRedirectUrl();
     const { error } = await state.auth.client.auth.signInWithOAuth({
       provider: "google",
-      options: redirectTo ? { redirectTo } : undefined,
+      options: {
+        ...(redirectTo ? { redirectTo } : {}),
+        queryParams: {
+          prompt: "select_account",
+        },
+      },
     });
     if (error) throw error;
     trackEvent("auth_oauth_start", { provider: "google" });
