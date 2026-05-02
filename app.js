@@ -91,6 +91,7 @@ const state = {
   },
   pendingView: "home",
   pendingPracticeIndex: null,
+  pendingSessionQuestionKeys: [],
   pendingStartMode: "standard",
   landing: {
     selectedRole: "process",
@@ -109,8 +110,19 @@ const state = {
     pageSize: 10,
     page: 1,
   },
+  myPage: {
+    role: "all",
+    difficulty: "all",
+    category: "all",
+    search: "",
+    sort: "recent",
+    selectedKeys: [],
+  },
   quickPractice: {
     questionId: null,
+    questionKey: "",
+    queueKeys: [],
+    returnView: "question-bank",
     tab: "practice",
     recorder: null,
     stream: null,
@@ -227,6 +239,32 @@ const cacheElements = () => {
     "landingWaitlistStatus",
     "closeLandingWaitlistButton",
     "questionBankView",
+    "myPageView",
+    "myPageSignedOut",
+    "myPageLoginButton",
+    "myPageSignedIn",
+    "myPageUserEmail",
+    "myPageSignOutButton",
+    "myPageBookmarkCount",
+    "myPageRoleFilter",
+    "myPageDifficultyFilter",
+    "myPageCategoryFilter",
+    "myPageSearch",
+    "myPageSort",
+    "myPageSelectAll",
+    "myPageClearSelection",
+    "myPageList",
+    "myPageEmpty",
+    "myPageSelectedBar",
+    "myPageSelectedCount",
+    "myPageQuickPracticeButton",
+    "myPageMockPracticeButton",
+    "myPageRemoveSelectedButton",
+    "myPracticeModal",
+    "myPracticePrepTime",
+    "myPracticeAnswerTime",
+    "cancelMyPracticeButton",
+    "confirmMyPracticeButton",
     "quickPracticeView",
     "homeView",
     "aboutView",
@@ -428,6 +466,8 @@ const viewFromRoute = () => {
       return "home";
     case "/contact":
       return "contact";
+    case "/my-page":
+      return "my-page";
     case "/practice":
       return "quick-practice";
     default:
@@ -447,6 +487,7 @@ const routeForView = (view) => {
   }
   if (view === "home") return "/mock-interview";
   if (view === "contact") return "/contact";
+  if (view === "my-page") return "/my-page";
   if (view === "quick-practice") {
     const question = quickPracticeQuestion();
     if (!question) return "/questions";
@@ -572,6 +613,7 @@ const setView = (view, options = {}) => {
   }
   elements.landingView.classList.toggle("active", nextView === "landing");
   elements.questionBankView.classList.toggle("active", nextView === "question-bank");
+  elements.myPageView.classList.toggle("active", nextView === "my-page");
   elements.quickPracticeView.classList.toggle("active", nextView === "quick-practice");
   elements.homeView.classList.toggle("active", nextView === "home");
   elements.aboutView.classList.toggle("active", nextView === "about");
@@ -582,9 +624,11 @@ const setView = (view, options = {}) => {
   elements.resultView.classList.toggle("active", nextView === "result");
   document.body.classList.toggle("quick-practice-active", nextView === "quick-practice");
   document.body.classList.toggle("landing-active", nextView === "landing");
-  const activeNavView = ["about", "contact", "question-bank", "quick-practice", "home", "landing"].includes(nextView)
+  const activeNavView = ["about", "contact", "question-bank", "quick-practice", "home", "landing", "my-page"].includes(nextView)
     ? nextView === "quick-practice"
       ? "question-bank"
+      : nextView === "my-page"
+        ? ""
       : nextView
     : "home";
   $$(".main-nav [data-view]").forEach((button) => {
@@ -595,6 +639,9 @@ const setView = (view, options = {}) => {
   }
   if (nextView === "quick-practice") {
     renderQuickPractice();
+  }
+  if (nextView === "my-page") {
+    renderMyPage();
   }
   if (updateRoute) {
     updateAppRoute(nextView, { replace: replaceRoute });
@@ -803,9 +850,12 @@ const startInterview = () => {
 
 const showStartEnvironmentModal = (options = {}) => {
   const hasPracticeTarget = Number.isInteger(options.practiceIndex);
-  const mode = hasPracticeTarget ? "standard" : getSelectedInterviewMode();
-  if (!hasPracticeTarget && elements.startInterview.disabled) return;
+  const customQuestionKeys = Array.isArray(options.questionKeys) ? options.questionKeys.filter((key) => questionByProgressKey(key)) : [];
+  const hasCustomSession = customQuestionKeys.length > 0;
+  const mode = hasPracticeTarget || hasCustomSession ? "standard" : getSelectedInterviewMode();
+  if (!hasPracticeTarget && !hasCustomSession && elements.startInterview.disabled) return;
   state.pendingPracticeIndex = hasPracticeTarget ? options.practiceIndex : null;
+  state.pendingSessionQuestionKeys = hasCustomSession ? customQuestionKeys : [];
   state.pendingStartMode = mode;
   const isAiMode = mode === "ai";
   if (isAiMode && !isAiAdminUnlocked()) {
@@ -829,6 +879,7 @@ const showStartEnvironmentModal = (options = {}) => {
 const hideStartEnvironmentModal = (clearPracticeTarget = true) => {
   if (clearPracticeTarget) {
     state.pendingPracticeIndex = null;
+    state.pendingSessionQuestionKeys = [];
   }
   state.pendingStartMode = "standard";
   elements.startEnvironmentConsent.checked = false;
@@ -839,13 +890,19 @@ const hideStartEnvironmentModal = (clearPracticeTarget = true) => {
 
 const confirmStartEnvironment = () => {
   const practiceIndex = state.pendingPracticeIndex;
+  const sessionQuestionKeys = [...state.pendingSessionQuestionKeys];
   const startMode = state.pendingStartMode;
   if (startMode === "ai" && !elements.startEnvironmentConsent.checked) return;
   state.aiEvaluationConsent = startMode === "ai";
   hideStartEnvironmentModal(false);
   state.pendingPracticeIndex = null;
+  state.pendingSessionQuestionKeys = [];
   if (Number.isInteger(practiceIndex)) {
     startSingleQuestionPractice(practiceIndex, "environment_confirm");
+    return;
+  }
+  if (sessionQuestionKeys.length) {
+    startSelectedQuestionInterview(sessionQuestionKeys.map((key) => questionByProgressKey(key)).filter(Boolean));
     return;
   }
   startInterview();
@@ -868,7 +925,7 @@ const startSingleQuestionPractice = (originalIndex, source = "unknown", roleId =
   const question = questionByOriginalIndex(originalIndex, roleId) || questions[originalIndex];
   if (!question) return;
   trackEvent("practice_click", analyticsQuestionPayload(question, { source }));
-  openQuickPractice(question);
+  openQuickPractice(question, { clearQueue: true, returnView: "question-bank" });
 };
 
 const nextQuestion = async () => {
@@ -1317,8 +1374,8 @@ const renderAuthUi = () => {
   const signedIn = Boolean(state.auth.user);
   const email = state.auth.user?.email || "";
   elements.authButton.classList.toggle("signed-in", signedIn);
-  elements.authButton.setAttribute("aria-label", signedIn ? `${email} 계정` : "로그인");
-  elements.authButtonLabel.textContent = signedIn ? "내 계정" : "로그인";
+  elements.authButton.setAttribute("aria-label", signedIn ? `${email} 마이 페이지` : "로그인");
+  elements.authButtonLabel.textContent = signedIn ? "마이 페이지" : "로그인";
 
   if (elements.authSignedOutPanel && elements.authSignedInPanel) {
     elements.authSignedOutPanel.hidden = signedIn;
@@ -1327,6 +1384,10 @@ const renderAuthUi = () => {
 
   if (elements.authUserEmail) {
     elements.authUserEmail.textContent = email || "-";
+  }
+
+  if (elements.myPageView?.classList.contains("active")) {
+    renderMyPage();
   }
 
   const configured = Boolean(state.auth.client);
@@ -1528,6 +1589,9 @@ const renderStudyProgressSurfaces = () => {
   }
   if (elements.quickPracticeView?.classList.contains("active")) {
     renderQuickPractice();
+  }
+  if (elements.myPageView?.classList.contains("active")) {
+    renderMyPage();
   }
 };
 
@@ -2063,6 +2127,7 @@ const startRecording = async () => {
   state.recordingQuestion = {
     questionNumber: state.currentIndex + 1,
     questionIndex: question.originalIndex,
+    questionKey: progressKey(question),
     question: question.text,
   };
 
@@ -2125,6 +2190,7 @@ const saveRecording = () => {
     captureMode: blob ? "video" : "audio",
     questionNumber: state.recordingQuestion?.questionNumber ?? state.currentIndex + 1,
     questionIndex: state.recordingQuestion?.questionIndex ?? currentQuestion().originalIndex,
+    questionKey: state.recordingQuestion?.questionKey ?? progressKey(currentQuestion()),
     question: state.recordingQuestion?.question ?? currentQuestion().text,
     createdAt: new Date(),
   });
@@ -2136,8 +2202,12 @@ const saveRecording = () => {
   elements.webcamPanel.classList.remove("recording");
 };
 
-const recordingForQuestion = (questionIndex) =>
-  state.recordings.find((recording) => recording.questionIndex === questionIndex);
+const recordingForQuestion = (questionIndex, question = null) =>
+  state.recordings.find((recording) =>
+    question && recording.questionKey
+      ? recording.questionKey === progressKey(question)
+      : recording.questionIndex === questionIndex,
+  );
 
 const stopSttTestStream = () => {
   state.sttTestStream?.getTracks().forEach((track) => track.stop());
@@ -2376,6 +2446,16 @@ const questionBankQuestionsForRole = (roleId = state.questionBank.role) => quest
 
 const questionBankQuestionById = (questionId, roleId = state.questionBank.role) =>
   questionBankQuestionsForRole(roleId).find((question) => String(question.id) === String(questionId));
+
+const questionByProgressKey = (key) => {
+  const [roleId, ...idParts] = String(key || "").split(":");
+  const questionId = idParts.join(":");
+  if (!roleId || !questionId) return null;
+  return questionBankQuestionById(questionId, roleId);
+};
+
+const progressKeysForQuestions = (questionsToMap = []) =>
+  questionsToMap.map((question) => progressKey(question)).filter(Boolean);
 
 const questionBankCategories = () => {
   const categoryCounts = new Map();
@@ -2794,11 +2874,294 @@ const toggleQuestionBankStatus = (questionId, status) => {
   renderQuestionBankList();
 };
 
-const quickPracticeQuestion = () => questionBankQuestionById(state.quickPractice.questionId);
+const myPageBookmarkedQuestions = () =>
+  allQuestionBankQuestions().filter((question) => getQuestionStudyState(question).bookmarked);
+
+const myPageStatusLabel = (status) =>
+  ({
+    known: "대답 가능",
+    confused: "연습 필요",
+  })[status] || "미분류";
+
+const myPageMatchesSearch = (question) => {
+  const query = state.myPage.search.trim().toLowerCase();
+  if (!query) return true;
+  return [
+    question.text,
+    question.answer,
+    question.shortAnswer,
+    question.jobRole,
+    question.category,
+    question.difficulty,
+    ...(question.keywords || []),
+  ]
+    .join(" ")
+    .toLowerCase()
+    .includes(query);
+};
+
+const myPageFilteredBookmarks = () => {
+  const roleFilter = state.myPage.role;
+  const difficultyFilter = state.myPage.difficulty;
+  const categoryFilter = state.myPage.category;
+  const difficultyRank = (question) => QUESTION_BANK_DIFFICULTY_RANK[question.difficulty] ?? 99;
+
+  const filtered = myPageBookmarkedQuestions().filter((question) => {
+    if (roleFilter !== "all" && questionRoleId(question) !== roleFilter) return false;
+    if (difficultyFilter !== "all" && question.difficulty !== difficultyFilter) return false;
+    if (categoryFilter !== "all" && question.category !== categoryFilter) return false;
+    return myPageMatchesSearch(question);
+  });
+
+  return filtered.sort((a, b) => {
+    if (state.myPage.sort === "role") {
+      return questionBankRoleById(questionRoleId(a)).shortLabel.localeCompare(
+        questionBankRoleById(questionRoleId(b)).shortLabel,
+        "ko",
+      ) || questionBankBaseSort(a, b);
+    }
+
+    if (state.myPage.sort === "difficulty") {
+      return difficultyRank(a) - difficultyRank(b) || questionBankBaseSort(a, b);
+    }
+
+    if (state.myPage.sort === "category") {
+      return a.category.localeCompare(b.category, "ko") || questionBankBaseSort(a, b);
+    }
+
+    return getQuestionStudyState(b).updatedAt - getQuestionStudyState(a).updatedAt || questionBankBaseSort(a, b);
+  });
+};
+
+const myPageSelectedQuestions = () =>
+  state.myPage.selectedKeys
+    .map((key) => questionByProgressKey(key))
+    .filter((question) => question && getQuestionStudyState(question).bookmarked);
+
+const syncMyPageCategoryOptions = (bookmarks) => {
+  const categories = [...new Set(
+    bookmarks
+      .filter((question) => state.myPage.role === "all" || questionRoleId(question) === state.myPage.role)
+      .filter((question) => state.myPage.difficulty === "all" || question.difficulty === state.myPage.difficulty)
+      .filter(myPageMatchesSearch)
+      .map((question) => question.category),
+  )].sort((a, b) => a.localeCompare(b, "ko"));
+
+  if (state.myPage.category !== "all" && !categories.includes(state.myPage.category)) {
+    state.myPage.category = "all";
+  }
+
+  elements.myPageCategoryFilter.innerHTML = [
+    '<option value="all">전체 카테고리</option>',
+    ...categories.map((category) => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`),
+  ].join("");
+  elements.myPageCategoryFilter.value = state.myPage.category;
+};
+
+const renderMyPageFilters = (bookmarks) => {
+  elements.myPageRoleFilter.innerHTML = [
+    '<option value="all">전체 직무</option>',
+    ...QUESTION_BANK_ROLES.filter((role) => role.enabled).map(
+      (role) => `<option value="${role.id}">${escapeHtml(role.shortLabel)}</option>`,
+    ),
+  ].join("");
+  elements.myPageRoleFilter.value = state.myPage.role;
+
+  elements.myPageDifficultyFilter.innerHTML = [
+    '<option value="all">전체 난이도</option>',
+    ...QUESTION_BANK_DIFFICULTIES.map(
+      (difficulty) => `<option value="${escapeHtml(difficulty)}">${escapeHtml(difficulty)}</option>`,
+    ),
+  ].join("");
+  elements.myPageDifficultyFilter.value = state.myPage.difficulty;
+  elements.myPageSearch.value = state.myPage.search;
+  elements.myPageSort.value = state.myPage.sort;
+  syncMyPageCategoryOptions(bookmarks);
+};
+
+const renderMyPageSelectionBar = (visibleQuestions) => {
+  const selectedQuestions = myPageSelectedQuestions();
+  const selectedCount = selectedQuestions.length;
+  const visibleKeys = new Set(visibleQuestions.map((question) => progressKey(question)));
+  const visibleSelectedCount = state.myPage.selectedKeys.filter((key) => visibleKeys.has(key)).length;
+
+  elements.myPageSelectedCount.textContent = selectedCount;
+  elements.myPageSelectedBar.hidden = selectedCount === 0;
+  elements.myPageSelectAll.checked = visibleQuestions.length > 0 && visibleSelectedCount === visibleQuestions.length;
+  elements.myPageSelectAll.indeterminate = visibleSelectedCount > 0 && visibleSelectedCount < visibleQuestions.length;
+  elements.myPageQuickPracticeButton.disabled = selectedCount === 0;
+  elements.myPageMockPracticeButton.disabled = selectedCount === 0;
+  elements.myPageRemoveSelectedButton.disabled = selectedCount === 0;
+};
+
+const renderMyPage = () => {
+  const signedIn = Boolean(state.auth.user);
+  elements.myPageSignedOut.hidden = signedIn;
+  elements.myPageSignedIn.hidden = !signedIn;
+  elements.myPageSelectedBar.hidden = true;
+
+  if (!signedIn) {
+    renderIcons();
+    return;
+  }
+
+  const bookmarks = myPageBookmarkedQuestions();
+  const bookmarkKeys = new Set(bookmarks.map((question) => progressKey(question)));
+  state.myPage.selectedKeys = state.myPage.selectedKeys.filter((key) => bookmarkKeys.has(key));
+  const visibleQuestions = myPageFilteredBookmarks();
+
+  elements.myPageUserEmail.textContent = state.auth.user?.email || "-";
+  elements.myPageBookmarkCount.textContent = bookmarks.length;
+  renderMyPageFilters(bookmarks);
+
+  const hasBookmarks = bookmarks.length > 0;
+  elements.myPageEmpty.hidden = hasBookmarks && visibleQuestions.length > 0;
+  elements.myPageList.hidden = !hasBookmarks || visibleQuestions.length === 0;
+  elements.myPageSelectAll.disabled = !visibleQuestions.length;
+  elements.myPageClearSelection.disabled = !state.myPage.selectedKeys.length;
+
+  if (!hasBookmarks) {
+    elements.myPageEmpty.querySelector("strong").textContent = "아직 북마크한 질문이 없습니다.";
+    elements.myPageEmpty.querySelector("p").textContent = "질문 모음에서 다시 보고 싶은 질문을 북마크해두면 이곳에 모입니다.";
+    elements.myPageList.innerHTML = "";
+    renderMyPageSelectionBar([]);
+    renderIcons();
+    return;
+  }
+
+  if (!visibleQuestions.length) {
+    elements.myPageEmpty.querySelector("strong").textContent = "조건에 맞는 북마크가 없습니다.";
+    elements.myPageEmpty.querySelector("p").textContent = "필터나 검색어를 조정해보세요.";
+    elements.myPageList.innerHTML = "";
+    renderMyPageSelectionBar([]);
+    renderIcons();
+    return;
+  }
+
+  elements.myPageList.innerHTML = visibleQuestions
+    .map((question) => {
+      const key = progressKey(question);
+      const studyState = getQuestionStudyState(question);
+      const selected = state.myPage.selectedKeys.includes(key);
+      const status = studyState.status || "none";
+      return `
+        <article class="my-bookmark-item ${selected ? "selected" : ""}" data-my-page-key="${escapeHtml(key)}">
+          <label class="my-bookmark-check">
+            <input type="checkbox" data-my-page-select="${escapeHtml(key)}" ${selected ? "checked" : ""} />
+            <span class="sr-only">질문 선택</span>
+          </label>
+          <div class="my-bookmark-main">
+            <div class="my-bookmark-meta">
+              <span>${escapeHtml(questionBankRoleById(questionRoleId(question)).shortLabel)}</span>
+              <span class="bank-difficulty-badge ${questionBankDifficultyClass(question.difficulty)}">${escapeHtml(question.difficulty)}</span>
+              <span>${escapeHtml(question.category)}</span>
+              <span class="my-bookmark-status ${status}">${escapeHtml(myPageStatusLabel(studyState.status))}</span>
+            </div>
+            <strong>${escapeHtml(question.text)}</strong>
+          </div>
+          <div class="my-bookmark-actions">
+            <button class="outline-button" type="button" data-my-page-practice="${escapeHtml(key)}">빠른 연습</button>
+            <button class="danger-outline-button" type="button" data-my-page-unbookmark="${escapeHtml(key)}">북마크 해제</button>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+
+  renderMyPageSelectionBar(visibleQuestions);
+  renderIcons();
+};
+
+const setMyPageSelection = (keys) => {
+  state.myPage.selectedKeys = [...new Set(keys)].filter((key) => {
+    const question = questionByProgressKey(key);
+    return question && getQuestionStudyState(question).bookmarked;
+  });
+  renderMyPage();
+};
+
+const removeMyPageBookmarks = (keys) => {
+  const questionsToRemove = [...new Set(keys)]
+    .map((key) => questionByProgressKey(key))
+    .filter(Boolean);
+
+  questionsToRemove.forEach((question) => {
+    setQuestionStudyState(question, { bookmarked: false });
+    trackEvent("bookmark_click", analyticsQuestionPayload(question, {
+      source: "my_page",
+      bookmarked: 0,
+      action: "remove",
+    }));
+  });
+
+  const removedKeys = new Set(questionsToRemove.map((question) => progressKey(question)));
+  state.myPage.selectedKeys = state.myPage.selectedKeys.filter((key) => !removedKeys.has(key));
+  renderMyPage();
+  renderStudyProgressSurfaces();
+};
+
+const startMyPageQuickPractice = (questionKeys = state.myPage.selectedKeys) => {
+  const questionsToPractice = [...new Set(questionKeys)]
+    .map((key) => questionByProgressKey(key))
+    .filter(Boolean);
+  if (!questionsToPractice.length) return;
+  trackEvent("my_page_quick_practice_start", { question_count: questionsToPractice.length });
+  openQuickPractice(questionsToPractice[0], {
+    queueQuestions: questionsToPractice,
+    returnView: "my-page",
+  });
+};
+
+const showMyPracticeModal = () => {
+  if (!myPageSelectedQuestions().length) return;
+  elements.myPracticeModal.classList.add("open");
+  elements.myPracticeModal.setAttribute("aria-hidden", "false");
+  renderIcons();
+};
+
+const hideMyPracticeModal = () => {
+  elements.myPracticeModal.classList.remove("open");
+  elements.myPracticeModal.setAttribute("aria-hidden", "true");
+};
+
+const startSelectedQuestionInterview = (questionsToInterview) => {
+  if (!questionsToInterview.length) return;
+  state.interviewMode = "standard";
+  state.aiEvaluationConsent = false;
+  state.config.role = questionRoleId(questionsToInterview[0]);
+  state.config.rigor = "선택 문항";
+  state.config.questionCount = questionsToInterview.length;
+  state.config.prepSeconds = Math.max(0, Number(elements.myPracticePrepTime.value) || 0);
+  state.config.answerSeconds = Math.max(60, Number(elements.myPracticeAnswerTime.value) || 120);
+  setRecordingMode(state.recordingEnabled);
+  trackEvent("my_page_mock_practice_start", {
+    question_count: questionsToInterview.length,
+    prep_seconds: state.config.prepSeconds,
+    answer_seconds: state.config.answerSeconds,
+  });
+  resetForInterview(questionsToInterview.map((question) => ({ ...question })));
+  setView("check");
+};
+
+const confirmMyPractice = () => {
+  const questionsToInterview = myPageSelectedQuestions();
+  if (!questionsToInterview.length) return;
+  state.pendingSessionQuestionKeys = progressKeysForQuestions(questionsToInterview);
+  hideMyPracticeModal();
+  showStartEnvironmentModal({ questionKeys: state.pendingSessionQuestionKeys });
+};
+
+const quickPracticeQuestion = () =>
+  questionByProgressKey(state.quickPractice.questionKey) || questionBankQuestionById(state.quickPractice.questionId);
 
 const quickPracticeSequence = () => {
+  const queueQuestions = state.quickPractice.queueKeys.map((key) => questionByProgressKey(key)).filter(Boolean);
+  if (queueQuestions.length) {
+    return queueQuestions;
+  }
+
   const filtered = filteredQuestionBankQuestions();
-  if (filtered.some((question) => String(question.id) === String(state.quickPractice.questionId))) {
+  if (filtered.some((question) => progressKey(question) === state.quickPractice.questionKey)) {
     return filtered;
   }
   return questionBankQuestionsForRole();
@@ -2806,7 +3169,7 @@ const quickPracticeSequence = () => {
 
 const quickPracticeQuestionPosition = (question) => {
   const sequence = quickPracticeSequence();
-  const index = sequence.findIndex((item) => String(item.id) === String(question.id));
+  const index = sequence.findIndex((item) => progressKey(item) === progressKey(question));
   return {
     current: index >= 0 ? index + 1 : 1,
     total: sequence.length || 1,
@@ -3082,10 +3445,18 @@ const openQuickPractice = (question, options = {}) => {
   if (state.quickPractice.audioUrl) {
     URL.revokeObjectURL(state.quickPractice.audioUrl);
   }
+  const queueQuestions = Array.isArray(options.queueQuestions) ? options.queueQuestions.filter(Boolean) : null;
   if (question.roleId && state.questionBank.role !== question.roleId) {
     resetQuestionBankFiltersForRole(question.roleId);
   }
   state.quickPractice.questionId = question.id;
+  state.quickPractice.questionKey = progressKey(question);
+  if (queueQuestions) {
+    state.quickPractice.queueKeys = progressKeysForQuestions(queueQuestions);
+  } else if (options.clearQueue !== false) {
+    state.quickPractice.queueKeys = [];
+  }
+  state.quickPractice.returnView = options.returnView || state.quickPractice.returnView || "question-bank";
   state.quickPractice.tab = "practice";
   state.quickPractice.audioUrl = "";
   state.quickPractice.elapsed = 0;
@@ -3101,7 +3472,7 @@ const openPracticeQuestionFromUrl = (options = {}) => {
   const question = questionBankQuestionById(questionId, roleId);
   if (!question) return false;
 
-  openQuickPractice(question, options);
+  openQuickPractice(question, { ...options, clearQueue: true, returnView: "question-bank" });
   return true;
 };
 
@@ -3140,10 +3511,13 @@ const openNextQuickPracticeQuestion = () => {
   const question = quickPracticeQuestion();
   if (!question) return;
   const sequence = quickPracticeSequence();
-  const currentIndex = sequence.findIndex((item) => String(item.id) === String(question.id));
+  const currentIndex = sequence.findIndex((item) => progressKey(item) === progressKey(question));
   const nextQuestion = sequence[(currentIndex + 1 + sequence.length) % sequence.length] || sequence[0];
   if (nextQuestion) {
-    openQuickPractice(nextQuestion);
+    openQuickPractice(nextQuestion, {
+      clearQueue: false,
+      returnView: state.quickPractice.returnView || "question-bank",
+    });
   }
 };
 
@@ -3241,7 +3615,7 @@ const startAiEvaluations = async () => {
   state.aiEvaluating = true;
 
   for (const question of state.completedQuestions) {
-    const recording = recordingForQuestion(question.originalIndex);
+    const recording = recordingForQuestion(question.originalIndex, question);
     if (!recording?.blob) {
       setAiEvaluationState(question.originalIndex, {
         status: "error",
@@ -3401,7 +3775,7 @@ const renderResultPage = () => {
 
   elements.resultList.innerHTML = state.completedQuestions
     .map((question, index) => {
-      const recording = recordingForQuestion(question.originalIndex);
+      const recording = recordingForQuestion(question.originalIndex, question);
       const keywordBlock = renderKeywordBlock(question.keywords);
       const aiEvaluationBlock = renderAiEvaluationBlock(question, recording);
       const reviewMedia = recording?.blob
@@ -3592,7 +3966,7 @@ const bindQuestionBankControls = () => {
 };
 
 const bindQuickPracticeControls = () => {
-  elements.quickPracticeBackButton.addEventListener("click", () => setView("question-bank"));
+  elements.quickPracticeBackButton.addEventListener("click", () => setView(state.quickPractice.returnView || "question-bank"));
   elements.quickPracticeBookmarkButton.addEventListener("click", toggleQuickPracticeBookmark);
   elements.quickPracticeAnswerButton.addEventListener("click", () => {
     if (state.quickPractice.tab !== "answer") {
@@ -3632,6 +4006,85 @@ const bindQuickPracticeControls = () => {
       if (question) {
         openQuickPractice(question);
       }
+    }
+  });
+};
+
+const bindMyPageControls = () => {
+  elements.myPageLoginButton.addEventListener("click", showAuthModal);
+  elements.myPageSignOutButton.addEventListener("click", signOut);
+
+  elements.myPageRoleFilter.addEventListener("change", () => {
+    state.myPage.role = elements.myPageRoleFilter.value;
+    state.myPage.category = "all";
+    renderMyPage();
+  });
+
+  elements.myPageDifficultyFilter.addEventListener("change", () => {
+    state.myPage.difficulty = elements.myPageDifficultyFilter.value;
+    state.myPage.category = "all";
+    renderMyPage();
+  });
+
+  elements.myPageCategoryFilter.addEventListener("change", () => {
+    state.myPage.category = elements.myPageCategoryFilter.value;
+    renderMyPage();
+  });
+
+  elements.myPageSearch.addEventListener("input", () => {
+    state.myPage.search = elements.myPageSearch.value;
+    renderMyPage();
+  });
+
+  elements.myPageSort.addEventListener("change", () => {
+    state.myPage.sort = elements.myPageSort.value;
+    renderMyPage();
+  });
+
+  elements.myPageSelectAll.addEventListener("change", () => {
+    const visibleKeys = myPageFilteredBookmarks().map((question) => progressKey(question));
+    if (elements.myPageSelectAll.checked) {
+      setMyPageSelection([...state.myPage.selectedKeys, ...visibleKeys]);
+    } else {
+      const visibleSet = new Set(visibleKeys);
+      setMyPageSelection(state.myPage.selectedKeys.filter((key) => !visibleSet.has(key)));
+    }
+  });
+
+  elements.myPageClearSelection.addEventListener("click", () => setMyPageSelection([]));
+  elements.myPageQuickPracticeButton.addEventListener("click", () => startMyPageQuickPractice());
+  elements.myPageMockPracticeButton.addEventListener("click", showMyPracticeModal);
+  elements.myPageRemoveSelectedButton.addEventListener("click", () => removeMyPageBookmarks(state.myPage.selectedKeys));
+
+  elements.myPageList.addEventListener("change", (event) => {
+    const checkbox = event.target.closest("[data-my-page-select]");
+    if (!checkbox) return;
+    const key = checkbox.dataset.myPageSelect;
+    setMyPageSelection(
+      checkbox.checked
+        ? [...state.myPage.selectedKeys, key]
+        : state.myPage.selectedKeys.filter((item) => item !== key),
+    );
+  });
+
+  elements.myPageList.addEventListener("click", (event) => {
+    const practiceButton = event.target.closest("[data-my-page-practice]");
+    if (practiceButton) {
+      startMyPageQuickPractice([practiceButton.dataset.myPagePractice]);
+      return;
+    }
+
+    const unbookmarkButton = event.target.closest("[data-my-page-unbookmark]");
+    if (unbookmarkButton) {
+      removeMyPageBookmarks([unbookmarkButton.dataset.myPageUnbookmark]);
+    }
+  });
+
+  elements.cancelMyPracticeButton.addEventListener("click", hideMyPracticeModal);
+  elements.confirmMyPracticeButton.addEventListener("click", confirmMyPractice);
+  elements.myPracticeModal.addEventListener("click", (event) => {
+    if (event.target === elements.myPracticeModal) {
+      hideMyPracticeModal();
     }
   });
 };
@@ -3782,7 +4235,13 @@ const bindInterviewControls = () => {
       hideReportModal();
     }
   });
-  elements.authButton.addEventListener("click", showAuthModal);
+  elements.authButton.addEventListener("click", () => {
+    if (state.auth.user) {
+      requestViewChange("my-page");
+    } else {
+      showAuthModal();
+    }
+  });
   elements.closeAuthButton.addEventListener("click", hideAuthModal);
   elements.magicLinkForm.addEventListener("submit", sendMagicLink);
   elements.googleLoginButton.addEventListener("click", signInWithGoogle);
@@ -3859,6 +4318,7 @@ window.addEventListener("load", () => {
   bindLandingControls();
   bindQuestionBankControls();
   bindQuickPracticeControls();
+  bindMyPageControls();
   bindSetupControls();
   bindInterviewControls();
   bindResultControls();
