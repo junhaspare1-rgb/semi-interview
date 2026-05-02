@@ -27,8 +27,8 @@
 - 상단 탭 순서: `질문 모음 / 모의 면접 / Contact`
 - 기본 진입 화면: 직무 선택 랜딩 페이지
 - 좌상단 로고 클릭 시 랜딩 페이지로 이동
-- `/`는 SPA 앱으로 유지
-- SEO용 정적 페이지는 별도 URL에 생성되어 있고, CTA로 기존 앱에 연결
+- SPA 앱은 유지하되 `/`, `/questions`, `/mock-interview`, `/contact`, `/practice?...` 메뉴별 URL을 사용
+- SEO용 정적 페이지는 현재 비활성화되어 있으며, 기존 `/jobs/*` 링크는 `/questions`로 이동
 
 ### 랜딩 페이지
 
@@ -59,8 +59,9 @@
 - 모바일/데스크톱 모두 면접 환경 체크 없이 가볍게 연습 가능
 - 녹음 버튼으로 답변 연습
 - 녹음 재생 중에도 모범 답안을 확인할 수 있음
-- `/?practiceQuestion={id}`로 공정기술 문항 빠른 연습 화면 진입 가능
-- Package & Test 문항은 `/?role=package-test&practiceQuestion={id}`로 빠른 연습 화면 진입 가능
+- `/practice?role=process&id={id}`로 공정기술 문항 빠른 연습 화면 진입 가능
+- `/practice?role=package-test&id={id}`로 Package & Test 문항 빠른 연습 화면 진입 가능
+- 기존 `/?practiceQuestion={id}&role=process` 형식도 호환 유지
 
 ### 모의 면접
 
@@ -116,41 +117,32 @@ python -B -m py_compile scripts\build_process_questions.py scripts\build_package
 
 ## SEO 구조
 
-기존 앱 UX는 `/`에서 유지하고, 검색 유입용 정적 HTML 페이지를 별도로 생성합니다.
+현재 생성형 SEO 정적 페이지는 비활성화되어 있습니다. `/jobs/process/...` 산출물과 하위 sitemap은 삭제했고, 기존 `/jobs/*` 방문자는 Cloudflare `_redirects`에서 `/questions`로 302 이동합니다.
 
-주요 URL:
+현재 앱 URL:
 
-- `/jobs/process/questions/` 공정기술 질문 허브
-- `/jobs/process/categories/{categorySlug}/` 공정별 질문 페이지
-- `/jobs/process/difficulties/{difficultySlug}/` 난이도별 질문 페이지
-- `/jobs/process/questions/q-{id}/` 대표 개별 질문 페이지
+- `/` 랜딩
+- `/questions` 질문 모음
+- `/mock-interview` 모의 면접 설정
+- `/contact` Contact
+- `/practice?role=process&id=12` 문항별 빠른 연습
 
-SEO 산출물:
+호환 URL:
 
-- `jobs/`
-- `sitemaps/`
-- `sitemap.xml`
-- `robots.txt`
-- `about.html`
-- `terms.html`
-- `disclaimer.html`
+- `/?practiceQuestion=12&role=process`는 계속 문항별 빠른 연습으로 열립니다.
 
-SEO 생성 스크립트:
+현재 SEO 산출물:
+
+- `sitemap.xml`: 단일 urlset. `/`, `/questions`, `/mock-interview`, `/contact`, `/privacy.html`, `/terms.html`, `/disclaimer.html`만 포함
+- `robots.txt`: `sitemap.xml`만 참조
+- `_redirects`: SPA 직접 접속과 `/jobs/*` 리다이렉트 처리
+- `privacy.html`, `terms.html`, `disclaimer.html`: 유지
+
+보관 중인 SEO 생성 스크립트:
 
 - `scripts/build_seo_pages.py`
 
-현재 SEO 정책:
-
-- 대표 50개 문항만 개별 질문 페이지와 질문 sitemap에 포함
-- 카테고리/난이도 페이지는 검색 유입용 허브 역할
-- 앱 내부 다중 필터 조합은 sitemap에 넣지 않음
-- 개별 질문 페이지 CTA는 `/?practiceQuestion={id}`로 연결
-
-사이트맵 확인 URL:
-
-- `https://xn--e42b13ak0f.kr/sitemap.xml`
-- `https://xn--e42b13ak0f.kr/robots.txt`
-- `https://xn--e42b13ak0f.kr/sitemaps/questions-process.xml`
+추후 SEO 정적 페이지를 재개하려면 질문 데이터가 안정화된 뒤 `scripts/build_seo_pages.py`를 다시 사용해 `jobs/`, `sitemaps/`, sitemap index 구조를 재생성하면 됩니다.
 
 ## API와 환경변수
 
@@ -243,7 +235,11 @@ git diff --check HEAD~1 HEAD
 
 - Cloudflare Pages 배포 성공 여부
 - `/` 앱 접속
-- `/jobs/process/questions/`
+- `/questions`
+- `/mock-interview`
+- `/contact`
+- `/practice?role=process&id=1`
+- `/jobs/process/questions/`가 `/questions`로 리다이렉트되는지
 - `/sitemap.xml`
 - `/robots.txt`
 - 모바일 질문 모음 모범 답안 너비
