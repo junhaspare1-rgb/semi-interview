@@ -85,6 +85,7 @@ const state = {
     ready: false,
     loading: false,
     progressSyncing: false,
+    lastSyncError: "",
     session: null,
     user: null,
   },
@@ -1157,6 +1158,36 @@ const authRedirectUrl = () => {
   return `${window.location.origin}${window.location.pathname}`;
 };
 
+const authCallbackParams = () => {
+  const params = new URLSearchParams(window.location.search);
+  const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+  return { params, hashParams };
+};
+
+const readAuthCallbackError = () => {
+  const { params, hashParams } = authCallbackParams();
+  return (
+    hashParams.get("error_description") ||
+    hashParams.get("error") ||
+    params.get("error_description") ||
+    params.get("error") ||
+    ""
+  );
+};
+
+const clearAuthCallbackFragments = () => {
+  if (window.location.protocol === "file:" || (!window.location.hash && !window.location.search)) return;
+  const url = new URL(window.location.href);
+  const hasAuthParams =
+    url.hash.includes("access_token") ||
+    url.hash.includes("error") ||
+    url.searchParams.has("code") ||
+    url.searchParams.has("error") ||
+    url.searchParams.has("error_description");
+  if (!hasAuthParams) return;
+  window.history.replaceState({}, document.title, `${url.origin}${url.pathname}`);
+};
+
 const localAuthConfig = () => {
   const config = window.BANMYEONPPU_AUTH_CONFIG || {};
   return {
@@ -1197,6 +1228,15 @@ const setAuthStatus = (message = "", tone = "muted") => {
   if (!elements.authStatus) return;
   elements.authStatus.textContent = message;
   elements.authStatus.dataset.tone = tone;
+};
+
+const reportAuthSyncError = (context, error) => {
+  const message = error?.message || "알 수 없는 동기화 오류";
+  state.auth.lastSyncError = message;
+  console.warn(`Question progress sync failed: ${context}`, error);
+  if (elements.authModal?.classList.contains("open")) {
+    setAuthStatus(`학습 진도 동기화 실패: ${message}`, "warning");
+  }
 };
 
 const renderAuthUi = () => {
@@ -1256,16 +1296,27 @@ const initAuth = async () => {
   });
 
   try {
+    const callbackError = readAuthCallbackError();
     const { data } = await state.auth.client.auth.getSession();
     applyAuthSession(data?.session || null);
+    if (callbackError && !data?.session) {
+      showAuthModal();
+      setAuthStatus(`Google 로그인 실패: ${callbackError}`, "warning");
+    }
+    if (callbackError || data?.session) {
+      clearAuthCallbackFragments();
+    }
     if (data?.session) {
-      syncAccountData({ silent: true }).catch(() => {});
+      syncAccountData({ silent: true }).catch((error) => {
+        reportAuthSyncError("initial account sync", error);
+      });
     }
     state.auth.client.auth.onAuthStateChange((event, session) => {
       applyAuthSession(session);
       if (event === "SIGNED_IN") {
         setAuthStatus("로그인되었습니다.", "success");
-        syncAccountData().catch(() => {
+        syncAccountData().catch((error) => {
+          reportAuthSyncError("sign in account sync", error);
           setAuthStatus("학습 진도 동기화에 실패했습니다. 잠시 후 다시 시도해주세요.", "warning");
         });
       }
@@ -1286,7 +1337,7 @@ const showAuthModal = () => {
   elements.authModal.classList.add("open");
   elements.authModal.setAttribute("aria-hidden", "false");
   if (state.auth.user) {
-    setAuthStatus("로그인 상태에서는 학습 진도와 북마크가 Supabase와 동기화됩니다.", "muted");
+    setAuthStatus("로그인 상태에서는 학습 진도와 북마크가 동기화됩니다.", "muted");
   } else if (!state.auth.client) {
     setAuthStatus("Supabase 설정이 필요합니다. Cloudflare 환경변수에 SUPABASE_URL, SUPABASE_ANON_KEY를 넣으면 활성화됩니다.", "warning");
   } else {
@@ -1349,7 +1400,12 @@ const signInWithGoogle = async () => {
     const redirectTo = authRedirectUrl();
     const { error } = await state.auth.client.auth.signInWithOAuth({
       provider: "google",
-      options: redirectTo ? { redirectTo } : undefined,
+      options: {
+        ...(redirectTo ? { redirectTo } : {}),
+        queryParams: {
+          prompt: "select_account",
+        },
+      },
     });
     if (error) throw error;
     trackEvent("auth_oauth_start", { provider: "google" });
@@ -2234,10 +2290,8 @@ const setQuestionStudyState = (question, nextState) => {
   }
 
   writeStudyProgress();
-  syncQuestionProgress(question).catch(() => {
-    if (elements.authModal?.classList.contains("open")) {
-      setAuthStatus("학습 진도 저장에 실패했습니다. 네트워크 상태를 확인해주세요.", "warning");
-    }
+  syncQuestionProgress(question).catch((error) => {
+    reportAuthSyncError("single question progress sync", error);
   });
 };
 

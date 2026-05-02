@@ -1384,8 +1384,8 @@ button {
 .question-bank-card h2 {
   margin: 0;
   color: var(--ink);
-  font-size: 20px;
-  line-height: 1.42;
+  font-size: 18px;
+  line-height: 1.38;
   font-weight: 900;
   letter-spacing: 0;
   word-break: keep-all;
@@ -1395,16 +1395,16 @@ button {
   flex: 1 1 auto;
   overflow: hidden;
   min-width: 0;
-  font-size: 16px;
-  line-height: 1.38;
+  font-size: 15px;
+  line-height: 1.32;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .question-bank-list.list-layout .question-bank-card.expanded h2 {
   overflow: visible;
-  font-size: 20px;
-  line-height: 1.42;
+  font-size: 18px;
+  line-height: 1.38;
   text-overflow: clip;
   white-space: normal;
 }
@@ -5203,8 +5203,8 @@ input[type="number"] {
     display: -webkit-box;
     overflow: hidden;
     padding-right: 0;
-    font-size: 16px;
-    line-height: 1.34;
+    font-size: 14px;
+    line-height: 1.28;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
   }
@@ -5217,6 +5217,8 @@ input[type="number"] {
 
   .question-bank-card h2 {
     padding-right: 58px;
+    font-size: 17px;
+    line-height: 1.34;
   }
 
   .question-bank-card-main > .bank-bookmark-button {
