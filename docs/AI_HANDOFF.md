@@ -17,22 +17,32 @@
 ## 프로젝트 개요
 
 - 서비스명: 반도체 면접 뿌수기, 줄여서 반면뿌
-- 목적: 반도체 공정기술/양산기술 직무 면접을 기출 질문, 모범 답안, 빠른 연습, 모의면접으로 준비하는 웹앱
+- 목적: 반도체 공정기술/양산기술 직무 면접을 질문 모음, 모범 답안, 빠른 연습, 모의면접으로 준비하는 웹앱
 - 현재 주요 도메인: `https://xn--e42b13ak0f.kr/` (`반면뿌.kr`)
 - GitHub 원격 저장소: `https://github.com/junhaspare1-rgb/semi-interview`
 - 배포 방식: `main`에서 개발 후 `release` 브랜치에 병합/푸시하면 Cloudflare Pages 배포
 
 ## 현재 사용자 화면 구조
 
-- 상단 탭 순서: `About / 기출 질문 / 모의 면접`
-- 기본 진입 화면: `기출 질문`
-- 좌상단 로고 클릭 시 `기출 질문`으로 이동
+- 상단 탭 순서: `질문 모음 / 모의 면접 / Contact`
+- 기본 진입 화면: 직무 선택 랜딩 페이지
+- 좌상단 로고 클릭 시 랜딩 페이지로 이동
 - `/`는 SPA 앱으로 유지
 - SEO용 정적 페이지는 별도 URL에 생성되어 있고, CTA로 기존 앱에 연결
 
+### 랜딩 페이지
+
+- 첫 화면에서 사용자가 준비 중인 반도체 직무를 선택
+- 현재 사용 가능한 직무는 `공정기술/양산기술`, `Package & Test`
+- 미구현 직무는 `소자`, `회로설계`
+- 미구현 직무를 선택하면 작은 팝업으로 준비 중 안내와 이메일 오픈 알림 폼 표시
+- 오픈 알림 API는 `functions/api/waitlist.js`
+- 기본 저장소는 `WAITLIST_KV`, 없으면 `FEEDBACK_KV`를 재사용
+- 랜딩 하단에는 기존 About 핵심 내용을 카드 형태로 노출
+
 ## 핵심 기능
 
-### 기출 질문
+### 질문 모음
 
 - 공정기술/양산기술 질문 데이터 기반 문제 은행
 - 난이도/카테고리 다중 선택 필터
@@ -49,11 +59,13 @@
 - 모바일/데스크톱 모두 면접 환경 체크 없이 가볍게 연습 가능
 - 녹음 버튼으로 답변 연습
 - 녹음 재생 중에도 모범 답안을 확인할 수 있음
-- `/?practiceQuestion={id}`로 특정 문항 빠른 연습 화면 진입 가능
+- `/?practiceQuestion={id}`로 공정기술 문항 빠른 연습 화면 진입 가능
+- Package & Test 문항은 `/?role=package-test&practiceQuestion={id}`로 빠른 연습 화면 진입 가능
 
 ### 모의 면접
 
 - 일반 모의면접과 AI 모의면접 분리
+- 모의면접 설정 화면은 `면접 방식 선택 → 직무 및 상세 설정 → 환경 점검 → 시작` 카드형 UI
 - 일반 모의면접: 사용자가 질문 수, 준비 시간, 답변 시간 등을 설정
 - AI 모의면접: 파일럿 용도로 관리자 키 입력 후 접근
 - AI 모의면접은 답변 음성/전사문을 서버로 보내 채점
@@ -71,24 +83,29 @@
 
 원본 엑셀:
 
-- `source/QnA_공정기술_r1.xlsx`
+- `C:\Users\김준하\OneDrive\Desktop\김준하\005. Coding\03. Codex\PJT 반면뿌\Q&A\QnA_공정기술.xlsx`
+- `C:\Users\김준하\OneDrive\Desktop\김준하\005. Coding\03. Codex\PJT 반면뿌\Q&A\Q&A_Package&Test.xlsx`
 
 생성 산출물:
 
 - `data/process-questions.json`
 - `data/process-questions.js`
+- `data/package-test-questions.json`
+- `data/package-test-questions.js`
 
 변환 스크립트:
 
 - `scripts/build_process_questions.py`
+- `scripts/build_package_test_questions.py`
 
 문제 데이터를 새 엑셀로 갱신할 때의 기본 흐름:
 
 ```powershell
-python scripts\build_process_questions.py source\QnA_공정기술_r1.xlsx data
+python scripts\build_process_questions.py "C:\Users\김준하\OneDrive\Desktop\김준하\005. Coding\03. Codex\PJT 반면뿌\Q&A\QnA_공정기술.xlsx" data
+python scripts\build_package_test_questions.py "C:\Users\김준하\OneDrive\Desktop\김준하\005. Coding\03. Codex\PJT 반면뿌\Q&A\Q&A_Package&Test.xlsx" data
 python scripts\build_seo_pages.py
 node --check app.js
-python -B -m py_compile scripts\build_process_questions.py scripts\build_seo_pages.py
+python -B -m py_compile scripts\build_process_questions.py scripts\build_package_test_questions.py scripts\build_seo_pages.py
 ```
 
 주의:
@@ -229,7 +246,7 @@ git diff --check HEAD~1 HEAD
 - `/jobs/process/questions/`
 - `/sitemap.xml`
 - `/robots.txt`
-- 모바일 기출 질문 모범 답안 너비
+- 모바일 질문 모음 모범 답안 너비
 - GA/Clarity 콘솔 오류 여부
 
 ## 최근 주요 커밋
@@ -255,8 +272,9 @@ git diff --check HEAD~1 HEAD
 
 ## 새 기능을 넣을 때의 원칙
 
-- 기출 질문 화면은 체류 시간과 SEO 유입을 받는 핵심 화면으로 본다.
+- 질문 모음 화면은 체류 시간과 SEO 유입을 받는 핵심 화면으로 본다.
 - 빠른 연습은 면접 환경 체크보다 가벼운 반복 학습 경험으로 유지한다.
 - 모의면접은 실전감 있는 별도 흐름으로 유지한다.
-- 결제, 로그인, 관리자 페이지, 직무별 문제 관리는 추후 DB 구조로 이관할 수 있게 데이터 필드와 URL slug를 안정적으로 유지한다.
-- 사용자의 학습 상태는 현재 localStorage 기반이므로, 로그인 전환 시 마이그레이션 전략이 필요하다.
+- 결제, 관리자 페이지, 직무별 문제 관리는 추후 DB 구조로 이관할 수 있게 데이터 필드와 URL slug를 안정적으로 유지한다.
+- 계정 시스템은 Supabase 선택 로그인 1차 구조가 들어가 있다. 환경변수는 `SUPABASE_URL`, `SUPABASE_ANON_KEY`이며, 스키마와 설정법은 `docs/SUPABASE_AUTH_SETUP.md`와 `supabase/schema.sql`을 확인한다.
+- 사용자의 학습 상태는 기본적으로 localStorage 키 `banmyeonppu_question_progress_v1`에 저장되고, 로그인 사용자는 `question_progress`와 병합 동기화된다. 키를 바꾸면 기존 사용자 학습 상태가 초기화될 수 있다.

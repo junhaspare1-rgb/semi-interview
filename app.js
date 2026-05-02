@@ -3,34 +3,53 @@ const DIFFICULTY_ALIASES = {
   실무: "실전",
 };
 const normalizeDifficulty = (difficulty) => DIFFICULTY_ALIASES[difficulty] || difficulty;
-const sourceQuestions = Array.isArray(window.BANMYEONPPU_PROCESS_QUESTIONS)
+const processSourceQuestions = Array.isArray(window.BANMYEONPPU_PROCESS_QUESTIONS)
   ? window.BANMYEONPPU_PROCESS_QUESTIONS
   : [];
-const questionBank = sourceQuestions
-  .map((question, index) => ({
-    id: question.id ?? index + 1,
-    jobRole: question.jobRole || "공정기술",
-    category: question.category || "기타",
-    group: question.group || (MAIN_PROCESS_CATEGORIES.has(question.category) ? "main" : "other"),
-    difficulty: normalizeDifficulty(question.difficulty || "입문"),
-    text: question.question || question.text || "",
-    answer: question.answer || "",
-    shortAnswer: question.shortAnswer || question["40초 Script"] || "",
-    keywords: Array.isArray(question.keywords) ? question.keywords : [],
+const packageTestSourceQuestions = Array.isArray(window.BANMYEONPPU_PACKAGE_TEST_QUESTIONS)
+  ? window.BANMYEONPPU_PACKAGE_TEST_QUESTIONS
+  : [];
+const buildQuestionBank = (sourceQuestions, { roleId, jobRole, mainCategories = new Set() }) =>
+  sourceQuestions
+    .map((question, index) => ({
+      id: question.id ?? index + 1,
+      roleId,
+      jobRole: question.jobRole || jobRole,
+      category: question.category || "기타",
+      group: question.group || (mainCategories.has(question.category) ? "main" : "other"),
+      difficulty: normalizeDifficulty(question.difficulty || "입문"),
+      text: question.question || question.text || "",
+      answer: question.answer || "",
+      shortAnswer: question.shortAnswer || question["40초 Script"] || "",
+      keywords: Array.isArray(question.keywords) ? question.keywords : [],
 
-    estimatedAnswerMinutes: Number(question.estimatedAnswerMinutes || question["예상 답변 시간(분)"]) || null,
-    active: question.active !== false,
-  }))
-  .filter((question) => question.active && question.difficulty !== "지엽" && question.text)
-  .map((question, index) => ({ ...question, originalIndex: index }));
+      estimatedAnswerMinutes: Number(question.estimatedAnswerMinutes || question["예상 답변 시간(분)"]) || null,
+      active: question.active !== false,
+    }))
+    .filter((question) => question.active && question.difficulty !== "지엽" && question.text)
+    .map((question, index) => ({ ...question, originalIndex: index }));
+
+const questionBanksByRole = {
+  process: buildQuestionBank(processSourceQuestions, {
+    roleId: "process",
+    jobRole: "공정기술",
+    mainCategories: MAIN_PROCESS_CATEGORIES,
+  }),
+  "package-test": buildQuestionBank(packageTestSourceQuestions, {
+    roleId: "package-test",
+    jobRole: "Package & Test",
+  }),
+};
+const questionBank = questionBanksByRole.process;
 const questions = questionBank;
 
 const state = {
   config: {
+    role: "process",
     questionCount: 5,
     prepSeconds: 0,
-    answerSeconds: 180,
-    rigor: "입문",
+    answerSeconds: 120,
+    rigor: "실전",
   },
   sessionQuestions: [],
   completedQuestions: [],
@@ -59,9 +78,23 @@ const state = {
   aiEvaluations: {},
   aiEvaluating: false,
   aiAdminKey: "",
+  reportTarget: null,
+  auth: {
+    client: null,
+    config: null,
+    ready: false,
+    loading: false,
+    progressSyncing: false,
+    session: null,
+    user: null,
+  },
   pendingView: "home",
   pendingPracticeIndex: null,
   pendingStartMode: "standard",
+  landing: {
+    selectedRole: "process",
+    waitlistSubmitting: false,
+  },
   studyProgress: {},
   answerScriptMode: "short",
   questionBank: {
@@ -69,6 +102,7 @@ const state = {
     categories: [],
     difficulties: [],
     sort: "default",
+    layout: "list",
     search: "",
     expandedId: null,
     pageSize: 10,
@@ -112,6 +146,7 @@ const trackEvent = (eventName, params = {}) => {
 const analyticsQuestionPayload = (question, extra = {}) =>
   cleanAnalyticsParams({
     question_id: question?.id,
+    role: question?.roleId,
     original_index: question?.originalIndex,
     category: question?.category,
     difficulty: question?.difficulty,
@@ -121,6 +156,7 @@ const analyticsQuestionPayload = (question, extra = {}) =>
 const HELP_DISMISS_KEY = "banmyeonppu_help_hidden_until";
 const FEEDBACK_QUEUE_KEY = "banmyeonppu_feedback_queue";
 const REPORT_QUEUE_KEY = "banmyeonppu_report_queue";
+const WAITLIST_QUEUE_KEY = "banmyeonppu_waitlist_queue";
 const STUDY_PROGRESS_KEY = "banmyeonppu_question_progress_v1";
 const STT_TEST_SCRIPT =
   "CVD와 ALD의 차이는 박막의 스텝커버리지 입니다. 증착 공정에서는 박막의 유니포미티가 매우 중요합니다.";
@@ -148,6 +184,13 @@ const QUESTION_BANK_ROLES = [
     enabled: true,
   },
   {
+    id: "package-test",
+    label: "Package & Test",
+    shortLabel: "Package & Test",
+    description: "후공정, 패키징, 테스트, 신뢰성, 품질 분석 면접 질문",
+    enabled: true,
+  },
+  {
     id: "design",
     label: "회로설계",
     shortLabel: "회로설계",
@@ -161,25 +204,37 @@ const QUESTION_BANK_ROLES = [
     description: "소자 물리와 디바이스 특성 직무 문제는 준비중입니다.",
     enabled: false,
   },
-  {
-    id: "equipment",
-    label: "장비기술",
-    shortLabel: "장비기술",
-    description: "반도체 장비기술 직무 문제는 준비중입니다.",
-    enabled: false,
-  },
 ];
+
+const LANDING_ROLE_LABELS = {
+  process: "공정기술/양산기술",
+  "package-test": "Package & Test",
+  device: "소자",
+  circuit: "회로설계",
+};
 
 const cacheElements = () => {
   [
+    "landingView",
+    "landingStartButton",
+    "landingMockButton",
+    "landingWaitlistModal",
+    "landingWaitlistTitle",
+    "landingWaitlistDescription",
+    "landingWaitlistForm",
+    "landingWaitlistEmail",
+    "landingWaitlistStatus",
+    "closeLandingWaitlistButton",
     "questionBankView",
     "quickPracticeView",
     "homeView",
     "aboutView",
+    "contactView",
     "sttTestView",
     "checkView",
     "interviewView",
     "resultView",
+    "authModal",
     "startEnvironmentModal",
     "exitModal",
     "finishModal",
@@ -189,6 +244,18 @@ const cacheElements = () => {
     "helpModal",
     "legalModal",
     "helpButton",
+    "authButton",
+    "authButtonLabel",
+    "closeAuthButton",
+    "authSignedOutPanel",
+    "authSignedInPanel",
+    "authUserEmail",
+    "authStatus",
+    "magicLinkForm",
+    "authEmail",
+    "magicLinkButton",
+    "googleLoginButton",
+    "signOutButton",
     "closeHelpButton",
     "closeHelpFooterButton",
     "dismissHelpTodayButton",
@@ -226,6 +293,7 @@ const cacheElements = () => {
     "questionBankPageSize",
     "questionBankSortLabel",
     "questionBankSort",
+    "questionBankLayoutToggle",
     "questionBankList",
     "questionBankPagination",
     "questionBankEmpty",
@@ -245,7 +313,6 @@ const cacheElements = () => {
     "targetRole",
     "prepTime",
     "answerTime",
-    "answerValue",
     "startInterview",
     "cameraCheckPreview",
     "cameraCheckPlaceholder",
@@ -340,6 +407,11 @@ const readPracticeQuestionId = () => {
   return params.get("practiceQuestion") || "";
 };
 
+const readPracticeRoleId = () => {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("role") || params.get("job") || "process";
+};
+
 const setInterviewMode = (mode) => {
   $$(".interview-mode-card").forEach((item) => {
     item.classList.toggle("active", item.dataset.interviewMode === mode);
@@ -360,7 +432,6 @@ const syncInterviewModeUi = () => {
     elements.questionCount.value = AI_INTERVIEW_CONFIG.questionCount;
     elements.prepTime.value = String(AI_INTERVIEW_CONFIG.prepSeconds);
     elements.answerTime.value = String(AI_INTERVIEW_CONFIG.answerSeconds / 60);
-    elements.answerValue.textContent = String(AI_INTERVIEW_CONFIG.answerSeconds / 60);
   }
 
   syncStartAvailability();
@@ -375,8 +446,12 @@ const shuffleQuestions = (items) => {
   return shuffled;
 };
 
-const questionsForDifficulty = (difficulty) =>
-  questions.filter((question) => question.difficulty === difficulty && question.difficulty !== "지엽");
+const selectedTargetRole = () => elements.targetRole?.value || state.config.role || "process";
+
+const questionsForDifficulty = (difficulty, roleId = selectedTargetRole()) =>
+  questionBankQuestionsForRole(roleId).filter(
+    (question) => question.difficulty === difficulty && question.difficulty !== "지엽",
+  );
 
 const mainQuestionTarget = (count, mainAvailable, otherAvailable) => {
   let target = Math.round(count * 0.65);
@@ -396,9 +471,9 @@ const mainQuestionTarget = (count, mainAvailable, otherAvailable) => {
   return Math.max(0, target);
 };
 
-const buildQuestionSet = (count) => {
+const buildQuestionSet = (count, roleId = state.config.role || selectedTargetRole()) => {
   const difficulty = state.config.rigor;
-  const pool = questionsForDifficulty(difficulty);
+  const pool = questionsForDifficulty(difficulty, roleId);
   const targetCount = Math.min(count, pool.length);
   const mainPool = shuffleQuestions(pool.filter((question) => question.group === "main"));
   const otherPool = shuffleQuestions(pool.filter((question) => question.group !== "main"));
@@ -425,16 +500,19 @@ const setView = (view) => {
   if (nextView !== "quick-practice") {
     cleanupQuickPracticeRecording();
   }
+  elements.landingView.classList.toggle("active", nextView === "landing");
   elements.questionBankView.classList.toggle("active", nextView === "question-bank");
   elements.quickPracticeView.classList.toggle("active", nextView === "quick-practice");
   elements.homeView.classList.toggle("active", nextView === "home");
   elements.aboutView.classList.toggle("active", nextView === "about");
+  elements.contactView.classList.toggle("active", nextView === "contact");
   elements.sttTestView.classList.toggle("active", nextView === "stt-test");
   elements.checkView.classList.toggle("active", nextView === "check");
   elements.interviewView.classList.toggle("active", nextView === "interview");
   elements.resultView.classList.toggle("active", nextView === "result");
   document.body.classList.toggle("quick-practice-active", nextView === "quick-practice");
-  const activeNavView = ["about", "question-bank", "quick-practice", "home"].includes(nextView)
+  document.body.classList.toggle("landing-active", nextView === "landing");
+  const activeNavView = ["about", "contact", "question-bank", "quick-practice", "home", "landing"].includes(nextView)
     ? nextView === "quick-practice"
       ? "question-bank"
       : nextView
@@ -514,12 +592,14 @@ const beginAnswer = () => {
 
 const readConfig = () => {
   state.interviewMode = getSelectedInterviewMode();
+  state.config.role = selectedTargetRole();
   const selectedRigor = getSelectedRigor();
-  const availableQuestionCount = questionsForDifficulty(selectedRigor).length;
+  const roleQuestions = questionBankQuestionsForRole(state.config.role);
+  const availableQuestionCount = questionsForDifficulty(selectedRigor, state.config.role).length;
   state.config.rigor = selectedRigor;
 
   if (state.interviewMode === "ai") {
-    state.config.questionCount = Math.min(AI_INTERVIEW_CONFIG.questionCount, availableQuestionCount || questions.length);
+    state.config.questionCount = Math.min(AI_INTERVIEW_CONFIG.questionCount, availableQuestionCount || roleQuestions.length);
     state.config.prepSeconds = AI_INTERVIEW_CONFIG.prepSeconds;
     state.config.answerSeconds = AI_INTERVIEW_CONFIG.answerSeconds;
     state.recordingEnabled = true;
@@ -528,22 +608,24 @@ const readConfig = () => {
 
   state.config.questionCount = Math.max(
     1,
-    Math.min(Number(elements.questionCount.value) || 5, availableQuestionCount || questions.length),
+    Math.min(Number(elements.questionCount.value) || 5, availableQuestionCount || roleQuestions.length),
   );
   state.config.prepSeconds = Math.max(0, Number(elements.prepTime.value));
   state.config.answerSeconds = (Number(elements.answerTime.value) || 3) * 60;
 };
 
 const syncStartAvailability = () => {
-  const availableQuestionCount = questionsForDifficulty(getSelectedRigor()).length;
+  const selectedRole = selectedTargetRole();
+  const role = questionBankRoleById(selectedRole);
+  const availableQuestionCount = questionsForDifficulty(getSelectedRigor(), selectedRole).length;
   const isAiMode = getSelectedInterviewMode() === "ai";
   const requiredQuestionCount = isAiMode ? AI_INTERVIEW_CONFIG.questionCount : 1;
-  const isAvailable = elements.targetRole.value === "process" && availableQuestionCount >= requiredQuestionCount;
+  const isAvailable = role.enabled && availableQuestionCount >= requiredQuestionCount;
   const label = elements.startInterview.querySelector("span");
   elements.startInterview.disabled = !isAvailable;
   elements.startInterview.setAttribute("aria-disabled", String(!isAvailable));
   label.textContent =
-    elements.targetRole.value === "process"
+    role.enabled
       ? isAvailable
         ? isAiMode
           ? "AI 모의면접 시작"
@@ -619,7 +701,7 @@ const confirmAiAdminKey = () => {
 };
 
 const startInterview = () => {
-  if (elements.targetRole.value !== "process") return;
+  if (elements.startInterview.disabled) return;
   readConfig();
   if (state.interviewMode === "standard") {
     state.aiEvaluationConsent = false;
@@ -637,18 +719,19 @@ const startInterview = () => {
     interview_mode: state.interviewMode,
     question_count: state.config.questionCount,
     difficulty: state.config.rigor,
+    role: state.config.role,
     prep_seconds: state.config.prepSeconds,
     answer_seconds: state.config.answerSeconds,
     recording_enabled: state.interviewMode === "ai" || state.recordingEnabled ? 1 : 0,
   });
-  resetForInterview(buildQuestionSet(state.config.questionCount));
+  resetForInterview(buildQuestionSet(state.config.questionCount, state.config.role));
   setView("check");
 };
 
 const showStartEnvironmentModal = (options = {}) => {
   const hasPracticeTarget = Number.isInteger(options.practiceIndex);
   const mode = hasPracticeTarget ? "standard" : getSelectedInterviewMode();
-  if (!hasPracticeTarget && (elements.targetRole.value !== "process" || elements.startInterview.disabled)) return;
+  if (!hasPracticeTarget && elements.startInterview.disabled) return;
   state.pendingPracticeIndex = hasPracticeTarget ? options.practiceIndex : null;
   state.pendingStartMode = mode;
   const isAiMode = mode === "ai";
@@ -658,10 +741,10 @@ const showStartEnvironmentModal = (options = {}) => {
   }
   elements.startEnvironmentTitle.textContent = isAiMode
     ? "AI 모의면접은 답변 음성 분석 동의가 필요합니다."
-    : "반면뿌는 PC 환경에서 가장 안정적으로 동작합니다.";
+    : "반면뿌는 PC 환경에 최적화되어 있습니다.";
   elements.startEnvironmentDescription.textContent = isAiMode
     ? "AI 채점을 위해 면접 종료 후 문항별 답변 음성 파일을 OpenAI API로 전송하고, 전사문과 답변 예시를 바탕으로 분석합니다. 현재 파일럿 테스트에서는 AI 모의면접이 1문항, 준비 10초, 답변 2분으로 진행됩니다."
-    : "모바일에서도 이용할 수 있지만, 카메라 권한, 녹화 저장, 복기 기능은 기기와 브라우저 환경에 따라 제한될 수 있습니다. 원활한 모의면접을 위해 가능하면 PC 크롬 환경을 권장합니다.";
+    : "모바일 환경에서는 카메라 권한, 녹화 저장, 복기 기능이 기기와 브라우저 환경에 따라 제한될 수 있습니다.\n원활한 모의면접을 위해 PC 크롬 환경을 권장합니다.";
   elements.startEnvironmentConsentLabel.hidden = !isAiMode;
   elements.startEnvironmentConsent.checked = false;
   elements.confirmStartEnvironmentButton.disabled = isAiMode;
@@ -705,8 +788,11 @@ const enterInterview = () => {
   beginPrep();
 };
 
-const startSingleQuestionPractice = (originalIndex, source = "unknown") => {
-  const question = questions[originalIndex];
+const questionByOriginalIndex = (originalIndex, roleId = state.questionBank.role) =>
+  questionBankQuestionsForRole(roleId).find((question) => Number(question.originalIndex) === Number(originalIndex));
+
+const startSingleQuestionPractice = (originalIndex, source = "unknown", roleId = state.questionBank.role) => {
+  const question = questionByOriginalIndex(originalIndex, roleId) || questions[originalIndex];
   if (!question) return;
   trackEvent("practice_click", analyticsQuestionPayload(question, { source }));
   openQuickPractice(question);
@@ -769,9 +855,34 @@ const hideFinishModal = () => {
   elements.finishModal.setAttribute("aria-hidden", "true");
 };
 
-const showReportModal = () => {
-  const question = currentQuestion();
-  elements.reportQuestionPreview.textContent = `${state.currentIndex + 1}. ${question.text}`;
+const interviewReportTarget = () => ({
+  source: "mock_interview",
+  question: currentQuestion(),
+  number: state.currentIndex + 1,
+  total: activeQuestions().length,
+  role: elements.targetRole.value,
+  phase: state.phase,
+  rigor: state.config.rigor,
+});
+
+const questionBankReportTarget = (question) => {
+  const roleQuestions = questionBankQuestionsForRole(question.roleId || state.questionBank.role);
+  const index = roleQuestions.findIndex((item) => String(item.id) === String(question.id));
+  return {
+    source: "question_bank",
+    question,
+    number: index >= 0 ? index + 1 : null,
+    total: roleQuestions.length,
+    role: question.roleId || state.questionBank.role,
+    phase: "question_bank",
+    rigor: question.difficulty,
+  };
+};
+
+const showReportModal = (target = null) => {
+  state.reportTarget = target || interviewReportTarget();
+  const { question, number, total } = state.reportTarget;
+  elements.reportQuestionPreview.textContent = number && total ? `${number} / ${total}. ${question.text}` : question.text;
   elements.reportText.value = "";
   elements.sendReportButton.disabled = false;
   elements.reportModal.classList.add("open");
@@ -780,6 +891,7 @@ const showReportModal = () => {
 };
 
 const hideReportModal = () => {
+  state.reportTarget = null;
   elements.reportModal.classList.remove("open");
   elements.reportModal.setAttribute("aria-hidden", "true");
 };
@@ -988,6 +1100,411 @@ const flushQueuedReports = async () => {
   writeReportQueue(remaining);
 };
 
+const readWaitlistQueue = () => {
+  try {
+    return JSON.parse(localStorage.getItem(WAITLIST_QUEUE_KEY) || "[]");
+  } catch (error) {
+    return [];
+  }
+};
+
+const writeWaitlistQueue = (queue) => {
+  try {
+    localStorage.setItem(WAITLIST_QUEUE_KEY, JSON.stringify(queue.slice(-30)));
+  } catch (error) {
+    // localStorage를 사용할 수 없는 환경에서도 랜딩 화면 자체는 계속 동작합니다.
+  }
+};
+
+const queueWaitlistPayload = (payload) => {
+  writeWaitlistQueue([...readWaitlistQueue(), payload]);
+};
+
+const postWaitlistPayload = async (payload) => {
+  const response = await fetch("/api/waitlist", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw new Error("Waitlist request failed");
+  }
+
+  return response;
+};
+
+const flushQueuedWaitlist = async () => {
+  const queue = readWaitlistQueue();
+  if (!queue.length) return;
+
+  const remaining = [];
+  for (const payload of queue) {
+    try {
+      await postWaitlistPayload(payload);
+    } catch (error) {
+      remaining.push(payload);
+    }
+  }
+
+  writeWaitlistQueue(remaining);
+};
+
+const authRedirectUrl = () => {
+  if (window.location.protocol === "file:") return undefined;
+  return `${window.location.origin}${window.location.pathname}`;
+};
+
+const localAuthConfig = () => {
+  const config = window.BANMYEONPPU_AUTH_CONFIG || {};
+  return {
+    supabaseUrl: String(config.supabaseUrl || "").trim(),
+    supabaseAnonKey: String(config.supabaseAnonKey || "").trim(),
+  };
+};
+
+const loadAuthConfig = async () => {
+  const fallback = localAuthConfig();
+
+  if (window.location.protocol === "file:") {
+    return fallback;
+  }
+
+  try {
+    const response = await fetch("/api/auth-config", { cache: "no-store" });
+    if (!response.ok) return fallback;
+    const payload = await response.json();
+    return {
+      supabaseUrl: String(payload.supabaseUrl || fallback.supabaseUrl || "").trim(),
+      supabaseAnonKey: String(payload.supabaseAnonKey || fallback.supabaseAnonKey || "").trim(),
+    };
+  } catch (error) {
+    return fallback;
+  }
+};
+
+const authClientFactory = () => window.supabase?.createClient;
+
+const applyAuthSession = (session) => {
+  state.auth.session = session || null;
+  state.auth.user = session?.user || null;
+  renderAuthUi();
+};
+
+const setAuthStatus = (message = "", tone = "muted") => {
+  if (!elements.authStatus) return;
+  elements.authStatus.textContent = message;
+  elements.authStatus.dataset.tone = tone;
+};
+
+const renderAuthUi = () => {
+  if (!elements.authButtonLabel) return;
+
+  const signedIn = Boolean(state.auth.user);
+  const email = state.auth.user?.email || "";
+  elements.authButton.classList.toggle("signed-in", signedIn);
+  elements.authButton.setAttribute("aria-label", signedIn ? `${email} 계정` : "로그인");
+  elements.authButtonLabel.textContent = signedIn ? "내 계정" : "로그인";
+
+  if (elements.authSignedOutPanel && elements.authSignedInPanel) {
+    elements.authSignedOutPanel.hidden = signedIn;
+    elements.authSignedInPanel.hidden = !signedIn;
+  }
+
+  if (elements.authUserEmail) {
+    elements.authUserEmail.textContent = email || "-";
+  }
+
+  const configured = Boolean(state.auth.client);
+  [elements.magicLinkButton, elements.googleLoginButton].forEach((button) => {
+    if (button) {
+      button.disabled = state.auth.loading || signedIn || !configured;
+    }
+  });
+
+  if (!configured && elements.authModal?.classList.contains("open")) {
+    setAuthStatus("Supabase 설정이 필요합니다. Cloudflare 환경변수에 SUPABASE_URL, SUPABASE_ANON_KEY를 넣으면 활성화됩니다.", "warning");
+  }
+};
+
+const initAuth = async () => {
+  state.auth.config = await loadAuthConfig();
+  const { supabaseUrl, supabaseAnonKey } = state.auth.config;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    state.auth.ready = false;
+    renderAuthUi();
+    return;
+  }
+
+  const createClient = authClientFactory();
+  if (!createClient) {
+    state.auth.ready = false;
+    renderAuthUi();
+    setAuthStatus("로그인 라이브러리를 불러오지 못했습니다. 네트워크 상태를 확인해주세요.", "warning");
+    return;
+  }
+
+  state.auth.client = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+    },
+  });
+
+  try {
+    const { data } = await state.auth.client.auth.getSession();
+    applyAuthSession(data?.session || null);
+    if (data?.session) {
+      syncAccountData({ silent: true }).catch(() => {});
+    }
+    state.auth.client.auth.onAuthStateChange((event, session) => {
+      applyAuthSession(session);
+      if (event === "SIGNED_IN") {
+        setAuthStatus("로그인되었습니다.", "success");
+        syncAccountData().catch(() => {
+          setAuthStatus("학습 진도 동기화에 실패했습니다. 잠시 후 다시 시도해주세요.", "warning");
+        });
+      }
+      if (event === "SIGNED_OUT") {
+        setAuthStatus("로그아웃되었습니다.", "muted");
+      }
+    });
+    state.auth.ready = true;
+  } catch (error) {
+    state.auth.ready = false;
+    setAuthStatus("로그인 상태를 확인하지 못했습니다.", "warning");
+  } finally {
+    renderAuthUi();
+  }
+};
+
+const showAuthModal = () => {
+  elements.authModal.classList.add("open");
+  elements.authModal.setAttribute("aria-hidden", "false");
+  if (state.auth.user) {
+    setAuthStatus("로그인 상태에서는 학습 진도와 북마크가 Supabase와 동기화됩니다.", "muted");
+  } else if (!state.auth.client) {
+    setAuthStatus("Supabase 설정이 필요합니다. Cloudflare 환경변수에 SUPABASE_URL, SUPABASE_ANON_KEY를 넣으면 활성화됩니다.", "warning");
+  } else {
+    setAuthStatus("로그인 링크를 받거나 Google 계정으로 계속할 수 있습니다.", "muted");
+  }
+  renderAuthUi();
+  renderIcons();
+  window.setTimeout(() => {
+    if (!state.auth.user && state.auth.client) {
+      elements.authEmail.focus();
+    }
+  }, 0);
+};
+
+const hideAuthModal = () => {
+  elements.authModal.classList.remove("open");
+  elements.authModal.setAttribute("aria-hidden", "true");
+};
+
+const setAuthLoading = (loading) => {
+  state.auth.loading = loading;
+  renderAuthUi();
+};
+
+const sendMagicLink = async (event) => {
+  event.preventDefault();
+  if (!state.auth.client || state.auth.loading) return;
+
+  const email = elements.authEmail.value.trim();
+  if (!EMAIL_PATTERN.test(email)) {
+    setAuthStatus("이메일을 정확히 입력해주세요.", "warning");
+    return;
+  }
+
+  setAuthLoading(true);
+  setAuthStatus("로그인 링크를 보내는 중입니다.", "muted");
+
+  try {
+    const redirectTo = authRedirectUrl();
+    const { error } = await state.auth.client.auth.signInWithOtp({
+      email,
+      options: redirectTo ? { emailRedirectTo: redirectTo } : undefined,
+    });
+    if (error) throw error;
+    setAuthStatus("로그인 링크를 보냈습니다. 메일함을 확인해주세요.", "success");
+    trackEvent("auth_magic_link_request", { method: "magic_link" });
+  } catch (error) {
+    setAuthStatus(error.message || "로그인 링크 전송에 실패했습니다.", "warning");
+  } finally {
+    setAuthLoading(false);
+  }
+};
+
+const signInWithGoogle = async () => {
+  if (!state.auth.client || state.auth.loading) return;
+  setAuthLoading(true);
+  setAuthStatus("Google 로그인으로 이동합니다.", "muted");
+
+  try {
+    const redirectTo = authRedirectUrl();
+    const { error } = await state.auth.client.auth.signInWithOAuth({
+      provider: "google",
+      options: redirectTo ? { redirectTo } : undefined,
+    });
+    if (error) throw error;
+    trackEvent("auth_oauth_start", { provider: "google" });
+  } catch (error) {
+    setAuthStatus(error.message || "Google 로그인 시작에 실패했습니다.", "warning");
+    setAuthLoading(false);
+  }
+};
+
+const signOut = async () => {
+  if (!state.auth.client || state.auth.loading) return;
+  setAuthLoading(true);
+
+  try {
+    const { error } = await state.auth.client.auth.signOut();
+    if (error) throw error;
+    applyAuthSession(null);
+    setAuthStatus("로그아웃되었습니다.", "muted");
+    trackEvent("auth_sign_out");
+  } catch (error) {
+    setAuthStatus(error.message || "로그아웃에 실패했습니다.", "warning");
+  } finally {
+    setAuthLoading(false);
+  }
+};
+
+const allQuestionBankQuestions = () => Object.values(questionBanksByRole).flat();
+
+const progressRowForQuestion = (question) => {
+  if (!state.auth.user || !question) return null;
+  const studyState = getQuestionStudyState(question);
+  const hasProgress = studyState.bookmarked || studyState.status;
+  if (!hasProgress) return null;
+
+  return {
+    user_id: state.auth.user.id,
+    role_id: questionRoleId(question),
+    question_id: String(question.id),
+    bookmarked: Boolean(studyState.bookmarked),
+    status: studyState.status || null,
+    updated_at: new Date(studyState.updatedAt || Date.now()).toISOString(),
+  };
+};
+
+const renderStudyProgressSurfaces = () => {
+  if (elements.questionBankView?.classList.contains("active")) {
+    renderQuestionBank();
+  }
+  if (elements.quickPracticeView?.classList.contains("active")) {
+    renderQuickPractice();
+  }
+};
+
+const syncUserProfile = async () => {
+  if (!state.auth.client || !state.auth.user) return;
+  const { error } = await state.auth.client.from("profiles").upsert(
+    {
+      id: state.auth.user.id,
+      email: state.auth.user.email || null,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "id" },
+  );
+  if (error) throw error;
+};
+
+const syncQuestionProgress = async (question) => {
+  if (!state.auth.client || !state.auth.user || !question) return;
+
+  const row = progressRowForQuestion(question);
+  const query = state.auth.client
+    .from("question_progress")
+    .delete()
+    .eq("user_id", state.auth.user.id)
+    .eq("role_id", questionRoleId(question))
+    .eq("question_id", String(question.id));
+
+  if (!row) {
+    const { error } = await query;
+    if (error) throw error;
+    return;
+  }
+
+  const { error } = await state.auth.client
+    .from("question_progress")
+    .upsert(row, { onConflict: "user_id,role_id,question_id" });
+  if (error) throw error;
+};
+
+const syncAccountData = async ({ silent = false } = {}) => {
+  if (!state.auth.client || !state.auth.user || state.auth.progressSyncing) return;
+  state.auth.progressSyncing = true;
+  if (!silent) {
+    setAuthStatus("학습 진도를 동기화하는 중입니다.", "muted");
+  }
+
+  try {
+    await syncUserProfile();
+    const { data, error } = await state.auth.client
+      .from("question_progress")
+      .select("role_id,question_id,bookmarked,status,updated_at");
+    if (error) throw error;
+
+    const remoteByKey = new Map(
+      (data || []).map((row) => [`${row.role_id}:${row.question_id}`, row]),
+    );
+    const rowsToUpsert = [];
+    let localChanged = false;
+
+    allQuestionBankQuestions().forEach((question) => {
+      const key = progressKey(question);
+      const localState = getQuestionStudyState(question);
+      const localHasProgress = localState.bookmarked || localState.status;
+      const remote = remoteByKey.get(key);
+      const remoteHasProgress = Boolean(remote && (remote.bookmarked || remote.status));
+      const localUpdatedAt = Number(localState.updatedAt) || 0;
+      const remoteUpdatedAt = Date.parse(remote?.updated_at || "") || 0;
+
+      if (remoteHasProgress && (!localHasProgress || remoteUpdatedAt > localUpdatedAt)) {
+        state.studyProgress[key] = {
+          bookmarked: Boolean(remote.bookmarked),
+          status: remote.status === "known" || remote.status === "confused" ? remote.status : null,
+          updatedAt: remoteUpdatedAt || Date.now(),
+        };
+        localChanged = true;
+        return;
+      }
+
+      if (localHasProgress && (!remoteHasProgress || localUpdatedAt >= remoteUpdatedAt)) {
+        const row = progressRowForQuestion(question);
+        if (row) rowsToUpsert.push(row);
+      }
+    });
+
+    if (localChanged) {
+      writeStudyProgress();
+      renderStudyProgressSurfaces();
+    }
+
+    if (rowsToUpsert.length) {
+      const { error: upsertError } = await state.auth.client
+        .from("question_progress")
+        .upsert(rowsToUpsert, { onConflict: "user_id,role_id,question_id" });
+      if (upsertError) throw upsertError;
+    }
+
+    if (!silent) {
+      setAuthStatus("학습 진도 동기화가 완료되었습니다.", "success");
+    }
+  } finally {
+    state.auth.progressSyncing = false;
+    renderAuthUi();
+  }
+};
+
 const submitFeedback = async () => {
   if (state.feedbackSubmitting) return;
   if (!state.feedbackRating) {
@@ -1022,21 +1539,29 @@ const submitFeedback = async () => {
 };
 
 const sendQuestionReport = async () => {
-  const question = currentQuestion();
+  const target = state.reportTarget || interviewReportTarget();
+  const question = target.question;
+  if (!question) return;
   const reportText = elements.reportText.value.trim() || "신고 내용 미입력";
   const payload = {
     reportText,
     question: {
-      number: state.currentIndex + 1,
-      total: activeQuestions().length,
+      number: target.number,
+      total: target.total,
       text: question.text,
       answer: question.answer,
+      shortAnswer: question.shortAnswer,
+      keywords: question.keywords || [],
+      category: question.category,
+      difficulty: question.difficulty,
       originalIndex: question.originalIndex,
+      roleId: question.roleId || target.role,
     },
     context: {
-      rigor: state.config.rigor,
-      phase: state.phase,
-      role: elements.targetRole.value,
+      source: target.source,
+      rigor: target.rigor || state.config.rigor,
+      phase: target.phase,
+      role: target.role,
       path: window.location.pathname,
     },
     client: {
@@ -1164,6 +1689,106 @@ const requestViewChange = (view) => {
     return;
   }
   setView(view);
+};
+
+const selectedLandingRoleLabel = () => LANDING_ROLE_LABELS[state.landing.selectedRole] || "선택한 직무";
+
+const showLandingWaitlistModal = () => {
+  elements.landingWaitlistTitle.textContent = "준비중인 직무에요.";
+  elements.landingWaitlistDescription.textContent = "콘텐츠가 완료되면 이메일로 먼저 알려드릴게요.";
+  elements.landingWaitlistStatus.textContent = "";
+  elements.landingWaitlistModal.classList.add("open");
+  elements.landingWaitlistModal.setAttribute("aria-hidden", "false");
+  window.setTimeout(() => elements.landingWaitlistEmail.focus(), 0);
+};
+
+const hideLandingWaitlistModal = () => {
+  if (state.landing.waitlistSubmitting) return;
+  elements.landingWaitlistModal.classList.remove("open");
+  elements.landingWaitlistModal.setAttribute("aria-hidden", "true");
+};
+
+const setLandingRole = (card) => {
+  state.landing.selectedRole = card.dataset.landingRole || "process";
+  const selectedRole = questionBankRoleById(state.landing.selectedRole);
+  const isEnabled = selectedRole.id === state.landing.selectedRole && selectedRole.enabled;
+
+  $$(".landing-role-card").forEach((item) => {
+    const active = item === card;
+    item.classList.toggle("active", active);
+    item.setAttribute("aria-pressed", String(active));
+  });
+
+  elements.landingStartButton.disabled = !isEnabled;
+  elements.landingStartButton.setAttribute("aria-disabled", String(!isEnabled));
+  elements.landingStartButton.querySelector("span").textContent = isEnabled
+    ? "질문 모음으로 시작하기"
+    : "준비 중인 직무입니다";
+  elements.landingMockButton.disabled = !isEnabled;
+  elements.landingMockButton.setAttribute("aria-disabled", String(!isEnabled));
+
+  if (!isEnabled) {
+    showLandingWaitlistModal();
+  }
+
+  elements.landingWaitlistStatus.textContent = "";
+  trackEvent("landing_role_select", {
+    role: state.landing.selectedRole,
+    enabled: isEnabled ? 1 : 0,
+  });
+};
+
+const buildWaitlistPayload = () => ({
+  email: elements.landingWaitlistEmail.value.trim(),
+  role: state.landing.selectedRole,
+  roleLabel: selectedLandingRoleLabel(),
+  source: "landing",
+  path: window.location.pathname,
+  client: {
+    userAgent: navigator.userAgent,
+    language: navigator.language,
+    submittedAt: new Date().toISOString(),
+  },
+});
+
+const setWaitlistSubmitting = (isSubmitting) => {
+  state.landing.waitlistSubmitting = isSubmitting;
+  elements.landingWaitlistEmail.disabled = isSubmitting;
+  elements.landingWaitlistForm.querySelector("button").disabled = isSubmitting;
+};
+
+const submitLandingWaitlist = async (event) => {
+  event.preventDefault();
+  if (state.landing.waitlistSubmitting) return;
+
+  const payload = buildWaitlistPayload();
+  if (!EMAIL_PATTERN.test(payload.email)) {
+    elements.landingWaitlistStatus.textContent = "알림을 받을 이메일을 정확히 입력해주세요.";
+    return;
+  }
+
+  setWaitlistSubmitting(true);
+  elements.landingWaitlistStatus.textContent = "오픈 알림을 등록하는 중입니다.";
+
+  try {
+    await postWaitlistPayload(payload);
+    elements.landingWaitlistStatus.textContent = `${payload.roleLabel} 오픈 알림 신청이 완료되었습니다.`;
+    elements.landingWaitlistEmail.value = "";
+    trackEvent("waitlist_submit", {
+      role: payload.role,
+      queued: 0,
+    });
+  } catch (error) {
+    queueWaitlistPayload(payload);
+    elements.landingWaitlistStatus.textContent =
+      "지금은 서버 연결이 불안정해 임시 저장했습니다. 다음 접속 때 다시 전송을 시도할게요.";
+    trackEvent("waitlist_submit", {
+      role: payload.role,
+      queued: 1,
+    });
+  } finally {
+    setWaitlistSubmitting(false);
+  }
 };
 
 const markReady = (element, text) => {
@@ -1573,14 +2198,19 @@ const writeStudyProgress = () => {
   try {
     localStorage.setItem(STUDY_PROGRESS_KEY, JSON.stringify(state.studyProgress));
   } catch (error) {
-    // localStorage가 막힌 환경에서도 기출 질문 자체는 계속 사용할 수 있게 둡니다.
+    // localStorage가 막힌 환경에서도 질문 모음 자체는 계속 사용할 수 있게 둡니다.
   }
 };
 
-const progressKey = (question) => String(question.id);
+const questionRoleId = (question) => question?.roleId || "process";
+const progressKey = (question) => `${questionRoleId(question)}:${question.id}`;
+const legacyProgressKey = (question) => String(question.id);
 
 const getQuestionStudyState = (question) => {
-  const saved = state.studyProgress[progressKey(question)] || {};
+  const saved =
+    state.studyProgress[progressKey(question)] ||
+    (questionRoleId(question) === "process" ? state.studyProgress[legacyProgressKey(question)] : {}) ||
+    {};
   return {
     bookmarked: Boolean(saved.bookmarked),
     status: saved.status === "known" || saved.status === "confused" ? saved.status : null,
@@ -1599,19 +2229,27 @@ const setQuestionStudyState = (question, nextState) => {
     state.studyProgress[key] = merged;
   }
 
+  if (questionRoleId(question) === "process") {
+    delete state.studyProgress[legacyProgressKey(question)];
+  }
+
   writeStudyProgress();
+  syncQuestionProgress(question).catch(() => {
+    if (elements.authModal?.classList.contains("open")) {
+      setAuthStatus("학습 진도 저장에 실패했습니다. 네트워크 상태를 확인해주세요.", "warning");
+    }
+  });
 };
 
-const questionBankRole = () =>
-  QUESTION_BANK_ROLES.find((role) => role.id === state.questionBank.role) || QUESTION_BANK_ROLES[0];
+const questionBankRoleById = (roleId) =>
+  QUESTION_BANK_ROLES.find((role) => role.id === roleId) || QUESTION_BANK_ROLES[0];
 
-const questionBankQuestionsForRole = () => {
-  if (state.questionBank.role !== "process") return [];
-  return questions;
-};
+const questionBankRole = () => questionBankRoleById(state.questionBank.role);
 
-const questionBankQuestionById = (questionId) =>
-  questionBankQuestionsForRole().find((question) => String(question.id) === String(questionId));
+const questionBankQuestionsForRole = (roleId = state.questionBank.role) => questionBanksByRole[roleId] || [];
+
+const questionBankQuestionById = (questionId, roleId = state.questionBank.role) =>
+  questionBankQuestionsForRole(roleId).find((question) => String(question.id) === String(questionId));
 
 const questionBankCategories = () => {
   const categoryCounts = new Map();
@@ -1886,13 +2524,20 @@ const renderQuestionBankList = () => {
   elements.questionBankSortLabel.textContent = role.enabled ? "정렬" : "준비중";
   elements.questionBankSort.disabled = !role.enabled;
   elements.questionBankPageSize.disabled = !role.enabled;
+  elements.questionBankLayoutToggle.querySelectorAll("[data-bank-layout]").forEach((button) => {
+    const isActive = button.dataset.bankLayout === state.questionBank.layout;
+    button.classList.toggle("active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
+  });
+  elements.questionBankList.classList.toggle("list-layout", state.questionBank.layout === "list");
+  elements.questionBankList.classList.toggle("card-layout", state.questionBank.layout !== "list");
   elements.questionBankEmpty.hidden = filtered.length > 0;
 
   if (!role.enabled) {
     elements.questionBankList.innerHTML = `
       <article class="question-bank-coming-soon">
         <i data-lucide="construction"></i>
-        <strong>${escapeHtml(role.shortLabel)} 기출 질문은 준비중입니다.</strong>
+        <strong>${escapeHtml(role.shortLabel)} 질문 모음은 준비중입니다.</strong>
         <p>${escapeHtml(role.description)}</p>
       </article>
     `;
@@ -1913,7 +2558,7 @@ const renderQuestionBankList = () => {
       return `
         <article class="question-bank-card ${expanded ? "expanded" : ""}" data-bank-card="${question.id}">
           <div class="question-bank-card-main">
-            <button class="bank-icon-button bank-bookmark-button ${studyState.bookmarked ? "active" : ""}" type="button" data-bank-bookmark="${question.id}" aria-label="${studyState.bookmarked ? "북마크 해제" : "북마크"}" aria-pressed="${studyState.bookmarked}">
+            <button class="bank-icon-button bank-bookmark-button bank-bookmark-card-button ${studyState.bookmarked ? "active" : ""}" type="button" data-bank-bookmark="${question.id}" aria-label="${studyState.bookmarked ? "북마크 해제" : "북마크"}" title="${studyState.bookmarked ? "북마크 해제" : "북마크"}" aria-pressed="${studyState.bookmarked}">
               <i data-lucide="bookmark"></i>
             </button>
             <div class="question-bank-card-meta">
@@ -1924,22 +2569,31 @@ const renderQuestionBankList = () => {
             <p class="question-bank-preview" ${expanded ? "hidden" : ""}>${escapeHtml(preview)}</p>
             <div class="question-bank-keywords">${keywords}</div>
             <div class="question-bank-answer" ${expanded ? "" : "hidden"}>
-              <h3>모범 답안</h3>
+              <div class="question-bank-answer-head">
+                <h3>모범 답안</h3>
+                <button class="bank-answer-report-button" type="button" data-bank-report="${question.id}" aria-label="문항 신고" title="문항 신고">
+                  <i data-lucide="flag"></i>
+                  <span>문항 신고</span>
+                </button>
+              </div>
               <div class="model-answer-text">${renderModelAnswerBlock(question)}</div>
             </div>
           </div>
           <aside class="question-bank-card-side">
+            <button class="bank-icon-button bank-bookmark-button bank-bookmark-list-button ${studyState.bookmarked ? "active" : ""}" type="button" data-bank-bookmark="${question.id}" aria-label="${studyState.bookmarked ? "북마크 해제" : "북마크"}" title="${studyState.bookmarked ? "북마크 해제" : "북마크"}" aria-pressed="${studyState.bookmarked}">
+              <i data-lucide="bookmark"></i>
+            </button>
             <div class="bank-status-actions" aria-label="문제 연습 상태">
-              <button class="bank-status-button known ${studyState.status === "known" ? "active" : ""}" type="button" data-bank-status-id="${question.id}" data-bank-status="known" aria-pressed="${studyState.status === "known"}">
+              <button class="bank-status-button known ${studyState.status === "known" ? "active" : ""}" type="button" data-bank-status-id="${question.id}" data-bank-status="known" aria-label="대답 가능" title="대답 가능" aria-pressed="${studyState.status === "known"}">
                 <i data-lucide="check-circle-2"></i>
                 <span>대답 가능</span>
               </button>
-              <button class="bank-status-button practice ${studyState.status === "confused" ? "active" : ""}" type="button" data-bank-status-id="${question.id}" data-bank-status="confused" aria-pressed="${studyState.status === "confused"}">
+              <button class="bank-status-button practice ${studyState.status === "confused" ? "active" : ""}" type="button" data-bank-status-id="${question.id}" data-bank-status="confused" aria-label="연습 필요" title="연습 필요" aria-pressed="${studyState.status === "confused"}">
                 <i data-lucide="alert-circle"></i>
                 <span>연습 필요</span>
               </button>
             </div>
-            <button class="small-button bank-practice-button" type="button" data-bank-practice="${question.originalIndex}">
+            <button class="small-button bank-practice-button" type="button" data-bank-practice="${question.originalIndex}" data-bank-practice-role="${escapeHtml(question.roleId || "process")}" aria-label="연습하기" title="연습하기">
               <span>연습하기</span>
               <i data-lucide="arrow-right"></i>
             </button>
@@ -1957,8 +2611,8 @@ const renderQuestionBank = () => {
   elements.questionBankRole.value = state.questionBank.role;
   elements.questionBankSort.value = state.questionBank.sort;
   elements.questionBankRoleName.textContent = role.shortLabel;
-  elements.questionBankTitle.textContent = `${role.shortLabel} 면접 문제`;
-  elements.questionBankDescription.textContent = "실제 면접에서 나온 문제와 모범 답변 예시를 함께 확인해보세요.";
+  elements.questionBankTitle.textContent = `${role.shortLabel} 질문 모음`;
+  elements.questionBankDescription.textContent = "문제를 클릭하면 모범 답안을 확인할 수 있어요.";
   renderQuestionBankStudySummary();
   renderQuestionBankDifficultyList();
   renderQuestionBankCategoryList();
@@ -2305,6 +2959,17 @@ const openQuickPractice = (question) => {
   if (state.quickPractice.audioUrl) {
     URL.revokeObjectURL(state.quickPractice.audioUrl);
   }
+  if (question.roleId && state.questionBank.role !== question.roleId) {
+    state.questionBank.role = question.roleId;
+    state.questionBank.categories = [];
+    state.questionBank.difficulties = [];
+    state.questionBank.search = "";
+    state.questionBank.expandedId = null;
+    state.questionBank.page = 1;
+    if (elements.questionBankSearch) {
+      elements.questionBankSearch.value = "";
+    }
+  }
   state.quickPractice.questionId = question.id;
   state.quickPractice.tab = "practice";
   state.quickPractice.audioUrl = "";
@@ -2317,7 +2982,8 @@ const openPracticeQuestionFromUrl = () => {
   const questionId = readPracticeQuestionId();
   if (!questionId) return false;
 
-  const question = questionBankQuestionById(questionId);
+  const roleId = questionBankRoleById(readPracticeRoleId()).id;
+  const question = questionBankQuestionById(questionId, roleId);
   if (!question) return false;
 
   openQuickPractice(question);
@@ -2602,7 +3268,7 @@ const renderResultPage = () => {
         <article class="result-card">
           <div class="result-card-head">
             <span>${index + 1}번 문항</span>
-            <button class="small-button retry-question" type="button" data-question-index="${question.originalIndex}">
+            <button class="small-button retry-question" type="button" data-question-index="${question.originalIndex}" data-question-role="${escapeHtml(question.roleId || "process")}">
               이 문항 다시 연습
             </button>
           </div>
@@ -2690,6 +3356,14 @@ const bindQuestionBankControls = () => {
     renderQuestionBankList();
   });
 
+  elements.questionBankLayoutToggle.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-bank-layout]");
+    if (!button) return;
+    state.questionBank.layout = button.dataset.bankLayout === "list" ? "list" : "card";
+    state.questionBank.expandedId = null;
+    renderQuestionBankList();
+  });
+
   elements.questionBankDifficultyList.addEventListener("click", (event) => {
     const button = event.target.closest("[data-bank-difficulty]");
     if (!button) return;
@@ -2707,9 +3381,22 @@ const bindQuestionBankControls = () => {
       return;
     }
 
+    const reportButton = event.target.closest("[data-bank-report]");
+    if (reportButton) {
+      const question = questionBankQuestionById(reportButton.dataset.bankReport);
+      if (question) {
+        showReportModal(questionBankReportTarget(question));
+      }
+      return;
+    }
+
     const practiceButton = event.target.closest("[data-bank-practice]");
     if (practiceButton) {
-      startSingleQuestionPractice(Number(practiceButton.dataset.bankPractice), "question_bank");
+      startSingleQuestionPractice(
+        Number(practiceButton.dataset.bankPractice),
+        "question_bank",
+        practiceButton.dataset.bankPracticeRole || state.questionBank.role,
+      );
       return;
     }
 
@@ -2823,13 +3510,45 @@ const bindSetupControls = () => {
     });
   });
 
-  elements.answerTime.addEventListener("input", () => {
-    elements.answerValue.textContent = elements.answerTime.value;
-  });
-
   elements.targetRole.addEventListener("change", syncStartAvailability);
   elements.startInterview.addEventListener("click", showStartEnvironmentModal);
   syncInterviewModeUi();
+};
+
+const bindLandingControls = () => {
+  $$(".landing-role-card").forEach((card) => {
+    card.setAttribute("aria-pressed", String(card.classList.contains("active")));
+    card.addEventListener("click", () => setLandingRole(card));
+  });
+
+  elements.landingStartButton.addEventListener("click", () => {
+    const selectedRole = questionBankRoleById(state.landing.selectedRole);
+    if (!selectedRole.enabled || selectedRole.id !== state.landing.selectedRole) return;
+    trackEvent("landing_start_practice", {
+      role: state.landing.selectedRole,
+    });
+    setQuestionBankRole(state.landing.selectedRole);
+    setView("question-bank");
+  });
+
+  elements.landingMockButton.addEventListener("click", () => {
+    const selectedRole = questionBankRoleById(state.landing.selectedRole);
+    if (!selectedRole.enabled || selectedRole.id !== state.landing.selectedRole) return;
+    trackEvent("landing_mock_interview_click", {
+      role: state.landing.selectedRole,
+    });
+    elements.targetRole.value = state.landing.selectedRole;
+    syncStartAvailability();
+    setView("home");
+  });
+
+  elements.landingWaitlistForm.addEventListener("submit", submitLandingWaitlist);
+  elements.closeLandingWaitlistButton.addEventListener("click", hideLandingWaitlistModal);
+  elements.landingWaitlistModal.addEventListener("click", (event) => {
+    if (event.target === elements.landingWaitlistModal) {
+      hideLandingWaitlistModal();
+    }
+  });
 };
 
 const bindInterviewControls = () => {
@@ -2917,6 +3636,16 @@ const bindInterviewControls = () => {
       hideReportModal();
     }
   });
+  elements.authButton.addEventListener("click", showAuthModal);
+  elements.closeAuthButton.addEventListener("click", hideAuthModal);
+  elements.magicLinkForm.addEventListener("submit", sendMagicLink);
+  elements.googleLoginButton.addEventListener("click", signInWithGoogle);
+  elements.signOutButton.addEventListener("click", signOut);
+  elements.authModal.addEventListener("click", (event) => {
+    if (event.target === elements.authModal) {
+      hideAuthModal();
+    }
+  });
   elements.feedbackModal.addEventListener("click", (event) => {
     if (event.target === elements.feedbackModal && !state.feedbackSubmitting) {
       hideFeedbackModal();
@@ -2950,7 +3679,7 @@ const bindResultControls = () => {
   elements.resultList.addEventListener("click", (event) => {
     const button = event.target.closest(".retry-question");
     if (!button) return;
-    startSingleQuestionPractice(Number(button.dataset.questionIndex), "result");
+    startSingleQuestionPractice(Number(button.dataset.questionIndex), "result", button.dataset.questionRole || "process");
   });
 };
 
@@ -2972,6 +3701,7 @@ window.addEventListener("load", () => {
   renderIcons();
   bindAnswerScriptControls();
 
+  bindLandingControls();
   bindQuestionBankControls();
   bindQuickPracticeControls();
   bindSetupControls();
@@ -2981,10 +3711,14 @@ window.addEventListener("load", () => {
   setRecordingMode(true);
   const openedPracticeQuestion = !openSttTest && openPracticeQuestionFromUrl();
   if (!openedPracticeQuestion) {
-    setView(openSttTest ? "stt-test" : "question-bank");
+    setView(openSttTest ? "stt-test" : "landing");
   }
   flushQueuedFeedback().catch(() => {});
   flushQueuedReports().catch(() => {});
+  flushQueuedWaitlist().catch(() => {});
+  initAuth().catch(() => {
+    setAuthStatus("로그인 초기화에 실패했습니다.", "warning");
+  });
   if (!openSttTest && !openedPracticeQuestion) {
     showStartupHelp();
   }
