@@ -405,12 +405,80 @@ const shouldOpenSttTest = () => {
 
 const readPracticeQuestionId = () => {
   const params = new URLSearchParams(window.location.search);
-  return params.get("practiceQuestion") || "";
+  return params.get("practiceQuestion") || params.get("id") || "";
 };
 
 const readPracticeRoleId = () => {
   const params = new URLSearchParams(window.location.search);
   return params.get("role") || params.get("job") || "process";
+};
+
+const canUseAppRoutes = () => window.location.protocol === "http:" || window.location.protocol === "https:";
+
+const normalizeAppPath = (pathname = window.location.pathname) => {
+  const normalized = pathname.replace(/\/+$/, "");
+  return normalized || "/";
+};
+
+const viewFromRoute = () => {
+  switch (normalizeAppPath()) {
+    case "/questions":
+      return "question-bank";
+    case "/mock-interview":
+      return "home";
+    case "/contact":
+      return "contact";
+    case "/practice":
+      return "quick-practice";
+    default:
+      return "landing";
+  }
+};
+
+const routeForView = (view) => {
+  if (view === "landing") return "/";
+  if (view === "question-bank") {
+    const params = new URLSearchParams();
+    if (state.questionBank.role && state.questionBank.role !== "process") {
+      params.set("role", state.questionBank.role);
+    }
+    const query = params.toString();
+    return query ? `/questions?${query}` : "/questions";
+  }
+  if (view === "home") return "/mock-interview";
+  if (view === "contact") return "/contact";
+  if (view === "quick-practice") {
+    const question = quickPracticeQuestion();
+    if (!question) return "/questions";
+    const params = new URLSearchParams({
+      role: questionRoleId(question),
+      id: String(question.id),
+    });
+    return `/practice?${params.toString()}`;
+  }
+  return null;
+};
+
+const updateAppRoute = (view, { replace = false } = {}) => {
+  if (!canUseAppRoutes()) return;
+  const route = routeForView(view);
+  if (!route) return;
+  const current = `${window.location.pathname}${window.location.search}`;
+  if (current === route) return;
+  const method = replace ? "replaceState" : "pushState";
+  window.history[method]({ view }, "", route);
+};
+
+const resetQuestionBankFiltersForRole = (roleId) => {
+  state.questionBank.role = roleId;
+  state.questionBank.categories = [];
+  state.questionBank.difficulties = [];
+  state.questionBank.search = "";
+  state.questionBank.expandedId = null;
+  state.questionBank.page = 1;
+  if (elements.questionBankSearch) {
+    elements.questionBankSearch.value = "";
+  }
 };
 
 const setInterviewMode = (mode) => {
@@ -496,7 +564,8 @@ const buildQuestionSet = (count, roleId = state.config.role || selectedTargetRol
 const activeQuestions = () => state.sessionQuestions;
 const currentQuestion = () => activeQuestions()[state.currentIndex] || activeQuestions()[0];
 
-const setView = (view) => {
+const setView = (view, options = {}) => {
+  const { updateRoute = true, replaceRoute = false } = options;
   const nextView = view;
   if (nextView !== "quick-practice") {
     cleanupQuickPracticeRecording();
@@ -526,6 +595,9 @@ const setView = (view) => {
   }
   if (nextView === "quick-practice") {
     renderQuickPractice();
+  }
+  if (updateRoute) {
+    updateAppRoute(nextView, { replace: replaceRoute });
   }
   window.scrollTo(0, 0);
 };
@@ -2674,15 +2746,12 @@ const renderQuestionBank = () => {
 };
 
 const setQuestionBankRole = (roleId) => {
-  state.questionBank.role = roleId;
-  state.questionBank.categories = [];
-  state.questionBank.difficulties = [];
+  resetQuestionBankFiltersForRole(roleId);
   state.questionBank.sort = "default";
-  state.questionBank.search = "";
-  state.questionBank.expandedId = null;
-  state.questionBank.page = 1;
-  elements.questionBankSearch.value = "";
   renderQuestionBank();
+  if (elements.questionBankView.classList.contains("active")) {
+    updateAppRoute("question-bank");
+  }
 };
 
 const toggleQuestionBankFilter = (filterName, value) => {
@@ -3008,31 +3077,23 @@ const renderQuickPractice = () => {
   renderQuickPracticePanel();
 };
 
-const openQuickPractice = (question) => {
+const openQuickPractice = (question, options = {}) => {
   cleanupQuickPracticeRecording();
   if (state.quickPractice.audioUrl) {
     URL.revokeObjectURL(state.quickPractice.audioUrl);
   }
   if (question.roleId && state.questionBank.role !== question.roleId) {
-    state.questionBank.role = question.roleId;
-    state.questionBank.categories = [];
-    state.questionBank.difficulties = [];
-    state.questionBank.search = "";
-    state.questionBank.expandedId = null;
-    state.questionBank.page = 1;
-    if (elements.questionBankSearch) {
-      elements.questionBankSearch.value = "";
-    }
+    resetQuestionBankFiltersForRole(question.roleId);
   }
   state.quickPractice.questionId = question.id;
   state.quickPractice.tab = "practice";
   state.quickPractice.audioUrl = "";
   state.quickPractice.elapsed = 0;
   state.quickPractice.status = "idle";
-  setView("quick-practice");
+  setView("quick-practice", options);
 };
 
-const openPracticeQuestionFromUrl = () => {
+const openPracticeQuestionFromUrl = (options = {}) => {
   const questionId = readPracticeQuestionId();
   if (!questionId) return false;
 
@@ -3040,8 +3101,39 @@ const openPracticeQuestionFromUrl = () => {
   const question = questionBankQuestionById(questionId, roleId);
   if (!question) return false;
 
-  openQuickPractice(question);
+  openQuickPractice(question, options);
   return true;
+};
+
+const applyQuestionBankRouteState = () => {
+  const roleId = questionBankRoleById(readPracticeRoleId()).id;
+  if (roleId !== state.questionBank.role) {
+    resetQuestionBankFiltersForRole(roleId);
+  }
+};
+
+const openRouteFromLocation = () => {
+  if (shouldOpenSttTest()) {
+    setView("stt-test", { updateRoute: false });
+    return "stt-test";
+  }
+
+  const routeView = viewFromRoute();
+  if (routeView === "quick-practice" || readPracticeQuestionId()) {
+    if (openPracticeQuestionFromUrl({ updateRoute: false })) {
+      return "quick-practice";
+    }
+    applyQuestionBankRouteState();
+    setView("question-bank", { updateRoute: false });
+    return "question-bank";
+  }
+
+  if (routeView === "question-bank") {
+    applyQuestionBankRouteState();
+  }
+
+  setView(routeView, { updateRoute: false });
+  return routeView;
 };
 
 const openNextQuickPracticeQuestion = () => {
@@ -3725,6 +3817,16 @@ const bindInterviewControls = () => {
     event.preventDefault();
     event.returnValue = "";
   });
+
+  window.addEventListener("popstate", () => {
+    if (isInterviewOpen()) {
+      const routeView = viewFromRoute();
+      state.pendingView = routeView === "quick-practice" ? "question-bank" : routeView;
+      showExitModal();
+      return;
+    }
+    openRouteFromLocation();
+  });
 };
 
 const bindResultControls = () => {
@@ -3749,7 +3851,6 @@ const bindSttTestControls = () => {
 
 window.addEventListener("load", () => {
   cacheElements();
-  const openSttTest = shouldOpenSttTest();
   state.studyProgress = readStudyProgress();
 
   renderIcons();
@@ -3763,17 +3864,14 @@ window.addEventListener("load", () => {
   bindResultControls();
   bindSttTestControls();
   setRecordingMode(true);
-  const openedPracticeQuestion = !openSttTest && openPracticeQuestionFromUrl();
-  if (!openedPracticeQuestion) {
-    setView(openSttTest ? "stt-test" : "landing");
-  }
+  const openedView = openRouteFromLocation();
   flushQueuedFeedback().catch(() => {});
   flushQueuedReports().catch(() => {});
   flushQueuedWaitlist().catch(() => {});
   initAuth().catch(() => {
     setAuthStatus("로그인 초기화에 실패했습니다.", "warning");
   });
-  if (!openSttTest && !openedPracticeQuestion) {
+  if (openedView === "landing" && !shouldOpenSttTest() && !readPracticeQuestionId()) {
     showStartupHelp();
   }
 });

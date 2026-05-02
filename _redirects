@@ -1,0 +1,9 @@
+/jobs/* /questions 302
+/questions /index.html 200
+/questions/ /index.html 200
+/mock-interview /index.html 200
+/mock-interview/ /index.html 200
+/contact /index.html 200
+/contact/ /index.html 200
+/practice /index.html 200
+/practice/ /index.html 200
