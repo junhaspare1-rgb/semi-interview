@@ -291,9 +291,7 @@ const cacheElements = () => {
     "authButtonLabel",
     "accountMenu",
     "accountMenuEmail",
-    "accountMenuBookmarksButton",
     "accountThemeLightButton",
-    "accountThemeDarkButton",
     "accountMenuLogoutButton",
     "mobileMenuButton",
     "mobileMenuBackdrop",
@@ -457,9 +455,8 @@ const readThemePreference = () => {
 };
 
 const updateAccountThemeButtons = () => {
-  if (!elements.accountThemeLightButton || !elements.accountThemeDarkButton) return;
+  if (!elements.accountThemeLightButton) return;
   elements.accountThemeLightButton.classList.toggle("active", state.theme === "light");
-  elements.accountThemeDarkButton.classList.toggle("active", state.theme === "dark");
 };
 
 const applyTheme = (theme, persist = true) => {
@@ -4495,12 +4492,7 @@ const bindInterviewControls = () => {
       showAuthModal();
     }
   });
-  elements.accountMenuBookmarksButton.addEventListener("click", () => {
-    hideAccountMenu();
-    requestViewChange("my-page");
-  });
   elements.accountThemeLightButton.addEventListener("click", () => applyTheme("light"));
-  elements.accountThemeDarkButton.addEventListener("click", () => applyTheme("dark"));
   elements.accountMenuLogoutButton.addEventListener("click", signOut);
   elements.mobileMenuButton.addEventListener("click", openMobileMenu);
   elements.mobileMenuCloseButton.addEventListener("click", closeMobileMenu);
