@@ -42,6 +42,7 @@ const questionBanksByRole = {
 };
 const questionBank = questionBanksByRole.process;
 const questions = questionBank;
+const THEME_KEY = "banmyeonppu_theme_v1";
 
 const state = {
   config: {
@@ -109,6 +110,8 @@ const state = {
     expandedId: null,
     pageSize: 10,
     page: 1,
+    sidebarCollapsed: false,
+    filterDrawerOpen: false,
   },
   myPage: {
     role: "all",
@@ -117,7 +120,9 @@ const state = {
     search: "",
     sort: "recent",
     selectedKeys: [],
+    pendingRemoveKeys: [],
   },
+  theme: "light",
   quickPractice: {
     questionId: null,
     questionKey: "",
@@ -241,8 +246,6 @@ const cacheElements = () => {
     "questionBankView",
     "myPageView",
     "myPageSignedIn",
-    "myPageUserEmail",
-    "myPageSignOutButton",
     "myPageBookmarkCount",
     "myPageRoleFilter",
     "myPageDifficultyFilter",
@@ -263,6 +266,9 @@ const cacheElements = () => {
     "myPracticeAnswerTime",
     "cancelMyPracticeButton",
     "confirmMyPracticeButton",
+    "myBookmarkConfirmModal",
+    "cancelMyBookmarkRemoveButton",
+    "confirmMyBookmarkRemoveButton",
     "quickPracticeView",
     "homeView",
     "aboutView",
@@ -283,6 +289,21 @@ const cacheElements = () => {
     "helpButton",
     "authButton",
     "authButtonLabel",
+    "accountMenu",
+    "accountMenuEmail",
+    "accountMenuBookmarksButton",
+    "accountThemeLightButton",
+    "accountThemeDarkButton",
+    "accountMenuLogoutButton",
+    "mobileMenuButton",
+    "mobileMenuBackdrop",
+    "mobileMenuDrawer",
+    "mobileMenuCloseButton",
+    "mobileMenuEmail",
+    "mobileMenuBookmarkButton",
+    "mobileMenuHelpButton",
+    "mobileMenuAuthButton",
+    "mobileMenuLogoutButton",
     "closeAuthButton",
     "authSignedOutPanel",
     "authSignedInPanel",
@@ -312,7 +333,12 @@ const cacheElements = () => {
     "sttTestTranscript",
     "sttTestModel",
     "sttTestAudioPlayer",
+    "bookmarkNavButton",
     "questionBankSidebar",
+    "questionBankFilterBackdrop",
+    "questionBankSidebarCollapseButton",
+    "questionBankFilterButton",
+    "questionBankFilterCloseButton",
     "questionBankRole",
     "questionBankStudySummary",
     "questionBankProgressPercent",
@@ -419,6 +445,76 @@ const cacheElements = () => {
 const renderIcons = () => {
   if (window.lucide) {
     window.lucide.createIcons();
+  }
+};
+
+const readThemePreference = () => {
+  try {
+    return localStorage.getItem(THEME_KEY) === "dark" ? "dark" : "light";
+  } catch (error) {
+    return "light";
+  }
+};
+
+const updateAccountThemeButtons = () => {
+  if (!elements.accountThemeLightButton || !elements.accountThemeDarkButton) return;
+  elements.accountThemeLightButton.classList.toggle("active", state.theme === "light");
+  elements.accountThemeDarkButton.classList.toggle("active", state.theme === "dark");
+};
+
+const applyTheme = (theme, persist = true) => {
+  const nextTheme = theme === "dark" ? "dark" : "light";
+  state.theme = nextTheme;
+  document.documentElement.dataset.theme = nextTheme;
+  updateAccountThemeButtons();
+  if (!persist) return;
+  try {
+    localStorage.setItem(THEME_KEY, nextTheme);
+  } catch (error) {
+    // Theme persistence is optional.
+  }
+};
+
+const hideAccountMenu = () => {
+  if (!elements.accountMenu) return;
+  elements.accountMenu.classList.remove("open");
+  elements.accountMenu.setAttribute("aria-hidden", "true");
+  elements.authButton?.setAttribute("aria-expanded", "false");
+};
+
+const closeMobileMenu = () => {
+  document.body.classList.remove("mobile-menu-open");
+  elements.mobileMenuDrawer?.classList.remove("open");
+  elements.mobileMenuDrawer?.setAttribute("aria-hidden", "true");
+  elements.mobileMenuBackdrop?.classList.remove("open");
+  elements.mobileMenuBackdrop?.setAttribute("aria-hidden", "true");
+  elements.mobileMenuButton?.setAttribute("aria-expanded", "false");
+};
+
+const openMobileMenu = () => {
+  hideAccountMenu();
+  document.body.classList.add("mobile-menu-open");
+  elements.mobileMenuDrawer?.classList.add("open");
+  elements.mobileMenuDrawer?.setAttribute("aria-hidden", "false");
+  elements.mobileMenuBackdrop?.classList.add("open");
+  elements.mobileMenuBackdrop?.setAttribute("aria-hidden", "false");
+  elements.mobileMenuButton?.setAttribute("aria-expanded", "true");
+};
+
+const showAccountMenu = () => {
+  if (!elements.accountMenu || !state.auth.user) return;
+  elements.accountMenu.classList.add("open");
+  elements.accountMenu.setAttribute("aria-hidden", "false");
+  elements.authButton?.setAttribute("aria-expanded", "true");
+  renderIcons();
+};
+
+const toggleAccountMenu = () => {
+  if (!elements.accountMenu) return;
+  if (elements.accountMenu.classList.contains("open")) {
+    hideAccountMenu();
+  } else {
+    showAccountMenu();
   }
 };
 
@@ -630,6 +726,9 @@ const setView = (view, options = {}) => {
       : nextView
     : "home";
   $$(".main-nav [data-view]").forEach((button) => {
+    button.classList.toggle("active", button.dataset.view === activeNavView);
+  });
+  $$(".mobile-menu-list [data-view]").forEach((button) => {
     button.classList.toggle("active", button.dataset.view === activeNavView);
   });
   if (nextView === "question-bank") {
@@ -1373,7 +1472,25 @@ const renderAuthUi = () => {
   const email = state.auth.user?.email || "";
   elements.authButton.classList.toggle("signed-in", signedIn);
   elements.authButton.setAttribute("aria-label", signedIn ? `${email} 마이 페이지` : "로그인");
+  elements.authButton.setAttribute("aria-haspopup", signedIn ? "menu" : "dialog");
+  elements.authButton.setAttribute("aria-expanded", elements.accountMenu?.classList.contains("open") ? "true" : "false");
   elements.authButtonLabel.textContent = signedIn ? "마이 페이지" : "로그인";
+  if (elements.accountMenuEmail) {
+    elements.accountMenuEmail.textContent = email || "-";
+  }
+  if (elements.mobileMenuEmail) {
+    elements.mobileMenuEmail.textContent = signedIn ? email : "로그인이 필요합니다";
+  }
+  if (elements.mobileMenuAuthButton) {
+    elements.mobileMenuAuthButton.textContent = signedIn ? "마이 페이지" : "로그인";
+  }
+  if (elements.mobileMenuLogoutButton) {
+    elements.mobileMenuLogoutButton.hidden = !signedIn;
+  }
+  if (!signedIn) {
+    hideAccountMenu();
+  }
+  updateAccountThemeButtons();
 
   if (elements.authSignedOutPanel && elements.authSignedInPanel) {
     elements.authSignedOutPanel.hidden = signedIn;
@@ -1559,6 +1676,7 @@ const signInWithGoogle = async () => {
 };
 
 const signOut = async () => {
+  hideAccountMenu();
   if (!state.auth.client || state.auth.loading) return;
   setAuthLoading(true);
 
@@ -1924,7 +2042,7 @@ const setLandingRole = (card) => {
   elements.landingStartButton.disabled = !isEnabled;
   elements.landingStartButton.setAttribute("aria-disabled", String(!isEnabled));
   elements.landingStartButton.querySelector("span").textContent = isEnabled
-    ? "질문 모음으로 시작하기"
+    ? "면접 질문 확인하기"
     : "준비 중인 직무입니다";
   elements.landingMockButton.disabled = !isEnabled;
   elements.landingMockButton.setAttribute("aria-disabled", String(!isEnabled));
@@ -2629,19 +2747,23 @@ const questionBankDifficultyClass = (difficulty) =>
 const renderQuestionBankCategoryList = () => {
   const categories = questionBankCategories();
   const categoryCounts = questionBankCategoryCounts();
-  const buttons = [
-    `<button class="bank-category-chip ${state.questionBank.categories.length === 0 ? "active" : ""}" type="button" data-bank-category="all">
-      전체 <span>${categoryCounts.all}</span>
-    </button>`,
+  const options = [
+    `<label class="bank-filter-option ${state.questionBank.categories.length === 0 ? "active" : ""}">
+      <input type="checkbox" data-bank-category="all" ${state.questionBank.categories.length === 0 ? "checked" : ""} />
+      <span>전체</span>
+      <strong>${categoryCounts.all}</strong>
+    </label>`,
     ...categories.map(
       ({ category }) => `
-        <button class="bank-category-chip ${state.questionBank.categories.includes(category) ? "active" : ""}" type="button" data-bank-category="${escapeHtml(category)}">
-          ${escapeHtml(category)} <span>${categoryCounts.counts.get(category) || 0}</span>
-        </button>
+        <label class="bank-filter-option ${state.questionBank.categories.includes(category) ? "active" : ""}">
+          <input type="checkbox" data-bank-category="${escapeHtml(category)}" ${state.questionBank.categories.includes(category) ? "checked" : ""} />
+          <span>${escapeHtml(category)}</span>
+          <strong>${categoryCounts.counts.get(category) || 0}</strong>
+        </label>
       `,
     ),
   ];
-  elements.questionBankCategoryList.innerHTML = buttons.join("");
+  elements.questionBankCategoryList.innerHTML = options.join("");
 };
 
 const renderQuestionBankDifficultyList = () => {
@@ -2653,7 +2775,7 @@ const renderQuestionBankDifficultyList = () => {
   elements.questionBankDifficultyList.innerHTML = difficulties
     .map(
       ([value, label]) => `
-        <button class="bank-difficulty-item ${
+        <label class="bank-filter-option ${
           value === "all"
             ? state.questionBank.difficulties.length === 0
               ? "active"
@@ -2661,10 +2783,19 @@ const renderQuestionBankDifficultyList = () => {
             : state.questionBank.difficulties.includes(value)
               ? "active"
               : ""
-        }" type="button" data-bank-difficulty="${value}">
+        }">
+          <input type="checkbox" data-bank-difficulty="${value}" ${
+            value === "all"
+              ? state.questionBank.difficulties.length === 0
+                ? "checked"
+                : ""
+              : state.questionBank.difficulties.includes(value)
+                ? "checked"
+                : ""
+          } />
           <span>${label}</span>
           <strong>${counts[value] || 0}</strong>
-        </button>
+        </label>
       `,
     )
     .join("");
@@ -2780,8 +2911,8 @@ const renderQuestionBankList = () => {
             <div class="question-bank-card-meta">
               <span class="bank-difficulty-badge ${questionBankDifficultyClass(question.difficulty)}">${escapeHtml(question.difficulty)}</span>
               <span>${escapeHtml(question.category)}</span>
+              <h2>${escapeHtml(question.text)}</h2>
             </div>
-            <h2>${escapeHtml(question.text)}</h2>
             <p class="question-bank-preview" ${expanded ? "hidden" : ""}>${escapeHtml(preview)}</p>
             <div class="question-bank-keywords">${keywords}</div>
             <div class="question-bank-answer" ${expanded ? "" : "hidden"}>
@@ -2826,7 +2957,21 @@ const renderQuestionBank = () => {
   const role = questionBankRole();
   elements.questionBankRole.value = state.questionBank.role;
   elements.questionBankSort.value = state.questionBank.sort;
-  elements.questionBankRoleName.textContent = role.shortLabel;
+  elements.questionBankView.classList.toggle("sidebar-collapsed", state.questionBank.sidebarCollapsed);
+  elements.questionBankView.classList.toggle("filter-drawer-open", state.questionBank.filterDrawerOpen);
+  elements.questionBankSidebarCollapseButton.setAttribute(
+    "aria-label",
+    state.questionBank.sidebarCollapsed ? "필터 사이드바 열기" : "필터 사이드바 접기",
+  );
+  elements.questionBankSidebarCollapseButton.setAttribute("aria-expanded", String(!state.questionBank.sidebarCollapsed));
+  elements.questionBankSidebarCollapseButton.innerHTML = state.questionBank.sidebarCollapsed
+    ? '<i data-lucide="panel-left-open"></i>'
+    : '<i data-lucide="panel-left-close"></i>';
+  elements.questionBankFilterButton.setAttribute("aria-expanded", String(state.questionBank.filterDrawerOpen));
+  elements.questionBankFilterBackdrop.setAttribute("aria-hidden", String(!state.questionBank.filterDrawerOpen));
+  if (elements.questionBankRoleName) {
+    elements.questionBankRoleName.textContent = role.shortLabel;
+  }
   elements.questionBankTitle.textContent = `${role.shortLabel} 질문 모음`;
   elements.questionBankDescription.textContent = "문제를 클릭하면 모범 답안을 확인할 수 있어요.";
   renderQuestionBankStudySummary();
@@ -2856,6 +3001,13 @@ const toggleQuestionBankFilter = (filterName, value) => {
   state.questionBank.page = 1;
   state.questionBank.expandedId = null;
   renderQuestionBank();
+};
+
+const closeQuestionBankFilterDrawer = () => {
+  state.questionBank.filterDrawerOpen = false;
+  elements.questionBankView?.classList.remove("filter-drawer-open");
+  elements.questionBankFilterButton?.setAttribute("aria-expanded", "false");
+  elements.questionBankFilterBackdrop?.setAttribute("aria-hidden", "true");
 };
 
 const toggleQuestionBankBookmark = (questionId) => {
@@ -3031,7 +3183,6 @@ const renderMyPage = () => {
   state.myPage.selectedKeys = state.myPage.selectedKeys.filter((key) => bookmarkKeys.has(key));
   const visibleQuestions = myPageFilteredBookmarks();
 
-  elements.myPageUserEmail.textContent = state.auth.user?.email || "-";
   elements.myPageBookmarkCount.textContent = bookmarks.length;
   renderMyPageFilters(bookmarks);
 
@@ -3081,8 +3232,15 @@ const renderMyPage = () => {
             <strong>${escapeHtml(question.text)}</strong>
           </div>
           <div class="my-bookmark-actions">
-            <button class="outline-button" type="button" data-my-page-practice="${escapeHtml(key)}">빠른 연습</button>
-            <button class="danger-outline-button" type="button" data-my-page-unbookmark="${escapeHtml(key)}">북마크 해제</button>
+            <button class="my-bookmark-icon-button quick" type="button" data-my-page-practice="${escapeHtml(key)}" aria-label="빠른 연습" title="빠른 연습">
+              <i data-lucide="mic"></i>
+            </button>
+            <button class="my-bookmark-icon-button mock" type="button" data-my-page-mock="${escapeHtml(key)}" aria-label="모의면접 연습" title="모의면접 연습">
+              <i data-lucide="video"></i>
+            </button>
+            <button class="my-bookmark-icon-button bookmark" type="button" data-my-page-unbookmark="${escapeHtml(key)}" aria-label="북마크 해제" title="북마크 해제">
+              <i data-lucide="bookmark-x"></i>
+            </button>
           </div>
         </article>
       `;
@@ -3143,6 +3301,26 @@ const showMyPracticeModal = () => {
 const hideMyPracticeModal = () => {
   elements.myPracticeModal.classList.remove("open");
   elements.myPracticeModal.setAttribute("aria-hidden", "true");
+};
+
+const showMyBookmarkRemoveModal = (keys) => {
+  const keysToRemove = [...new Set(keys)].filter((key) => questionByProgressKey(key));
+  if (!keysToRemove.length) return;
+  state.myPage.pendingRemoveKeys = keysToRemove;
+  elements.myBookmarkConfirmModal.classList.add("open");
+  elements.myBookmarkConfirmModal.setAttribute("aria-hidden", "false");
+};
+
+const hideMyBookmarkRemoveModal = () => {
+  state.myPage.pendingRemoveKeys = [];
+  elements.myBookmarkConfirmModal.classList.remove("open");
+  elements.myBookmarkConfirmModal.setAttribute("aria-hidden", "true");
+};
+
+const confirmMyBookmarkRemove = () => {
+  const keysToRemove = [...state.myPage.pendingRemoveKeys];
+  hideMyBookmarkRemoveModal();
+  removeMyPageBookmarks(keysToRemove);
 };
 
 const startSelectedQuestionInterview = (questionsToInterview) => {
@@ -3863,7 +4041,41 @@ const bindAnswerScriptControls = () => {
 };
 
 const bindQuestionBankControls = () => {
+  elements.questionBankSidebarCollapseButton.addEventListener("click", () => {
+    state.questionBank.sidebarCollapsed = !state.questionBank.sidebarCollapsed;
+    renderQuestionBank();
+  });
+
+  elements.questionBankFilterButton.addEventListener("click", () => {
+    state.questionBank.filterDrawerOpen = true;
+    renderQuestionBank();
+  });
+
+  elements.questionBankFilterCloseButton.addEventListener("click", closeQuestionBankFilterDrawer);
+  elements.questionBankFilterBackdrop.addEventListener("click", closeQuestionBankFilterDrawer);
+
   elements.questionBankSidebar.addEventListener("click", (event) => {
+    const miniButton = event.target.closest("[data-sidebar-mini]");
+    if (miniButton) {
+      const target = miniButton.dataset.sidebarMini;
+      state.questionBank.sidebarCollapsed = false;
+      renderQuestionBank();
+      requestAnimationFrame(() => {
+        if (target === "role") {
+          elements.questionBankRole.focus();
+          elements.questionBankRole.scrollIntoView({ block: "center" });
+          return;
+        }
+
+        const section =
+          target === "difficulty"
+            ? elements.questionBankDifficultyList.closest(".bank-filter-block")
+            : elements.questionBankCategoryList.closest(".bank-filter-block");
+        section?.scrollIntoView({ block: "center" });
+      });
+      return;
+    }
+
     const toggle = event.target.closest("[data-filter-toggle]");
     if (!toggle) return;
 
@@ -3906,16 +4118,16 @@ const bindQuestionBankControls = () => {
     renderQuestionBankList();
   });
 
-  elements.questionBankDifficultyList.addEventListener("click", (event) => {
-    const button = event.target.closest("[data-bank-difficulty]");
-    if (!button) return;
-    toggleQuestionBankFilter("difficulties", button.dataset.bankDifficulty || "all");
+  elements.questionBankDifficultyList.addEventListener("change", (event) => {
+    const input = event.target.closest("[data-bank-difficulty]");
+    if (!input) return;
+    toggleQuestionBankFilter("difficulties", input.dataset.bankDifficulty || "all");
   });
 
-  elements.questionBankCategoryList.addEventListener("click", (event) => {
-    const button = event.target.closest("[data-bank-category]");
-    if (!button) return;
-    toggleQuestionBankFilter("categories", button.dataset.bankCategory || "all");
+  elements.questionBankCategoryList.addEventListener("change", (event) => {
+    const input = event.target.closest("[data-bank-category]");
+    if (!input) return;
+    toggleQuestionBankFilter("categories", input.dataset.bankCategory || "all");
   });
 
   elements.questionBankList.addEventListener("click", (event) => {
@@ -4033,8 +4245,6 @@ const bindQuickPracticeControls = () => {
 };
 
 const bindMyPageControls = () => {
-  elements.myPageSignOutButton.addEventListener("click", signOut);
-
   elements.myPageRoleFilter.addEventListener("change", () => {
     state.myPage.role = elements.myPageRoleFilter.value;
     state.myPage.category = "all";
@@ -4075,7 +4285,7 @@ const bindMyPageControls = () => {
   elements.myPageClearSelection.addEventListener("click", () => setMyPageSelection([]));
   elements.myPageQuickPracticeButton.addEventListener("click", () => startMyPageQuickPractice());
   elements.myPageMockPracticeButton.addEventListener("click", showMyPracticeModal);
-  elements.myPageRemoveSelectedButton.addEventListener("click", () => removeMyPageBookmarks(state.myPage.selectedKeys));
+  elements.myPageRemoveSelectedButton.addEventListener("click", () => showMyBookmarkRemoveModal(state.myPage.selectedKeys));
 
   elements.myPageList.addEventListener("change", (event) => {
     const checkbox = event.target.closest("[data-my-page-select]");
@@ -4095,9 +4305,16 @@ const bindMyPageControls = () => {
       return;
     }
 
+    const mockButton = event.target.closest("[data-my-page-mock]");
+    if (mockButton) {
+      setMyPageSelection([mockButton.dataset.myPageMock]);
+      showMyPracticeModal();
+      return;
+    }
+
     const unbookmarkButton = event.target.closest("[data-my-page-unbookmark]");
     if (unbookmarkButton) {
-      removeMyPageBookmarks([unbookmarkButton.dataset.myPageUnbookmark]);
+      showMyBookmarkRemoveModal([unbookmarkButton.dataset.myPageUnbookmark]);
     }
   });
 
@@ -4106,6 +4323,13 @@ const bindMyPageControls = () => {
   elements.myPracticeModal.addEventListener("click", (event) => {
     if (event.target === elements.myPracticeModal) {
       hideMyPracticeModal();
+    }
+  });
+  elements.cancelMyBookmarkRemoveButton.addEventListener("click", hideMyBookmarkRemoveModal);
+  elements.confirmMyBookmarkRemoveButton.addEventListener("click", confirmMyBookmarkRemove);
+  elements.myBookmarkConfirmModal.addEventListener("click", (event) => {
+    if (event.target === elements.myBookmarkConfirmModal) {
+      hideMyBookmarkRemoveModal();
     }
   });
 };
@@ -4258,9 +4482,67 @@ const bindInterviewControls = () => {
   });
   elements.authButton.addEventListener("click", () => {
     if (state.auth.user) {
+      toggleAccountMenu();
+    } else {
+      showAuthModal();
+    }
+  });
+  elements.bookmarkNavButton.addEventListener("click", () => {
+    if (state.auth.user) {
+      hideAccountMenu();
       requestViewChange("my-page");
     } else {
       showAuthModal();
+    }
+  });
+  elements.accountMenuBookmarksButton.addEventListener("click", () => {
+    hideAccountMenu();
+    requestViewChange("my-page");
+  });
+  elements.accountThemeLightButton.addEventListener("click", () => applyTheme("light"));
+  elements.accountThemeDarkButton.addEventListener("click", () => applyTheme("dark"));
+  elements.accountMenuLogoutButton.addEventListener("click", signOut);
+  elements.mobileMenuButton.addEventListener("click", openMobileMenu);
+  elements.mobileMenuCloseButton.addEventListener("click", closeMobileMenu);
+  elements.mobileMenuBackdrop.addEventListener("click", closeMobileMenu);
+  elements.mobileMenuDrawer.addEventListener("click", (event) => {
+    if (event.target.closest("[data-view]")) {
+      closeMobileMenu();
+    }
+  });
+  elements.mobileMenuBookmarkButton.addEventListener("click", () => {
+    closeMobileMenu();
+    if (state.auth.user) {
+      requestViewChange("my-page");
+    } else {
+      showAuthModal();
+    }
+  });
+  elements.mobileMenuHelpButton.addEventListener("click", () => {
+    closeMobileMenu();
+    showHelpModal();
+  });
+  elements.mobileMenuAuthButton.addEventListener("click", () => {
+    closeMobileMenu();
+    if (state.auth.user) {
+      requestViewChange("my-page");
+    } else {
+      showAuthModal();
+    }
+  });
+  elements.mobileMenuLogoutButton.addEventListener("click", () => {
+    closeMobileMenu();
+    signOut();
+  });
+  document.addEventListener("click", (event) => {
+    if (!elements.accountMenu?.classList.contains("open")) return;
+    if (elements.accountMenu.contains(event.target) || elements.authButton.contains(event.target)) return;
+    hideAccountMenu();
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      hideAccountMenu();
+      closeMobileMenu();
     }
   });
   elements.closeAuthButton.addEventListener("click", hideAuthModal);
@@ -4331,6 +4613,7 @@ const bindSttTestControls = () => {
 
 window.addEventListener("load", () => {
   cacheElements();
+  applyTheme(readThemePreference(), false);
   state.studyProgress = readStudyProgress();
 
   renderIcons();
