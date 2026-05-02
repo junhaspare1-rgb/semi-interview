@@ -240,8 +240,6 @@ const cacheElements = () => {
     "closeLandingWaitlistButton",
     "questionBankView",
     "myPageView",
-    "myPageSignedOut",
-    "myPageLoginButton",
     "myPageSignedIn",
     "myPageUserEmail",
     "myPageSignOutButton",
@@ -1488,6 +1486,18 @@ const showAuthModal = () => {
 const hideAuthModal = () => {
   elements.authModal.classList.remove("open");
   elements.authModal.setAttribute("aria-hidden", "true");
+};
+
+const requireLoginForStudySave = (source = "unknown", action = "save_progress") => {
+  if (state.auth.user) return true;
+
+  showAuthModal();
+  setAuthStatus("북마크와 학습 진도 저장은 로그인 후 사용할 수 있습니다.", "warning");
+  trackEvent("login_required", {
+    source,
+    action,
+  });
+  return false;
 };
 
 const setAuthLoading = (loading) => {
@@ -2851,6 +2861,7 @@ const toggleQuestionBankFilter = (filterName, value) => {
 const toggleQuestionBankBookmark = (questionId) => {
   const question = questionBankQuestionById(questionId);
   if (!question) return;
+  if (!requireLoginForStudySave("question_bank", "bookmark")) return;
   const studyState = getQuestionStudyState(question);
   const nextBookmarked = !studyState.bookmarked;
   setQuestionStudyState(question, { bookmarked: nextBookmarked });
@@ -2868,6 +2879,7 @@ const toggleQuestionBankBookmark = (questionId) => {
 const toggleQuestionBankStatus = (questionId, status) => {
   const question = questionBankQuestionById(questionId);
   if (!question) return;
+  if (!requireLoginForStudySave("question_bank", "study_status")) return;
   const studyState = getQuestionStudyState(question);
   setQuestionStudyState(question, { status: studyState.status === status ? null : status });
   renderQuestionBankStudySummary();
@@ -2994,17 +3006,26 @@ const renderMyPageSelectionBar = (visibleQuestions) => {
   elements.myPageRemoveSelectedButton.disabled = selectedCount === 0;
 };
 
+const redirectUnauthenticatedMyPage = () => {
+  if (!elements.myPageView?.classList.contains("active")) return;
+  setView("question-bank", { replaceRoute: true });
+  showAuthModal();
+};
+
 const renderMyPage = () => {
   const signedIn = Boolean(state.auth.user);
-  elements.myPageSignedOut.hidden = signedIn;
-  elements.myPageSignedIn.hidden = !signedIn;
   elements.myPageSelectedBar.hidden = true;
 
   if (!signedIn) {
+    elements.myPageSignedIn.hidden = true;
+    if (state.auth.ready || state.auth.client) {
+      window.setTimeout(redirectUnauthenticatedMyPage, 0);
+    }
     renderIcons();
     return;
   }
 
+  elements.myPageSignedIn.hidden = false;
   const bookmarks = myPageBookmarkedQuestions();
   const bookmarkKeys = new Set(bookmarks.map((question) => progressKey(question)));
   state.myPage.selectedKeys = state.myPage.selectedKeys.filter((key) => bookmarkKeys.has(key));
@@ -3524,6 +3545,7 @@ const openNextQuickPracticeQuestion = () => {
 const toggleQuickPracticeBookmark = () => {
   const question = quickPracticeQuestion();
   if (!question) return;
+  if (!requireLoginForStudySave("quick_practice", "bookmark")) return;
   const studyState = getQuestionStudyState(question);
   const nextBookmarked = !studyState.bookmarked;
   setQuestionStudyState(question, { bookmarked: nextBookmarked });
@@ -4011,7 +4033,6 @@ const bindQuickPracticeControls = () => {
 };
 
 const bindMyPageControls = () => {
-  elements.myPageLoginButton.addEventListener("click", showAuthModal);
   elements.myPageSignOutButton.addEventListener("click", signOut);
 
   elements.myPageRoleFilter.addEventListener("change", () => {

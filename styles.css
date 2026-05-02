@@ -1879,7 +1879,6 @@ button {
   line-height: 1.7;
 }
 
-.my-page-auth-panel,
 .my-page-summary-card,
 .my-page-filter-card,
 .my-page-empty,
@@ -1890,21 +1889,12 @@ button {
   box-shadow: 0 14px 34px rgba(15, 23, 42, 0.05);
 }
 
-.my-page-auth-panel {
-  display: grid;
-  width: min(520px, 100%);
-  gap: 14px;
-  padding: 28px;
-}
-
-.my-page-auth-panel h2,
 .my-page-empty strong {
   margin: 0;
   color: var(--ink);
   font-size: 24px;
 }
 
-.my-page-auth-panel p,
 .my-page-empty p {
   margin: 0;
   color: var(--muted);
