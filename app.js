@@ -85,6 +85,7 @@ const state = {
     ready: false,
     loading: false,
     progressSyncing: false,
+    lastSyncError: "",
     session: null,
     user: null,
   },
@@ -1199,6 +1200,15 @@ const setAuthStatus = (message = "", tone = "muted") => {
   elements.authStatus.dataset.tone = tone;
 };
 
+const reportAuthSyncError = (context, error) => {
+  const message = error?.message || "알 수 없는 동기화 오류";
+  state.auth.lastSyncError = message;
+  console.warn(`Question progress sync failed: ${context}`, error);
+  if (elements.authModal?.classList.contains("open")) {
+    setAuthStatus(`학습 진도 동기화 실패: ${message}`, "warning");
+  }
+};
+
 const renderAuthUi = () => {
   if (!elements.authButtonLabel) return;
 
@@ -1259,13 +1269,16 @@ const initAuth = async () => {
     const { data } = await state.auth.client.auth.getSession();
     applyAuthSession(data?.session || null);
     if (data?.session) {
-      syncAccountData({ silent: true }).catch(() => {});
+      syncAccountData({ silent: true }).catch((error) => {
+        reportAuthSyncError("initial account sync", error);
+      });
     }
     state.auth.client.auth.onAuthStateChange((event, session) => {
       applyAuthSession(session);
       if (event === "SIGNED_IN") {
         setAuthStatus("로그인되었습니다.", "success");
-        syncAccountData().catch(() => {
+        syncAccountData().catch((error) => {
+          reportAuthSyncError("sign in account sync", error);
           setAuthStatus("학습 진도 동기화에 실패했습니다. 잠시 후 다시 시도해주세요.", "warning");
         });
       }
@@ -1286,7 +1299,7 @@ const showAuthModal = () => {
   elements.authModal.classList.add("open");
   elements.authModal.setAttribute("aria-hidden", "false");
   if (state.auth.user) {
-    setAuthStatus("로그인 상태에서는 학습 진도와 북마크가 Supabase와 동기화됩니다.", "muted");
+    setAuthStatus("로그인 상태에서는 학습 진도와 북마크가 동기화됩니다.", "muted");
   } else if (!state.auth.client) {
     setAuthStatus("Supabase 설정이 필요합니다. Cloudflare 환경변수에 SUPABASE_URL, SUPABASE_ANON_KEY를 넣으면 활성화됩니다.", "warning");
   } else {
@@ -2234,10 +2247,8 @@ const setQuestionStudyState = (question, nextState) => {
   }
 
   writeStudyProgress();
-  syncQuestionProgress(question).catch(() => {
-    if (elements.authModal?.classList.contains("open")) {
-      setAuthStatus("학습 진도 저장에 실패했습니다. 네트워크 상태를 확인해주세요.", "warning");
-    }
+  syncQuestionProgress(question).catch((error) => {
+    reportAuthSyncError("single question progress sync", error);
   });
 };
 

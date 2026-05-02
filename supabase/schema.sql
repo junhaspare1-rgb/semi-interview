@@ -130,3 +130,9 @@ create trigger behavior_answers_set_updated_at
   before update on public.behavior_answers
   for each row
   execute function public.set_updated_at();
+
+grant usage on schema public to anon, authenticated;
+
+grant select, insert, update, delete on public.profiles to authenticated;
+grant select, insert, update, delete on public.question_progress to authenticated;
+grant select, insert, update, delete on public.behavior_answers to authenticated;

@@ -50,6 +50,7 @@ supabase/schema.sql
 모두 Row Level Security가 켜져 있고, 사용자는 자기 데이터만 읽고 쓸 수 있습니다.
 
 `schema.sql`은 정책을 먼저 `drop policy if exists`로 정리하므로, 초기 세팅 중 여러 번 실행해도 괜찮게 구성되어 있습니다.
+프로젝트 생성 시 `Automatically expose new tables and functions`를 꺼둔 경우를 대비해, 마지막에 `authenticated` role용 table grant도 포함되어 있습니다.
 
 ## 5. 프론트 동작
 
@@ -67,6 +68,15 @@ supabase/schema.sql
 2. `index.html`을 열고 우측 상단 `로그인`을 누릅니다.
 3. 이메일 Magic Link 또는 Google 로그인을 테스트합니다.
 4. 질문 모음에서 북마크/대답 가능/연습 필요를 누른 뒤 Supabase `question_progress` 테이블에 반영되는지 확인합니다.
+
+## 문제 해결
+
+로그인은 되고 `Authentication > Users`에는 유저가 보이는데 `question_progress`가 비어 있다면 아래를 확인합니다.
+
+1. 최신 `supabase/schema.sql`을 SQL Editor에서 다시 실행합니다.
+2. 실행 후 질문 모음에서 북마크/대답 가능/연습 필요를 새로 클릭합니다.
+3. 브라우저 개발자 도구 Console에 `Question progress sync failed`가 뜨면 메시지를 확인합니다.
+4. Network 탭에서 Supabase `question_progress` 요청이 401/403이면 RLS 정책 또는 grant가 적용되지 않은 상태입니다.
 
 ## 다음 단계
 
