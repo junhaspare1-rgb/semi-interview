@@ -29,6 +29,7 @@
     <meta name="twitter:title" content="반도체 면접 뿌수기 | 반면뿌" />
     <meta name="twitter:description" content="반도체 공정기술 면접을 실전처럼 연습하세요." />
     <meta name="twitter:image" content="https://xn--e42b13ak0f.kr/og-image.png" />
+    <link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
     <link rel="stylesheet" href="styles.css?v=20260502-my-page" />
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-V8PWYYDSJC"></script>
@@ -67,15 +68,67 @@
       </nav>
 
       <div class="utility-nav" aria-label="사용자 메뉴">
+        <button class="bookmark-nav-button" id="bookmarkNavButton" type="button" aria-label="북마크로 이동" title="북마크">
+          <i data-lucide="bookmark"></i>
+          <span>북마크</span>
+        </button>
         <button class="auth-nav-button" id="authButton" type="button" aria-label="로그인">
           <i data-lucide="user-circle"></i>
           <span id="authButtonLabel">로그인</span>
         </button>
+        <div class="account-menu" id="accountMenu" aria-hidden="true">
+          <div class="account-menu-email" id="accountMenuEmail">-</div>
+          <button class="account-menu-item" id="accountMenuBookmarksButton" type="button">
+            <i data-lucide="bookmark"></i>
+            <span>북마크</span>
+          </button>
+          <div class="account-menu-section">
+            <p>화면 모드</p>
+            <button class="account-menu-item account-theme-option" id="accountThemeLightButton" type="button" data-theme-option="light">
+              <i data-lucide="sun"></i>
+              <span>라이트 모드</span>
+            </button>
+            <button class="account-menu-item account-theme-option" id="accountThemeDarkButton" type="button" data-theme-option="dark">
+              <i data-lucide="moon"></i>
+              <span>다크 모드</span>
+            </button>
+          </div>
+          <button class="account-menu-item account-menu-logout" id="accountMenuLogoutButton" type="button">
+            <i data-lucide="log-out"></i>
+            <span>로그아웃</span>
+          </button>
+        </div>
         <button id="helpButton" type="button" aria-label="개발자 메시지 열기">
           <i data-lucide="circle-help"></i>
         </button>
       </div>
+
+      <button class="mobile-menu-button" id="mobileMenuButton" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="mobileMenuDrawer">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
     </header>
+
+    <div class="mobile-menu-backdrop" id="mobileMenuBackdrop" aria-hidden="true"></div>
+    <aside class="mobile-menu-drawer" id="mobileMenuDrawer" aria-label="모바일 메뉴" aria-hidden="true">
+      <div class="mobile-menu-head">
+        <div>
+          <span>현재 로그인 계정</span>
+          <strong id="mobileMenuEmail">로그인이 필요합니다</strong>
+        </div>
+        <button id="mobileMenuCloseButton" type="button" aria-label="메뉴 닫기">×</button>
+      </div>
+      <nav class="mobile-menu-list">
+        <button type="button" data-view="question-bank">질문 모음</button>
+        <button type="button" data-view="home">모의 면접</button>
+        <button type="button" data-view="contact">Contact</button>
+        <button type="button" id="mobileMenuBookmarkButton">북마크</button>
+        <button type="button" id="mobileMenuHelpButton">개발자 메시지</button>
+        <button type="button" id="mobileMenuAuthButton">로그인</button>
+        <button type="button" id="mobileMenuLogoutButton" hidden>로그아웃</button>
+      </nav>
+    </aside>
 
     <main>
       <template id="developerMessageTemplate">
@@ -122,7 +175,7 @@
             <p class="landing-eyebrow">반도체 면접 뿌수기</p>
             <h1 id="landingTitle">어떤 직무를 준비하고 있나요?</h1>
             <p>
-              선별된 문항, 무제한 모의 면접으로 합격 가능성을 끝까지 끌어올리세요.
+              현직자가 엄선한 질문과 실전 모의 면접 시스템을 경험하세요.
             </p>
           </div>
 
@@ -151,7 +204,7 @@
 
           <div class="landing-actions">
             <button class="landing-primary-button" id="landingStartButton" type="button">
-              <span>질문 모음으로 시작하기</span>
+              <span>면접 질문 확인하기</span>
               <i data-lucide="arrow-right"></i>
             </button>
             <button class="landing-secondary-button" id="landingMockButton" type="button">
@@ -205,7 +258,31 @@
       </section>
 
       <section class="question-bank-view app-view" id="questionBankView" aria-labelledby="questionBankTitle">
+        <div class="question-bank-filter-backdrop" id="questionBankFilterBackdrop" aria-hidden="true"></div>
         <aside class="question-bank-sidebar" id="questionBankSidebar" aria-label="질문 모음 필터">
+          <div class="question-bank-sidebar-head">
+            <strong>필터</strong>
+            <button class="sidebar-collapse-button" id="questionBankSidebarCollapseButton" type="button" aria-label="필터 사이드바 접기">
+              <i data-lucide="panel-left-close"></i>
+            </button>
+            <button class="sidebar-drawer-close" id="questionBankFilterCloseButton" type="button" aria-label="필터 닫기">
+              <i data-lucide="x"></i>
+            </button>
+          </div>
+          <nav class="question-bank-sidebar-mini" aria-label="간단 필터 메뉴">
+            <button type="button" data-sidebar-mini="role" aria-label="직무 필터 열기">
+              <i data-lucide="briefcase"></i>
+              <span>직무</span>
+            </button>
+            <button type="button" data-sidebar-mini="difficulty" aria-label="난이도 필터 열기">
+              <i data-lucide="gauge"></i>
+              <span>난이도</span>
+            </button>
+            <button type="button" data-sidebar-mini="category" aria-label="카테고리 필터 열기">
+              <i data-lucide="list-filter"></i>
+              <span>카테고리</span>
+            </button>
+          </nav>
           <div class="bank-filter-block">
             <label for="questionBankRole">직무 선택</label>
             <select id="questionBankRole">
@@ -249,7 +326,6 @@
         <section class="question-bank-main">
           <header class="question-bank-hero">
             <div>
-              <p class="bank-breadcrumb">질문 모음 <span>/</span> <strong id="questionBankRoleName">공정기술</strong></p>
               <h1 id="questionBankTitle">공정기술 질문 모음</h1>
               <p id="questionBankDescription">실제 면접에서 나온 문제와 모범 답변 예시를 함께 확인해보세요.</p>
             </div>
@@ -270,7 +346,13 @@
           </header>
 
           <div class="question-bank-toolbar">
-            <span id="questionBankCount">0개 문제</span>
+            <div class="bank-toolbar-left">
+              <button class="filter-drawer-button" id="questionBankFilterButton" type="button" aria-expanded="false" aria-controls="questionBankSidebar">
+                <i data-lucide="sliders-horizontal"></i>
+                <span>필터</span>
+              </button>
+              <span id="questionBankCount">0개 문제</span>
+            </div>
             <div class="bank-toolbar-actions">
               <div class="question-bank-search-row">
                 <label class="bank-search" for="questionBankSearch">

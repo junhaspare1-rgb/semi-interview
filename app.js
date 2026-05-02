@@ -110,6 +110,8 @@ const state = {
     expandedId: null,
     pageSize: 10,
     page: 1,
+    sidebarCollapsed: false,
+    filterDrawerOpen: false,
   },
   myPage: {
     role: "all",
@@ -293,6 +295,15 @@ const cacheElements = () => {
     "accountThemeLightButton",
     "accountThemeDarkButton",
     "accountMenuLogoutButton",
+    "mobileMenuButton",
+    "mobileMenuBackdrop",
+    "mobileMenuDrawer",
+    "mobileMenuCloseButton",
+    "mobileMenuEmail",
+    "mobileMenuBookmarkButton",
+    "mobileMenuHelpButton",
+    "mobileMenuAuthButton",
+    "mobileMenuLogoutButton",
     "closeAuthButton",
     "authSignedOutPanel",
     "authSignedInPanel",
@@ -322,7 +333,12 @@ const cacheElements = () => {
     "sttTestTranscript",
     "sttTestModel",
     "sttTestAudioPlayer",
+    "bookmarkNavButton",
     "questionBankSidebar",
+    "questionBankFilterBackdrop",
+    "questionBankSidebarCollapseButton",
+    "questionBankFilterButton",
+    "questionBankFilterCloseButton",
     "questionBankRole",
     "questionBankStudySummary",
     "questionBankProgressPercent",
@@ -464,6 +480,25 @@ const hideAccountMenu = () => {
   elements.accountMenu.classList.remove("open");
   elements.accountMenu.setAttribute("aria-hidden", "true");
   elements.authButton?.setAttribute("aria-expanded", "false");
+};
+
+const closeMobileMenu = () => {
+  document.body.classList.remove("mobile-menu-open");
+  elements.mobileMenuDrawer?.classList.remove("open");
+  elements.mobileMenuDrawer?.setAttribute("aria-hidden", "true");
+  elements.mobileMenuBackdrop?.classList.remove("open");
+  elements.mobileMenuBackdrop?.setAttribute("aria-hidden", "true");
+  elements.mobileMenuButton?.setAttribute("aria-expanded", "false");
+};
+
+const openMobileMenu = () => {
+  hideAccountMenu();
+  document.body.classList.add("mobile-menu-open");
+  elements.mobileMenuDrawer?.classList.add("open");
+  elements.mobileMenuDrawer?.setAttribute("aria-hidden", "false");
+  elements.mobileMenuBackdrop?.classList.add("open");
+  elements.mobileMenuBackdrop?.setAttribute("aria-hidden", "false");
+  elements.mobileMenuButton?.setAttribute("aria-expanded", "true");
 };
 
 const showAccountMenu = () => {
@@ -691,6 +726,9 @@ const setView = (view, options = {}) => {
       : nextView
     : "home";
   $$(".main-nav [data-view]").forEach((button) => {
+    button.classList.toggle("active", button.dataset.view === activeNavView);
+  });
+  $$(".mobile-menu-list [data-view]").forEach((button) => {
     button.classList.toggle("active", button.dataset.view === activeNavView);
   });
   if (nextView === "question-bank") {
@@ -1440,6 +1478,15 @@ const renderAuthUi = () => {
   if (elements.accountMenuEmail) {
     elements.accountMenuEmail.textContent = email || "-";
   }
+  if (elements.mobileMenuEmail) {
+    elements.mobileMenuEmail.textContent = signedIn ? email : "로그인이 필요합니다";
+  }
+  if (elements.mobileMenuAuthButton) {
+    elements.mobileMenuAuthButton.textContent = signedIn ? "마이 페이지" : "로그인";
+  }
+  if (elements.mobileMenuLogoutButton) {
+    elements.mobileMenuLogoutButton.hidden = !signedIn;
+  }
   if (!signedIn) {
     hideAccountMenu();
   }
@@ -1995,7 +2042,7 @@ const setLandingRole = (card) => {
   elements.landingStartButton.disabled = !isEnabled;
   elements.landingStartButton.setAttribute("aria-disabled", String(!isEnabled));
   elements.landingStartButton.querySelector("span").textContent = isEnabled
-    ? "질문 모음으로 시작하기"
+    ? "면접 질문 확인하기"
     : "준비 중인 직무입니다";
   elements.landingMockButton.disabled = !isEnabled;
   elements.landingMockButton.setAttribute("aria-disabled", String(!isEnabled));
@@ -2700,19 +2747,23 @@ const questionBankDifficultyClass = (difficulty) =>
 const renderQuestionBankCategoryList = () => {
   const categories = questionBankCategories();
   const categoryCounts = questionBankCategoryCounts();
-  const buttons = [
-    `<button class="bank-category-chip ${state.questionBank.categories.length === 0 ? "active" : ""}" type="button" data-bank-category="all">
-      전체 <span>${categoryCounts.all}</span>
-    </button>`,
+  const options = [
+    `<label class="bank-filter-option ${state.questionBank.categories.length === 0 ? "active" : ""}">
+      <input type="checkbox" data-bank-category="all" ${state.questionBank.categories.length === 0 ? "checked" : ""} />
+      <span>전체</span>
+      <strong>${categoryCounts.all}</strong>
+    </label>`,
     ...categories.map(
       ({ category }) => `
-        <button class="bank-category-chip ${state.questionBank.categories.includes(category) ? "active" : ""}" type="button" data-bank-category="${escapeHtml(category)}">
-          ${escapeHtml(category)} <span>${categoryCounts.counts.get(category) || 0}</span>
-        </button>
+        <label class="bank-filter-option ${state.questionBank.categories.includes(category) ? "active" : ""}">
+          <input type="checkbox" data-bank-category="${escapeHtml(category)}" ${state.questionBank.categories.includes(category) ? "checked" : ""} />
+          <span>${escapeHtml(category)}</span>
+          <strong>${categoryCounts.counts.get(category) || 0}</strong>
+        </label>
       `,
     ),
   ];
-  elements.questionBankCategoryList.innerHTML = buttons.join("");
+  elements.questionBankCategoryList.innerHTML = options.join("");
 };
 
 const renderQuestionBankDifficultyList = () => {
@@ -2724,7 +2775,7 @@ const renderQuestionBankDifficultyList = () => {
   elements.questionBankDifficultyList.innerHTML = difficulties
     .map(
       ([value, label]) => `
-        <button class="bank-difficulty-item ${
+        <label class="bank-filter-option ${
           value === "all"
             ? state.questionBank.difficulties.length === 0
               ? "active"
@@ -2732,10 +2783,19 @@ const renderQuestionBankDifficultyList = () => {
             : state.questionBank.difficulties.includes(value)
               ? "active"
               : ""
-        }" type="button" data-bank-difficulty="${value}">
+        }">
+          <input type="checkbox" data-bank-difficulty="${value}" ${
+            value === "all"
+              ? state.questionBank.difficulties.length === 0
+                ? "checked"
+                : ""
+              : state.questionBank.difficulties.includes(value)
+                ? "checked"
+                : ""
+          } />
           <span>${label}</span>
           <strong>${counts[value] || 0}</strong>
-        </button>
+        </label>
       `,
     )
     .join("");
@@ -2897,7 +2957,21 @@ const renderQuestionBank = () => {
   const role = questionBankRole();
   elements.questionBankRole.value = state.questionBank.role;
   elements.questionBankSort.value = state.questionBank.sort;
-  elements.questionBankRoleName.textContent = role.shortLabel;
+  elements.questionBankView.classList.toggle("sidebar-collapsed", state.questionBank.sidebarCollapsed);
+  elements.questionBankView.classList.toggle("filter-drawer-open", state.questionBank.filterDrawerOpen);
+  elements.questionBankSidebarCollapseButton.setAttribute(
+    "aria-label",
+    state.questionBank.sidebarCollapsed ? "필터 사이드바 열기" : "필터 사이드바 접기",
+  );
+  elements.questionBankSidebarCollapseButton.setAttribute("aria-expanded", String(!state.questionBank.sidebarCollapsed));
+  elements.questionBankSidebarCollapseButton.innerHTML = state.questionBank.sidebarCollapsed
+    ? '<i data-lucide="panel-left-open"></i>'
+    : '<i data-lucide="panel-left-close"></i>';
+  elements.questionBankFilterButton.setAttribute("aria-expanded", String(state.questionBank.filterDrawerOpen));
+  elements.questionBankFilterBackdrop.setAttribute("aria-hidden", String(!state.questionBank.filterDrawerOpen));
+  if (elements.questionBankRoleName) {
+    elements.questionBankRoleName.textContent = role.shortLabel;
+  }
   elements.questionBankTitle.textContent = `${role.shortLabel} 질문 모음`;
   elements.questionBankDescription.textContent = "문제를 클릭하면 모범 답안을 확인할 수 있어요.";
   renderQuestionBankStudySummary();
@@ -2927,6 +3001,13 @@ const toggleQuestionBankFilter = (filterName, value) => {
   state.questionBank.page = 1;
   state.questionBank.expandedId = null;
   renderQuestionBank();
+};
+
+const closeQuestionBankFilterDrawer = () => {
+  state.questionBank.filterDrawerOpen = false;
+  elements.questionBankView?.classList.remove("filter-drawer-open");
+  elements.questionBankFilterButton?.setAttribute("aria-expanded", "false");
+  elements.questionBankFilterBackdrop?.setAttribute("aria-hidden", "true");
 };
 
 const toggleQuestionBankBookmark = (questionId) => {
@@ -3960,7 +4041,41 @@ const bindAnswerScriptControls = () => {
 };
 
 const bindQuestionBankControls = () => {
+  elements.questionBankSidebarCollapseButton.addEventListener("click", () => {
+    state.questionBank.sidebarCollapsed = !state.questionBank.sidebarCollapsed;
+    renderQuestionBank();
+  });
+
+  elements.questionBankFilterButton.addEventListener("click", () => {
+    state.questionBank.filterDrawerOpen = true;
+    renderQuestionBank();
+  });
+
+  elements.questionBankFilterCloseButton.addEventListener("click", closeQuestionBankFilterDrawer);
+  elements.questionBankFilterBackdrop.addEventListener("click", closeQuestionBankFilterDrawer);
+
   elements.questionBankSidebar.addEventListener("click", (event) => {
+    const miniButton = event.target.closest("[data-sidebar-mini]");
+    if (miniButton) {
+      const target = miniButton.dataset.sidebarMini;
+      state.questionBank.sidebarCollapsed = false;
+      renderQuestionBank();
+      requestAnimationFrame(() => {
+        if (target === "role") {
+          elements.questionBankRole.focus();
+          elements.questionBankRole.scrollIntoView({ block: "center" });
+          return;
+        }
+
+        const section =
+          target === "difficulty"
+            ? elements.questionBankDifficultyList.closest(".bank-filter-block")
+            : elements.questionBankCategoryList.closest(".bank-filter-block");
+        section?.scrollIntoView({ block: "center" });
+      });
+      return;
+    }
+
     const toggle = event.target.closest("[data-filter-toggle]");
     if (!toggle) return;
 
@@ -4003,16 +4118,16 @@ const bindQuestionBankControls = () => {
     renderQuestionBankList();
   });
 
-  elements.questionBankDifficultyList.addEventListener("click", (event) => {
-    const button = event.target.closest("[data-bank-difficulty]");
-    if (!button) return;
-    toggleQuestionBankFilter("difficulties", button.dataset.bankDifficulty || "all");
+  elements.questionBankDifficultyList.addEventListener("change", (event) => {
+    const input = event.target.closest("[data-bank-difficulty]");
+    if (!input) return;
+    toggleQuestionBankFilter("difficulties", input.dataset.bankDifficulty || "all");
   });
 
-  elements.questionBankCategoryList.addEventListener("click", (event) => {
-    const button = event.target.closest("[data-bank-category]");
-    if (!button) return;
-    toggleQuestionBankFilter("categories", button.dataset.bankCategory || "all");
+  elements.questionBankCategoryList.addEventListener("change", (event) => {
+    const input = event.target.closest("[data-bank-category]");
+    if (!input) return;
+    toggleQuestionBankFilter("categories", input.dataset.bankCategory || "all");
   });
 
   elements.questionBankList.addEventListener("click", (event) => {
@@ -4372,6 +4487,14 @@ const bindInterviewControls = () => {
       showAuthModal();
     }
   });
+  elements.bookmarkNavButton.addEventListener("click", () => {
+    if (state.auth.user) {
+      hideAccountMenu();
+      requestViewChange("my-page");
+    } else {
+      showAuthModal();
+    }
+  });
   elements.accountMenuBookmarksButton.addEventListener("click", () => {
     hideAccountMenu();
     requestViewChange("my-page");
@@ -4379,6 +4502,38 @@ const bindInterviewControls = () => {
   elements.accountThemeLightButton.addEventListener("click", () => applyTheme("light"));
   elements.accountThemeDarkButton.addEventListener("click", () => applyTheme("dark"));
   elements.accountMenuLogoutButton.addEventListener("click", signOut);
+  elements.mobileMenuButton.addEventListener("click", openMobileMenu);
+  elements.mobileMenuCloseButton.addEventListener("click", closeMobileMenu);
+  elements.mobileMenuBackdrop.addEventListener("click", closeMobileMenu);
+  elements.mobileMenuDrawer.addEventListener("click", (event) => {
+    if (event.target.closest("[data-view]")) {
+      closeMobileMenu();
+    }
+  });
+  elements.mobileMenuBookmarkButton.addEventListener("click", () => {
+    closeMobileMenu();
+    if (state.auth.user) {
+      requestViewChange("my-page");
+    } else {
+      showAuthModal();
+    }
+  });
+  elements.mobileMenuHelpButton.addEventListener("click", () => {
+    closeMobileMenu();
+    showHelpModal();
+  });
+  elements.mobileMenuAuthButton.addEventListener("click", () => {
+    closeMobileMenu();
+    if (state.auth.user) {
+      requestViewChange("my-page");
+    } else {
+      showAuthModal();
+    }
+  });
+  elements.mobileMenuLogoutButton.addEventListener("click", () => {
+    closeMobileMenu();
+    signOut();
+  });
   document.addEventListener("click", (event) => {
     if (!elements.accountMenu?.classList.contains("open")) return;
     if (elements.accountMenu.contains(event.target) || elements.authButton.contains(event.target)) return;
@@ -4387,6 +4542,7 @@ const bindInterviewControls = () => {
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       hideAccountMenu();
+      closeMobileMenu();
     }
   });
   elements.closeAuthButton.addEventListener("click", hideAuthModal);
