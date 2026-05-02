@@ -29,7 +29,7 @@
     <meta name="twitter:title" content="반도체 면접 뿌수기 | 반면뿌" />
     <meta name="twitter:description" content="반도체 공정기술 면접을 실전처럼 연습하세요." />
     <meta name="twitter:image" content="https://xn--e42b13ak0f.kr/og-image.png" />
-    <link rel="stylesheet" href="styles.css?v=20260502-auth" />
+    <link rel="stylesheet" href="styles.css?v=20260502-my-page" />
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-V8PWYYDSJC"></script>
     <script>
@@ -52,7 +52,7 @@
     <script src="data/auth-config.js?v=20260502-auth" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
-    <script src="app.js?v=20260502-routes" defer></script>
+    <script src="app.js?v=20260502-my-page" defer></script>
   </head>
   <body>
     <header class="top-nav">
@@ -316,6 +316,92 @@
             <span>직무, 카테고리, 난이도 또는 검색어를 조정해보세요.</span>
           </div>
         </section>
+      </section>
+
+      <section class="my-page-view app-view" id="myPageView" aria-labelledby="myPageTitle">
+        <div class="my-page-shell">
+          <header class="my-page-hero">
+            <p class="bank-breadcrumb">마이 페이지 <span>/</span> <strong>북마크</strong></p>
+            <h1 id="myPageTitle">내가 저장한 질문</h1>
+            <p>북마크한 질문을 모아보고, 필요한 것만 골라 빠르게 연습할 수 있습니다.</p>
+          </header>
+
+          <section class="my-page-auth-panel" id="myPageSignedOut">
+            <span class="badge-icon">
+              <i data-lucide="user-circle"></i>
+            </span>
+            <h2>로그인이 필요합니다</h2>
+            <p>로그인하면 북마크와 학습 진도를 기기와 관계없이 이어볼 수 있어요.</p>
+            <button class="black-button" id="myPageLoginButton" type="button">로그인하기</button>
+          </section>
+
+          <section class="my-page-content" id="myPageSignedIn" hidden>
+            <div class="my-page-summary-card">
+              <div>
+                <span>현재 계정</span>
+                <strong id="myPageUserEmail">-</strong>
+              </div>
+              <div>
+                <span>북마크</span>
+                <strong><span id="myPageBookmarkCount">0</span>개</strong>
+              </div>
+              <button class="outline-button" id="myPageSignOutButton" type="button">로그아웃</button>
+            </div>
+
+            <section class="my-page-filter-card" aria-label="북마크 질문 필터">
+              <label>
+                <span>직무</span>
+                <select id="myPageRoleFilter"></select>
+              </label>
+              <label>
+                <span>난이도</span>
+                <select id="myPageDifficultyFilter"></select>
+              </label>
+              <label>
+                <span>카테고리</span>
+                <select id="myPageCategoryFilter"></select>
+              </label>
+              <label class="my-page-search-label">
+                <span>검색</span>
+                <input id="myPageSearch" type="search" placeholder="질문, 키워드, 공정명 검색" autocomplete="off" />
+              </label>
+              <label>
+                <span>정렬</span>
+                <select id="myPageSort">
+                  <option value="recent">최근 북마크순</option>
+                  <option value="role">직무순</option>
+                  <option value="difficulty">난이도순</option>
+                  <option value="category">카테고리순</option>
+                </select>
+              </label>
+            </section>
+
+            <div class="my-page-list-head">
+              <label class="my-page-check-all">
+                <input id="myPageSelectAll" type="checkbox" />
+                <span>현재 목록 전체 선택</span>
+              </label>
+              <button class="text-button" id="myPageClearSelection" type="button">선택 해제</button>
+            </div>
+
+            <section class="my-bookmark-list" id="myPageList" aria-label="북마크 질문 목록"></section>
+
+            <section class="my-page-empty" id="myPageEmpty" hidden>
+              <strong>아직 북마크한 질문이 없습니다.</strong>
+              <p>질문 모음에서 다시 보고 싶은 질문을 북마크해두면 이곳에 모입니다.</p>
+              <button class="black-button" type="button" data-view="question-bank">질문 모음으로 이동</button>
+            </section>
+          </section>
+        </div>
+
+        <div class="my-page-selection-bar" id="myPageSelectedBar" hidden>
+          <strong><span id="myPageSelectedCount">0</span>개 선택됨</strong>
+          <div>
+            <button class="outline-button" id="myPageQuickPracticeButton" type="button">빠른 연습</button>
+            <button class="outline-button" id="myPageMockPracticeButton" type="button">모의면접으로 연습</button>
+            <button class="danger-outline-button" id="myPageRemoveSelectedButton" type="button">북마크 해제</button>
+          </div>
+        </div>
       </section>
 
       <section class="quick-practice-view app-view" id="quickPracticeView" aria-labelledby="quickPracticeTitle">
@@ -880,6 +966,44 @@
         <div class="exit-actions">
           <button class="outline-button" id="closeLandingWaitlistButton" type="button">닫기</button>
         </div>
+      </section>
+    </div>
+
+    <div class="exit-modal" id="myPracticeModal" aria-hidden="true">
+      <section class="exit-dialog my-practice-dialog" role="dialog" aria-modal="true" aria-labelledby="myPracticeTitle">
+        <div class="help-dialog-head">
+          <div>
+            <span class="help-kicker">선택 문항 연습</span>
+            <h2 id="myPracticeTitle">모의면접 시간 설정</h2>
+          </div>
+          <button class="icon-close" id="cancelMyPracticeButton" type="button" aria-label="설정 창 닫기">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <p>선택한 북마크 질문만 사용해 모의면접을 진행합니다.</p>
+        <div class="my-practice-grid">
+          <label>
+            <span>준비 시간</span>
+            <select id="myPracticePrepTime">
+              <option value="0">즉시 답변</option>
+              <option value="10">10초</option>
+              <option value="30">30초</option>
+              <option value="60">1분</option>
+              <option value="120">2분</option>
+            </select>
+          </label>
+          <label>
+            <span>답변 제한 시간</span>
+            <select id="myPracticeAnswerTime">
+              <option value="60">1분</option>
+              <option value="120" selected>2분</option>
+              <option value="180">3분</option>
+              <option value="240">4분</option>
+              <option value="300">5분</option>
+            </select>
+          </label>
+        </div>
+        <button class="black-button" id="confirmMyPracticeButton" type="button">선택 문항으로 시작</button>
       </section>
     </div>
 

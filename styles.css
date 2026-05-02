@@ -1802,6 +1802,327 @@ button {
   word-break: keep-all;
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.text-button {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 900;
+}
+
+.text-button:hover {
+  color: var(--blue);
+}
+
+.danger-outline-button {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 0 14px;
+  background: #fff1f2;
+  color: #be123c;
+  font-weight: 900;
+}
+
+.danger-outline-button:hover {
+  border-color: #fb7185;
+  background: #ffe4e6;
+}
+
+.danger-outline-button:disabled,
+.text-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.my-page-view {
+  min-height: calc(100vh - 124px);
+  padding: 34px clamp(18px, 5vw, 72px) 110px;
+}
+
+.my-page-shell {
+  display: grid;
+  width: min(1120px, 100%);
+  margin: 0 auto;
+  gap: 22px;
+}
+
+.my-page-hero {
+  display: grid;
+  gap: 10px;
+}
+
+.my-page-hero h1 {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(34px, 5vw, 54px);
+  line-height: 1.05;
+  letter-spacing: 0;
+}
+
+.my-page-hero p:not(.bank-breadcrumb) {
+  margin: 0;
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+.my-page-auth-panel,
+.my-page-summary-card,
+.my-page-filter-card,
+.my-page-empty,
+.my-bookmark-item {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.05);
+}
+
+.my-page-auth-panel {
+  display: grid;
+  width: min(520px, 100%);
+  gap: 14px;
+  padding: 28px;
+}
+
+.my-page-auth-panel h2,
+.my-page-empty strong {
+  margin: 0;
+  color: var(--ink);
+  font-size: 24px;
+}
+
+.my-page-auth-panel p,
+.my-page-empty p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.my-page-content {
+  display: grid;
+  gap: 16px;
+}
+
+.my-page-summary-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+}
+
+.my-page-summary-card div {
+  display: grid;
+  gap: 5px;
+}
+
+.my-page-summary-card span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.my-page-summary-card strong {
+  color: var(--ink);
+  font-size: 18px;
+}
+
+.my-page-filter-card {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(150px, 1fr)) minmax(220px, 1.5fr) minmax(160px, 0.9fr);
+  gap: 12px;
+  padding: 16px;
+}
+
+.my-page-filter-card label {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.my-page-filter-card input,
+.my-page-filter-card select,
+.my-practice-grid select {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0 12px;
+  background: #ffffff;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 800;
+}
+
+.my-page-list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--muted);
+  font-weight: 900;
+}
+
+.my-page-check-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.my-bookmark-list {
+  display: grid;
+  gap: 10px;
+}
+
+.my-bookmark-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  transition: border-color 160ms ease, background 160ms ease;
+}
+
+.my-bookmark-item.selected {
+  border-color: var(--blue);
+  background: #f8fbff;
+}
+
+.my-bookmark-check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--blue);
+}
+
+.my-bookmark-main {
+  display: grid;
+  min-width: 0;
+  gap: 8px;
+}
+
+.my-bookmark-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.my-bookmark-main strong {
+  color: var(--ink);
+  font-size: 17px;
+  line-height: 1.45;
+  word-break: keep-all;
+}
+
+.my-bookmark-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  border-radius: 999px;
+  padding: 0 9px;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.my-bookmark-status.known {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.my-bookmark-status.confused {
+  background: #ffe4e6;
+  color: #be123c;
+}
+
+.my-bookmark-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.my-page-empty {
+  display: grid;
+  gap: 12px;
+  padding: 24px;
+}
+
+.my-page-empty[hidden] {
+  display: none;
+}
+
+.my-page-selection-bar {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  z-index: 30;
+  display: flex;
+  width: min(920px, calc(100% - 32px));
+  transform: translateX(-50%);
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border: 1px solid #bfdbfe;
+  border-radius: 18px;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.16);
+  backdrop-filter: blur(14px);
+}
+
+.my-page-selection-bar[hidden] {
+  display: none;
+}
+
+.my-page-selection-bar strong {
+  color: var(--ink);
+}
+
+.my-page-selection-bar div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.my-practice-dialog {
+  width: min(480px, 100%);
+}
+
+.my-practice-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 18px 0;
+}
+
+.my-practice-grid label {
+  display: grid;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
 .quick-practice-view {
   min-height: calc(100vh - 124px);
   padding: 30px clamp(24px, 4vw, 64px);
@@ -5726,5 +6047,69 @@ input[type="number"] {
 
   .utility-nav .auth-nav-button span {
     display: none;
+  }
+}
+
+@media (max-width: 1040px) {
+  .my-page-filter-card {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .my-page-search-label {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 760px) {
+  .my-page-view {
+    padding: 22px 14px 116px;
+  }
+
+  .my-page-hero h1 {
+    font-size: 34px;
+  }
+
+  .my-page-summary-card {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .my-page-filter-card {
+    grid-template-columns: 1fr;
+    padding: 14px;
+  }
+
+  .my-page-list-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .my-bookmark-item {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .my-bookmark-actions {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+  }
+
+  .my-page-selection-bar {
+    align-items: stretch;
+    flex-direction: column;
+    bottom: 12px;
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  .my-page-selection-bar div {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .my-practice-grid {
+    grid-template-columns: 1fr;
   }
 }
