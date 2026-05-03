@@ -9,6 +9,9 @@ const processSourceQuestions = Array.isArray(window.BANMYEONPPU_PROCESS_QUESTION
 const packageTestSourceQuestions = Array.isArray(window.BANMYEONPPU_PACKAGE_TEST_QUESTIONS)
   ? window.BANMYEONPPU_PACKAGE_TEST_QUESTIONS
   : [];
+const personalitySourceQuestions = Array.isArray(window.BANMYEONPPU_PERSONALITY_QUESTIONS)
+  ? window.BANMYEONPPU_PERSONALITY_QUESTIONS
+  : [];
 const buildQuestionBank = (sourceQuestions, { roleId, jobRole, mainCategories = new Set() }) =>
   sourceQuestions
     .map((question, index) => ({
@@ -21,6 +24,9 @@ const buildQuestionBank = (sourceQuestions, { roleId, jobRole, mainCategories = 
       text: question.question || question.text || "",
       answer: question.answer || "",
       shortAnswer: question.shortAnswer || question["40초 Script"] || "",
+      recommendedAnswer: question.recommendedAnswer || question.answerGuide || question.answer || "",
+      avoidAnswer: question.avoidAnswer || "",
+      questionType: question.questionType || "technical",
       keywords: Array.isArray(question.keywords) ? question.keywords : [],
 
       estimatedAnswerMinutes: Number(question.estimatedAnswerMinutes || question["예상 답변 시간(분)"]) || null,
@@ -38,6 +44,10 @@ const questionBanksByRole = {
   "package-test": buildQuestionBank(packageTestSourceQuestions, {
     roleId: "package-test",
     jobRole: "Package & Test",
+  }),
+  personality: buildQuestionBank(personalitySourceQuestions, {
+    roleId: "personality",
+    jobRole: "인성 면접",
   }),
 };
 const questionBank = questionBanksByRole.process;
@@ -209,6 +219,14 @@ const QUESTION_BANK_ROLES = [
     enabled: true,
   },
   {
+    id: "personality",
+    label: "인성 면접",
+    shortLabel: "인성 면접",
+    description: "자기소개, 지원동기, 협업, 문제해결, 가치관 중심 인성 면접 질문",
+    enabled: true,
+    questionType: "personality",
+  },
+  {
     id: "design",
     label: "회로설계",
     shortLabel: "회로설계",
@@ -289,6 +307,8 @@ const cacheElements = () => {
     "helpButton",
     "authButton",
     "authButtonLabel",
+    "personalityQuestionsMenuButton",
+    "mobilePersonalityQuestionsMenuButton",
     "accountMenu",
     "accountMenuEmail",
     "accountThemeLightButton",
@@ -542,6 +562,12 @@ const readPracticeRoleId = () => {
   return params.get("role") || params.get("job") || "process";
 };
 
+const readQuestionBankRoleId = () => {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("type") === "personality") return "personality";
+  return params.get("role") || params.get("job") || "process";
+};
+
 const canUseAppRoutes = () => window.location.protocol === "http:" || window.location.protocol === "https:";
 
 const normalizeAppPath = (pathname = window.location.pathname) => {
@@ -570,7 +596,9 @@ const routeForView = (view) => {
   if (view === "landing") return "/";
   if (view === "question-bank") {
     const params = new URLSearchParams();
-    if (state.questionBank.role && state.questionBank.role !== "process") {
+    if (state.questionBank.role === "personality") {
+      params.set("type", "personality");
+    } else if (state.questionBank.role && state.questionBank.role !== "process") {
       params.set("role", state.questionBank.role);
     }
     const query = params.toString();
@@ -602,7 +630,7 @@ const updateAppRoute = (view, { replace = false } = {}) => {
 };
 
 const resetQuestionBankFiltersForRole = (roleId) => {
-  state.questionBank.role = roleId;
+  state.questionBank.role = questionBankRoleById(roleId).id;
   state.questionBank.categories = [];
   state.questionBank.difficulties = [];
   state.questionBank.search = "";
@@ -702,6 +730,9 @@ const setView = (view, options = {}) => {
   if (nextView !== "quick-practice") {
     cleanupQuickPracticeRecording();
   }
+  if (nextView !== "question-bank") {
+    state.questionBank.filterDrawerOpen = false;
+  }
   elements.landingView.classList.toggle("active", nextView === "landing");
   elements.questionBankView.classList.toggle("active", nextView === "question-bank");
   elements.myPageView.classList.toggle("active", nextView === "my-page");
@@ -715,6 +746,9 @@ const setView = (view, options = {}) => {
   elements.resultView.classList.toggle("active", nextView === "result");
   document.body.classList.toggle("quick-practice-active", nextView === "quick-practice");
   document.body.classList.toggle("landing-active", nextView === "landing");
+  document.body.classList.toggle("question-bank-active", nextView === "question-bank");
+  document.body.classList.toggle("question-bank-sidebar-collapsed", nextView === "question-bank" && state.questionBank.sidebarCollapsed);
+  document.body.classList.toggle("question-filter-open", nextView === "question-bank" && state.questionBank.filterDrawerOpen);
   const activeNavView = ["about", "contact", "question-bank", "quick-practice", "home", "landing", "my-page"].includes(nextView)
     ? nextView === "quick-practice"
       ? "question-bank"
@@ -1471,7 +1505,8 @@ const renderAuthUi = () => {
   elements.authButton.setAttribute("aria-label", signedIn ? `${email} 마이 페이지` : "로그인");
   elements.authButton.setAttribute("aria-haspopup", signedIn ? "menu" : "dialog");
   elements.authButton.setAttribute("aria-expanded", elements.accountMenu?.classList.contains("open") ? "true" : "false");
-  elements.authButtonLabel.textContent = signedIn ? "마이 페이지" : "로그인";
+  elements.authButtonLabel.hidden = signedIn;
+  elements.authButtonLabel.textContent = signedIn ? "" : "로그인";
   if (elements.accountMenuEmail) {
     elements.accountMenuEmail.textContent = email || "-";
   }
@@ -2496,6 +2531,25 @@ const renderAnswerScriptToggle = () => `
 const renderModelAnswerBlock = (question) =>
   `${renderAnswerScriptToggle()}${renderModelAnswerHtml(modelAnswerForQuestion(question))}`;
 
+const renderPersonalityAnswerBlock = (question) => `
+  <div class="personality-answer-grid">
+    <section class="personality-answer-card recommended">
+      <h4 class="personality-answer-title">
+        <i data-lucide="check-circle-2"></i>
+        <span>권장 답변</span>
+      </h4>
+      <div class="model-answer-text">${renderModelAnswerHtml(question.recommendedAnswer || question.answer)}</div>
+    </section>
+    <section class="personality-answer-card avoid">
+      <h4 class="personality-answer-title">
+        <i data-lucide="alert-circle"></i>
+        <span>피해야할 답변</span>
+      </h4>
+      <div class="model-answer-text">${renderModelAnswerHtml(question.avoidAnswer)}</div>
+    </section>
+  </div>
+`;
+
 const activeAnswerQuestionForAnalytics = () => {
   if (elements.quickPracticeView?.classList.contains("active")) {
     return { question: quickPracticeQuestion(), source: "quick_practice" };
@@ -2567,6 +2621,10 @@ const questionBankRoleById = (roleId) =>
 
 const questionBankRole = () => questionBankRoleById(state.questionBank.role);
 
+const isPersonalityRole = (roleId = state.questionBank.role) => questionBankRoleById(roleId).questionType === "personality";
+
+const isPersonalityQuestion = (question) => question?.questionType === "personality" || questionRoleId(question) === "personality";
+
 const questionBankQuestionsForRole = (roleId = state.questionBank.role) => questionBanksByRole[roleId] || [];
 
 const questionBankQuestionById = (questionId, roleId = state.questionBank.role) =>
@@ -2587,13 +2645,13 @@ const questionBankCategories = () => {
   questionBankQuestionsForRole().forEach((question) => {
     categoryCounts.set(question.category, (categoryCounts.get(question.category) || 0) + 1);
   });
-  return [...categoryCounts.entries()]
-    .sort((a, b) => {
+  const entries = [...categoryCounts.entries()];
+  return (isPersonalityRole() ? entries : entries.sort((a, b) => {
       const aIsMain = MAIN_PROCESS_CATEGORIES.has(a[0]) ? 0 : 1;
       const bIsMain = MAIN_PROCESS_CATEGORIES.has(b[0]) ? 0 : 1;
       if (aIsMain !== bIsMain) return aIsMain - bIsMain;
       return a[0].localeCompare(b[0], "ko");
-    })
+    }))
     .map(([category, count]) => ({ category, count }));
 };
 
@@ -2604,6 +2662,8 @@ const questionBankSearchMatches = (question, search = state.questionBank.search)
   const haystack = [
     question.text,
     question.answer,
+    question.recommendedAnswer,
+    question.avoidAnswer,
     question.category,
     question.difficulty,
     ...(question.keywords || []),
@@ -2652,6 +2712,10 @@ const questionBankCategoryCounts = () => {
 };
 
 const questionBankBaseSort = (a, b) => {
+  if (isPersonalityQuestion(a) || isPersonalityQuestion(b)) {
+    return a.originalIndex - b.originalIndex;
+  }
+
   const aIsMain = MAIN_PROCESS_CATEGORIES.has(a.category) ? 0 : 1;
   const bIsMain = MAIN_PROCESS_CATEGORIES.has(b.category) ? 0 : 1;
   if (aIsMain !== bIsMain) return aIsMain - bIsMain;
@@ -2741,6 +2805,20 @@ const questionBankDifficultyClass = (difficulty) =>
     심화: "advanced",
   })[difficulty] || "intermediate";
 
+const personalityCategoryClass = (category) =>
+  ({
+    자기소개: "intro",
+    지원동기: "motivation",
+    팀워크: "teamwork",
+    문제해결: "problem-solving",
+    실패경험: "failure",
+    "성격/가치관": "values",
+    "회사/산업": "industry",
+    "회사/산업 관심도": "industry",
+    마무리: "closing",
+    "면접 마무리": "closing",
+  })[category] || "default";
+
 const renderQuestionBankCategoryList = () => {
   const categories = questionBankCategories();
   const categoryCounts = questionBankCategoryCounts();
@@ -2800,6 +2878,10 @@ const renderQuestionBankDifficultyList = () => {
 
 const renderQuestionBankStudySummary = () => {
   const role = questionBankRole();
+  if (isPersonalityRole(role.id)) {
+    elements.questionBankStudySummary.hidden = true;
+    return;
+  }
   const roleQuestions = questionBankQuestionsForRole();
   const totalCount = roleQuestions.length;
   const knownCount = roleQuestions.filter((question) => getQuestionStudyState(question).status === "known").length;
@@ -2893,40 +2975,29 @@ const renderQuestionBankList = () => {
 
   elements.questionBankList.innerHTML = pageQuestions
     .map((question) => {
-      const expanded = state.questionBank.expandedId === question.id;
+      const expanded = String(state.questionBank.expandedId) === String(question.id);
+      const personalityQuestion = isPersonalityQuestion(question);
       const studyState = getQuestionStudyState(question);
       const keywords = question.keywords?.length
         ? question.keywords.slice(0, 5).map((keyword) => `<span>${escapeHtml(keyword)}</span>`).join("")
         : "<span>키워드 준비중</span>";
-      const preview = modelAnswerForQuestion(question) || "모범 답안 준비중입니다.";
-      return `
-        <article class="question-bank-card ${expanded ? "expanded" : ""}" data-bank-card="${question.id}">
-          <div class="question-bank-card-main">
-            <button class="bank-icon-button bank-bookmark-button bank-bookmark-card-button ${studyState.bookmarked ? "active" : ""}" type="button" data-bank-bookmark="${question.id}" aria-label="${studyState.bookmarked ? "북마크 해제" : "북마크"}" title="${studyState.bookmarked ? "북마크 해제" : "북마크"}" aria-pressed="${studyState.bookmarked}">
-              <i data-lucide="bookmark"></i>
-            </button>
-            <div class="question-bank-card-meta">
-              <span class="bank-difficulty-badge ${questionBankDifficultyClass(question.difficulty)}">${escapeHtml(question.difficulty)}</span>
-              <span>${escapeHtml(question.category)}</span>
-              <h2>${escapeHtml(question.text)}</h2>
-            </div>
-            <p class="question-bank-preview" ${expanded ? "hidden" : ""}>${escapeHtml(preview)}</p>
-            <div class="question-bank-keywords">${keywords}</div>
-            <div class="question-bank-answer" ${expanded ? "" : "hidden"}>
-              <div class="question-bank-answer-head">
-                <h3>모범 답안</h3>
-                <button class="bank-answer-report-button" type="button" data-bank-report="${question.id}" aria-label="문항 신고" title="문항 신고">
-                  <i data-lucide="flag"></i>
-                  <span>문항 신고</span>
-                </button>
-              </div>
-              <div class="model-answer-text">${renderModelAnswerBlock(question)}</div>
-            </div>
-          </div>
-          <aside class="question-bank-card-side">
-            <button class="bank-icon-button bank-bookmark-button bank-bookmark-list-button ${studyState.bookmarked ? "active" : ""}" type="button" data-bank-bookmark="${question.id}" aria-label="${studyState.bookmarked ? "북마크 해제" : "북마크"}" title="${studyState.bookmarked ? "북마크 해제" : "북마크"}" aria-pressed="${studyState.bookmarked}">
-              <i data-lucide="bookmark"></i>
-            </button>
+      const preview = personalityQuestion
+        ? question.recommendedAnswer || question.answer || "권장 답변 준비중입니다."
+        : modelAnswerForQuestion(question) || "모범 답안 준비중입니다.";
+      const difficultyBadge = personalityQuestion
+        ? ""
+        : `<span class="bank-difficulty-badge ${questionBankDifficultyClass(question.difficulty)}">${escapeHtml(question.difficulty)}</span>`;
+      const categoryBadge = personalityQuestion
+        ? `<span class="personality-category-badge ${personalityCategoryClass(question.category)}">${escapeHtml(question.category)}</span>`
+        : `<span>${escapeHtml(question.category)}</span>`;
+      const keywordBlock = personalityQuestion ? "" : `<div class="question-bank-keywords">${keywords}</div>`;
+      const answerTitle = personalityQuestion ? "인성 답변 가이드" : "모범 답안";
+      const answerBody = personalityQuestion
+        ? renderPersonalityAnswerBlock(question)
+        : `<div class="model-answer-text">${renderModelAnswerBlock(question)}</div>`;
+      const statusAndPractice = personalityQuestion
+        ? ""
+        : `
             <div class="bank-status-actions" aria-label="문제 연습 상태">
               <button class="bank-status-button known ${studyState.status === "known" ? "active" : ""}" type="button" data-bank-status-id="${question.id}" data-bank-status="known" aria-label="대답 가능" title="대답 가능" aria-pressed="${studyState.status === "known"}">
                 <i data-lucide="check-circle-2"></i>
@@ -2941,6 +3012,36 @@ const renderQuestionBankList = () => {
               <span>연습하기</span>
               <i data-lucide="arrow-right"></i>
             </button>
+          `;
+      return `
+        <article class="question-bank-card ${expanded ? "expanded" : ""} ${personalityQuestion ? "personality-card" : ""}" data-bank-card="${escapeHtml(question.id)}">
+          <div class="question-bank-card-main">
+            <button class="bank-icon-button bank-bookmark-button bank-bookmark-card-button ${studyState.bookmarked ? "active" : ""}" type="button" data-bank-bookmark="${question.id}" aria-label="${studyState.bookmarked ? "북마크 해제" : "북마크"}" title="${studyState.bookmarked ? "북마크 해제" : "북마크"}" aria-pressed="${studyState.bookmarked}">
+              <i data-lucide="bookmark"></i>
+            </button>
+            <div class="question-bank-card-meta">
+              ${difficultyBadge}
+              ${categoryBadge}
+              <h2>${escapeHtml(question.text)}</h2>
+            </div>
+            <p class="question-bank-preview" ${expanded ? "hidden" : ""}>${escapeHtml(preview)}</p>
+            ${keywordBlock}
+            <div class="question-bank-answer" ${expanded ? "" : "hidden"}>
+              <div class="question-bank-answer-head">
+                <h3>${answerTitle}</h3>
+                <button class="bank-answer-report-button" type="button" data-bank-report="${question.id}" aria-label="문항 신고" title="문항 신고">
+                  <i data-lucide="flag"></i>
+                  <span>문항 신고</span>
+                </button>
+              </div>
+              ${answerBody}
+            </div>
+          </div>
+          <aside class="question-bank-card-side ${personalityQuestion ? "personality-side" : ""}">
+            <button class="bank-icon-button bank-bookmark-button bank-bookmark-list-button ${studyState.bookmarked ? "active" : ""}" type="button" data-bank-bookmark="${question.id}" aria-label="${studyState.bookmarked ? "북마크 해제" : "북마크"}" title="${studyState.bookmarked ? "북마크 해제" : "북마크"}" aria-pressed="${studyState.bookmarked}">
+              <i data-lucide="bookmark"></i>
+            </button>
+            ${statusAndPractice}
           </aside>
         </article>
       `;
@@ -2952,10 +3053,20 @@ const renderQuestionBankList = () => {
 
 const renderQuestionBank = () => {
   const role = questionBankRole();
+  const personalityMode = isPersonalityRole(role.id);
   elements.questionBankRole.value = state.questionBank.role;
   elements.questionBankSort.value = state.questionBank.sort;
   elements.questionBankView.classList.toggle("sidebar-collapsed", state.questionBank.sidebarCollapsed);
   elements.questionBankView.classList.toggle("filter-drawer-open", state.questionBank.filterDrawerOpen);
+  elements.questionBankView.classList.toggle("personality-bank", personalityMode);
+  document.body.classList.toggle(
+    "question-bank-sidebar-collapsed",
+    elements.questionBankView.classList.contains("active") && state.questionBank.sidebarCollapsed,
+  );
+  document.body.classList.toggle(
+    "question-filter-open",
+    elements.questionBankView.classList.contains("active") && state.questionBank.filterDrawerOpen,
+  );
   elements.questionBankSidebarCollapseButton.setAttribute(
     "aria-label",
     state.questionBank.sidebarCollapsed ? "필터 사이드바 열기" : "필터 사이드바 접기",
@@ -2970,7 +3081,9 @@ const renderQuestionBank = () => {
     elements.questionBankRoleName.textContent = role.shortLabel;
   }
   elements.questionBankTitle.textContent = `${role.shortLabel} 질문 모음`;
-  elements.questionBankDescription.textContent = "문제를 클릭하면 모범 답안을 확인할 수 있어요.";
+  elements.questionBankDescription.textContent = personalityMode
+    ? "문제를 클릭하면 권장 답변과 피해야할 답변을 확인할 수 있어요."
+    : "문제를 클릭하면 모범 답안을 확인할 수 있어요.";
   renderQuestionBankStudySummary();
   renderQuestionBankDifficultyList();
   renderQuestionBankCategoryList();
@@ -2984,6 +3097,11 @@ const setQuestionBankRole = (roleId) => {
   if (elements.questionBankView.classList.contains("active")) {
     updateAppRoute("question-bank");
   }
+};
+
+const openPersonalityQuestionBank = () => {
+  resetQuestionBankFiltersForRole("personality");
+  requestViewChange("question-bank");
 };
 
 const toggleQuestionBankFilter = (filterName, value) => {
@@ -3005,6 +3123,7 @@ const closeQuestionBankFilterDrawer = () => {
   elements.questionBankView?.classList.remove("filter-drawer-open");
   elements.questionBankFilterButton?.setAttribute("aria-expanded", "false");
   elements.questionBankFilterBackdrop?.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("question-filter-open");
 };
 
 const toggleQuestionBankBookmark = (questionId) => {
@@ -3051,6 +3170,8 @@ const myPageMatchesSearch = (question) => {
     question.text,
     question.answer,
     question.shortAnswer,
+    question.recommendedAnswer,
+    question.avoidAnswer,
     question.jobRole,
     question.category,
     question.difficulty,
@@ -3673,7 +3794,7 @@ const openPracticeQuestionFromUrl = (options = {}) => {
 };
 
 const applyQuestionBankRouteState = () => {
-  const roleId = questionBankRoleById(readPracticeRoleId()).id;
+  const roleId = questionBankRoleById(readQuestionBankRoleId()).id;
   if (roleId !== state.questionBank.role) {
     resetQuestionBankFiltersForRole(roleId);
   }
@@ -4165,8 +4286,8 @@ const bindQuestionBankControls = () => {
 
     const card = event.target.closest("[data-bank-card]");
     if (card) {
-      const questionId = Number(card.dataset.bankCard);
-      const isOpening = state.questionBank.expandedId !== questionId;
+      const questionId = card.dataset.bankCard;
+      const isOpening = String(state.questionBank.expandedId) !== String(questionId);
       state.questionBank.expandedId = isOpening ? questionId : null;
       if (isOpening) {
         const question = questionBankQuestionById(questionId);
@@ -4394,7 +4515,19 @@ const bindLandingControls = () => {
 
 const bindInterviewControls = () => {
   $$("[data-view]").forEach((button) => {
-    button.addEventListener("click", () => requestViewChange(button.dataset.view || "home"));
+    button.addEventListener("click", () => {
+      const menuItem = button.closest(".main-nav-item.has-submenu");
+      if (button.dataset.view === "question-bank" && button.dataset.questionBankRole) {
+        resetQuestionBankFiltersForRole(button.dataset.questionBankRole);
+      }
+      requestViewChange(button.dataset.view || "home");
+      menuItem?.classList.add("submenu-dismissed");
+      button.blur();
+    });
+  });
+
+  $$(".main-nav-item.has-submenu").forEach((item) => {
+    item.addEventListener("mouseleave", () => item.classList.remove("submenu-dismissed"));
   });
 
   elements.checkCameraButton.addEventListener("click", () => {
@@ -4491,6 +4624,17 @@ const bindInterviewControls = () => {
     } else {
       showAuthModal();
     }
+  });
+  elements.personalityQuestionsMenuButton.addEventListener("click", () => {
+    trackEvent("personality_questions_menu_click");
+    openPersonalityQuestionBank();
+    elements.personalityQuestionsMenuButton.closest(".main-nav-item.has-submenu")?.classList.add("submenu-dismissed");
+    elements.personalityQuestionsMenuButton.blur();
+  });
+  elements.mobilePersonalityQuestionsMenuButton.addEventListener("click", () => {
+    trackEvent("personality_questions_menu_click", { source: "mobile_menu" });
+    closeMobileMenu();
+    openPersonalityQuestionBank();
   });
   elements.accountThemeLightButton.addEventListener("click", () => applyTheme("light"));
   elements.accountMenuLogoutButton.addEventListener("click", signOut);

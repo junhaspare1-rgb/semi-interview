@@ -27,6 +27,14 @@ ROLE_CONFIGS = {
         "enabled": True,
         "sort_order": 20,
     },
+    "personality": {
+        "input": "data/personality-questions.json",
+        "label": "인성 면접",
+        "short_label": "인성 면접",
+        "description": "자기소개, 지원동기, 협업, 문제해결, 가치관 중심 인성 면접 질문",
+        "enabled": True,
+        "sort_order": 30,
+    },
 }
 
 MAIN_CATEGORIES = {"포토(Lithography)", "식각(Etch)", "증착(Deposition)"}
@@ -147,6 +155,18 @@ def build_payload(role_ids):
             }
 
             keywords = record.get("keywords") if isinstance(record.get("keywords"), list) else []
+            metadata = {
+                "jobRole": record.get("jobRole") or config["short_label"],
+                "group": record.get("group") or "other",
+                "originalId": record.get("id"),
+            }
+            if record.get("questionType"):
+                metadata["questionType"] = normalize_text(record.get("questionType"))
+            if record.get("recommendedAnswer"):
+                metadata["recommendedAnswer"] = normalize_text(record.get("recommendedAnswer"))
+            if record.get("avoidAnswer"):
+                metadata["avoidAnswer"] = normalize_text(record.get("avoidAnswer"))
+
             question_rows.append(
                 {
                     "id": question_id(role_id, source_id),
@@ -156,7 +176,7 @@ def build_payload(role_ids):
                     "category_name": category_name,
                     "difficulty": difficulty,
                     "question_text": question_text,
-                    "answer_full": normalize_text(record.get("answer")),
+                    "answer_full": normalize_text(record.get("answer") or record.get("recommendedAnswer")),
                     "answer_short": normalize_text(record.get("shortAnswer") or record.get("40초 Script")),
                     "keywords": [normalize_text(keyword) for keyword in keywords if normalize_text(keyword)],
                     "active": bool(record.get("active", True)),
@@ -164,11 +184,7 @@ def build_payload(role_ids):
                     "seo_published": bool(record.get("seoPublished", index <= 50)),
                     "sort_order": index,
                     "estimated_answer_minutes": record.get("estimatedAnswerMinutes"),
-                    "metadata": {
-                        "jobRole": record.get("jobRole") or config["short_label"],
-                        "group": record.get("group") or "other",
-                        "originalId": record.get("id"),
-                    },
+                    "metadata": metadata,
                 }
             )
 

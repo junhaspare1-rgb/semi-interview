@@ -21,6 +21,12 @@ ROLE_OUTPUTS = {
         "window_var": "BANMYEONPPU_PACKAGE_TEST_QUESTIONS",
         "jobRole": "Package & Test",
     },
+    "personality": {
+        "json": "personality-questions.json",
+        "js": "personality-questions.js",
+        "window_var": "BANMYEONPPU_PERSONALITY_QUESTIONS",
+        "jobRole": "인성 면접",
+    },
 }
 
 
@@ -62,7 +68,7 @@ def source_id_value(value):
 def record_from_row(row, role_config):
     metadata = row.get("metadata") if isinstance(row.get("metadata"), dict) else {}
     keywords = row.get("keywords") if isinstance(row.get("keywords"), list) else []
-    return {
+    record = {
         "id": source_id_value(row.get("source_question_id")),
         "jobRole": metadata.get("jobRole") or role_config["jobRole"],
         "category": row.get("category_name") or "기타",
@@ -75,6 +81,11 @@ def record_from_row(row, role_config):
         "estimatedAnswerMinutes": number_or_none(row.get("estimated_answer_minutes")),
         "shortAnswer": row.get("answer_short") or "",
     }
+    if metadata.get("questionType") == "personality":
+        record["questionType"] = "personality"
+        record["recommendedAnswer"] = metadata.get("recommendedAnswer") or row.get("answer_full") or ""
+        record["avoidAnswer"] = metadata.get("avoidAnswer") or ""
+    return record
 
 
 def write_role_output(output_dir, role_id, rows):
