@@ -127,6 +127,7 @@ const state = {
     category: "all",
     search: "",
     sort: "recent",
+    filterDrawerOpen: false,
     selectedKeys: [],
     pendingRemoveKeys: [],
   },
@@ -261,6 +262,10 @@ const cacheElements = () => {
     "closeLandingWaitlistButton",
     "questionBankView",
     "myPageView",
+    "myPageSidebar",
+    "myPageFilterBackdrop",
+    "myPageFilterButton",
+    "myPageFilterCloseButton",
     "myPageSignedIn",
     "myPageBookmarkCount",
     "myPageRoleFilter",
@@ -555,6 +560,7 @@ const viewFromRoute = () => {
     case "/contact":
       return "contact";
     case "/my-page":
+    case "/my-questions":
       return "my-page";
     case "/practice":
       return "quick-practice";
@@ -577,7 +583,7 @@ const routeForView = (view) => {
   }
   if (view === "home") return "/mock-interview";
   if (view === "contact") return "/contact";
-  if (view === "my-page") return "/my-page";
+  if (view === "my-page") return "/my-questions";
   if (view === "quick-practice") {
     const question = quickPracticeQuestion();
     if (!question) return "/questions";
@@ -704,6 +710,9 @@ const setView = (view, options = {}) => {
   if (nextView !== "question-bank") {
     state.questionBank.filterDrawerOpen = false;
   }
+  if (nextView !== "my-page") {
+    state.myPage.filterDrawerOpen = false;
+  }
   elements.landingView.classList.toggle("active", nextView === "landing");
   elements.questionBankView.classList.toggle("active", nextView === "question-bank");
   elements.myPageView.classList.toggle("active", nextView === "my-page");
@@ -718,8 +727,13 @@ const setView = (view, options = {}) => {
   document.body.classList.toggle("quick-practice-active", nextView === "quick-practice");
   document.body.classList.toggle("landing-active", nextView === "landing");
   document.body.classList.toggle("question-bank-active", nextView === "question-bank");
+  document.body.classList.toggle("my-questions-active", nextView === "my-page");
   document.body.classList.toggle("question-bank-sidebar-collapsed", nextView === "question-bank" && state.questionBank.sidebarCollapsed);
-  document.body.classList.toggle("question-filter-open", nextView === "question-bank" && state.questionBank.filterDrawerOpen);
+  document.body.classList.toggle(
+    "question-filter-open",
+    (nextView === "question-bank" && state.questionBank.filterDrawerOpen) ||
+      (nextView === "my-page" && state.myPage.filterDrawerOpen),
+  );
   const activeNavView = ["about", "contact", "question-bank", "quick-practice", "home", "landing", "my-page"].includes(nextView)
     ? nextView === "quick-practice"
       ? "question-bank"
@@ -3116,6 +3130,19 @@ const closeQuestionBankFilterDrawer = () => {
   document.body.classList.remove("question-filter-open");
 };
 
+const syncMyPageFilterDrawer = () => {
+  const drawerOpen = elements.myPageView?.classList.contains("active") && state.myPage.filterDrawerOpen;
+  elements.myPageView?.classList.toggle("filter-drawer-open", drawerOpen);
+  elements.myPageFilterButton?.setAttribute("aria-expanded", String(drawerOpen));
+  elements.myPageFilterBackdrop?.setAttribute("aria-hidden", String(!drawerOpen));
+  document.body.classList.toggle("question-filter-open", Boolean(drawerOpen));
+};
+
+const closeMyPageFilterDrawer = () => {
+  state.myPage.filterDrawerOpen = false;
+  syncMyPageFilterDrawer();
+};
+
 const toggleQuestionBankBookmark = (questionId) => {
   const question = questionBankQuestionById(questionId);
   if (!question) return;
@@ -3210,12 +3237,38 @@ const myPageSelectedQuestions = () =>
     .map((key) => questionByProgressKey(key))
     .filter((question) => question && getQuestionStudyState(question).bookmarked);
 
-const syncMyPageCategoryOptions = (bookmarks) => {
+const myPageFilterOptionHtml = (type, value, label, count, active) => `
+  <label class="bank-filter-option ${active ? "active" : ""}">
+    <input type="checkbox" data-my-page-filter="${type}" value="${escapeHtml(value)}" ${active ? "checked" : ""} />
+    <span>${escapeHtml(label)}</span>
+    <strong>${count}</strong>
+  </label>
+`;
+
+const syncMyPageFilterOptions = (bookmarks) => {
+  const roleMatched = bookmarks
+    .filter((question) => state.myPage.role === "all" || questionRoleId(question) === state.myPage.role)
+    .filter(myPageMatchesSearch);
+  const difficultyBase = roleMatched.filter((question) => state.myPage.category === "all" || question.category === state.myPage.category);
+  const availableDifficulties = QUESTION_BANK_DIFFICULTIES.filter((difficulty) =>
+    difficultyBase.some((question) => question.difficulty === difficulty),
+  );
+
+  if (state.myPage.difficulty !== "all" && !availableDifficulties.includes(state.myPage.difficulty)) {
+    state.myPage.difficulty = "all";
+  }
+
+  elements.myPageDifficultyFilter.innerHTML = [
+    myPageFilterOptionHtml("difficulty", "all", "전체", difficultyBase.length, state.myPage.difficulty === "all"),
+    ...availableDifficulties.map((difficulty) => {
+      const count = difficultyBase.filter((question) => question.difficulty === difficulty).length;
+      return myPageFilterOptionHtml("difficulty", difficulty, difficulty, count, state.myPage.difficulty === difficulty);
+    }),
+  ].join("");
+
   const categories = [...new Set(
-    bookmarks
-      .filter((question) => state.myPage.role === "all" || questionRoleId(question) === state.myPage.role)
+    roleMatched
       .filter((question) => state.myPage.difficulty === "all" || question.difficulty === state.myPage.difficulty)
-      .filter(myPageMatchesSearch)
       .map((question) => question.category),
   )].sort((a, b) => a.localeCompare(b, "ko"));
 
@@ -3224,10 +3277,16 @@ const syncMyPageCategoryOptions = (bookmarks) => {
   }
 
   elements.myPageCategoryFilter.innerHTML = [
-    '<option value="all">전체 카테고리</option>',
-    ...categories.map((category) => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`),
+    myPageFilterOptionHtml("category", "all", "전체", roleMatched.filter(
+      (question) => state.myPage.difficulty === "all" || question.difficulty === state.myPage.difficulty,
+    ).length, state.myPage.category === "all"),
+    ...categories.map((category) => {
+      const count = roleMatched
+        .filter((question) => state.myPage.difficulty === "all" || question.difficulty === state.myPage.difficulty)
+        .filter((question) => question.category === category).length;
+      return myPageFilterOptionHtml("category", category, category, count, state.myPage.category === category);
+    }),
   ].join("");
-  elements.myPageCategoryFilter.value = state.myPage.category;
 };
 
 const renderMyPageFilters = (bookmarks) => {
@@ -3239,16 +3298,9 @@ const renderMyPageFilters = (bookmarks) => {
   ].join("");
   elements.myPageRoleFilter.value = state.myPage.role;
 
-  elements.myPageDifficultyFilter.innerHTML = [
-    '<option value="all">전체 난이도</option>',
-    ...QUESTION_BANK_DIFFICULTIES.map(
-      (difficulty) => `<option value="${escapeHtml(difficulty)}">${escapeHtml(difficulty)}</option>`,
-    ),
-  ].join("");
-  elements.myPageDifficultyFilter.value = state.myPage.difficulty;
   elements.myPageSearch.value = state.myPage.search;
   elements.myPageSort.value = state.myPage.sort;
-  syncMyPageCategoryOptions(bookmarks);
+  syncMyPageFilterOptions(bookmarks);
 };
 
 const renderMyPageSelectionBar = (visibleQuestions) => {
@@ -3275,9 +3327,12 @@ const redirectUnauthenticatedMyPage = () => {
 const renderMyPage = () => {
   const signedIn = Boolean(state.auth.user);
   elements.myPageSelectedBar.hidden = true;
+  elements.myPageSidebar.hidden = !signedIn;
 
   if (!signedIn) {
     elements.myPageSignedIn.hidden = true;
+    state.myPage.filterDrawerOpen = false;
+    syncMyPageFilterDrawer();
     if (state.auth.ready || state.auth.client) {
       window.setTimeout(redirectUnauthenticatedMyPage, 0);
     }
@@ -3286,6 +3341,7 @@ const renderMyPage = () => {
   }
 
   elements.myPageSignedIn.hidden = false;
+  syncMyPageFilterDrawer();
   const bookmarks = myPageBookmarkedQuestions();
   const bookmarkKeys = new Set(bookmarks.map((question) => progressKey(question)));
   state.myPage.selectedKeys = state.myPage.selectedKeys.filter((key) => bookmarkKeys.has(key));
@@ -4353,20 +4409,32 @@ const bindQuickPracticeControls = () => {
 };
 
 const bindMyPageControls = () => {
+  elements.myPageFilterButton.addEventListener("click", () => {
+    state.myPage.filterDrawerOpen = true;
+    syncMyPageFilterDrawer();
+  });
+
+  elements.myPageFilterCloseButton.addEventListener("click", closeMyPageFilterDrawer);
+  elements.myPageFilterBackdrop.addEventListener("click", closeMyPageFilterDrawer);
+
   elements.myPageRoleFilter.addEventListener("change", () => {
     state.myPage.role = elements.myPageRoleFilter.value;
     state.myPage.category = "all";
     renderMyPage();
   });
 
-  elements.myPageDifficultyFilter.addEventListener("change", () => {
-    state.myPage.difficulty = elements.myPageDifficultyFilter.value;
+  elements.myPageDifficultyFilter.addEventListener("change", (event) => {
+    const input = event.target.closest("[data-my-page-filter='difficulty']");
+    if (!input) return;
+    state.myPage.difficulty = input.value === state.myPage.difficulty ? "all" : input.value;
     state.myPage.category = "all";
     renderMyPage();
   });
 
-  elements.myPageCategoryFilter.addEventListener("change", () => {
-    state.myPage.category = elements.myPageCategoryFilter.value;
+  elements.myPageCategoryFilter.addEventListener("change", (event) => {
+    const input = event.target.closest("[data-my-page-filter='category']");
+    if (!input) return;
+    state.myPage.category = input.value === state.myPage.category ? "all" : input.value;
     renderMyPage();
   });
 
