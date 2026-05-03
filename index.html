@@ -30,7 +30,7 @@
     <meta name="twitter:description" content="반도체 공정기술 면접을 실전처럼 연습하세요." />
     <meta name="twitter:image" content="https://xn--e42b13ak0f.kr/og-image.png" />
     <link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
-    <link rel="stylesheet" href="styles.css?v=20260503-personality" />
+    <link rel="stylesheet" href="styles.css?v=20260503-modal-landing" />
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-V8PWYYDSJC"></script>
     <script>
@@ -54,7 +54,7 @@
     <script src="data/auth-config.js?v=20260502-auth" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
-    <script src="app.js?v=20260503-personality" defer></script>
+    <script src="app.js?v=20260503-modal-landing" defer></script>
   </head>
   <body>
     <header class="top-nav">
@@ -183,6 +183,11 @@
             <button class="landing-role-card" type="button" data-landing-role="package-test" data-enabled="true" role="listitem">
               <i data-lucide="layers"></i>
               <strong>Package &amp; Test</strong>
+              <span class="available">이용 가능</span>
+            </button>
+            <button class="landing-role-card" type="button" data-landing-role="personality" data-enabled="true" role="listitem">
+              <i data-lucide="message-circle"></i>
+              <strong>인성 면접</strong>
               <span class="available">이용 가능</span>
             </button>
             <button class="landing-role-card" type="button" data-landing-role="device" data-enabled="false" role="listitem">

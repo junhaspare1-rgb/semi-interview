@@ -242,6 +242,7 @@ const QUESTION_BANK_ROLES = [
 const LANDING_ROLE_LABELS = {
   process: "공정기술/양산기술",
   "package-test": "Package & Test",
+  personality: "인성 면접",
   device: "소자",
   circuit: "회로설계",
 };
