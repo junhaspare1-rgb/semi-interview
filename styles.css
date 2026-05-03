@@ -2699,6 +2699,7 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
   grid-template-columns: 280px minmax(0, 1fr);
   gap: 28px;
   align-items: start;
+  width: 100%;
 }
 
 .my-page-sidebar {
@@ -2707,6 +2708,7 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
   display: grid;
   gap: 22px;
   align-content: start;
+  width: 280px;
   min-height: calc(100vh - 144px);
   padding: 8px 22px 28px 0;
   border-right: 1px solid var(--line);
@@ -2763,6 +2765,7 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
 .my-page-main {
   display: grid;
   min-width: 0;
+  width: 100%;
   gap: 16px;
 }
 
@@ -7133,6 +7136,7 @@ input[type="number"] {
 
   .my-page-sidebar {
     position: static;
+    width: 100%;
     min-height: auto;
     padding: 0 0 16px;
     border-right: 0;
@@ -7176,5 +7180,293 @@ input[type="number"] {
 
   .my-practice-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* My Questions uses the same shell as Question Bank. These overrides keep the
+   legacy my-page classes from taking over the shared sidebar/main layout. */
+.my-page-view.question-bank-view {
+  min-height: calc(100vh - 124px);
+  padding: 0 40px 84px 0;
+}
+
+.my-page-view.question-bank-view.active {
+  display: grid;
+  grid-template-columns: 340px minmax(0, 1fr);
+  gap: 36px;
+  width: 100%;
+  margin: 0;
+}
+
+.my-page-view.question-bank-view > * {
+  min-width: 0;
+}
+
+.my-page-view.question-bank-view .my-page-sidebar {
+  position: fixed;
+  top: 76px;
+  left: 0;
+  z-index: 120;
+  display: grid;
+  align-self: start;
+  width: 340px;
+  height: calc(100vh - 124px);
+  min-height: 0;
+  gap: 24px;
+  align-content: start;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-right: 1px solid var(--line);
+  padding: 24px 28px 32px 40px;
+  background: var(--bg);
+  scrollbar-width: thin;
+  scrollbar-color: #94a3b8 transparent;
+}
+
+.my-page-view.question-bank-view .my-page-sidebar[hidden],
+.my-page-view.question-bank-view .my-page-main[hidden] {
+  display: none;
+}
+
+.my-page-view.question-bank-view .my-page-main {
+  display: grid;
+  grid-column: 2;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto auto minmax(0, 1fr);
+  align-content: start;
+  min-width: 0;
+  width: 100%;
+  max-width: none;
+  height: calc(100vh - 124px);
+  gap: 16px;
+  overflow: hidden;
+  padding-top: 30px;
+}
+
+.my-page-view.question-bank-view .my-bookmark-list,
+.my-page-view.question-bank-view .my-page-list-head,
+.my-page-view.question-bank-view .my-page-empty {
+  width: 100%;
+  min-width: 0;
+}
+
+.my-page-view.question-bank-view .my-bookmark-list,
+.my-page-view.question-bank-view .my-page-empty {
+  grid-row: 4;
+}
+
+.my-page-view.question-bank-view .my-bookmark-list {
+  align-content: start;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.my-page-view.question-bank-view .my-page-hero {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.my-page-view.question-bank-view .my-page-hero h1 {
+  font-size: 24px;
+  line-height: 1.18;
+}
+
+.my-page-view.question-bank-view .my-page-hero p {
+  max-width: 720px;
+  font-size: 14px;
+}
+
+.my-page-view.question-bank-view .my-page-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  grid-template-columns: none;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.my-page-view.question-bank-view .bank-toolbar-actions {
+  display: grid;
+  grid-template-columns: minmax(180px, 360px) auto;
+  justify-content: end;
+  max-width: 100%;
+  min-width: 0;
+  margin-left: auto;
+}
+
+.my-page-view.question-bank-view .my-page-toolbar label {
+  display: inline-flex;
+  gap: 10px;
+  min-width: 0;
+}
+
+.my-page-view.question-bank-view .bank-search {
+  display: block;
+}
+
+.my-page-view.question-bank-view .my-page-toolbar label.bank-search {
+  display: block;
+}
+
+.my-page-view.question-bank-view .my-page-toolbar label.bank-sort {
+  display: inline-flex;
+}
+
+.my-page-view.question-bank-view .bank-search input,
+.my-page-view.question-bank-view .bank-sort select {
+  height: 38px;
+  min-height: 0;
+}
+
+.my-page-view.question-bank-view .bank-search svg {
+  left: 12px;
+  width: 16px;
+  height: 16px;
+}
+
+.my-page-view.question-bank-view .bank-search input {
+  padding-left: 38px;
+  text-indent: 0;
+}
+
+.my-page-view.question-bank-view .bank-sort {
+  min-width: 0;
+}
+
+.my-page-view.question-bank-view .bank-sort select {
+  max-width: 150px;
+  min-width: 104px;
+}
+
+.my-page-view.question-bank-view .question-bank-search-row {
+  min-width: 0;
+  width: min(360px, 100%);
+  max-width: 360px;
+}
+
+@media (max-width: 1280px) {
+  .my-page-view.question-bank-view .bank-toolbar-actions {
+    grid-template-columns: minmax(160px, 1fr) auto;
+    justify-content: stretch;
+    width: min(520px, 100%);
+  }
+
+  .my-page-view.question-bank-view .question-bank-search-row {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.my-page-view.question-bank-view .my-page-list-head {
+  align-items: center;
+  flex-direction: row;
+}
+
+body.my-questions-active .site-footer {
+  width: calc(100% - 340px);
+  margin-left: 340px;
+}
+
+@media (max-width: 1180px) {
+  .my-page-view.question-bank-view.active {
+    grid-template-columns: 320px minmax(0, 1fr);
+    padding: 0 32px 64px 0;
+  }
+
+  .my-page-view.question-bank-view .my-page-sidebar {
+    width: 320px;
+  }
+
+  body.my-questions-active .site-footer {
+    width: calc(100% - 320px);
+    margin-left: 320px;
+  }
+}
+
+@media (max-width: 1040px) {
+  .my-page-view.question-bank-view.active {
+    grid-template-columns: 1fr;
+    padding: 28px 24px 56px;
+  }
+
+  .my-page-view.question-bank-view .my-page-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 240;
+    width: min(390px, calc(100vw - 28px));
+    height: 100vh;
+    min-height: 0;
+    transform: translateX(-105%);
+    transition: transform 180ms ease;
+    border-right: 1px solid var(--line);
+    padding: 24px 28px 36px;
+    background: var(--surface);
+  }
+
+  .my-page-view.question-bank-view.filter-drawer-open .my-page-sidebar {
+    transform: translateX(0);
+  }
+
+  .my-page-view.question-bank-view.filter-drawer-open .question-bank-filter-backdrop {
+    display: block;
+  }
+
+  .my-page-view.question-bank-view .my-page-main {
+    height: auto;
+    min-height: calc(100vh - 132px);
+    grid-column: 1;
+    overflow: visible;
+    padding-top: 0;
+  }
+
+  .my-page-view.question-bank-view .my-bookmark-list {
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+  }
+
+  .my-page-view.question-bank-view .filter-drawer-button {
+    display: inline-flex;
+  }
+
+  body.my-questions-active .site-footer {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .my-page-view.question-bank-view.active {
+    padding: 24px 14px 38px;
+  }
+
+  .my-page-view.question-bank-view .my-page-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .my-page-view.question-bank-view .bank-toolbar-left,
+  .my-page-view.question-bank-view .bank-toolbar-actions,
+  .my-page-view.question-bank-view .question-bank-search-row {
+    width: 100%;
+    max-width: none;
+  }
+
+  .my-page-view.question-bank-view .bank-toolbar-actions {
+    align-items: stretch;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .my-page-view.question-bank-view .my-page-list-head {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
