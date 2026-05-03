@@ -2636,12 +2636,12 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
 
 .my-page-view {
   min-height: calc(100vh - 124px);
-  padding: 34px clamp(18px, 5vw, 72px) 110px;
+  padding: 28px clamp(18px, 4vw, 56px) 110px;
 }
 
 .my-page-shell {
   display: grid;
-  width: min(1120px, 100%);
+  width: min(1280px, 100%);
   margin: 0 auto;
   gap: 22px;
 }
@@ -2666,7 +2666,6 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
   line-height: 1.7;
 }
 
-.my-page-filter-card,
 .my-page-empty,
 .my-bookmark-item {
   border: 1px solid var(--line);
@@ -2688,28 +2687,66 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
 }
 
 .my-page-content {
-  display: grid;
-  gap: 16px;
+  display: block;
 }
 
-.my-page-filter-card {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(150px, 1fr)) minmax(220px, 1.5fr) minmax(160px, 0.9fr);
-  gap: 10px;
-  padding: 12px;
+.my-page-content[hidden] {
+  display: none;
 }
 
-.my-page-filter-card label {
+.my-page-layout {
   display: grid;
-  gap: 5px;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+}
+
+.my-page-sidebar {
+  position: sticky;
+  top: 104px;
+  display: grid;
+  gap: 22px;
+  align-content: start;
+  min-height: calc(100vh - 144px);
+  padding: 8px 22px 28px 0;
+  border-right: 1px solid var(--line);
+}
+
+.my-page-sidebar-head {
+  display: grid;
+  gap: 6px;
+}
+
+.my-page-sidebar-head h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.my-page-sidebar-head span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.my-page-filter-group {
+  display: grid;
+  gap: 8px;
+}
+
+.my-page-filter-group label {
+  display: grid;
+  gap: 8px;
   min-width: 0;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 900;
 }
 
-.my-page-filter-card input,
-.my-page-filter-card select {
+.my-page-filter-group select,
+.my-page-toolbar input,
+.my-page-toolbar select {
   width: 100%;
   height: 34px;
   min-height: 34px;
@@ -2721,6 +2758,28 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
   font: inherit;
   font-size: 13px;
   font-weight: 800;
+}
+
+.my-page-main {
+  display: grid;
+  min-width: 0;
+  gap: 16px;
+}
+
+.my-page-toolbar {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(150px, 190px);
+  gap: 10px;
+  align-items: end;
+}
+
+.my-page-toolbar label {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
 }
 
 .my-page-list-head {
@@ -7048,12 +7107,13 @@ input[type="number"] {
 }
 
 @media (max-width: 1040px) {
-  .my-page-filter-card {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .my-page-layout {
+    grid-template-columns: 240px minmax(0, 1fr);
+    gap: 20px;
   }
 
-  .my-page-search-label {
-    grid-column: 1 / -1;
+  .my-page-sidebar {
+    padding-right: 18px;
   }
 }
 
@@ -7066,9 +7126,21 @@ input[type="number"] {
     font-size: 34px;
   }
 
-  .my-page-filter-card {
+  .my-page-layout {
     grid-template-columns: 1fr;
-    padding: 14px;
+    gap: 16px;
+  }
+
+  .my-page-sidebar {
+    position: static;
+    min-height: auto;
+    padding: 0 0 16px;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .my-page-toolbar {
+    grid-template-columns: 1fr;
   }
 
   .my-page-list-head {

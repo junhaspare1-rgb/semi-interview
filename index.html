@@ -410,52 +410,69 @@
           </header>
 
           <section class="my-page-content" id="myPageSignedIn" hidden>
-            <section class="my-page-filter-card" aria-label="북마크 질문 필터">
-              <label>
-                <span>직무</span>
-                <select id="myPageRoleFilter"></select>
-              </label>
-              <label>
-                <span>난이도</span>
-                <select id="myPageDifficultyFilter"></select>
-              </label>
-              <label>
-                <span>카테고리</span>
-                <select id="myPageCategoryFilter"></select>
-              </label>
-              <label class="my-page-search-label">
-                <span>검색</span>
-                <input id="myPageSearch" type="search" placeholder="질문, 키워드, 공정명 검색" autocomplete="off" />
-              </label>
-              <label>
-                <span>정렬</span>
-                <select id="myPageSort">
-                  <option value="recent">최근 북마크순</option>
-                  <option value="role">직무순</option>
-                  <option value="difficulty">난이도순</option>
-                  <option value="category">카테고리순</option>
-                </select>
-              </label>
-            </section>
+            <div class="my-page-layout">
+              <aside class="my-page-sidebar" aria-label="북마크 질문 필터">
+                <div class="my-page-sidebar-head">
+                  <h2>필터</h2>
+                  <span>저장한 질문 기준</span>
+                </div>
+                <div class="my-page-filter-group">
+                  <label>
+                    <span>직무</span>
+                    <select id="myPageRoleFilter"></select>
+                  </label>
+                </div>
+                <div class="my-page-filter-group">
+                  <label>
+                    <span>난이도</span>
+                    <select id="myPageDifficultyFilter"></select>
+                  </label>
+                </div>
+                <div class="my-page-filter-group">
+                  <label>
+                    <span>카테고리</span>
+                    <select id="myPageCategoryFilter"></select>
+                  </label>
+                </div>
+              </aside>
 
-            <div class="my-page-list-head">
-              <label class="my-page-check-all">
-                <input id="myPageSelectAll" type="checkbox" />
-                <span>현재 목록 전체 선택</span>
-              </label>
-              <div class="my-page-list-actions">
-                <span class="my-page-bookmark-total">북마크 <strong><span id="myPageBookmarkCount">0</span>개</strong></span>
-                <button class="text-button" id="myPageClearSelection" type="button">선택 해제</button>
+              <div class="my-page-main">
+                <section class="my-page-toolbar" aria-label="북마크 질문 검색과 정렬">
+                  <label class="my-page-search-label">
+                    <span class="sr-only">검색</span>
+                    <input id="myPageSearch" type="search" placeholder="질문, 키워드, 공정명 검색" autocomplete="off" />
+                  </label>
+                  <label class="my-page-sort-label">
+                    <span>정렬</span>
+                    <select id="myPageSort">
+                      <option value="recent">최근 북마크순</option>
+                      <option value="role">직무순</option>
+                      <option value="difficulty">난이도순</option>
+                      <option value="category">카테고리순</option>
+                    </select>
+                  </label>
+                </section>
+
+                <div class="my-page-list-head">
+                  <label class="my-page-check-all">
+                    <input id="myPageSelectAll" type="checkbox" />
+                    <span>현재 목록 전체 선택</span>
+                  </label>
+                  <div class="my-page-list-actions">
+                    <span class="my-page-bookmark-total">북마크 <strong><span id="myPageBookmarkCount">0</span>개</strong></span>
+                    <button class="text-button" id="myPageClearSelection" type="button">선택 해제</button>
+                  </div>
+                </div>
+
+                <section class="my-bookmark-list" id="myPageList" aria-label="북마크 질문 목록"></section>
+
+                <section class="my-page-empty" id="myPageEmpty" hidden>
+                  <strong>아직 북마크한 질문이 없습니다.</strong>
+                  <p>질문을 북마크해두면 이곳에서 확인할 수 있습니다.</p>
+                  <button class="black-button" type="button" data-view="question-bank">질문 모음으로 이동</button>
+                </section>
               </div>
             </div>
-
-            <section class="my-bookmark-list" id="myPageList" aria-label="북마크 질문 목록"></section>
-
-            <section class="my-page-empty" id="myPageEmpty" hidden>
-              <strong>아직 북마크한 질문이 없습니다.</strong>
-              <p>질문을 북마크해두면 이곳에서 확인할 수 있습니다.</p>
-              <button class="black-button" type="button" data-view="question-bank">질문 모음으로 이동</button>
-            </section>
           </section>
         </div>
 
