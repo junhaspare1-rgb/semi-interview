@@ -1,1 +1,11 @@
 dev-my-page-preview.html
+
+# Local source/question-bank files are managed outside the deployed app.
+source/
+*.xlsx
+
+# Local environment and Python cache artifacts.
+.env
+.env.local
+__pycache__/
+*.pyc

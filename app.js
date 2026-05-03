@@ -727,12 +727,32 @@ const setView = (view, options = {}) => {
         ? ""
       : nextView
     : "home";
+  const isQuestionBankNavActive = activeNavView === "question-bank";
   $$(".main-nav [data-view]").forEach((button) => {
-    button.classList.toggle("active", button.dataset.view === activeNavView);
+    const isRoleSubmenuItem =
+      button.dataset.view === "question-bank" &&
+      button.dataset.questionBankRole &&
+      !button.classList.contains("main-nav-trigger");
+    const isActive = isRoleSubmenuItem
+      ? isQuestionBankNavActive && button.dataset.questionBankRole === state.questionBank.role
+      : button.dataset.view === activeNavView;
+    button.classList.toggle("active", isActive);
   });
+  elements.personalityQuestionsMenuButton?.classList.toggle(
+    "active",
+    isQuestionBankNavActive && state.questionBank.role === "personality",
+  );
   $$(".mobile-menu-list [data-view]").forEach((button) => {
-    button.classList.toggle("active", button.dataset.view === activeNavView);
+    const isRoleMenuItem = button.dataset.view === "question-bank" && button.dataset.questionBankRole;
+    const isActive = isRoleMenuItem
+      ? isQuestionBankNavActive && button.dataset.questionBankRole === state.questionBank.role
+      : button.dataset.view === activeNavView;
+    button.classList.toggle("active", isActive);
   });
+  elements.mobilePersonalityQuestionsMenuButton?.classList.toggle(
+    "active",
+    isQuestionBankNavActive && state.questionBank.role === "personality",
+  );
   if (nextView === "question-bank") {
     renderQuestionBank();
   }
