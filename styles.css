@@ -15,20 +15,6 @@
   --radius: 8px;
 }
 
-:root[data-theme="dark"] {
-  --page: #050505;
-  --surface: #111111;
-  --surface-soft: #1b1b1b;
-  --ink: #f8fafc;
-  --muted: #c7c7c7;
-  --line: #2a2a2a;
-  --line-strong: #3a3a3a;
-  --blue: #60a5fa;
-  --blue-dark: #93c5fd;
-  --blue-soft: #111827;
-  --shadow: 0 18px 48px rgba(0, 0, 0, 0.48);
-}
-
 * {
   box-sizing: border-box;
 }
@@ -193,7 +179,10 @@ button {
 
 .utility-nav .auth-nav-button {
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: auto;
+  height: 36px;
   min-width: 36px;
   gap: 6px;
   border-radius: 999px;
@@ -220,11 +209,17 @@ button {
 
 .utility-nav .auth-nav-button.signed-in {
   width: 36px;
+  flex: 0 0 36px;
   min-width: 36px;
   padding: 0;
   border-color: #bfdbfe;
   background: #eff6ff;
   color: var(--blue);
+}
+
+.utility-nav .auth-nav-button.signed-in svg {
+  width: 21px;
+  height: 21px;
 }
 
 .utility-nav .auth-nav-button span {
@@ -260,20 +255,6 @@ button {
   word-break: break-all;
 }
 
-.account-menu-section {
-  padding: 10px 0;
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-}
-
-.account-menu-section p {
-  margin: 0;
-  padding: 0 16px 8px;
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 900;
-}
-
 .utility-nav .account-menu-item {
   display: flex;
   width: 100%;
@@ -302,31 +283,8 @@ button {
   height: 17px;
 }
 
-.account-theme-option.active {
-  color: var(--blue);
-}
-
-.account-theme-option.active::after {
-  content: "";
-  width: 7px;
-  height: 7px;
-  margin-left: auto;
-  border-radius: 999px;
-  background: currentColor;
-}
-
 .account-menu-logout {
   color: var(--red) !important;
-}
-
-:root[data-theme="dark"] .top-nav {
-  background: rgba(8, 8, 8, 0.94);
-}
-
-:root[data-theme="dark"] .utility-nav .auth-nav-button.signed-in {
-  border-color: #3a3a3a;
-  background: #111111;
-  color: #bfdbfe;
 }
 
 .utility-nav svg {
@@ -2741,13 +2699,6 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
   padding: 12px;
 }
 
-:root[data-theme="dark"] input,
-:root[data-theme="dark"] select,
-:root[data-theme="dark"] textarea {
-  background: #0d0d0d;
-  color: var(--ink);
-}
-
 .my-page-filter-card label {
   display: grid;
   gap: 5px;
@@ -2770,13 +2721,6 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
   font: inherit;
   font-size: 13px;
   font-weight: 800;
-}
-
-:root[data-theme="dark"] .my-page-filter-card input,
-:root[data-theme="dark"] .my-page-filter-card select,
-:root[data-theme="dark"] .my-bookmark-icon-button {
-  background: #0d0d0d;
-  color: var(--ink);
 }
 
 .my-page-list-head {

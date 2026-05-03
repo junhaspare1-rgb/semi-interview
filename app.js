@@ -52,8 +52,6 @@ const questionBanksByRole = {
 };
 const questionBank = questionBanksByRole.process;
 const questions = questionBank;
-const THEME_KEY = "banmyeonppu_theme_v1";
-
 const state = {
   config: {
     role: "process",
@@ -132,7 +130,6 @@ const state = {
     selectedKeys: [],
     pendingRemoveKeys: [],
   },
-  theme: "light",
   quickPractice: {
     questionId: null,
     questionKey: "",
@@ -311,7 +308,6 @@ const cacheElements = () => {
     "mobilePersonalityQuestionsMenuButton",
     "accountMenu",
     "accountMenuEmail",
-    "accountThemeLightButton",
     "accountMenuLogoutButton",
     "mobileMenuButton",
     "mobileMenuBackdrop",
@@ -463,32 +459,6 @@ const cacheElements = () => {
 const renderIcons = () => {
   if (window.lucide) {
     window.lucide.createIcons();
-  }
-};
-
-const readThemePreference = () => {
-  try {
-    return localStorage.getItem(THEME_KEY) === "dark" ? "dark" : "light";
-  } catch (error) {
-    return "light";
-  }
-};
-
-const updateAccountThemeButtons = () => {
-  if (!elements.accountThemeLightButton) return;
-  elements.accountThemeLightButton.classList.toggle("active", state.theme === "light");
-};
-
-const applyTheme = (theme, persist = true) => {
-  const nextTheme = theme === "dark" ? "dark" : "light";
-  state.theme = nextTheme;
-  document.documentElement.dataset.theme = nextTheme;
-  updateAccountThemeButtons();
-  if (!persist) return;
-  try {
-    localStorage.setItem(THEME_KEY, nextTheme);
-  } catch (error) {
-    // Theme persistence is optional.
   }
 };
 
@@ -1522,7 +1492,6 @@ const renderAuthUi = () => {
   if (!signedIn) {
     hideAccountMenu();
   }
-  updateAccountThemeButtons();
 
   if (elements.authSignedOutPanel && elements.authSignedInPanel) {
     elements.authSignedOutPanel.hidden = signedIn;
@@ -4636,7 +4605,6 @@ const bindInterviewControls = () => {
     closeMobileMenu();
     openPersonalityQuestionBank();
   });
-  elements.accountThemeLightButton.addEventListener("click", () => applyTheme("light"));
   elements.accountMenuLogoutButton.addEventListener("click", signOut);
   elements.mobileMenuButton.addEventListener("click", openMobileMenu);
   elements.mobileMenuCloseButton.addEventListener("click", closeMobileMenu);
@@ -4749,7 +4717,6 @@ const bindSttTestControls = () => {
 
 window.addEventListener("load", () => {
   cacheElements();
-  applyTheme(readThemePreference(), false);
   state.studyProgress = readStudyProgress();
 
   renderIcons();
