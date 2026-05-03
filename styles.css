@@ -482,7 +482,7 @@ body.question-filter-open {
 
 .landing-role-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 12px;
   margin-top: 54px;
 }
@@ -5193,7 +5193,7 @@ input[type="number"] {
 .exit-modal {
   position: fixed;
   inset: 0;
-  z-index: 50;
+  z-index: 1000;
   display: none;
   place-items: center;
   padding: 20px;
