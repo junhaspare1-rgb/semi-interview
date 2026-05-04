@@ -2791,6 +2791,16 @@ const getQuestionStudyState = (question) => {
   };
 };
 
+const isQuestionInAnyMyInterviewSet = (question) => {
+  const key = progressKey(question);
+  return (state.myInterview?.sets || []).some((set) =>
+    (set.items || []).some((item) => item.type === "bank" && item.key === key),
+  );
+};
+
+const isQuestionSavedToLibrary = (question) =>
+  getQuestionStudyState(question).bookmarked || isQuestionInAnyMyInterviewSet(question);
+
 const setQuestionStudyState = (question, nextState) => {
   const key = progressKey(question);
   const current = getQuestionStudyState(question);
@@ -3174,6 +3184,8 @@ const renderQuestionBankList = () => {
       const expanded = String(state.questionBank.expandedId) === String(question.id);
       const personalityQuestion = isPersonalityQuestion(question);
       const studyState = getQuestionStudyState(question);
+      const savedToLibrary = isQuestionSavedToLibrary(question);
+      const saveButtonLabel = savedToLibrary ? "저장됨" : "저장 위치";
       const keywords = question.keywords?.length
         ? question.keywords.slice(0, 5).map((keyword) => `<span>${escapeHtml(keyword)}</span>`).join("")
         : "<span>키워드 준비중</span>";
@@ -3208,7 +3220,7 @@ const renderQuestionBankList = () => {
       return `
         <article class="question-bank-card ${expanded ? "expanded" : ""} ${personalityQuestion ? "personality-card" : ""}" data-bank-card="${escapeHtml(question.id)}">
           <div class="question-bank-card-main">
-            <button class="bank-icon-button bank-bookmark-button bank-bookmark-card-button ${studyState.bookmarked ? "active" : ""}" type="button" data-bank-bookmark="${question.id}" aria-label="${studyState.bookmarked ? "북마크 해제" : "북마크"}" title="${studyState.bookmarked ? "북마크 해제" : "북마크"}" aria-pressed="${studyState.bookmarked}">
+            <button class="bank-icon-button bank-bookmark-button bank-bookmark-card-button ${savedToLibrary ? "active" : ""}" type="button" data-bank-bookmark="${question.id}" aria-label="${saveButtonLabel}" title="${saveButtonLabel}" aria-pressed="${savedToLibrary}">
               <i data-lucide="bookmark"></i>
             </button>
             <div class="question-bank-card-meta">
@@ -3230,7 +3242,7 @@ const renderQuestionBankList = () => {
             </div>
           </div>
           <aside class="question-bank-card-side ${personalityQuestion ? "personality-side" : ""}">
-            <button class="bank-icon-button bank-bookmark-button bank-bookmark-list-button ${studyState.bookmarked ? "active" : ""}" type="button" data-bank-bookmark="${question.id}" aria-label="${studyState.bookmarked ? "북마크 해제" : "북마크"}" title="${studyState.bookmarked ? "북마크 해제" : "북마크"}" aria-pressed="${studyState.bookmarked}">
+            <button class="bank-icon-button bank-bookmark-button bank-bookmark-list-button ${savedToLibrary ? "active" : ""}" type="button" data-bank-bookmark="${question.id}" aria-label="${saveButtonLabel}" title="${saveButtonLabel}" aria-pressed="${savedToLibrary}">
               <i data-lucide="bookmark"></i>
             </button>
             ${statusAndPractice}
@@ -3468,6 +3480,7 @@ const addBookmarkDestinationToSet = (setId) => {
   if (elements.myInterviewView?.classList.contains("active")) {
     renderMyInterview();
   }
+  renderStudyProgressSurfaces();
   renderBookmarkDestinationModal(`"${targetSet.name}" 세트에 담았습니다.`);
 };
 
@@ -3506,6 +3519,7 @@ const createBookmarkDestinationSet = () => {
   if (elements.myInterviewView?.classList.contains("active")) {
     renderMyInterview();
   }
+  renderStudyProgressSurfaces();
   renderBookmarkDestinationModal(`"${set.name}" 세트를 만들고 질문을 담았습니다.`);
 };
 
