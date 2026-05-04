@@ -1,0 +1,1807 @@
+window.BANMYEONPPU_DEVICE_QUESTIONS = [
+  {
+    "id": 1,
+    "jobRole": "소자",
+    "category": "3D 집적·패키징",
+    "group": "other",
+    "difficulty": "심화",
+    "question": "Backside Power Delivery Network(BSPDN)의 개념과 기존 대비 장점을 설명하세요.",
+    "answer": "BSPDN(Backside Power Delivery Network)은 전원(VDD)과 접지(GND) 배선을 실리콘 웨이퍼 앞면 대신 뒷면(Backside)으로 배치하는 차세대 배선 기술입니다. 기존 Front-side PDN에서는 VDD/GND 배선이 신호 배선과 동일한 금속 층을 공유합니다. 집적도가 높아질수록 금속 배선 혼잡(Routing Congestion)이 심해지고, 전원 배선 폭을 줄이면 저항이 증가하여 IR 드롭이 커집니다. IR 드롭은 소자에 공급되는 실제 전압을 낮춰 타이밍 불량을 야기합니다. BSPDN의 장점은 세 가지입니다. 첫째, IR 드롭 감소입니다. 전원 배선이 트랜지스터 바로 아래에 위치하므로 전원 공급 경로가 획기적으로 짧아집니다. Buried Power Rail(BPR)이나 Nano-TSV로 앞면 트랜지스터 S/D와 뒷면 전원망을 연결합니다. 둘째, 신호 배선 자유도 증가입니다. 앞면 금속층이 신호 배선만을 위해 사용되어 라우팅 혼잡이 해소됩니다. 셋째, 더 굵은 전원 배선이 가능합니다. 뒷면에 제약 없이 넓은 전원 배선을 형성하여 EM 저항도 향상됩니다. 공정 구현 도전 과제로는 웨이퍼 박형화(Wafer Thinning), Nano-TSV 형성, 양면 정렬 정밀도가 있습니다. 인텔의 PowerVia가 2024년 시연에 성공하였으며, 2nm 이하 노드에서 표준화가 예상됩니다.",
+    "keywords": [
+      "BSPDN",
+      "IR Drop",
+      "Routing Congestion",
+      "EM 신뢰성",
+      "Nano-TSV"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "BSPDN(Backside Power Delivery Network)은 VDD·GND 전원 배선을 칩 뒷면으로 이동하는 차세대 배선 기술입니다. 기존 Front-side PDN은 전원·신호 배선이 금속층을 공유해 집적도 증가 시 IR 드롭이 커지고 라우팅 혼잡이 심화됩니다. BSPDN은 전원 경로를 단축해 IR 드롭을 줄이고, 앞면 금속층을 신호 배선 전용으로 활용합니다. 뒷면에 굵은 전원 배선을 형성해 EM 신뢰성도 향상되며, Nano-TSV로 앞뒤를 연결합니다. 인텔 PowerVia가 2024년 시연에 성공한 대표 사례입니다."
+  },
+  {
+    "id": 2,
+    "jobRole": "소자",
+    "category": "3D 집적·패키징",
+    "group": "other",
+    "difficulty": "심화",
+    "question": "HBM(High Bandwidth Memory) 구조에서 소자 설계의 핵심 고려 사항을 설명하세요.",
+    "answer": "HBM(High Bandwidth Memory)은 여러 장의 DRAM 다이를 TSV(Through-Silicon Via)로 수직 적층하고 Logic Die 위에 쌓아 초고대역폭·저전력 메모리 시스템을 구현하는 3D 패키지 기술입니다. 소자 설계 관점의 핵심 고려 사항을 설명하겠습니다. 첫째, TSV 공정과 소자 특성 영향입니다. TSV 주변에는 Cu의 열팽창계수 차이로 인한 기계적 응력(Stress)이 발생합니다. 이 응력은 TSV 근방 수십 μm 내의 트랜지스터 이동도와 Vth를 변화시킵니다. 소자 레이아웃에서 TSV Keep-Out Zone(KOZ)을 설정하여 회로 소자가 영향권 밖에 배치되도록 합니다. 둘째, TSV 커패시턴스와 신호 무결성입니다. TSV는 기생 커패시턴스(수십~수백 fF)를 가집니다. 고속 신호 전송 시 이 커패시턴스가 신호 지연과 크로스토크를 야기합니다. HBM 인터페이스 회로(PHY)의 타이밍 마진 설계에 반영해야 합니다. 셋째, 발열 관리입니다. 다이 적층으로 단위 부피당 발열 밀도가 높아집니다. 각 DRAM 다이의 자체 발열과 하부 GPU/CPU 발열이 누적됩니다. TSV 자체가 열 전도 경로 역할도 하므로 열 저항 설계를 최적화합니다. 넷째, 정렬 정밀도(Alignment)입니다. 적층된 각 다이의 TSV 정렬이 수 μm 이내여야 합니다. 미세 범프(Micro Bump) 또는 Direct Bonding 기술이 사용됩니다. HBM3에서는 대역폭 819GB/s, I/O 수 1024비트 이상이 목표입니다.",
+    "keywords": [
+      "TSV Stress",
+      "Keep-Out Zone",
+      "기생 커패시턴스",
+      "열관리",
+      "PHY Timing Margin"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "HBM 소자 설계의 핵심 고려 사항은 세 가지입니다. 첫째, TSV 주변 Cu 열팽창계수 차이로 발생하는 기계적 응력이 근방 트랜지스터의 Vth·이동도를 변화시키므로 TSV Keep-Out Zone을 설정하여 레이아웃을 배치합니다. 둘째, TSV 기생 커패시턴스(수십~수백 fF)에 의한 신호 지연·크로스토크가 발생하므로 PHY 인터페이스 타이밍 마진 설계에 반드시 반영해야 합니다. 셋째, 다이 적층으로 단위 부피당 발열 밀도가 높아지므로 TSV를 열 전도 경로로도 활용하는 적극적인 열관리 설계가 필수입니다."
+  },
+  {
+    "id": 3,
+    "jobRole": "소자",
+    "category": "3D 집적·패키징",
+    "group": "other",
+    "difficulty": "심화",
+    "question": "Monolithic 3D Integration과 Wafer-to-Wafer Bonding의 차이점과 기술적 도전을 설명하세요.",
+    "answer": "3D 집적 기술은 반도체 Scaling의 물리적 한계를 극복하는 핵심 전략으로, Monolithic 3D와 W2W Bonding은 서로 다른 접근법을 사용합니다. Monolithic 3D Integration(M3D)입니다. 동일 기판 위에 하부층 소자를 완성한 뒤, 상부층 소자를 순차적으로 제조하는 방식입니다. 층 간 연결(Inter-layer Via)이 수 nm~수십 nm 수준으로 매우 조밀합니다. 핵심 기술 과제는 상부층 공정의 Thermal Budget 제한입니다. 하부층 소자가 이미 형성되어 있으므로, 상부층 소자 제조 시 온도가 400~500°C 이하여야 합니다. 저온 공정 소자(비정질 산화물 반도체, 2D 소재)가 상부층 소자 후보입니다. Wafer-to-Wafer Bonding(W2W)입니다. 각각 별도 공정으로 제조된 두 웨이퍼를 접합하는 방식입니다. 상부층 공정이 독립적으로 최적화 가능하여 M3D의 Thermal Budget 문제가 없습니다. Direct Bonding: 금속-금속(Cu-Cu HB) 또는 산화막-산화막 직접 접합으로 수십~수백 nm 피치의 밀집 연결이 가능합니다. 핵심 과제는 두 가지입니다. 정렬 정밀도: 웨이퍼 전체에서 수 nm 수준의 본딩 정렬이 요구됩니다. 수율: 두 웨이퍼의 수율이 곱해지므로 Good Die 확보가 어렵습니다. Die-to-Wafer(D2W) 방식이 수율 문제를 완화합니다. HBM, CIS 이미지 센서, 3D NAND가 W2W Bonding의 양산 사례입니다.",
+    "keywords": [
+      "Monolithic 3D",
+      "Thermal Budget",
+      "Wafer-To-Wafer Bonding",
+      "Alignment",
+      "Good Die"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Monolithic 3D(M3D)는 동일 기판 위에 소자층을 순차 적층하는 방식으로 층간 연결이 수 nm로 매우 조밀합니다. 핵심 도전은 하부 소자 보호를 위해 상부층 공정 온도를 400~500°C 이하로 제한하는 Thermal Budget 제약입니다. Wafer-to-Wafer Bonding(W2W)은 웨이퍼를 각각 독립 최적화한 후 접합하므로 Thermal Budget 문제가 없습니다. 그러나 수 nm 수준의 웨이퍼 전면 정렬 정밀도와 두 웨이퍼 수율의 곱에 의한 Good Die 확보가 W2W의 핵심 과제입니다."
+  },
+  {
+    "id": 4,
+    "jobRole": "소자",
+    "category": "CMOS 구조·Scaling",
+    "group": "other",
+    "difficulty": "입문",
+    "question": "CMOS 인버터의 동작 원리와 장점을 설명하세요.",
+    "answer": "CMOS 인버터는 Pull-up 역할의 PMOS와 Pull-down 역할의 NMOS가 드레인끼리 연결되고, 두 게이트는 공통 입력으로 구성된 가장 기본적인 논리 소자입니다. 동작 원리를 입력 레벨별로 설명하겠습니다. 입력 Vin이 Low(0V)일 때, NMOS의 Vgs < Vth이므로 NMOS는 Off 상태입니다. 반면 PMOS는 |Vgs| > |Vthp|이므로 On 상태가 되어 출력은 VDD로 Pull-up됩니다. 입력 Vin이 High(VDD)일 때는 NMOS가 On되고 PMOS는 Off됩니다. 출력이 GND로 Pull-down되어 논리 반전이 이루어집니다. CMOS의 핵심 장점은 저전력입니다. 정적 상태에서 PMOS와 NMOS 중 하나는 항상 Off이므로 전원에서 GND로 흐르는 관통 전류(Short-circuit Current)가 이론적으로 0입니다. 따라서 정적 소비 전력이 매우 낮고, 동적 소비 전력만 부하 커패시턴스 충·방전 시 발생합니다. 또한 노이즈 마진이 높고 전압 스윙이 Rail-to-Rail로 크다는 장점이 있습니다. 현재 대부분의 디지털 집적회로가 CMOS 기반인 이유가 여기에 있습니다.",
+    "keywords": [
+      "PMOS Pull-Up",
+      "NMOS Pull-Down",
+      "정적 소비 전력",
+      "동적 전력",
+      "Rail-To-Rail"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "CMOS 인버터는 Pull-up 역할의 PMOS와 Pull-down 역할의 NMOS가 드레인을 공통으로 연결한 기본 논리 소자입니다. 입력 Low 시 PMOS On·NMOS Off로 출력이 VDD로 올라가고, 입력 High 시 반대로 동작하여 논리 반전이 이루어집니다. 핵심 장점은 저전력입니다. 정적 상태에서 항상 한 트랜지스터가 Off이므로 관통 전류가 이론적으로 0이어서 정적 소비 전력이 매우 낮습니다. 동적 전력만 부하 커패시턴스 충방전 시 발생하며, 노이즈 마진과 Rail-to-Rail 출력 스윙도 장점입니다."
+  },
+  {
+    "id": 5,
+    "jobRole": "소자",
+    "category": "CMOS 구조·Scaling",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "LDD(Lightly Doped Drain) 구조의 필요성을 설명하세요.",
+    "answer": "LDD(Lightly Doped Drain)는 소스/드레인의 채널 인접부에 저농도 도핑 영역을 추가한 구조로, 드레인 근방의 전기장 집중을 완화하여 소자 신뢰성을 향상시키기 위해 도입되었습니다. 도입 배경을 설명하겠습니다. 전통적인 구조에서 드레인과 채널 경계에는 전기장이 매우 집중되는데, 고전계에서 채널 전자가 충분한 에너지를 얻어 Hot Carrier가 됩니다. 이 Hot Carrier가 게이트 산화막이나 Si/SiO₂ 인터페이스에 주입되면 트랩을 형성하고 Vth 이동, 이동도 저하를 야기하는 HCI(Hot Carrier Injection) 열화가 발생합니다. LDD 형성 공정은 다음과 같습니다. 게이트 패터닝 후 저농도(n-) 이온 주입으로 LDD 영역을 형성합니다. 이후 Spacer(Si₃N₄ 또는 SiO₂)를 게이트 측면에 형성하고, 고농도(n+) 이온 주입으로 소스/드레인을 완성합니다. Spacer에 의해 LDD 영역이 자기 정렬됩니다. 효과는 명확합니다. 드레인 전기장 피크가 고농도 드레인에서 저농도 LDD 영역으로 분산되어 최대 전기장이 감소합니다. HCI 억제로 소자 수명이 크게 향상됩니다. 단점으로는 LDD 직렬 저항 증가로 Ion이 다소 감소합니다. Halo(Pocket) 이온 주입과 함께 현대 MOSFET의 표준 구조입니다.",
+    "keywords": [
+      "LDD",
+      "드레인 전기장 완화",
+      "Hot Carrier Injection",
+      "Spacer",
+      "직렬 저항"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "LDD(Lightly Doped Drain)는 소스/드레인 채널 인접부에 저농도 도핑 영역을 추가한 구조입니다. 기존 구조에서 드레인 근방 고전계로 Hot Carrier가 생성되어 게이트 산화막이나 Si/SiO₂ 계면에 주입되면 Vth 이동과 이동도 저하를 야기하는 HCI 열화가 발생합니다. LDD는 드레인 측 전기장 피크를 저농도 영역으로 분산시켜 최대 전기장을 낮추고 HCI를 효과적으로 억제합니다. Spacer 공정으로 자기 정렬 형성되며, 직렬 저항 증가로 Ion이 다소 감소하는 것이 단점입니다."
+  },
+  {
+    "id": 6,
+    "jobRole": "소자",
+    "category": "CMOS 구조·Scaling",
+    "group": "other",
+    "difficulty": "입문",
+    "question": "소자 Scaling이란 무엇이며 어떤 이점이 있나요?",
+    "answer": "소자 Scaling은 트랜지스터, 배선 등 반도체 소자의 물리적 크기를 줄여 성능·전력·비용을 동시에 개선하는 핵심 기술 전략입니다. Moore의 법칙에 따라 약 2년마다 집적도가 두 배로 증가해 왔습니다. Dennard Scaling(Constant Field Scaling) 이론을 설명하겠습니다. 모든 치수를 1/k 배로 축소하고 전압도 함께 1/k 줄이면, 전류 밀도는 동일하고 속도는 k배 향상됩니다. 단위 면적당 소자 수는 k²배 증가하고, 전력 소비는 1/k²로 줄어들어 성능·전력·면적(PPA) 모두 개선됩니다. Scaling의 이점을 정리하면, 첫째 고집적화로 칩 비용이 감소합니다. 둘째 채널 길이 감소로 캐리어 이동 시간이 짧아져 성능이 향상됩니다. 셋째 커패시턴스 감소로 스위칭 속도가 향상되고 동적 전력이 감소합니다. 그러나 단순 Scaling의 한계도 명확합니다. 누설 전류 증가로 Dennard Scaling이 깨졌고, 전압을 더 이상 줄이기 어렵습니다. Short Channel Effect(SCE)로 소자 제어가 어려워졌습니다. 이에 따라 물리적 Scaling 외에 3D 구조(FinFET, GAA), 신소재(High-K, SiGe), 새로운 패터닝 기술(EUV, 멀티패터닝), 그리고 3D 집적(3D NAND, HBM)이 결합된 복합 전략이 필요해졌습니다.",
+    "keywords": [
+      "Dennard Scaling",
+      "Moore의 법칙",
+      "PPA 개선",
+      "누설 전류",
+      "3D 소자"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "소자 Scaling은 트랜지스터·배선 크기를 줄여 성능·전력·비용을 동시에 개선하는 핵심 전략입니다. Dennard Scaling에 따르면 치수를 1/k로 축소하면 속도 k배, 집적도 k²배, 소비 전력 1/k² 감소 효과를 얻습니다. 그러나 누설 전류 증가와 전압 한계로 Dennard Scaling이 깨졌고, 현재는 FinFET·GAA 같은 3D 소자 구조, High-K/Metal Gate, EUV 패터닝을 결합한 복합 전략이 필수입니다. Moore의 법칙은 유효하나 구현 방식이 크게 변화하고 있습니다."
+  },
+  {
+    "id": 7,
+    "jobRole": "소자",
+    "category": "CMOS 구조·Scaling",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "소자 면적과 성능, 소비 전력의 관계(Power-Performance-Area Trade-off)를 설명하세요.",
+    "answer": "Power-Performance-Area(PPA) Trade-off는 반도체 소자 설계에서 세 핵심 지표가 서로 상충하는 관계를 의미하며, 최적 균형점을 찾는 것이 공정 엔지니어와 소자 엔지니어의 핵심 과제입니다. 각 지표와 Trade-off를 분석하겠습니다. Performance(성능) 향상 방법은 전원 전압(VDD) 상승, 채널 길이(Leff) 축소, 이동도 향상, Vth 감소입니다. 그러나 VDD 상승은 동적 소비 전력을 제곱에 비례(P = C×V²×f)하여 증가시킵니다. Vth 감소는 누설 전류(Ioff)를 지수적으로 증가시켜 정적 전력이 증가합니다. Power(전력) 감소 방법은 VDD와 Vth 최적화, 저전력 공정 옵션 사용입니다. 그러나 Vth를 높이면 Ion이 감소하여 성능이 저하됩니다. Area(면적) 축소는 공정 미세화로 달성되며, 칩 비용 감소와 집적도 향상의 이점이 있습니다. 그러나 미세화 시 Short Channel Effect, 변동성 증가, 제조 난이도 상승 등의 문제가 발생합니다. 현대 공정의 PPA 최적화 전략은 Multi-Vth(HVT/SVT/LVT) 조합으로 경로별 최적화, 3D 구조로 면적 감소 없이 성능 확보, 전압 스케일링과 Dynamic Voltage Frequency Scaling(DVFS) 적용입니다. 소자 엔지니어는 공정 파라미터 최적화를 통해 PPA를 개선하며, 이는 경쟁력의 핵심 지표입니다.",
+    "keywords": [
+      "Power-Performance-Area Trade-Off",
+      "VDD",
+      "Vth",
+      "Multi-Vth",
+      "DTCO"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "PPA(Power-Performance-Area) Trade-off는 세 지표가 서로 상충하는 관계입니다. 성능 향상을 위해 VDD를 높이면 동적 전력이 VDD²에 비례해 증가하고, Vth를 낮추면 누설 전류가 지수적으로 증가합니다. 면적 축소는 비용은 낮추지만 SCE 심화와 변동성 증가를 유발합니다. 현대 공정은 Multi-Vth 조합, DVFS 적용, FinFET→GAA 구조 전환, 그리고 DTCO로 공정·설계를 공동 최적화하여 세 지표의 최적 균형점을 찾는 것이 소자 엔지니어의 핵심 역할입니다."
+  },
+  {
+    "id": 8,
+    "jobRole": "소자",
+    "category": "CMOS 구조·Scaling",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "Short Channel Effect(SCE)의 종류(DIBL, Vth Roll-off 등)와 억제 방법을 설명하세요.",
+    "answer": "Short Channel Effect(SCE)는 트랜지스터 채널 길이가 줄어들면서 소스와 드레인의 전기장이 채널 전체에 영향을 미치게 되어 발생하는 일련의 비이상적 현상입니다. 주요 SCE 종류와 억제 방법을 설명하겠습니다. 첫째, Vth Roll-off입니다. 채널 길이가 짧아지면 소스/드레인 공핍층이 채널 공핍층의 일부를 분담하여 문턱 전압이 L 감소에 따라 급격히 낮아집니다. Charge Sharing 모델로 설명하며, Halo(Pocket) 이온 주입으로 채널 끝단 도핑을 높여 억제합니다. 둘째, DIBL(Drain Induced Barrier Lowering)입니다. 드레인 전압(Vds) 증가 시 드레인 전기장이 소스 근방의 잠재 장벽을 낮추어 Vth가 추가로 감소합니다. DIBL = ΔVth/ΔVds로 정의하며, 값이 클수록 Vds에 의한 Vth 변동이 심합니다. 셋째, 펀치스루(Punch-through)입니다. 채널이 매우 짧거나 Vds가 높을 때 소스와 드레인 공핍층이 연결되어 게이트 제어 불능 상태가 됩니다. 전체적인 SCE 억제 전략은 다음과 같습니다. 공정 측면에서 Halo 이온 주입, 얕은 소스/드레인 접합(Shallow Junction), 얇은 Tox로 게이트 제어력 강화, High-K/Metal Gate 도입이 있습니다. 구조 측면에서 FinFET(3D Gate)로 게이트가 채널을 3면에서 감싸거나, GAA로 4면에서 감싸면 SCE가 근본적으로 억제됩니다.",
+    "keywords": [
+      "Short Channel Effect",
+      "Vth Roll-Off",
+      "DIBL",
+      "Punch-Through",
+      "Halo Implant"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "SCE(Short Channel Effect)는 채널 길이가 짧아지면서 소스·드레인 전기장이 채널을 침범해 발생하는 비이상적 현상입니다. 주요 종류로 Vth Roll-off(소스/드레인 공핍층 Charge Sharing으로 Vth 하락), DIBL(드레인 전압이 소스 측 장벽을 낮춰 Vth 추가 감소), Punch-through(공핍층 연결로 게이트 제어 불능)가 있습니다. 억제 방법으로는 Halo 이온 주입, 얕은 접합 형성, High-K/Metal Gate로 게이트 제어력 강화, FinFET·GAA 3D 구조 전환이 있습니다."
+  },
+  {
+    "id": 9,
+    "jobRole": "소자",
+    "category": "CMOS 구조·Scaling",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "FinFET 구조의 장점과 Planar MOSFET 대비 개선점을 설명하세요.",
+    "answer": "FinFET(Fin Field-Effect Transistor)은 채널이 실리콘 기판에서 수직으로 돌출된 Fin 형태로 형성되고, 게이트가 Fin의 3면(양쪽 측면과 상면)을 감싸는 3차원 트랜지스터 구조입니다. 인텔이 22nm 노드에서 처음 양산에 도입하였습니다. Planar MOSFET 대비 개선점을 상세히 설명하겠습니다. 첫째, 정전 제어력(Electrostatic Control) 향상입니다. Planar MOSFET은 게이트가 채널의 1면(상부)만 제어하여 짧은 채널에서 소스/드레인 전기장의 영향을 받습니다. FinFET은 게이트가 3면을 감싸므로 채널에 대한 게이트 제어력이 월등히 높아 DIBL과 Vth Roll-off가 크게 억제됩니다. 둘째, Ioff 감소입니다. 우수한 정전 제어로 채널을 완전히 공핍(Fully Depleted)시킬 수 있어 Off 상태에서의 누설 전류가 Planar 대비 대폭 감소합니다. 셋째, 면적 효율입니다. Fin의 양 측면을 채널로 활용하므로 단위 풋프린트당 유효 채널 폭(Weff = 2Hfin + Wfin)이 Planar 대비 크게 증가합니다. 다수 Fin을 병렬 연결하여 원하는 전류 능력을 구현합니다. 넷째, 낮은 채널 도핑입니다. Fin 자체가 얇아 Fully Depleted 동작이 가능하므로 채널 도핑을 낮게 유지할 수 있습니다. 이는 RDF(Random Dopant Fluctuation)에 의한 Vth 변동성을 줄입니다. Fin 폭(Wfin)과 Fin 높이(Hfin)가 소자 특성의 핵심 파라미터입니다.",
+    "keywords": [
+      "FinFET",
+      "Electrostatic Control",
+      "Fully Depleted",
+      "Weff",
+      "RDF 감소"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "FinFET은 채널이 기판에서 수직 돌출된 Fin 형태이고 게이트가 3면(양 측면+상면)을 감싸는 3D 트랜지스터입니다. Planar MOSFET 대비 개선점은 네 가지입니다. 3면 게이트로 정전 제어력이 향상되어 DIBL·Vth Roll-off가 억제됩니다. Fully Depleted 동작으로 Ioff가 크게 감소합니다. 단위 풋프린트당 유효 채널 폭(Weff = 2Hfin+Wfin)이 증가하여 면적 효율이 높습니다. 낮은 채널 도핑으로 RDF에 의한 Vth 변동성이 감소합니다. 인텔이 22nm에서 처음 양산에 도입했습니다."
+  },
+  {
+    "id": 10,
+    "jobRole": "소자",
+    "category": "CMOS 구조·Scaling",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "GAA(Gate-All-Around) 트랜지스터의 구조와 FinFET 대비 장점은?",
+    "answer": "GAA(Gate-All-Around) 트랜지스터는 채널이 나노와이어(Nanowire) 또는 나노시트(Nanosheet) 형태이고, 게이트가 채널의 4면 전체를 360도로 감싸는 구조입니다. 삼성전자는 MBCFET(Multi-Bridge Channel FET), TSMC는 NSFET(Nanosheet FET)이라는 브랜드로 3nm 이하에서 양산합니다. FinFET 대비 장점을 설명하겠습니다. 첫째, 정전 제어력 극대화입니다. FinFET의 3면 게이트 대비 GAA는 4면 완전 포위로 Equivalent Oxide Thickness(EOT)를 낮추지 않아도 우수한 Short Channel 제어가 가능합니다. DIBL이 현저히 낮아지고 Subthreshold Swing이 이상적인 60mV/dec에 가깝습니다. 둘째, 채널 폭의 연속적 조절(Width Quantization 탈피)입니다. FinFET에서 채널 폭은 Fin 개수로만 조절(이산값)되어 정밀한 전류 조절이 어렵습니다. GAA 나노시트 구조에서는 나노시트의 폭을 연속적으로 조절하여 NMOS와 PMOS의 전류 능력을 독립 최적화할 수 있습니다. 셋째, CFET(Complementary FET)로의 확장성입니다. GAA 구조를 수직으로 NMOS와 PMOS를 쌓는 CFET 구조로 발전시켜 면적을 획기적으로 줄일 수 있습니다. 공정 도전 과제로는 내부 Spacer 형성의 정밀도, 나노시트 간 Gate Oxide 균일 증착(ALD 의존), Si/SiGe 선택적 식각 기술 등이 있습니다.",
+    "keywords": [
+      "GAA",
+      "Nanosheet",
+      "4면 게이트",
+      "Subthreshold Swing",
+      "CFET 확장"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "GAA(Gate-All-Around)는 나노시트 채널을 게이트가 4면 완전히 감싸는 구조입니다. 삼성 MBCFET, TSMC NSFET이 3nm 이하에서 양산 중입니다. FinFET 대비 장점은 세 가지입니다. 4면 포위로 DIBL이 현저히 낮고 Subthreshold Swing이 이상값에 더 가깝습니다. 나노시트 폭을 연속적으로 조절해 FinFET의 이산적 채널 폭 한계를 벗어나 NMOS·PMOS 전류를 독립 최적화할 수 있습니다. 또한 수직 적층 CFET 구조로의 확장이 용이하여 차세대 집적에 유리합니다."
+  },
+  {
+    "id": 11,
+    "jobRole": "소자",
+    "category": "CMOS 구조·Scaling",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "High-K/Metal Gate(HKMG) 공정의 필요성과 장점을 설명하세요.",
+    "answer": "HKMG(High-K/Metal Gate)는 45nm 노드부터 도입된 게이트 스택 혁신으로, 기존 SiO₂/Poly-Si 게이트 스택의 한계를 극복합니다. 도입 배경을 먼저 설명하겠습니다. SiO₂ Gate Oxide를 계속 얇게 하면(1nm 수준) 직접 터널링 누설이 급증하고, Poly-Si Gate에서는 Poly Depletion 효과로 실효 Tox가 증가합니다. HKMG가 이를 해결합니다. High-K 유전체(대표적으로 HfO₂, ε~22)는 SiO₂(ε=3.9)보다 유전율이 ~5.6배 높습니다. EOT = (εSiO₂/εHighK) × Tphysical 관계에 따라, 물리적 두께를 충분히 유지하면서 EOT를 낮출 수 있습니다. 예를 들어 HfO₂ 3nm는 SiO₂ 약 0.5nm에 해당하는 EOT를 가지면서 터널링 누설은 SiO₂보다 수백 배 낮습니다. Metal Gate(MG)는 Poly Depletion 제거와 일함수 정밀 조절에 필수입니다. NMOS는 낮은 일함수 금속(TiC, TaC, ~4.1eV), PMOS는 높은 일함수 금속(TiN, WN, ~5.0eV)을 사용하여 각각의 Vth를 최적화합니다. 공정 방식으로는 Gate First와 Gate Last(Replacement Metal Gate, RMG)가 있습니다. RMG는 High-K 증착 후 더미 Poly-Si Gate로 공정을 진행하고 마지막에 금속으로 교체하는 방식으로, High-K와 금속 게이트의 Thermal Stability를 분리하는 장점이 있습니다.",
+    "keywords": [
+      "High-K",
+      "Metal Gate",
+      "EOT",
+      "Gate Leakage",
+      "Work Function"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "HKMG(High-K/Metal Gate)는 45nm 이후 도입된 게이트 스택 혁신입니다. 기존 SiO₂는 1nm 이하에서 직접 터널링 누설이 급증하고, Poly-Si Gate는 Poly Depletion으로 실효 Tox가 증가하는 문제가 있습니다. High-K 유전체(HfO₂, ε~22)는 물리적 두께를 3~4nm로 유지하면서 EOT를 0.5nm 수준으로 줄여 터널링 누설을 억제하고 Cox를 높입니다. Metal Gate는 Poly Depletion을 완전히 제거하고 일함수 조절로 NMOS·PMOS Vth를 독립적으로 최적화합니다."
+  },
+  {
+    "id": 12,
+    "jobRole": "소자",
+    "category": "CMOS 구조·Scaling",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "Strain Engineering(응력 공학)이 MOSFET 성능에 미치는 영향을 설명하세요.",
+    "answer": "Strain Engineering은 실리콘 채널에 의도적으로 기계적 응력을 도입하여 밴드 구조를 변형시키고 캐리어 이동도를 향상시키는 기술입니다. 기본 원리를 설명하겠습니다. 응력이 없는 Si에서 전도대(Conduction Band)의 6개 등방 최소값은 에너지가 동일합니다. 채널 방향으로 Tensile Strain이 가해지면 대칭이 깨져 에너지가 낮은 2개 Valley가 우선 점유됩니다. 이 상태에서 Valley 간 산란(Intervalley Scattering)이 줄고 전자 유효 질량이 작아져 이동도가 향상됩니다. NMOS에 Tensile Strain 적용 방법은 다음과 같습니다. Si₃N₄ 인장 응력 라이너를 게이트 측면에 증착하여 채널에 Tensile Strain을 유도합니다. SMT(Stress Memorization Technique)로 활성화 Annealing 후 Si₃N₄를 제거해도 응력을 기억시킵니다. PMOS에 Compressive Strain 적용 방법입니다. SiGe(게르마늄 20~30%) 소스/드레인을 Si 채널 양단에 에피택셜 성장합니다. Si보다 격자 상수가 큰 SiGe가 채널 Si에 압축 응력을 가합니다. 이로써 정공 밴드 구조가 변형되고 경 정공(Light Hole)과 중 정공(Heavy Hole) 밴드가 분리되어 이동도가 향상됩니다. FinFET에서도 Fin 재료와 주변 응력 라이너로 Strain Engineering이 적용됩니다.",
+    "keywords": [
+      "Strain Engineering",
+      "Tensile Strain",
+      "Compressive Strain",
+      "Mobility",
+      "SiGe Source/Drain"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Strain Engineering은 실리콘 채널에 의도적으로 기계적 응력을 가해 밴드 구조를 변형시키고 캐리어 이동도를 향상시키는 기술입니다. NMOS에는 채널 방향 인장 응력(Tensile Strain)을 가해 전도대가 분리되고 Valley 간 산란이 줄어 전자 이동도가 향상됩니다. PMOS에는 SiGe 소스/드레인 에피택시로 압축 응력(Compressive Strain)을 도입해 정공의 유효 질량을 낮추고 이동도를 높입니다. 각 소자에 최적 응력 방향이 달라 설계 시 응력 방향과 크기를 정밀 제어합니다."
+  },
+  {
+    "id": 13,
+    "jobRole": "소자",
+    "category": "CMOS 구조·Scaling",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "Punch-through 현상이란 무엇이며 어떻게 방지하나요?",
+    "answer": "Punch-through는 MOSFET에서 소스와 드레인 주변의 공핍층이 채널을 통해 서로 연결되어 게이트 전압으로 채널 전류를 제어할 수 없게 되는 현상입니다. Short Channel Effect의 가장 심각한 형태 중 하나입니다. 발생 조건과 메커니즘을 설명하겠습니다. 채널 길이(Leff)가 매우 짧아지면 소스와 드레인의 공핍층이 채널 깊이 방향으로 확장됩니다. 동시에 높은 Vds 인가 시 드레인 공핍층이 채널 방향으로 더욱 확장됩니다. 두 공핍층이 연결되면 소스에서 드레인으로 이어지는 Punch-through 경로가 형성됩니다. 이 경로는 게이트 전기장의 영향을 받지 않는 기판 깊은 곳을 통과하므로, Vgs를 0V나 음전압으로 해도 전류가 흐릅니다. 소자 열화 효과로는 Off 상태 전류가 급증하고 게이트 제어 능력이 상실됩니다. DRAM에서는 셀 트랜지스터 Punch-through로 데이터 보유 실패가 발생합니다. 억제 방법은 다음과 같습니다. 첫째, Halo(Pocket) 이온 주입: 소스/드레인 끝단에 기판과 같은 타입의 역도핑을 추가하여 공핍층 확장을 억제합니다. 둘째, 채널 도핑 농도 증가: 공핍층 폭 = √(2εVbi/qNa)이므로 Na 증가로 공핍층을 좁힙니다. 셋째, Retrograde Well: 기판 깊은 곳의 도핑을 높여 Punch-through 경로를 차단합니다. 넷째, 얕은 소스/드레인 접합 형성으로 수평 방향 공핍층 확장을 억제합니다.",
+    "keywords": [
+      "Punch-Through",
+      "공핍층 연결",
+      "Halo Implant",
+      "VDD 감소",
+      "FinFET/GAA"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Punch-through는 MOSFET 채널이 매우 짧거나 Vds가 높을 때 소스·드레인 공핍층이 채널에서 연결되어 게이트 전압으로 전류를 제어할 수 없게 되는 현상입니다. SCE 중 가장 심각한 형태로 급격한 전류 증가와 소자 파괴로 이어집니다. 방지 방법은 세 가지입니다. Halo(Pocket) 이온 주입으로 채널 끝단 도핑을 높여 공핍층 확장을 억제합니다. 충분한 채널 길이를 확보하고 공급 전압(VDD)을 낮춥니다. FinFET·GAA 구조로 게이트가 채널을 여러 면에서 둘러싸 근본적으로 게이트 제어력을 강화합니다."
+  },
+  {
+    "id": 14,
+    "jobRole": "소자",
+    "category": "CMOS 구조·Scaling",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "Multi-Vth(다중 문턱전압) 전략의 목적과 구현 방법을 설명하세요.",
+    "answer": "Multi-Vth 전략은 하나의 칩 내에 고(HVT), 표준(SVT), 저(LVT) 문턱전압의 트랜지스터를 선택적으로 배치하여 성능과 전력의 균형을 최적화하는 핵심 설계 기법입니다. 각 Vth 유형의 특성과 용도를 설명하겠습니다. HVT(High Vth) 트랜지스터는 Vth가 높아 Off 전류(Ioff)가 매우 작습니다. 정적 소비 전력이 최소화됩니다. 그러나 Ion도 작아 스위칭 속도가 느립니다. 비크리티컬 경로, 슬립 모드 회로, 메모리 셀 등 누설 전력이 중요한 곳에 사용됩니다. SVT(Standard Vth) 트랜지스터는 성능과 전력의 균형을 제공하며, 일반 로직 회로에 가장 광범위하게 사용됩니다. LVT(Low Vth) 트랜지스터는 Vth가 낮아 Ion이 크고 스위칭 속도가 빠릅니다. 그러나 Ioff가 지수적으로 증가하여 정적 전력 소비가 큽니다. 타이밍 크리티컬 경로, 고속 입출력, 클록 버퍼 등에 사용됩니다. ULL(Ultra-Low Leakage) Vth나 ELVT(Extremely Low Vth) 등 4~5 단계 Vth를 제공하는 공정도 있습니다. 공정 구현 방법은 두 가지입니다. 이온 주입 방법: Vth Adjust 이온 주입으로 채널 도핑 농도를 조절합니다. 마스크 1장씩 추가됩니다. Metal Gate 일함수 조절(HKMG 공정): 금속 게이트 재료나 두께를 조절하여 Vth를 변경합니다. 이온 주입 없이도 Vth 변화가 가능합니다. 설계 관점에서 타이밍 분석(STA) 결과를 바탕으로 크리티컬 패스에 LVT를 선택 배치하는 최적화가 이루어집니다.",
+    "keywords": [
+      "Multi-Vth",
+      "HVT",
+      "SVT",
+      "LVT",
+      "Work Function"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Multi-Vth 전략은 동일 칩 내에 HVT·SVT·LVT 트랜지스터를 선택 배치하여 성능과 전력을 동시에 최적화하는 기법입니다. HVT는 Ioff가 작아 누설이 적지만 속도가 느려 비크리티컬 경로와 슬립 모드 회로에 사용합니다. LVT는 Ion이 커서 스위칭이 빠르지만 누설 전류가 많아 크리티컬 타이밍 경로에만 적용합니다. SVT는 중간 특성으로 일반 경로에 사용합니다. 구현 방법으로는 채널 이온 주입으로 도핑 농도를 조절하거나, Metal Gate 일함수를 다르게 설정하여 구현하는 방식이 일반적입니다."
+  },
+  {
+    "id": 15,
+    "jobRole": "소자",
+    "category": "CMOS 구조·Scaling",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "Gate Length 축소 시 발생하는 주요 문제점과 해결책을 설명하세요.",
+    "answer": "게이트 길이(Lgate) 축소는 성능 향상과 집적도 증가를 위한 필수 Scaling 전략이지만, 여러 심각한 문제를 야기합니다. 문제점과 해결책을 체계적으로 설명하겠습니다. 첫째, Short Channel Effect 심화입니다. Lgate 감소 시 소스/드레인 전기장이 채널 전체에 미쳐 DIBL, Vth Roll-off, Punch-through가 심화됩니다. 해결책은 Halo 이온 주입으로 채널 끝단 전기장을 차단하고, High-K/Metal Gate로 게이트 제어력을 강화하며, FinFET/GAA 구조로 전환합니다. 둘째, 누설 전류 증가입니다. Vth 감소로 Subthreshold Leakage가 지수적으로 증가합니다. Gate Oxide 터널링도 Tox 감소와 함께 증가합니다. 해결책은 Multi-Vth로 고Vth 소자 사용, High-K로 물리적 두께 유지가 있습니다. 셋째, 이동도 저하입니다. 채널 도핑 농도 증가(SCE 억제 목적)가 불순물 산란으로 이동도를 낮춥니다. 해결책은 Strain Engineering으로 물리적 이동도 향상, 채널 도핑 최소화(Undoped Channel in FinFET)가 있습니다. 넷째, Vth 변동성 증가입니다. 채널 내 도펀트 원자 수가 줄면서 RDF(Random Dopant Fluctuation)로 인한 Vth σ가 증가합니다. 해결책은 Undoped Channel + Metal Gate 일함수 Vth 조절입니다. 다섯째, 직렬 저항 증가입니다. 소스/드레인 접합이 얕아지면서 외부 저항이 증가합니다. 해결책은 SiGe/SiC 에피 S/D, Salicide 최적화입니다.",
+    "keywords": [
+      "Gate Length",
+      "SCE",
+      "Leakage Current",
+      "Rext",
+      "Silicide"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Gate Length 축소 시 발생하는 주요 문제는 세 가지입니다. 첫째, SCE 심화: 소스/드레인 전기장이 채널을 침범해 DIBL·Vth Roll-off·Punch-through가 악화됩니다. Halo 이온 주입, FinFET·GAA 구조로 해결합니다. 둘째, 누설 전류 증가: Vth 감소와 GIDL로 Ioff가 급증합니다. High-K로 게이트 제어력을 강화합니다. 셋째, 외부 저항 비율 증가: Lgate 축소 시 Rext 비중이 커집니다. Silicide와 에피 S/D로 외부 저항을 감소시킵니다."
+  },
+  {
+    "id": 16,
+    "jobRole": "소자",
+    "category": "CMOS 구조·Scaling",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "Poly-Silicon Gate에서 Metal Gate로 전환한 이유를 설명하세요.",
+    "answer": "Poly-Si Gate에서 Metal Gate로의 전환은 45nm 노드에서 일어난 게이트 재료의 패러다임 변화입니다. 전환 이유를 상세히 설명하겠습니다. Poly-Si Gate의 문제점은 세 가지입니다. 첫째, Poly Depletion 효과입니다. 고농도 도핑된 Poly-Si도 게이트 전압 인가 시 게이트-산화막 계면 부근에 공핍층이 형성됩니다. 이 공핍층(약 0.3~0.5nm)은 직렬 커패시터로 작용하여 실효 Tox를 증가시키고 Cox를 감소시켜 소자 전류 능력을 저하시킵니다. 둘째, NMOS/PMOS Vth 독립 조절의 한계입니다. NMOS는 n+ Poly, PMOS는 p+ Poly를 사용하여 일함수를 부분 조절하지만, 이중 일함수 공정이 필요하고 미세화 공정에서 한계가 있습니다. 셋째, Boron Penetration입니다. PMOS p+ Poly-Si에서 고에너지 어닐링 시 붕소(B)가 게이트 산화막을 통과하여 채널로 침투합니다. 이는 Vth 불안정을 야기합니다. Metal Gate가 이를 해결하는 방식입니다. 첫째, 금속은 완전 전도체이므로 공핍층이 형성되지 않아 Poly Depletion이 사라집니다. 둘째, NMOS에는 낮은 일함수 금속(TiAlC ~4.1eV), PMOS에는 높은 일함수 금속(TiN ~5.0eV)을 선택하여 각각의 Vth를 독립적으로 최적화합니다. 셋째, 금속은 Boron을 투과시키지 않아 채널 오염이 없습니다. High-K와 Metal Gate는 반드시 함께 사용됩니다(HKMG). High-K가 Metal Gate와 실리콘 채널의 계면 결함을 최소화하는 계면층(Interfacial Layer)과 함께 구성됩니다.",
+    "keywords": [
+      "Metal Gate",
+      "Poly Depletion",
+      "Work Function",
+      "High-K 안정성",
+      "Vth 조절"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Poly-Si Gate에서 Metal Gate로 전환한 이유는 세 가지입니다. 첫째, Poly Depletion 제거입니다. 고농도 도핑 Poly-Si도 게이트-산화막 계면에 공핍층(~0.4nm)이 형성되어 실효 Tox가 증가하고 Ion이 저하됩니다. Metal Gate는 이를 완전히 제거합니다. 둘째, NMOS·PMOS Vth 독립 조절입니다. Metal Gate 일함수를 각각 최적화합니다. 셋째, High-K 유전체와의 열적 안정성입니다. High-K와 Poly-Si 조합은 계면 반응으로 신뢰성이 낮습니다."
+  },
+  {
+    "id": 17,
+    "jobRole": "소자",
+    "category": "CMOS 구조·Scaling",
+    "group": "other",
+    "difficulty": "심화",
+    "question": "3nm 이하 GAA 공정에서 Nanosheet 폭 제어가 소자 성능에 미치는 영향을 분석하세요.",
+    "answer": "GAA 구조에서 Nanosheet의 폭(Width, Wns)은 소자 성능, SCE, 변동성을 동시에 결정하는 가장 중요한 물리적 파라미터입니다. 3nm 이하 노드에서의 영향을 심층 분석하겠습니다. 폭 변화에 따른 Ion/SCE Trade-off입니다. Wns가 증가하면 유효 채널 폭(Weff)이 증가하므로 Ion과 Gm이 비례하여 향상됩니다. 그러나 게이트가 채널 4면을 제어하는 능력(정전 제어력)이 Wns 증가에 따라 약화됩니다. 특히 채널 중심부에 대한 게이트 전기장 침투 깊이가 Wns의 절반보다 작아야 충분한 SCE 억제가 가능합니다. 이로 인해 DIBL과 Vth Roll-off가 Wns에 비례하여 증가합니다. 반대로 Wns를 좁히면 정전 제어력이 개선되나 Ion이 감소하고 양자 한정(Quantum Confinement) 효과가 나타납니다. 양자 한정 효과로 채널 내 에너지 준위가 이산화되어 유효 밴드갭이 변화하고 Vth가 이동합니다. 공정 제어 측면의 과제입니다. Si/SiGe 초격자 에피 성장에서 Nanosheet 두께와 폭의 균일도가 1nm 이하 제어를 요구합니다. SiGe 선택적 습식 식각으로 Si Nanosheet를 노출할 때 Wns가 결정됩니다. 이 식각의 선택비와 균일도가 소자 특성 균일성을 결정합니다. Nanosheet 간 내부 Spacer(Inner Spacer) 치수도 1nm 정밀도가 필요합니다. NMOS와 PMOS의 Wns를 독립 설정(Asymmetric Nanosheet)하여 PPA를 최적화하는 것이 최신 설계 방향입니다.",
+    "keywords": [
+      "Nanosheet Width",
+      "Ion",
+      "DIBL",
+      "Vth 변동",
+      "ALE"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "GAA 나노시트에서 Wns(나노시트 폭)는 Ion과 SCE 제어력 간 핵심 Trade-off 파라미터입니다. Wns 증가 시 유효 채널 폭 증가로 Ion·Gm이 향상되지만, 채널 중심에 대한 게이트 전기장 침투가 약해져 DIBL·Vth Roll-off가 심화됩니다. 반대로 Wns 감소는 SCE 제어가 우수하나 Ion이 줄어 성능이 저하됩니다. 3nm 이하에서 Wns 1~2nm 변동이 Vth를 10~20mV 이상 변화시키므로 Si/SiGe Superlattice 에피와 ALE 수준의 선택적 식각을 통한 Wns 균일도 제어가 필수입니다."
+  },
+  {
+    "id": 18,
+    "jobRole": "소자",
+    "category": "CMOS 구조·Scaling",
+    "group": "other",
+    "difficulty": "심화",
+    "question": "FinFET에서 Fin Width/Height 변화가 Vth 및 Drive Current에 미치는 영향을 설명하세요.",
+    "answer": "FinFET에서 Fin의 물리적 치수인 Fin Width(Wfin)와 Fin Height(Hfin)는 소자의 전기적 특성을 근본적으로 결정하는 핵심 파라미터입니다. 각 치수의 영향을 분석하겠습니다. Fin Width(Wfin)의 영향입니다. SCE 제어 측면: FinFET은 게이트가 Fin의 3면을 감싸므로, Fin을 완전히 공핍시키기 위해 Wfin이 게이트 디플리션 깊이의 2배 이하여야 합니다. 일반적으로 Wfin < Lgate/3 조건이 요구됩니다. Wfin이 좁을수록 Fully Depleted 특성이 강화되어 DIBL과 Vth Roll-off가 억제됩니다. Ion 측면: Wfin 감소 시 채널 단면적 감소로 Ion이 줄어듭니다. Wfin 변동에 의한 Vth 변동: Wfin이 좁을수록 양자 한정 효과가 나타나 Vth가 증가합니다. 공정 변동으로 Wfin이 1nm만 변해도 Vth가 수십 mV 이동할 수 있습니다. Fin Height(Hfin)의 영향입니다. Ion 측면: Weff ≈ 2×Hfin + Wfin이므로 Hfin이 높을수록 Ion이 비례 증가합니다. 이를 통해 좁은 Wfin의 Ion 손실을 보상합니다. 기계적 안정성: Fin의 Aspect Ratio(Hfin/Wfin)가 너무 높으면 Fin이 기울거나 쓰러지는(Fin collapse) 문제가 발생합니다. 패터닝 및 매립 공정 난이도가 증가합니다. 응력 전달: Hfin이 높을수록 STI 응력이 채널에 더 강하게 전달됩니다. 이는 이동도에 영향을 줍니다. 현재 첨단 노드에서 Wfin은 5~7nm, Hfin은 40~60nm 수준으로 제어됩니다.",
+    "keywords": [
+      "Fin Width",
+      "Fin Height",
+      "Fully Depleted",
+      "Weff",
+      "Ion"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "FinFET에서 Wfin(Fin 폭)이 좁을수록 Fully Depleted 특성이 강화되어 DIBL·Vth Roll-off가 억제되고 Ioff가 감소합니다. 일반적으로 Wfin < Lgate/3 조건이 요구되며, 너무 좁으면 Ion이 감소합니다. Hfin(Fin 높이)이 높을수록 유효 채널 폭(Weff = 2Hfin+Wfin)이 증가해 Ion이 향상되지만, 종횡비가 커져 공정 제어(식각 프로파일·Fin 붕괴)가 어려워집니다. Wfin과 Hfin은 서로 Trade-off 관계이며, 두 파라미터의 균형 최적화가 FinFET 소자 설계의 핵심입니다."
+  },
+  {
+    "id": 19,
+    "jobRole": "소자",
+    "category": "CMOS 구조·Scaling",
+    "group": "other",
+    "difficulty": "심화",
+    "question": "PPA(Power, Performance, Area) 최적화 관점에서 소자 설계 전략을 종합적으로 설명하세요.",
+    "answer": "PPA(Power, Performance, Area) 최적화는 반도체 소자와 공정 설계의 최종 목표이며, 세 지표의 상충 관계를 이해하고 균형점을 찾는 것이 소자 엔지니어의 핵심 역량입니다. Performance(성능) 최적화 전략입니다. Ion 향상: 높은 이동도(Strain Engineering), 낮은 Vth(Metal Gate 일함수), 낮은 외부 저항(Silicide, 에피 S/D). RC 지연 감소: 배선 저항(Cu → Ru), 기생 커패시턴스(Air Gap 유전체, Low-K). 소자 구조: FinFET→GAA로 게이트 제어력 향상, 더 높은 Ion 달성. Power(전력) 최적화 전략입니다. 정적 전력: Vth 최적화(Multi-Vth HVT 활용), 소자 Off 특성 개선. 동적 전력(P=CVf²): VDD 감소, 커패시턴스 감소(면적 감소, Low-K 유전체), 전압 스케일링(DVFS). 누설 제어: High-K Gate Oxide(터널링 누설), 얕은 접합+Halo(GIDL 억제). Area(면적) 최적화 전략입니다. 공정 미세화: EUV 리소그래피, SADP/SAQP, 다중 패터닝. 소자 구조 혁신: FinFET의 Weff 활용, GAA의 폭 연속 조절, CFET의 수직 적층. 레이아웃 최적화: DTCO로 표준 셀 높이 감소, SAC로 컨택 면적 감소. 응용 목적(고성능 서버: 성능 우선 LVT / 저전력 웨어러블: 전력 우선 HVT)에 따라 최적화 우선순위를 조정합니다. 소자 엔지니어는 공정 파라미터 최적화로 PPA를 개선하고, 회로/시스템 설계 팀과 PDCO 방식으로 공동 최적화합니다.",
+    "keywords": [
+      "PPA",
+      "Ion 증가",
+      "RC 지연",
+      "Multi-Vth",
+      "DTCO"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "PPA 최적화는 성능·전력·면적 세 지표의 균형점을 찾는 핵심 과제입니다. 성능 향상: Ion 증가(Strain Engineering·낮은 Vth·Silicide), RC 지연 감소(Low-K 유전체·Air Gap). 전력 감소: VDD·Vth 최적화, Multi-Vth 조합, DVFS. 면적 축소: 미세화, FinFET→GAA로 동일 풋프린트에서 전류 확보. 현대 공정은 DTCO(Design-Technology Co-Optimization)로 공정·레이아웃을 공동 최적화하고 3D 집적을 결합하여 세 지표를 동시에 개선합니다."
+  },
+  {
+    "id": 20,
+    "jobRole": "소자",
+    "category": "Layout·설계 검증",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "Layout Design Rule(LDR)이란 무엇이며 왜 중요한가요?",
+    "answer": "Layout Design Rule(LDR)은 반도체 공정에서 제조 가능한 최소 치수와 간격을 규정하는 규칙으로, 공정 능력과 물리적 한계를 레이아웃에 반영합니다. LDR의 필요성과 주요 항목을 설명하겠습니다. LDR이 필요한 이유는 공정 변동성 때문입니다. 포토리소그래피 해상도 한계, 식각 균일도, 정렬 오차(Overlay), 박막 두께 변동 등이 복합적으로 작용합니다. LDR은 이러한 변동성에서도 소자가 정상 동작하도록 마진을 제공합니다. 주요 LDR 항목을 분류하겠습니다. 첫째, 최소 폭(Minimum Width): 다각 레이어(Active, Poly, Metal 등)의 최소 선폭. 공정 능력의 가장 직접적인 지표입니다. 둘째, 최소 간격(Minimum Spacing): 동일 레이어 내 인접 패턴 간 최소 거리. 너무 가까우면 브릿지 쇼트가 발생합니다. 셋째, 최소 오버랩(Minimum Enclosure/Overlap): 서로 다른 레이어 간 정렬 오차를 고려한 최소 겹침. 예: Contact이 Active 영역 안에 충분히 들어와야 합니다. 넷째, 밀도 규칙(Density Rule): CMP 균일도를 위해 각 레이어의 면적 밀도가 일정 범위 내에 있어야 합니다. 다섯째, OPC 관련 규칙: 특정 패턴 형태나 간격에서 OPC가 올바르게 동작하도록 제한합니다. LDR 위반 시 파국적 결함(수율 손실)이나 기능적 불량(소자 오동작)이 발생합니다. DRC(Design Rule Check) 도구로 레이아웃 설계 후 자동 검증합니다.",
+    "keywords": [
+      "Layout Design Rule",
+      "Minimum Width",
+      "Space",
+      "Enclosure",
+      "제조 마진"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "LDR(Layout Design Rule)은 반도체 공정에서 제조 가능한 최소 치수와 간격을 규정하는 규칙으로, 공정 변동성에서도 소자가 정상 동작하도록 마진을 제공합니다. 포토리소그래피 해상도 한계, 식각 균일도, Overlay 오차, 박막 두께 변동 등이 복합 반영됩니다. 주요 항목은 최소 폭(Minimum Width), 최소 간격(Space), 최소 오버랩(Enclosure), 최소 면적(Area) 등입니다. LDR 위반 시 단선·단락·소자 불량이 발생하며, 첨단 노드로 갈수록 Rule 수가 기하급수적으로 증가합니다."
+  },
+  {
+    "id": 21,
+    "jobRole": "소자",
+    "category": "Layout·설계 검증",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "DRC(Design Rule Check)와 LVS(Layout vs Schematic)의 차이점은?",
+    "answer": "DRC(Design Rule Check)와 LVS(Layout vs Schematic)는 반도체 레이아웃 설계에서 테이프아웃 전에 수행하는 두 가지 필수 검증 과정입니다. 각각의 목적과 차이점을 상세히 설명하겠습니다. DRC(Design Rule Check)의 목적은 레이아웃이 공정의 제조 제약 조건을 충족하는지 확인하는 것입니다. 파운드리에서 제공하는 Design Rule 파일을 기반으로 Cadence Virtuoso, Synopsys IC Validator 등의 EDA 툴이 자동으로 검사합니다. 검사 항목은 최소 폭, 최소 간격, 오버랩, 밀도, 안테나 규칙 등이며, 위반 시 경고나 오류로 표시됩니다. DRC 클린(Error 0)이어야 제조가 가능합니다. LVS(Layout vs Schematic)의 목적은 최종 레이아웃이 설계 의도한 회로와 전기적으로 동일한지 검증하는 것입니다. 레이아웃에서 소자(트랜지스터, 저항, 커패시터)와 연결 관계를 추출하여 원본 회로 넷리스트와 1:1 비교합니다. 검사 항목은 소자 연결 일치, 소자 파라미터(W, L, 멀티플리어) 일치, Short/Open 결함 등입니다. LVS 불일치 시 배선 누락, 잘못된 연결, 소자 사양 오류를 발견할 수 있습니다. 두 검증의 핵심 차이를 정리하면, DRC는 제조 가능성(Manufacturability)을, LVS는 회로 기능 정확성(Functional Correctness)을 보증합니다. 두 검증이 모두 클린(DRC Clean + LVS Clean) 상태가 되어야 최종 테이프아웃이 가능합니다.",
+    "keywords": [
+      "DRC",
+      "LVS",
+      "제조 가능성",
+      "넷리스트 일치",
+      "Tape-Out"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "DRC(Design Rule Check)는 레이아웃이 파운드리 제조 규칙(최소 폭·간격·면적 등)을 준수하는지 확인하는 검사로, 제조 가능성을 보장합니다. LVS(Layout vs Schematic)는 레이아웃에서 추출한 넷리스트가 회로 Schematic의 연결관계와 일치하는지 검증하는 검사로, 기능적 정확성을 보장합니다. DRC는 공정 관점, LVS는 회로 관점의 검증입니다. 테이프아웃 전 두 검사를 모두 통과해야 하며, Cadence Virtuoso·Synopsys IC Validator 등 EDA 툴로 자동화됩니다."
+  },
+  {
+    "id": 22,
+    "jobRole": "소자",
+    "category": "Layout·설계 검증",
+    "group": "other",
+    "difficulty": "심화",
+    "question": "Well Proximity Effect(WPE)란 무엇이며 어떻게 보정하나요?",
+    "answer": "Well Proximity Effect(WPE)는 반도체 Well 이온 주입 공정에서 포토레지스트(PR) 엣지에서 산란된 이온이 Well 경계 근처 영역의 도핑 농도를 예상과 다르게 변화시켜, 해당 위치에 형성된 트랜지스터의 Vth가 소자 레이아웃 위치에 따라 달라지는 현상입니다. WPE의 발생 메커니즘을 설명하겠습니다. Well 이온 주입 시 PR이 마스크 역할을 합니다. 그러나 PR 엣지 부근에서 이온이 PR 측면과 충돌하며 산란(Lateral Scatter)되어 Well 경계 너머의 실리콘에도 이온이 도달합니다. 이로 인해 Well 엣지에 가까운 소자의 채널 도핑이 높아지고 Vth가 증가합니다. 효과는 Well 엣지에서의 거리(Edge Distance)에 따라 달라집니다. 소자가 Well 엣지에 가까울수록 Vth 증가가 크고, 멀어질수록 WPE 영향이 줄어 정상 Vth로 수렴합니다. 회로 성능에 미치는 영향입니다. 동일 설계의 트랜지스터라도 Well 엣지로부터의 거리에 따라 Ion, Ioff가 달라집니다. 아날로그 회로의 차동 쌍, SRAM 셀 배열의 경계 소자 등에서 성능 불일치가 발생합니다. WPE 보정 방법입니다. SPICE 모델에 WPE 파라미터(거리 의존 Vth 이동량)를 포함하여 시뮬레이션에서 예측합니다. 레이아웃에서 더미 소자(Dummy Transistor)를 Well 엣지에 배치하여 실제 회로 소자를 엣지에서 분리합니다. 또한 Well 이온 주입 에너지와 PR 패턴을 최적화하여 WPE를 최소화합니다.",
+    "keywords": [
+      "Well Proximity Effect",
+      "Well Edge",
+      "이온 산란",
+      "Vth 변동",
+      "SPICE Model"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "WPE(Well Proximity Effect)는 Well 이온 주입 시 포토레지스트 엣지에서 이온이 산란되어 Well 경계 근처의 실리콘에 추가 도핑이 발생하고, 그 위치 트랜지스터의 Vth가 레이아웃 위치에 따라 달라지는 현상입니다. Well 엣지에 가까울수록 Vth가 높아집니다. 보정 방법으로는 Well 엣지와의 거리를 변수로 하는 WPE 파라미터를 SPICE 모델에 포함시킵니다. 또한 레이아웃 단계에서 Well 경계와 소자 간 최소 이격 거리를 설계 규칙으로 엄격히 관리하여 Mismatch를 억제합니다."
+  },
+  {
+    "id": 23,
+    "jobRole": "소자",
+    "category": "Layout·설계 검증",
+    "group": "other",
+    "difficulty": "심화",
+    "question": "Layout-Dependent Effect(LDE)의 종류(STI Stress, WPE, PSE 등)와 모델링 방법은?",
+    "answer": "Layout-Dependent Effect(LDE)는 반도체 소자의 전기적 특성이 주변 레이아웃 환경(인접 소자와의 거리, 방향, 배치)에 따라 체계적으로 변화하는 현상입니다. 주요 LDE 종류와 모델링 방법을 설명하겠습니다. 첫째, STI Stress(STI 응력 효과)입니다. STI 산화막(SiO₂)의 열팽창계수가 Si보다 작아 소자에 압축 응력을 가합니다. Active 영역의 길이(SA, SB: Source/Drain에서 STI까지 거리)에 따라 응력 크기가 달라집니다. SA·SB가 짧을수록 STI 응력이 강하게 전달됩니다. PMOS는 압축 응력으로 이동도가 향상되고, NMOS는 이동도가 저하됩니다. 둘째, WPE(Well Proximity Effect)입니다. Well 이온 주입 시 PR 엣지 산란으로 Well 경계 근처 소자의 Vth가 변합니다. 셋째, PSE(Poly Space Effect)입니다. 인접한 더미 폴리 게이트와의 거리에 따라 Stress Memorization 효과나 활성화 Annealing 균일도가 달라집니다. 넷째, ME(Metal Environment Effect)입니다. 인접 금속 배선의 존재와 거리에 따른 열응력이 채널에 전달됩니다. 모델링 방법입니다. 각 LDE는 SPICE 모델의 파라미터로 SA, SB, SD 등 레이아웃 변수에 의존하는 항으로 표현됩니다. EDA 툴이 레이아웃에서 이 거리들을 자동 추출하여 SPICE 파라미터에 대입합니다. 더미 소자(Dummy Gate, Dummy Active, Dummy Well Tap) 배치로 LDE를 균일화하고 모델링 정확도를 높입니다.",
+    "keywords": [
+      "Layout-Dependent Effect",
+      "STI Stress",
+      "WPE",
+      "PSE",
+      "SPICE Model"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "LDE(Layout-Dependent Effect)는 소자 특성이 주변 레이아웃 환경에 따라 체계적으로 변하는 현상입니다. 주요 종류는 다음과 같습니다. STI Stress: STI 산화막의 압축 응력이 SA·SB 거리에 따라 채널 이동도와 Vth를 변화시킵니다. WPE: Well 이온 주입 산란으로 Well 경계 근방 Vth가 변동합니다. PSE(Poly Space Effect): 인접 Poly 간격에 따라 이온 주입 분포가 달라져 Vth가 변합니다. 각 효과는 SPICE 모델에 레이아웃 거리 함수 파라미터로 포함시켜 보정합니다."
+  },
+  {
+    "id": 24,
+    "jobRole": "소자",
+    "category": "단위 공정·공정 통합",
+    "group": "other",
+    "difficulty": "입문",
+    "question": "Oxidation(산화) 공정의 목적과 종류(Dry/Wet)를 설명하세요.",
+    "answer": "열산화(Thermal Oxidation) 공정은 고온에서 실리콘 표면을 산화시켜 SiO₂ 막을 형성하는 공정입니다. 목적은 크게 세 가지입니다. 첫째, Gate Oxide 형성으로 트랜지스터 게이트 절연막 역할을 합니다. 둘째, 소자 간 분리(Field Oxide)로 인접 소자 간 누설을 방지합니다. 셋째, 표면 보호 및 이온 주입 스크린 산화막으로 활용됩니다. 산화 방식은 Dry와 Wet으로 나뉩니다. Dry Oxidation은 순수 산소(O₂)를 사용하며, 반응식은 Si + O₂ → SiO₂입니다. 성장 속도가 느리지만 산화막 계면 특성이 우수하고 밀도가 높아 게이트 산화막처럼 얇고 고품질의 산화막이 필요한 곳에 적합합니다. Wet Oxidation은 수증기(H₂O)를 사용하며, 반응식은 Si + 2H₂O → SiO₂ + 2H₂입니다. 성장 속도가 Dry 대비 5~10배 빠르지만 수소 결합으로 인해 막질이 다소 낮습니다. 따라서 두꺼운 STI 매립 산화막이나 필드 산화막에 주로 사용됩니다. 산화 속도는 Deal-Grove 모델로 설명하며, 초기에는 반응 속도 제한, 후기에는 확산 속도 제한으로 시간의 제곱근에 비례합니다.",
+    "keywords": [
+      "Thermal Oxidation",
+      "Dry Oxidation",
+      "Wet Oxidation",
+      "SiO₂",
+      "Deal-Grove Model"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "열산화(Thermal Oxidation)는 고온에서 Si 표면을 산화시켜 SiO₂를 형성하는 공정으로, Gate Oxide·소자 분리막·이온 주입 스크린으로 활용됩니다. Dry Oxidation은 순수 O₂를 사용하여 성장 속도가 느리지만 산화막 밀도가 높고 품질이 우수해 게이트 산화막에 사용합니다. Wet Oxidation은 수증기(H₂O)를 사용해 성장 속도가 빠르고 두꺼운 막 형성에 유리하나 밀도가 낮습니다. Deal-Grove 모델로 성장 속도를 예측하며, 초기 표면 반응 제한 구간과 확산 제한 구간으로 나뉩니다."
+  },
+  {
+    "id": 25,
+    "jobRole": "소자",
+    "category": "단위 공정·공정 통합",
+    "group": "other",
+    "difficulty": "입문",
+    "question": "이온 주입(Ion Implantation) 공정의 원리와 목적을 설명하세요.",
+    "answer": "이온 주입(Ion Implantation)은 반도체 기판에 원하는 불순물을 정밀하게 도핑하기 위해 이온을 고에너지로 가속하여 주입하는 공정입니다. 공정 원리를 설명하겠습니다. 이온 소스에서 생성된 불순물 이온(B⁺, P⁺, As⁺ 등)을 질량 분석기로 선별한 후, 가속 전압으로 원하는 에너지까지 가속하여 웨이퍼 표면에 주입합니다. 주요 제어 변수는 두 가지입니다. 첫째, Dose(도즈)는 단위 면적당 주입 이온 수로, 도핑 농도를 결정합니다. 둘째, 가속 에너지(Energy)는 이온이 기판에 침투하는 깊이(Rp, Projected Range)를 결정합니다. 이를 통해 소스/드레인 접합 깊이를 정밀 제어할 수 있습니다. 이온 주입의 핵심 이슈는 결정 손상(Crystal Damage)입니다. 고에너지 이온이 실리콘 격자와 충돌하여 원자 변위를 일으키고 비정질 구조를 형성합니다. 이를 회복하기 위해 열처리(Annealing)가 반드시 필요합니다. RTA(Rapid Thermal Annealing)나 Spike Annealing으로 결정 결함을 복원하고, 주입된 불순물 원자가 실리콘 격자 자리에 치환되어 전기적으로 활성화됩니다. Channeling 효과 방지를 위해 웨이퍼를 약간 기울여 주입하거나 Pre-amorphization 공정을 사용합니다.",
+    "keywords": [
+      "Ion Implantation",
+      "Dose",
+      "Projected Range",
+      "Doping",
+      "RTA"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "이온 주입(Ion Implantation)은 불순물 이온(B, P, As 등)을 고에너지로 가속하여 웨이퍼에 정밀 도핑하는 공정입니다. 가속 에너지로 침투 깊이(Rp)를 제어하고, Dose(이온 수/cm²)로 도핑 농도를 조절합니다. 확산 공정 대비 도핑 깊이와 농도를 독립적으로 정밀 제어할 수 있고, 저온 공정이 가능하며, 마스크 자기 정렬이 용이한 장점이 있습니다. 주입 후 격자 손상 복구와 도펀트의 전기적 활성화를 위해 RTA(Rapid Thermal Annealing)가 반드시 필요합니다."
+  },
+  {
+    "id": 26,
+    "jobRole": "소자",
+    "category": "단위 공정·공정 통합",
+    "group": "other",
+    "difficulty": "입문",
+    "question": "CMP(Chemical Mechanical Planarization) 공정의 목적을 설명하세요.",
+    "answer": "CMP(Chemical Mechanical Planarization)는 화학적 작용과 기계적 연마를 결합하여 웨이퍼 표면을 글로벌하게 평탄화하는 공정입니다. 동작 원리를 설명하겠습니다. 웨이퍼를 연마 헤드에 장착하고 패드 위에서 회전시키면서 슬러리(Slurry)를 공급합니다. 슬러리는 나노 크기의 연마 입자(Abrasive, 예: SiO₂, CeO₂)와 화학 반응제(산화제, pH 조절제)로 구성됩니다. 표면 볼록부는 기계적 압력을 더 많이 받아 우선적으로 연마되고, 화학 반응이 연마된 면의 재산화를 촉진하여 선택적 제거가 가능합니다. CMP는 다음 세 가지 공정에서 필수적으로 사용됩니다. 첫째, STI(Shallow Trench Isolation) 공정에서 트렌치 매립 후 과잉 산화막을 제거합니다. Si₃N₄가 Stop Layer 역할을 합니다. 둘째, 텅스텐(W) 플러그 형성 시 과잉 W를 제거합니다. 셋째, Cu Damascene 공정에서 과잉 구리와 Barrier Metal을 평탄화합니다. CMP의 주요 관리 지표는 제거율(Removal Rate), 선택비(Selectivity), 균일도(Within-Wafer Uniformity), 그리고 Dishing/Erosion 등의 불량 모드입니다.",
+    "keywords": [
+      "CMP",
+      "Slurry",
+      "Global Planarization",
+      "STI 평탄화",
+      "Cu Damascene"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "CMP(Chemical Mechanical Planarization)는 화학적 작용과 기계적 연마를 결합하여 웨이퍼 표면을 전역(Global)으로 평탄화하는 공정입니다. 슬러리(나노 연마 입자+산화제)를 공급하며 패드 위에서 웨이퍼를 회전시켜 표면 볼록부를 우선적으로 제거합니다. 주요 용도는 STI 산화막 평탄화, 층간 절연막(ILD) 평탄화, Cu Damascene 배선 형성입니다. 평탄한 표면은 다음 리소그래피의 초점 깊이(DOF) 확보와 배선 균일성을 보장하므로 다층 배선 공정에서 필수적입니다."
+  },
+  {
+    "id": 27,
+    "jobRole": "소자",
+    "category": "단위 공정·공정 통합",
+    "group": "other",
+    "difficulty": "입문",
+    "question": "Etching에서 Dry Etch와 Wet Etch의 차이점과 각각의 장단점은?",
+    "answer": "식각(Etching)은 불필요한 박막을 선택적으로 제거하는 공정으로, Dry Etch와 Wet Etch로 구분됩니다. Dry Etch는 플라즈마(Plasma)를 이용한 식각 방식입니다. RIE(Reactive Ion Etching) 기준으로 설명하면, 반응성 가스(CHF₃, CF₄, Cl₂ 등)를 이온화한 뒤 전기장으로 이온을 기판 방향으로 가속합니다. 화학 반응(Chemical)과 물리적 스퍼터링(Physical) 두 메커니즘이 결합되어 식각이 이루어집니다. 이방성(Anisotropic) 특성으로 수직 측벽 프로파일을 얻을 수 있어 미세 패턴 형성에 필수적입니다. 선택비 조절이 가능하고 공정 제어 자유도가 높습니다. 단, 장비가 복잡하고 Plasma Damage 이슈가 있습니다. Wet Etch는 화학 용액을 사용하는 방식입니다. HF로 SiO₂를, KOH나 TMAH로 Si를 선택적으로 제거합니다. 등방성(Isotropic) 식각으로 모든 방향에서 동일하게 진행되어 Undercut이 발생합니다. 미세 패턴에는 부적합하지만 선택비가 매우 높고 공정이 단순하며 Damage가 없어 세정, 희생막 제거, 산화막 패시베이션 제거 등에 활용됩니다.",
+    "keywords": [
+      "Dry Etch",
+      "Wet Etch",
+      "이방성",
+      "선택비",
+      "Plasma Damage"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Dry Etch는 플라즈마를 이용해 반응성 이온·라디칼로 식각합니다. 화학+물리 메커니즘이 결합되어 이방성(수직 프로파일)이 우수하고 미세 패턴 구현에 적합하지만, 플라즈마 데미지와 높은 설비 비용이 단점입니다. Wet Etch는 화학 용액으로 등방성 식각합니다. 비용이 저렴하고 처리량이 높지만 언더컷이 발생해 미세 패턴에는 부적합합니다. 현대 공정에서 미세 패턴 형성은 Dry Etch를, 자연 산화막 제거나 파티클 세정처럼 선택비가 중요한 공정에는 Wet Etch를 선택적으로 병행하여 활용합니다."
+  },
+  {
+    "id": 28,
+    "jobRole": "소자",
+    "category": "단위 공정·공정 통합",
+    "group": "other",
+    "difficulty": "입문",
+    "question": "반도체 공정에서 Annealing의 목적을 설명하세요.",
+    "answer": "Annealing은 반도체 공정에서 열처리를 통해 소자 특성을 개선하거나 공정 결과물을 최적화하는 광범위한 개념입니다. 주요 목적별로 설명하겠습니다. 첫째, 이온 주입 후 결정 손상 회복입니다. 이온 주입으로 형성된 비정질 영역과 격자 결함을 열에너지로 회복시킵니다. 동시에 주입된 불순물 원자가 실리콘 격자 자리로 이동하여 전기적으로 활성화됩니다. 둘째, 도펀트 확산 제어입니다. 고온 장시간 Annealing은 접합 깊이를 증가시키므로, 얕은 접합이 필요한 현대 공정에서는 RTA(Rapid Thermal Annealing)나 Spike Annealing으로 수 초 이내에 처리합니다. 셋째, Silicide 형성입니다. Ti/Co/Ni 금속을 증착 후 Annealing으로 실리콘과 반응시켜 Silicide를 형성합니다. 두 단계 Annealing으로 상(Phase)을 제어합니다. 넷째, 산화막 품질 개선입니다. 게이트 산화막 형성 후 N₂나 N₂O 분위기 Annealing으로 인터페이스 트랩 밀도를 낮춥니다. 질소 패시베이션(Nitrided Oxide)으로 터널링 누설을 억제합니다. 다섯째, 응력 완화입니다. 박막 증착 후 잔류 응력 제거에 활용됩니다. 최신 공정에서는 Thermal Budget(온도×시간)을 최소화하면서도 활성화율을 극대화하는 것이 핵심 과제입니다.",
+    "keywords": [
+      "Annealing",
+      "Dopant Activation",
+      "RTA",
+      "Laser Anneal",
+      "Thermal Budget"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Annealing은 열처리를 통해 소자 특성을 개선하는 공정입니다. 주요 목적은 세 가지입니다. 첫째, 이온 주입 후 격자 손상을 복구하고 도펀트를 전기적으로 활성화합니다. RTA·Spike Anneal로 단시간에 수행합니다. 둘째, 재확산을 최소화하면서 Shallow Junction을 유지합니다. Laser Anneal이 적합합니다. 셋째, 산화막·박막의 치밀화와 수소 패시베이션으로 계면 품질을 향상시킵니다. 공정 후반부로 갈수록 Thermal Budget이 제한되므로 저온 Annealing 기술이 중요합니다."
+  },
+  {
+    "id": 29,
+    "jobRole": "소자",
+    "category": "단위 공정·공정 통합",
+    "group": "other",
+    "difficulty": "입문",
+    "question": "Wafer의 결정 구조(단결정 실리콘)와 제조 방법(Czochralski)을 설명하세요.",
+    "answer": "반도체용 실리콘 웨이퍼는 단결정 구조를 가져야 하며, 이를 위해 Czochralski(CZ) 성장법이 표준으로 사용됩니다. CZ 성장 과정을 설명하겠습니다. 고순도(11N 이상) 폴리실리콘 원료를 석영 도가니에 넣고 1420°C 이상으로 용융합니다. 원하는 결정 방향(주로 <100>)을 가진 소형 단결정 Seed를 용융면에 접촉시킵니다. Seed를 천천히 위로 인상하면서 회전시키면, 계면에서 원자들이 Seed의 결정 방향을 따라 성장합니다. 인상 속도와 온도를 제어하여 잉곳의 직경을 조절합니다(현재 300mm 웨이퍼 표준). 성장된 잉곳을 와이어 소(Wire Saw)로 슬라이싱하고, 래핑·CMP 연마·세정을 거쳐 최종 웨이퍼가 됩니다. 단결정 실리콘의 결정 구조는 다이아몬드 큐빅 구조이며, 결정 방향 (100)이 산화막 계면 특성과 소자 성능 면에서 가장 우수하여 MOSFET 기판으로 표준 사용됩니다. CZ 웨이퍼의 주요 특성 관리 항목으로는 산소 농도(CZ 공정에서 석영 도가니의 산소가 혼입), 결함 밀도(COP: Crystal-Originated Particles), 저항률(Resistivity), 평탄도(Flatness) 등이 있습니다. 에피택셜(Epitaxial) 웨이퍼는 CZ 웨이퍼 위에 CVD로 고순도 실리콘층을 성장시켜 결함 밀도를 낮춘 프리미엄 제품입니다.",
+    "keywords": [
+      "Czochralski",
+      "단결정 실리콘",
+      "Seed Crystal",
+      "300mm Wafer",
+      "CMP Polishing"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "반도체용 실리콘 웨이퍼는 Czochralski(CZ) 공정으로 제조합니다. 고순도 폴리실리콘을 도가니에서 1420°C 이상으로 용융한 뒤, <100> 방향의 단결정 Seed를 접촉시키고 천천히 인상·회전하면 원자들이 Seed 결정 방향으로 성장하여 잉곳이 형성됩니다. 인상 속도와 온도를 조절하여 직경(현재 300mm 표준)을 제어합니다. 단결정 구조는 결정립 경계가 없어 캐리어 이동도와 소자 균일성이 우수합니다. 잉곳을 슬라이싱·랩핑·CMP 폴리싱 과정을 거쳐 최종 경면 웨이퍼를 완성하여 출하합니다."
+  },
+  {
+    "id": 30,
+    "jobRole": "소자",
+    "category": "단위 공정·공정 통합",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "STI(Shallow Trench Isolation)의 목적과 공정 순서를 설명하세요.",
+    "answer": "STI(Shallow Trench Isolation)는 인접 소자 간 전기적 누설을 방지하기 위한 소자 분리 구조로, 250nm 노드부터 기존 LOCOS 공정을 대체하는 표준 기술입니다. LOCOS와 비교한 STI 장점은 다음과 같습니다. LOCOS는 Bird's Beak 현상으로 액티브 영역이 잠식되어 면적 손실이 크고 평탄도가 낮습니다. STI는 이를 해결하여 수직 트렌치 프로파일로 소자 분리 폭을 줄이고 평탄한 표면을 제공합니다. STI 공정 순서를 단계별로 설명하겠습니다. 1단계: 패드 산화막(Pad Oxide) 성장 후 Si₃N₄를 CVD로 증착합니다. 2단계: 포토 및 식각으로 Si₃N₄를 패터닝하고 실리콘 트렌치를 건식 식각합니다. 트렌치 깊이는 통상 200~400nm입니다. 3단계: 라이너 산화막(Liner Oxide)를 트렌치 내벽에 성장시켜 식각 손상을 회복하고 전계 집중을 완화합니다. 4단계: HDP-CVD(High Density Plasma CVD)로 SiO₂를 스텝 커버리지 우수하게 매립합니다. 5단계: CMP로 Si₃N₄를 Stop Layer로 하여 과잉 SiO₂를 제거, 평탄화합니다. 6단계: Si₃N₄와 패드 산화막을 제거하여 액티브 영역을 노출합니다. STI Edge 부근의 전기장 집중으로 인한 Corner Transistor 효과 및 STI Stress에 의한 이동도 변화가 중요한 설계 고려 사항입니다.",
+    "keywords": [
+      "STI",
+      "Trench Etch",
+      "Liner Oxidation",
+      "HDP-CVD Gapfill",
+      "CMP"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "STI(Shallow Trench Isolation)는 인접 소자 간 전기적 누설을 방지하는 소자 분리 구조로, LOCOS 대비 Bird's Beak가 없어 면적 효율이 높습니다. 공정 순서는 다음과 같습니다. Pad Oxide·Si₃N₄ 증착 후 패터닝 → 실리콘 트렌치 식각 → 라이너 산화 → HDP-CVD로 SiO₂ 갭필 → CMP 평탄화 → Si₃N₄ 제거입니다. STI 산화막이 채널에 압축 응력(STI Stress)을 가해 이동도와 Vth에 영향을 주므로 소자 레이아웃에서 SA·SB 거리 관리가 중요합니다."
+  },
+  {
+    "id": 31,
+    "jobRole": "소자",
+    "category": "단위 공정·공정 통합",
+    "group": "other",
+    "difficulty": "입문",
+    "question": "반도체 공정에서 Contamination 관리가 중요한 이유를 설명하세요.",
+    "answer": "반도체 공정에서 오염(Contamination) 관리는 수율과 신뢰성에 직결되는 핵심 요소입니다. 오염의 종류와 영향을 설명하겠습니다. 첫째, 파티클(Particle) 오염입니다. 수십 나노미터 이상의 파티클이 웨이퍼에 부착되면 패턴 브릿지, 단선, 핀홀 등의 결함이 발생합니다. 파티클 크기가 패턴의 절반 이상이면 치명적 결함이 됩니다. 클린룸 등급(Class 1, 10, 100)과 HEPA 필터, 양압 유지로 공기 중 파티클을 제어합니다. 둘째, 금속 오염입니다. Fe, Cu, Ni 같은 전이 금속은 실리콘 밴드갭 내에 Deep Level Trap을 형성합니다. 이는 소수 캐리어 재결합 속도를 높여 수명(Lifetime)을 단축시키고 누설 전류를 증가시킵니다. DRAM Retention 특성에도 치명적입니다. RCA 세정(NH₄OH/H₂O₂ + HCl/H₂O₂ 조합)과 HF 세정으로 제어합니다. 셋째, 이온성 오염입니다. Na⁺ 같은 가동 이온은 산화막 내에서 이동하여 Vth 불안정을 야기합니다. 넷째, 유기물 오염입니다. 표면 에너지를 저하시켜 박막 접착성과 젖음성에 영향을 줍니다. 오존이나 UV/오존 처리로 제거합니다. 공정 장비, 케미컬, 가스, 물(DIW: Deionized Water), 작업자 모두가 오염원이 될 수 있어 종합적인 오염 관리 시스템이 필요합니다.",
+    "keywords": [
+      "Contamination",
+      "Particle",
+      "Metal 오염",
+      "Deep Level Trap",
+      "클린룸"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "반도체 공정에서 Contamination 관리는 수율·신뢰성에 직결되므로 매우 중요합니다. 파티클은 패턴 단선·브릿지 결함을 유발합니다. Cu·Fe 같은 금속 오염은 실리콘 내 Deep Level Trap을 형성해 누설 전류를 증가시키고 접합 불량을 야기합니다. Na⁺ 같은 이온성 불순물은 산화막 내에서 이동해 Vth를 변동시킵니다. 이를 관리하기 위해 클린룸(HEPA 필터·양압 유지), SC-1·SC-2 표준 세정 공정, 초순수(UPW) 사용, 전용 웨이퍼 핸들링 장비를 통한 엄격한 오염 관리가 필수입니다."
+  },
+  {
+    "id": 32,
+    "jobRole": "소자",
+    "category": "단위 공정·공정 통합",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "Shallow Junction 형성 기술과 이온 주입 후 활성화 공정을 설명하세요.",
+    "answer": "Shallow Junction 형성은 MOSFET의 소스/드레인 접합 깊이를 최소화하여 Short Channel Effect를 억제하고 소자 집적도를 높이는 핵심 공정 기술입니다. 필요성을 먼저 설명하겠습니다. 접합 깊이(Xj)가 깊을수록 소스/드레인 공핍층이 채널 방향으로 더 많이 침범하여 SCE(특히 DIBL, Punch-through)가 심화됩니다. 게이트 길이 Lgate의 1/5 이하로 Xj를 유지하는 것이 원칙입니다. Shallow Junction 형성 기술은 다음과 같습니다. 첫째, 저에너지 이온 주입입니다. 가속 에너지를 낮추어 이온의 침투 깊이(Rp)를 줄입니다. B(붕소)는 가벼워 같은 에너지에서 더 깊이 들어가므로 특히 PMOS 얕은 접합 형성이 어렵습니다. BF₂⁺ 분자 이온을 사용하면 같은 에너지에서 더 얕게 주입됩니다. 둘째, Pre-Amorphization Implant(PAI)입니다. Ge이나 Si를 먼저 주입하여 표면을 비정질화합니다. 이후 도펀트 주입 시 채널링 효과가 억제되어 깊이 분포가 좁아집니다. 셋째, 활성화 Annealing 최적화입니다. 얕은 접합을 유지하면서 활성화율을 높이기 위해 RTA, Spike Annealing, Flash Annealing, Laser Annealing을 사용합니다. 온도와 시간을 최소화하여 도펀트 재확산을 억제합니다. 트랜지언트 증진 확산(TED: Transient Enhanced Diffusion)은 이온 주입 손상이 어닐링 시 도펀트 확산을 비정상적으로 증가시키는 현상으로, USJ 형성의 주요 장애물입니다.",
+    "keywords": [
+      "Shallow Junction",
+      "저에너지 Implant",
+      "PAI",
+      "RTA/Spike Anneal",
+      "Raised S/D"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Shallow Junction 형성은 SCE 억제를 위해 소스/드레인 접합 깊이(Xj)를 Lgate/5 이하로 최소화하는 기술입니다. 저에너지 이온 주입으로 Xj를 줄이고, Pre-Amorphization Implant(PAI)로 결정 손상을 균일화해 활성화 효율을 높입니다. 활성화 공정으로 RTA·Spike·Laser Anneal을 사용해 도펀트를 활성화하면서 재확산을 최소화합니다. 에피택셜 Raised S/D로 저항을 낮추고 접합 깊이를 독립 제어하는 방법도 현대 공정에서 표준으로 사용됩니다."
+  },
+  {
+    "id": 33,
+    "jobRole": "소자",
+    "category": "단위 공정·공정 통합",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "Spacer 공정의 목적과 LDD/Halo 구조와의 관계를 설명하세요.",
+    "answer": "Spacer는 게이트 전극의 측면에 형성되는 절연막 구조로, 현대 MOSFET 공정에서 LDD/Halo 구조 구현과 Salicide 형성에 필수적인 역할을 합니다. Spacer의 형성 방법과 역할을 설명하겠습니다. 형성 방법입니다. 절연막(SiO₂ 또는 Si₃N₄)을 전면 CVD로 증착합니다. 이방성 건식 식각(RIE)으로 수평면은 제거하고 게이트 측면에만 박막을 남깁니다. 이 자기 정렬 구조가 Spacer입니다. LDD 구조 형성에서의 역할입니다. 게이트 패터닝 후 Spacer 없이 저농도(n-) 이온 주입으로 LDD 영역을 형성합니다. 이후 Spacer를 형성하면 Spacer 폭만큼 게이트 측면이 연장됩니다. Spacer를 마스크로 고농도(n+) 이온 주입으로 소스/드레인을 형성합니다. Spacer 폭이 LDD 영역의 폭과 직렬 저항을 결정합니다. Halo 이온 주입은 Spacer 형성 후 빗각 이온 주입으로 수행하여 채널 끝단에 Halo 영역을 자기 정렬로 형성합니다. Salicide 공정에서의 역할입니다. Salicide 형성 시 게이트와 소스/드레인 사이의 Spacer가 물리적으로 분리를 제공하여 게이트 Silicide와 S/D Silicide가 브릿지 단락되지 않도록 합니다. 다중 Spacer 구조입니다. 현대 공정에서는 Offset Spacer, Main Spacer, 추가 Spacer 등 여러 겹의 Spacer를 순차적으로 형성하여 LDD 프로파일, Halo, Silicide 분리를 각각 최적화합니다.",
+    "keywords": [
+      "Spacer",
+      "LDD",
+      "Halo Implant",
+      "Self-Alignment",
+      "Salicide 단락 방지"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Spacer는 게이트 측면에 형성하는 절연막 구조로, LDD 및 Halo 이온 주입에서 자기 정렬 마스크 역할을 합니다. LDD 공정에서 게이트 패터닝 후 저농도(n-) 주입으로 LDD 영역을 형성하고, Spacer 형성 후 고농도(n+) 주입으로 S/D를 완성합니다. Spacer 덕분에 LDD 영역이 게이트 하부에 자기 정렬됩니다. Halo는 채널 끝단에 반대 극성 이온을 주입해 Punch-through와 Vth Roll-off를 억제합니다. Spacer는 Salicide 형성 시 게이트-S/D 단락도 방지합니다."
+  },
+  {
+    "id": 34,
+    "jobRole": "소자",
+    "category": "단위 공정·공정 통합",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "반도체 공정에서 Thermal Budget 개념과 그 중요성을 설명하세요.",
+    "answer": "Thermal Budget(열 예산)은 반도체 공정 전체에 걸쳐 소자에 가해지는 모든 열처리의 온도(T)와 시간(t)의 합산적 영향을 의미합니다. TB = ∫T(t)dt 또는 활성화 에너지 기반으로 정의하며, 공정 순서 설계의 핵심 제약입니다. Thermal Budget의 중요성을 설명하겠습니다. 반도체 공정은 수십~수백 단계의 공정이 순차적으로 진행됩니다. 각 공정 단계에서 가해지는 열이 누적되어 이전에 형성된 구조물에 영향을 줍니다. Thermal Budget이 과다할 때 발생하는 문제는 다음과 같습니다. 첫째, 도펀트 재확산입니다. 이온 주입으로 형성된 얕은 소스/드레인 접합이 후속 고온 공정에서 더 깊어집니다. Xj 증가로 SCE가 악화됩니다. 둘째, 불필요한 산화입니다. 고온에서 잔류 산소나 수분에 의한 추가 산화가 발생합니다. 인터페이스 특성이 저하됩니다. 셋째, Silicide 상변화입니다. NiSi가 고온에서 고저항 NiSi₂로 변환됩니다. 넷째, Metal Gate/High-K 열화입니다. High-K 유전체와 금속 게이트의 결정화, 계면 반응이 발생합니다. Thermal Budget 최소화 전략입니다. 고온 공정(게이트 산화, 활성화 Annealing)을 공정 초기에 배치하는 Thermal Schedule 최적화, RTA/Spike Annealing으로 처리 시간 단축, Gate-Last(RMG) 공정으로 High-K/Metal Gate 형성을 공정 후반으로 이동하여 열 노출을 최소화합니다. FinFET과 GAA 공정에서 Thermal Budget 관리는 더욱 엄격합니다.",
+    "keywords": [
+      "Thermal Budget",
+      "Dopant Diffusion",
+      "Shallow Junction",
+      "3D Integration",
+      "Laser Anneal"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Thermal Budget(열 예산)은 반도체 공정 전체에서 소자에 가해지는 온도와 시간의 누적 열적 영향입니다. 과다 시 도펀트 재확산으로 Shallow Junction이 무너지고, Silicide 상변화·계면 품질 저하가 발생합니다. 3D 구조 공정에서는 하부 소자 보호를 위해 상부 공정 온도를 400~500°C 이하로 제한해야 합니다. 공정 순서를 고온→저온 순서로 설계하고, RTA·Spike Anneal·Laser Anneal로 열 예산을 최소화합니다. Thermal Budget은 공정 통합 설계의 핵심 제약 조건입니다."
+  },
+  {
+    "id": 35,
+    "jobRole": "소자",
+    "category": "단위 공정·공정 통합",
+    "group": "other",
+    "difficulty": "심화",
+    "question": "Self-Aligned Contact(SAC) 기술의 필요성과 공정 난이도를 설명하세요.",
+    "answer": "SAC(Self-Aligned Contact) 기술은 소스/드레인 컨택이 게이트 전극 캡핑층을 마스크로 자기 정렬하여 형성되는 공정으로, Overlay 오차 없이 게이트와 컨택 사이의 간격을 최소화합니다. 기존 정렬 방식에서는 컨택과 게이트 사이에 충분한 정렬 마진이 필요합니다. 이 마진이 셀 면적 증가의 주요 원인입니다. SAC 공정 원리입니다. 게이트 구조 위에 Si₃N₄ 게이트 캡핑막(Gate Cap)을 형성합니다. 층간 유전막(ILD, 주로 SiO₂ 계열)을 증착하고 평탄화합니다. 컨택 홀 식각 시 포토레지스트가 다소 게이트 위를 침범해도, 게이트 캡핑막(Si₃N₄)이 식각 Stop Layer 역할을 합니다. Si₃N₄(게이트 캡핑) 대 SiO₂(ILD)의 높은 식각 선택비가 필수입니다. 공정 도전 과제입니다. 첫째, 식각 선택비 확보입니다. SAC 식각에서 SiO₂ 대 Si₃N₄ 선택비가 20:1 이상이어야 게이트 캡핑이 충분히 보호됩니다. 불충분한 선택비는 게이트-컨택 단락을 야기합니다. 둘째, 컨택 종횡비(Aspect Ratio) 증가입니다. 셀 면적 감소에 따라 컨택 크기가 줄면서 종횡비가 증가합니다. 높은 종횡비 홀에 W 플러그를 완전히 채우기 위해 ALD 기반 핵층(Seed Layer) 공정이 필요합니다. 셋째, 게이트 캡핑 두께 최적화입니다. 두꺼운 캡핑은 보호에 유리하나 소자 높이를 증가시킵니다. DRAM과 Logic 모두에서 SAC는 핵심 공정 기술입니다.",
+    "keywords": [
+      "SAC",
+      "Self-Aligned Contact",
+      "Overlay Margin",
+      "Si₃N₄ Cap",
+      "Gapfill"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "SAC(Self-Aligned Contact)는 소스/드레인 컨택이 게이트 캡핑막(Si₃N₄)을 마스크로 자기 정렬 형성되는 기술입니다. 기존 방식에서는 컨택과 게이트 간 Overlay 마진이 필요해 셀 면적이 커집니다. SAC는 컨택 식각 시 Si₃N₄ 캡이 게이트를 보호하므로 Overlay 오차가 있어도 게이트-컨택 단락이 방지되어 셀 면적을 줄일 수 있습니다. 공정 난이도는 Si₃N₄/SiO₂ 충분한 선택비 확보, 게이트 캡 두께 균일도 유지, 그리고 좁은 컨택 홀의 갭필이 핵심 과제입니다."
+  },
+  {
+    "id": 36,
+    "jobRole": "소자",
+    "category": "리소그래피·패터닝",
+    "group": "other",
+    "difficulty": "입문",
+    "question": "반도체 공정에서 Photolithography의 기본 단계를 설명하세요.",
+    "answer": "Photolithography는 반도체 공정에서 회로 패턴을 웨이퍼에 전사하는 핵심 공정으로, 크게 도포-노광-현상의 세 단계로 구성됩니다. 첫째, 포토레지스트(PR) 도포 단계입니다. 웨이퍼 표면에 스핀 코팅으로 PR을 균일하게 도포하고, 소프트 베이크로 용매를 제거합니다. PR은 빛에 반응하는 감광성 고분자로, Positive PR은 노광 부위가 현상액에 용해되고, Negative PR은 반대로 동작합니다. 둘째, 노광(Exposure) 단계입니다. 광원을 마스크(Reticle)를 통해 조사하면 마스크 패턴이 PR에 전사됩니다. 해상도는 Rayleigh 식 R = k₁λ/NA로 결정되므로, 파장(λ)을 줄이거나 개구수(NA)를 높여야 미세 패턴이 가능합니다. 현재는 ArF(193nm)와 EUV(13.5nm) 광원이 사용됩니다. 셋째, 현상(Development) 단계입니다. 현상액으로 노광 또는 미노광 부위를 선택적으로 용해하여 패턴을 완성합니다. 이후 하드 베이크로 내식각성을 강화합니다. 최종 패턴은 후속 식각이나 이온 주입 공정에서 마스크로 활용됩니다.",
+    "keywords": [
+      "Photolithography",
+      "Photoresist Coating",
+      "Exposure",
+      "Development",
+      "PR Strip"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "포토리소그래피는 회로 패턴을 웨이퍼에 전사하는 핵심 공정으로 세 단계로 구성됩니다. 첫째, PR 도포: 스핀 코팅으로 포토레지스트를 균일하게 도포하고 소프트 베이크로 용매를 제거합니다. 둘째, 노광: 광원을 레티클을 통해 조사하여 PR에 마스크 패턴을 전사합니다. Positive PR은 노광 부위가 현상액에 용해됩니다. 셋째, 현상: 현상액으로 노광된 PR 영역을 선택적으로 제거하여 패턴을 완성합니다. 이후 PR을 마스크로 식각·이온 주입을 수행하고 최종적으로 PR 스트립으로 레지스트를 제거합니다."
+  },
+  {
+    "id": 37,
+    "jobRole": "소자",
+    "category": "리소그래피·패터닝",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "OPC(Optical Proximity Correction)의 필요성과 원리를 설명하세요.",
+    "answer": "OPC(Optical Proximity Correction)는 반도체 포토리소그래피에서 광학 근접 효과(Optical Proximity Effect)로 인한 패턴 왜곡을 보상하기 위해 마스크 패턴을 사전에 수정하는 기술입니다. OPC의 필요성을 설명하겠습니다. 빛의 회절과 간섭으로 인해 마스크 패턴이 웨이퍼에 그대로 전사되지 않습니다. 대표적인 왜곡 현상으로는 고립 라인과 밀집 라인의 선폭 차이(Iso-Dense Bias), 패턴 코너의 라운딩(Corner Rounding), 라인 끝단의 단축(Line End Shortening)이 있습니다. 이를 보정하지 않으면 설계 의도와 다른 패턴이 형성됩니다. OPC 방법은 두 가지로 발전했습니다. Rule-Based OPC는 미리 정해진 규칙에 따라 엣지 세그먼트를 이동하거나 Serif, Hammer-head 보조 패턴을 추가합니다. 단순하고 빠르지만 정확도가 낮습니다. Model-Based OPC는 물리적 광학 모델과 레지스트 모델을 사용하여 시뮬레이션 기반으로 최적 마스크 패턴을 반복 계산합니다. 계산량이 많지만 정확도가 높습니다. 최신 기술은 ILT(Inverse Lithography Technology)입니다. 원하는 웨이퍼 패턴을 목표로 역산법으로 최적 마스크 패턴을 계산합니다. Curvilinear(곡선형) 마스크 패턴을 사용하여 더욱 정확한 보정이 가능합니다. MBOPC(Model-Based OPC)와 ILT가 EUV 시대에 더욱 중요해지고 있습니다.",
+    "keywords": [
+      "OPC",
+      "Optical Proximity Effect",
+      "Iso-Dense Bias",
+      "Rule-Based OPC",
+      "Model-Based OPC"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "OPC(Optical Proximity Correction)는 빛의 회절·간섭으로 마스크 패턴이 웨이퍼에 왜곡 전사되는 광학 근접 효과를 보상하기 위해 마스크 패턴을 사전에 수정하는 기술입니다. 주요 왜곡으로 고립·밀집 라인의 선폭 차이(Iso-Dense Bias), 코너 라운딩, 라인 끝단 단축이 있습니다. 보정 방법은 Rule-Based OPC(단순 보정 규칙)와 Model-Based OPC(공정 시뮬레이션 기반 정밀 보정)로 나뉩니다. OPC 적용 후 마스크 패턴 복잡도가 높아지고 마스크 제작 비용이 크게 증가합니다."
+  },
+  {
+    "id": 38,
+    "jobRole": "소자",
+    "category": "리소그래피·패터닝",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "EUV(Extreme Ultraviolet) Lithography의 원리와 ArF 대비 장점을 설명하세요.",
+    "answer": "EUV(Extreme Ultraviolet) 리소그래피는 13.5nm 파장의 극자외선을 광원으로 사용하는 최첨단 노광 기술로, TSMC, 삼성, 인텔이 7nm 이하 노드에서 채택하고 있습니다. ArF(193nm) 대비 장점을 설명하겠습니다. 해상도 측면입니다. Rayleigh 해상도 공식 R = k₁λ/NA에서 λ가 193nm에서 13.5nm로 약 14배 감소하면 같은 k₁, NA에서 해상도가 14배 향상됩니다. ArF에서 7nm 패턴을 위해 SADP, SAQP 등 4중 패터닝이 필요한 것을 EUV 단일 노광으로 가능하게 합니다. 공정 단순화입니다. 다중 패터닝에서 5~10개의 노광-식각 사이클이 EUV 단일 노광으로 줄어들어 공정 단계가 크게 감소합니다. 이는 Overlay 오차 누적과 공정 비용을 줄입니다. 기술적 도전 과제도 있습니다. EUV는 공기에 강하게 흡수되어 전체 광학계를 진공으로 유지해야 합니다. 광원(LPP: Laser-Produced Plasma)의 출력 효율이 낮아 고전력 CO₂ 레이저와 Sn 플라즈마를 사용합니다. EUV 마스크는 반사형(Reflective Mask)으로 40쌍 Mo/Si 다층막 반사경을 사용하며, 마스크 결함 검사와 수리 기술이 중요합니다. EUV 포토레지스트의 감도(Sensitivity), 해상도(Resolution), 라인 엣지 거칠기(LER) 세 가지 요소(RLS Trade-off)를 동시에 최족하는 것도 핵심 과제입니다.",
+    "keywords": [
+      "EUV",
+      "13.5nm",
+      "Single Patterning",
+      "Overlay 감소",
+      "Shot Noise"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "EUV(Extreme Ultraviolet) 리소그래피는 13.5nm 파장을 광원으로 사용하는 최첨단 노광 기술입니다. ArF(193nm) 대비 파장이 약 14배 짧아 해상도가 대폭 향상됩니다. ArF에서 7nm 패턴을 위해 필요한 SAQP 4중 패터닝을 EUV 단일 노광으로 대체해 공정 단계를 크게 줄이고 Overlay 오차를 감소시킵니다. 단, 광자 수 부족으로 인한 Shot Noise에 의한 LER 악화, EUV 마스크 결함 관리, 고출력 광원(250W 이상) 안정성 확보가 핵심 과제입니다."
+  },
+  {
+    "id": 39,
+    "jobRole": "소자",
+    "category": "리소그래피·패터닝",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "Overlay 오차가 소자 특성에 미치는 영향을 설명하세요.",
+    "answer": "Overlay 오차는 반도체 포토리소그래피에서 연속적으로 노광되는 두 레이어 간의 패턴 정렬 불일치를 의미하며, 수율과 소자 특성에 직접적인 영향을 미치는 핵심 공정 지표입니다. Overlay 오차의 발생 원인을 설명하겠습니다. 주요 원인으로는 스캐너 정렬 정확도, 웨이퍼 열팽창, 척(Chuck) 균일도, 레티클 변형, 공정 유도 응력에 의한 웨이퍼 변형이 있습니다. OVL = √(Δx² + Δy²)로 정량화됩니다. 소자 특성에 미치는 영향을 분석하겠습니다. 첫째, Contact/Via Overlay: Contact가 Active 영역이나 Metal 패턴을 벗어나면 Contact 저항 급증이나 단선이 발생합니다. 둘째, Gate-to-S/D Overlay: Gate와 소스/드레인 간격이 좌우 비대칭이 되어 소자 특성(특히 Ion, Idsat)이 불균형해집니다. FinFET의 Fin과 Gate 정렬은 특히 중요합니다. 셋째, 다중 패터닝에서의 누적 Overlay: SADP/SAQP에서 각 단계의 Overlay 오차가 누적됩니다. 패턴 간격 불균일(Pitch Walking)이 발생하여 소자 특성 변동과 수율 저하를 야기합니다. EUV 도입으로 다중 패터닝 단계가 줄어 누적 Overlay 오차가 감소합니다. Overlay 측정은 KLA-Tencor OVL 계측 장비로 수행하며, APC(Advanced Process Control)로 실시간 보정합니다.",
+    "keywords": [
+      "Overlay Error",
+      "Gate-Contact Short",
+      "Via 저항",
+      "OVL",
+      "수율"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Overlay 오차는 연속 노광되는 두 레이어 패턴의 정렬 불일치입니다. 소자 특성 영향은 레이어에 따라 다릅니다. Gate-Contact Overlay 오차 시 컨택이 Active 영역을 벗어나 게이트-S/D 단락이 발생합니다. Via Overlay 오차 시 접촉 면적 감소로 저항이 급증합니다. 또한 게이트와 LDD 정렬이 틀어지면 비대칭 Vth와 Ion 변동이 생깁니다. OVL = √(Δx²+Δy²)로 정량화하며, 첨단 노드에서는 수 nm 이내의 엄격한 관리가 수율과 소자 성능을 동시에 보장하는 데 필수입니다."
+  },
+  {
+    "id": 40,
+    "jobRole": "소자",
+    "category": "리소그래피·패터닝",
+    "group": "other",
+    "difficulty": "심화",
+    "question": "Line Edge Roughness(LER)가 소자 특성에 미치는 영향과 EUV 공정에서의 관리 방법은?",
+    "answer": "LER(Line Edge Roughness)는 반도체 패터닝 공정에서 이상적으로 직선이어야 할 패턴 엣지가 수 나노미터 수준으로 불규칙하게 변동하는 현상입니다. LER의 발생 원인을 설명하겠습니다. 포토레지스트(PR)의 폴리머 사슬이 이산적이고 불균일하게 분포하여 노광-현상 후 엣지가 불규칙해집니다. ArF 레지스트에서 화학 증폭형(CAR) 산발생제(PAG)의 확산 거리가 LER에 기여합니다. EUV 공정에서는 광자 수가 적어 샷 노이즈(Shot Noise)에 의한 통계적 변동이 LER의 지배적 원인이 됩니다. LER의 소자 특성 영향입니다. 게이트 패턴의 LER은 유효 채널 길이(Leff) 변동을 야기합니다. σ(Leff) ~ LER/2 수준으로, Leff 변동은 Vth 변동과 Ion 변동으로 직결됩니다. Lgate가 10nm 수준에서 LER이 2~3nm이면 Leff 변동이 20% 이상에 달합니다. LWR(Line Width Roughness)은 선폭 양쪽 엣지의 복합 거칠기로 LER의 시스템적 지표입니다. 관리 방법입니다. 레지스트 재료 개선: 고감도, 고해상도, 저LER의 EUV용 신규 레지스트(금속 산화물 레지스트 등) 개발. 패터닝 후 평활화: 열 플로우, 플라즈마 처리, 또는 DSA(Directed Self-Assembly)로 LER 감소. OPC 최적화: 마스크 패턴에 LER 보정을 반영합니다.",
+    "keywords": [
+      "Line Edge Roughness",
+      "Shot Noise",
+      "Vth Variability",
+      "SRAM Vmin",
+      "Resist Smoothing"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "LER(Line Edge Roughness)는 이상적으로 직선이어야 할 패턴 엣지가 수 nm 수준으로 불규칙하게 변동하는 현상입니다. PR 폴리머의 불균일 분포와 EUV에서의 Shot Noise(광자 수 부족)가 주원인입니다. LER이 크면 유효 채널 길이가 트랜지스터마다 달라져 Vth·Ion 변동성이 증가하고 SRAM Vmin이 악화됩니다. EUV 공정에서는 고감도·저분자량 레지스트 개발, PAG 크기 최소화, EUV 노광 도즈 증가, 노광 후 열처리(Smoothing) 등의 방법으로 관리합니다."
+  },
+  {
+    "id": 41,
+    "jobRole": "소자",
+    "category": "리소그래피·패터닝",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "멀티 패터닝(SADP, SAQP) 기술의 원리와 EUV Single Patterning 대비 단점을 설명하세요.",
+    "answer": "다중 패터닝(Multiple Patterning)은 단일 리소그래피 노광으로 형성할 수 없는 미세 피치 패턴을 여러 번의 노광-증착-식각 사이클로 구현하는 기술입니다. SADP(Self-Aligned Double Patterning)입니다. 먼저 코어 패턴을 리소그래피로 형성합니다. 코어 측면에 Spacer(ALD 박막)를 등각 증착합니다. 코어를 선택 식각으로 제거하면 Spacer가 원래 피치의 1/2 피치를 가진 패턴으로 남습니다. 이 Spacer를 마스크로 최종 패턴을 식각합니다. 장점은 리소 정렬 없이 피치 2배 향상, Spacer 두께로 CD가 결정되어 리소 변동 영향이 감소합니다. SAQP(Self-Aligned Quadruple Patterning)는 SADP를 두 번 반복하여 피치를 1/4로 줄입니다. EUV 단일 패터닝과의 비교입니다. 다중 패터닝의 단점은 세 가지입니다. 첫째, Overlay 오차 누적: 각 노광 단계의 정렬 오차가 누적됩니다. SAQP에서 Pitch Walking(패턴 간격 불균일) 현상이 발생합니다. 둘째, 공정 단계 증가: SAQP는 15~20단계 추가 공정이 필요하여 TAT와 비용이 증가합니다. 셋째, CD 균일도: 코어 CD 변동이 최종 패턴 균일도를 저하시킵니다. EUV 도입으로 특정 층의 SADP/SAQP를 대체하여 공정이 단순화됩니다. 그러나 가장 미세한 층은 여전히 EUV + SADP 조합이 사용됩니다.",
+    "keywords": [
+      "SADP",
+      "SAQP",
+      "Spacer Patterning",
+      "Pitch Walking",
+      "Overlay Error"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "SADP(Self-Aligned Double Patterning)는 코어 패턴 측면에 ALD Spacer를 증착하고 코어를 제거하여 원래 피치의 1/2 피치를 구현하는 기술입니다. SAQP는 SADP를 두 번 적용해 1/4 피치를 구현합니다. EUV Single Patterning 대비 단점은 세 가지입니다. 공정 단계가 많아 비용·사이클 타임이 크게 증가합니다. 각 공정의 치수 오차가 누적되어 Pitch Walking(홀수·짝수 패턴 선폭 불균일)이 발생합니다. 여러 번의 패터닝으로 Overlay 오차 관리가 복잡해집니다."
+  },
+  {
+    "id": 42,
+    "jobRole": "소자",
+    "category": "메모리 소자",
+    "group": "other",
+    "difficulty": "입문",
+    "question": "DRAM과 NAND Flash의 기본 구조와 동작 방식 차이를 설명하세요.",
+    "answer": "DRAM과 NAND Flash는 반도체 메모리의 두 핵심 축이며, 구조와 동작 방식이 근본적으로 다릅니다. DRAM(Dynamic RAM)은 1개의 트랜지스터(Access Transistor)와 1개의 커패시터(Storage Capacitor)로 구성된 1T-1C 구조입니다. 커패시터에 저장된 전하량으로 1과 0을 구분하며, 워드라인(WL)으로 트랜지스터를 켜서 비트라인(BL)을 통해 읽기/쓰기를 수행합니다. 누설 전류로 전하가 소실되므로 수십 밀리초 주기의 Refresh 동작이 필수입니다. 휘발성(Volatile) 메모리입니다. NAND Flash는 Floating Gate 또는 Charge Trap Layer(CTL)에 전하를 저장하는 비휘발성 메모리입니다. 셀 트랜지스터의 Vth 분포로 1비트(SLC), 2비트(MLC), 3비트(TLC), 4비트(QLC)를 구분합니다. 동작 단위가 DRAM과 다릅니다. 읽기/프로그램은 페이지(Page) 단위로, 소거(Erase)는 블록(Block) 단위로 이루어집니다. FN(Fowler-Nordheim) 터널링 또는 CHE(Channel Hot Electron) 방식으로 전하를 주입합니다. DRAM은 고속·고대역폭 주기억장치에, NAND는 고용량 보조기억장치에 특화되어 상호 보완적으로 사용됩니다.",
+    "keywords": [
+      "DRAM 1T-1C",
+      "Refresh",
+      "NAND Flash",
+      "FN Tunneling",
+      "Endurance"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "DRAM은 트랜지스터 1개+커패시터 1개(1T-1C) 구조로, 커패시터 전하량으로 데이터를 저장합니다. 누설 전류로 전하가 소실되므로 수십 ms 주기의 Refresh가 필수인 휘발성 메모리이며, 빠른 읽기·쓰기 속도가 특징입니다. NAND Flash는 플로팅 게이트에 전자 주입·방출로 데이터를 저장하는 비휘발성 메모리입니다. FN 터널링으로 Program·Erase하며 전원이 없어도 데이터가 유지됩니다. DRAM 대비 속도가 느리고 P/E 사이클 반복에 따른 Endurance 제한이 명확히 존재합니다."
+  },
+  {
+    "id": 43,
+    "jobRole": "소자",
+    "category": "메모리 소자",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "SRAM Bit-cell의 6T 구조와 Read/Write 동작 메커니즘을 설명하세요.",
+    "answer": "SRAM 6T Bit-cell은 데이터를 정적으로 보유하는 메모리 셀로, 총 6개의 MOSFET으로 구성됩니다. 구조와 동작을 설명하겠습니다. 구조는 두 개의 크로스 커플된 CMOS 인버터(PU: Pull-Up PMOS × 2, PD: Pull-Down NMOS × 2)와 두 개의 액세스 트랜지스터(PG: Pass-Gate NMOS × 2)로 이루어집니다. 크로스 커플된 인버터는 쌍안정(Bistable) 래치를 형성하여 데이터를 보유합니다. Q와 QB 노드는 서로 보수 관계입니다. 읽기(Read) 동작입니다. 워드라인(WL)을 High로 활성화하여 두 Pass-Gate를 도통시킵니다. BL과 BLB 비트라인은 미리 VDD로 프리차지되어 있습니다. Q=0인 쪽에서 PD 트랜지스터가 BL을 방전시키고, 반대쪽 BLB는 유지됩니다. 센스 앰프가 이 차동 전압을 증폭하여 데이터를 읽습니다. 읽기 시 Q=0 노드 전압이 PG와 PD 전류 분배로 약간 상승하는 읽기 방해(Read Disturbance) 현상이 발생합니다. 이를 방지하기 위해 PD/PG 전류 비율(β-ratio = W/L ratio of PD to PG)을 크게 설계합니다. 쓰기(Write) 동작입니다. WL 활성화 후 쓰려는 값을 BL/BLB에 인가합니다. PG를 통해 강제 전압이 내부 노드에 인가되어 PMOS PU 트랜지스터를 극복하고 Q 노드 상태를 반전시킵니다. 쓰기 마진은 PU/PG 전류 비율(γ-ratio)로 결정됩니다.",
+    "keywords": [
+      "6T SRAM",
+      "Cross-Coupled Inverter",
+      "Word Line",
+      "Read Disturb",
+      "Sense Amplifier"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "SRAM 6T 비트셀은 크로스 커플된 CMOS 인버터 2개(PU PMOS×2, PD NMOS×2)와 액세스 트랜지스터(PG NMOS×2)로 구성됩니다. 읽기(Read): WL을 High로 활성화하면 BL·BLB에 작은 차동 전압이 발생하고 Sense Amplifier가 이를 증폭합니다. PG와 PD의 전압 분배로 Q 노드 전압이 내려가는 Read Disturb가 핵심 설계 제약입니다. 쓰기(Write): BL을 강제로 구동하여 PG를 통해 Q 노드 전압을 원하는 값으로 반전시켜 래치 상태를 변경합니다."
+  },
+  {
+    "id": 44,
+    "jobRole": "소자",
+    "category": "메모리 소자",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "SRAM의 Static Noise Margin(SNM)이란 무엇이며 어떻게 개선하나요?",
+    "answer": "SNM(Static Noise Margin)은 SRAM Bit-cell이 저장된 데이터를 안정적으로 유지할 수 있는 노이즈 내성을 정량적으로 나타내는 지표입니다. SRAM 설계의 핵심 품질 지표입니다. SNM의 정의와 측정 방법입니다. SRAM 셀의 두 크로스 커플된 인버터의 전압 전달 특성(VTC, Voltage Transfer Characteristic)을 동시에 그리면 나비 날개 형태의 Butterfly Curve가 형성됩니다. 두 루프에 내접하는 최대 정사각형의 한 변 길이가 SNM입니다. SNM이 클수록 셀이 노이즈에 강합니다. SNM에 영향을 주는 주요 인자는 다음과 같습니다. 공급 전압(Vdd): Vdd 감소 시 인버터 전달 특성 기울기가 완만해져 SNM이 급격히 감소합니다. 저전압 동작의 핵심 제약입니다. Vth 변동(Variability): 트랜지스터 Vth 불일치(Mismatch)로 셀의 좌우 대칭이 깨져 SNM이 감소하고 최악의 경우 데이터 손실이 발생합니다. 이는 SRAM Vmin(최소 동작 전압)을 결정합니다. 온도: 고온에서 Ion 감소와 누설 증가로 SNM이 악화됩니다. Read SNM vs Write SNM: 읽기 SNM은 PD/PG β-ratio로, 쓰기 SNM은 PU/PG γ-ratio로 제어되며 서로 상충 관계입니다. SNM 개선 방법으로는 셀 크기 증가, Assist 기술(음의 BL 바이어스, Vdd 부스팅), 8T 셀 도입, 공정 변동 최소화가 있습니다.",
+    "keywords": [
+      "Static Noise Margin",
+      "Butterfly Curve",
+      "Beta Ratio",
+      "Vth Variability",
+      "VDD"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "SNM(Static Noise Margin)은 SRAM 셀이 데이터를 안정적으로 유지할 수 있는 최대 노이즈 내성 지표입니다. 두 인버터의 VTC를 동시에 그린 Butterfly Curve에서 두 루프에 내접하는 최대 정사각형 한 변의 길이로 정의됩니다. SNM이 클수록 노이즈에 강합니다. 개선 방법으로는 PU PMOS를 약하게(폭 축소), PD NMOS를 강하게(폭 확대) 설계하여 Beta ratio를 높입니다. Vth 변동성(RDF) 감소와 VDD 증가, 낮은 Subthreshold Swing도 SNM 향상에 기여합니다."
+  },
+  {
+    "id": 45,
+    "jobRole": "소자",
+    "category": "메모리 소자",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "DRAM의 Refresh 특성과 Retention Time에 영향을 주는 소자 파라미터는?",
+    "answer": "DRAM의 Refresh는 커패시터에 저장된 전하가 누설 전류로 소실되기 때문에 주기적으로 재충전하는 동작으로, DRAM의 핵심 동작 특성입니다. Refresh 특성과 Retention Time의 결정 요인을 설명하겠습니다. Retention Time의 정의는 커패시터가 저장된 데이터를 유지할 수 있는 최대 시간입니다. 현재 표준 DRAM의 Refresh 주기는 64ms이며, 이는 최악 셀의 Retention Time보다 짧아야 합니다. Retention Time을 결정하는 주요 누설 경로는 세 가지입니다. 첫째, 셀 트랜지스터 Off 상태 누설(Ioff)입니다. Subthreshold Leakage와 Band-to-Band Tunneling이 드레인(Storage Node)에서 전하를 방전시킵니다. High Vth 설계와 Buried Word Line(bWL) 구조로 억제합니다. 둘째, GIDL(Gate-Induced Drain Leakage)입니다. 낮은 워드라인 전압(음의 Vbl 적용)에서 게이트-드레인 중첩 영역의 고전계로 밴드 간 터널링이 발생하여 누설 전류가 흐릅니다. Negative Word Line 기술로 관리합니다. 셋째, 커패시터 절연막 누설입니다. 커패시터 유전체(Ta₂O₅, ZrO₂, HfO₂ 등 High-K)의 누설과 공핍층 전하 생성입니다. Retention Time의 분포는 정규 분포가 아닌 꼬리 분포를 가지므로, Worst Case 셀을 기준으로 Refresh 주기를 설정합니다. 미세화에 따라 커패시터 크기가 줄고 누설 경로가 다양해져 Retention 특성 확보가 점점 어려워지고 있습니다.",
+    "keywords": [
+      "Retention Time",
+      "Refresh",
+      "Ioff",
+      "GIDL",
+      "유전체 누설"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "DRAM Retention Time(데이터 유지 시간)에 영향을 주는 누설 경로는 세 가지입니다. 첫째, 셀 트랜지스터 Ioff: Vth 감소나 GIDL(게이트-드레인 중첩 고전계 현상)로 커패시터 전하가 방전됩니다. 둘째, 커패시터 유전체 결함을 통한 누설로 저장 전하가 손실됩니다. 셋째, 스토리지 노드-기판 접합의 역방향 전류가 누설을 유발합니다. 고온에서 누설이 지수적으로 증가하므로 최악 동작 온도에서 Retention Time이 Refresh 주기(64ms)를 반드시 초과해야 소자가 정상 동작합니다."
+  },
+  {
+    "id": 46,
+    "jobRole": "소자",
+    "category": "메모리 소자",
+    "group": "other",
+    "difficulty": "심화",
+    "question": "Buried Word Line(bWL) 구조의 장점과 DRAM Scaling에서의 역할은?",
+    "answer": "Buried Word Line(bWL)은 DRAM 셀 트랜지스터의 워드라인(게이트)을 기판 트렌치 내에 매립한 구조로, 평면 MOSFET 기반 DRAM의 Scaling 한계를 극복하기 위해 개발된 핵심 기술입니다. 기존 DRAM과의 차이점을 설명하겠습니다. 기존 평면 MOSFET 기반 셀에서는 Lgate 축소 시 Short Channel Effect가 심화됩니다. 특히 Punch-through와 GIDL에 의한 Retention Time 저하가 심각합니다. bWL 구조의 핵심 원리는 다음과 같습니다. 트렌치 내에 워드라인을 매립하면, 셀 트랜지스터 채널이 트렌치 측면을 따라 수직(Vertical)으로 형성됩니다. 채널 길이(Leff)는 트렌치 깊이로 결정되므로, 셀 면적(6F²)을 줄여도 충분한 Leff를 독립적으로 확보할 수 있습니다. bWL의 소자 특성 개선 효과입니다. 첫째, Punch-through 억제: 충분한 Leff 확보로 소스-드레인 공핍층 연결이 방지됩니다. 둘째, GIDL 감소: 워드라인이 매립되어 드레인-게이트 중첩 면적이 줄고, 음의 WL 전압(NWL) 인가가 용이합니다. 셋째, 게이트 제어 개선: 매립된 금속 게이트가 채널을 3면에서 제어하는 유사 FinFET 효과를 냅니다. 넷째, Retention Time 향상: 위 개선들이 복합적으로 Retention 특성을 향상시킵니다. 제조 공정상 과제로는 트렌치 내 균일한 게이트 절연막 형성(스텝 커버리지), 게이트 금속 매립, 이후 공정의 열 예산(Thermal Budget) 관리가 있습니다.",
+    "keywords": [
+      "Buried Word Line",
+      "Saddle-Fin",
+      "Gate Control",
+      "Ioff 감소",
+      "Retention Time"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Buried Word Line(bWL)은 DRAM 셀 트랜지스터의 게이트(워드라인)를 기판 트렌치 내에 매립한 구조입니다. 평면 MOSFET 셀은 Lgate 축소 시 SCE·Punch-through에 의한 Retention Time 저하가 심각합니다. bWL은 게이트가 채널을 3면(Saddle-Fin 구조)에서 감싸 게이트 제어력을 높이고 Ioff·GIDL을 크게 감소시킵니다. 이를 통해 Retention Time이 향상되고 셀 Scaling이 가능해집니다. 워드라인이 기판 내에 매립되어 기생 커패시턴스도 감소합니다."
+  },
+  {
+    "id": 47,
+    "jobRole": "소자",
+    "category": "메모리 소자",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "NAND Flash의 Threshold Voltage 분포 관리(Program/Erase)와 신뢰성 관계를 설명하세요.",
+    "answer": "NAND Flash의 신뢰성은 Vth 분포 관리와 직결됩니다. Program/Erase 동작 원리와 신뢰성 관계를 상세히 설명하겠습니다. Program 동작입니다. 워드라인에 높은 전압(~20V)을 인가하면 채널과 Floating Gate 사이의 얇은 터널 산화막을 통해 FN(Fowler-Nordheim) 터널링으로 전자가 Floating Gate에 주입됩니다. 주입된 전자가 Floating Gate의 전위를 낮춰 Vth가 상승합니다. ISPP(Incremental Step Pulse Programming)로 전압을 단계적으로 높여 Vth 분포를 좁게 제어합니다. Erase 동작입니다. 기판(P-well)에 높은 전압(~20V)을 인가하고 WL을 0V 또는 음전압으로 설정하면 역방향 FN 터널링으로 Floating Gate의 전자가 기판으로 제거됩니다. Vth가 낮아지며, 블록 단위로 일괄 소거됩니다. 신뢰성 이슈는 두 가지입니다. 첫째, Endurance(쓰기 내구성)입니다. P/E 반복으로 터널 산화막에 전하 트랩이 축적되어 막이 열화됩니다. Vth 분포가 넓어지고 궁극적으로 셀이 동작 불능이 됩니다. SLC 10만 회, TLC 3천 회, QLC 수백 회 수준입니다. 둘째, Retention(데이터 보유)입니다. 시간이 지남에 따라 Floating Gate에서 전하가 누설되어 Vth가 변동합니다. 고온 가속 조건으로 평가하며, 10년 보증이 요건입니다. SLC/MLC/TLC/QLC로 갈수록 Vth 분포 마진이 좁아져 신뢰성 관리가 어려워집니다.",
+    "keywords": [
+      "Vth Distribution",
+      "Program/Erase",
+      "FN Tunneling",
+      "ISPP",
+      "P/E Cycle"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "NAND Flash의 Vth 분포 관리는 신뢰성의 핵심입니다. Program 시 워드라인 고전압(~20V) FN 터널링으로 전자를 Floating Gate에 주입해 Vth를 높이고, ISPP(단계적 전압 증가 프로그래밍)로 Vth 분포 폭을 좁힙니다. Erase 시 기판/소스에 고전압을 가해 전자를 방출하여 Vth를 낮춥니다. MLC·TLC·QLC로 갈수록 더 좁고 많은 분포 윈도우를 관리해야 합니다. P/E 사이클 반복에 따른 산화막 트랩 축적으로 Vth 분포가 넓어지는 것이 핵심 신뢰성 과제입니다."
+  },
+  {
+    "id": 48,
+    "jobRole": "소자",
+    "category": "메모리 소자",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "Sense Amplifier의 동작 원리와 SRAM/DRAM에서의 차이점은?",
+    "answer": "Sense Amplifier(SA)는 메모리 셀의 작은 신호를 완전한 논리 레벨로 증폭하는 핵심 회로로, SRAM과 DRAM에서 서로 다른 구현 방식을 사용합니다. 각각을 설명하겠습니다. SRAM SA입니다. SRAM 6T 셀 읽기 시 BL과 BLB 간 차동 전압이 발생합니다. 크로스 커플된 인버터형 SA(Latch-type Differential SA)가 이 차동 신호를 증폭합니다. SA Enable 신호(SE)로 활성화하면 양성 피드백으로 BL과 BLB가 VDD와 0V로 빠르게 분리됩니다. 감지 속도가 빠르고 단순한 구조입니다. DRAM SA입니다. DRAM 1T-1C 셀의 감지는 훨씬 어렵습니다. 커패시터 전하(Cs)가 비트라인 커패시턴스(CBL)와 전하 공유하여 ΔVBL = Cs × (Vs - VBL) / (Cs + CBL)의 작은 전압 차(수십 mV)가 발생합니다. DRAM SA는 플립-플롭(Flip-Flop)형으로, NMOS 래치와 PMOS 래치가 결합된 CMOS SA를 사용합니다. 비트라인 프리차지를 VDD/2(등화, Equalization)로 수행하여 SWL 신호 전후 차동 신호를 극대화합니다. SA의 핵심 성능 지표는 오프셋 전압(Voffset)입니다. SA를 구성하는 트랜지스터 Vth Mismatch로 인한 오프셋이 최소 감지 신호(ΔVBL)보다 크면 오감지가 발생합니다. 이를 방지하기 위해 SA 트랜지스터 크기를 충분히 크게 설계하여 Mismatch를 줄입니다.",
+    "keywords": [
+      "Sense Amplifier",
+      "Differential Signal",
+      "Latch-Type SA",
+      "Charge Sharing",
+      "Folded Bitline"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Sense Amplifier(SA)는 메모리 셀의 작은 신호를 논리 레벨로 증폭하는 회로입니다. SRAM SA는 크로스 커플된 인버터형(Latch-type)으로 BL·BLB의 차동 신호를 SE 활성화 시 양성 피드백으로 빠르게 VDD·0V로 분리합니다. DRAM SA는 Folded Bitline 구조로, 셀 커패시터(~15fF)에서 비트라인(~200fF)으로 전하 분배 후 발생하는 수십 mV의 극소 차동 신호를 증폭합니다. DRAM SA는 SRAM보다 훨씬 작은 신호를 감지해야 하므로 설계 난이도가 높습니다."
+  },
+  {
+    "id": 49,
+    "jobRole": "소자",
+    "category": "메모리 소자",
+    "group": "other",
+    "difficulty": "심화",
+    "question": "DRAM Capacitor Scaling의 한계와 차세대 구조(3D Capacitor, MRAM 등)를 설명하세요.",
+    "answer": "DRAM 커패시터 Scaling은 셀 면적 감소에 따른 커패시턴스(C=εA/d) 유지가 핵심 과제입니다. Scaling 한계와 대응 기술을 분석하겠습니다. DRAM 커패시터의 기본 요구 사항입니다. 신뢰성 있는 Sensing을 위해 커패시터 저장 전하 Qs = Cs × (VDD/2)가 충분해야 합니다. 통상적으로 Cs > 20fF이 기준이지만, 셀 면적 감소에 따라 이를 유지하기 어려워집니다. 기존 Scaling 대응 전략입니다. 첫째, 고종횡비 3D 구조: 셀 면적이 줄어도 커패시터 높이를 높여 표면적을 유지합니다. 실린더형은 내외면을 전극으로 활용합니다. 현재 종횡비가 50:1~80:1에 달하며 구조적 안정성이 한계에 근접합니다. 둘째, 고유전율(High-K) 유전체 도입: SiO₂(ε=3.9) → Ta₂O₅(ε=25) → ZrO₂(ε~40) → HfZrO₂ 순서로 고유전율 재료로 전환하여 물리적 두께를 늘리면서 EOT를 줄입니다. 셋째, 전극 재료 최적화: TiN, Ru 등 고작함수, 저저항 전극 재료로 누설 전류를 최소화합니다. 물리적 Scaling 한계와 대안입니다. 종횡비 100:1 이상은 구조적 붕괴 위험으로 현실적으로 불가합니다. 이를 극복하기 위한 차세대 구조로는 MRAM(자기 저항, 비휘발성), FeRAM(강유전체, 낮은 전력), PCRAM(상변화, 고집적), DRAM과의 하이브리드 구조가 연구됩니다. 특히 MRAM은 STT(Spin Transfer Torque)를 이용하여 커패시터 없이 데이터를 저장하므로 Cs Scaling 한계를 근본적으로 극복합니다.",
+    "keywords": [
+      "Capacitor Scaling",
+      "3D Capacitor",
+      "High-K 유전체",
+      "ALD",
+      "STT-MRAM"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "DRAM Capacitor Scaling 한계는 셀 면적 감소 시 최소 커패시턴스(~20fF)를 유지하기 어렵다는 데 있습니다. 대응 전략으로 고종횡비 3D 실린더 구조로 표면적을 유지하고, ZrO₂·Al₂O₃ 등 High-K 유전체로 커패시턴스 밀도를 높이며, ALD로 균일한 유전막을 형성합니다. 그러나 종횡비 40:1 이상에서 공정 난이도가 한계에 도달하고 있습니다. 차세대 대안으로 STT-MRAM은 빠른 속도와 무한 Endurance를 바탕으로 임베디드 DRAM 대체 후보로서 활발히 검토 중입니다."
+  },
+  {
+    "id": 50,
+    "jobRole": "소자",
+    "category": "메모리 소자",
+    "group": "other",
+    "difficulty": "심화",
+    "question": "SRAM Bit-cell의 Vmin 특성 향상을 위한 소자 설계 전략을 설명하세요.",
+    "answer": "SRAM Bit-cell Vmin은 메모리 셀이 읽기·쓰기·데이터 보유 동작을 오류 없이 수행할 수 있는 최소 공급 전압으로, 저전력 모바일·웨어러블 소자의 핵심 지표입니다. Vmin을 결정하는 세 가지 동작 조건이 있습니다. Hold Vmin: 데이터 보유를 위한 Hold SNM 조건. Read Vmin: 읽기 동작 중 Read SNM 조건. Write Vmin: 쓰기 동작을 위한 Write Margin 조건. 실제 Vmin은 세 조건 중 가장 높은 값입니다. Vmin 저감을 위한 소자 수준 전략입니다. 첫째, Vth Mismatch 최소화입니다. Pelgrom 모델에 따라 σ(ΔVth) ∝ 1/√(WL)이므로, PD와 PG 트랜지스터를 크게 설계하면 Mismatch가 줄어 Vmin이 낮아집니다. 그러나 셀 크기가 증가하는 단점이 있습니다. 둘째, Undoped Channel + Metal Gate 사용으로 RDF 기인 Vth 변동성을 최소화합니다. FinFET이 Planar 대비 낮은 Vmin을 달성하는 주요 이유입니다. Assist 회로 기술입니다. Read Assist: 워드라인 전압을 정상보다 낮게(Sub-WL) 인가하거나, 비트라인에 음의 바이어스를 걸어 Read Disturb를 줄입니다. Write Assist: 워드라인 전압을 부스팅하거나, VDD를 순간 낮추어(CVDD Write Assist) PU 트랜지스터 구동 능력을 줄여 Write Margin을 개선합니다. 8T 셀 구조입니다. 읽기 전용 포트를 별도로 추가하여 읽기 동작 시 내부 노드와 분리합니다. Read SNM 개선으로 Read Vmin이 크게 낮아집니다. 면적이 6T 대비 증가하나 SRAM 컴파일러 최적화로 실사용합니다.",
+    "keywords": [
+      "SRAM Vmin",
+      "Vth Mismatch",
+      "RDF",
+      "8T Cell",
+      "Assist Circuit"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "SRAM Vmin은 Hold·Read·Write 세 조건 중 가장 높은 값으로 결정됩니다. 소자 수준 저감 전략은 세 가지입니다. 첫째, σΔVth(Vth Mismatch) 감소: 채널 도핑을 줄여 RDF를 낮추거나 GAA 구조로 전환합니다. 둘째, 8T 셀 설계: Read 포트를 별도 트랜지스터로 구성해 Read Disturb를 제거합니다. 셋째, Assist 기법: Read 시 BL 전압을 낮추는 Read Assist, Write 시 VDD를 일시 상승시키는 Write Assist로 동작 마진을 확보합니다."
+  },
+  {
+    "id": 51,
+    "jobRole": "소자",
+    "category": "메모리 소자",
+    "group": "other",
+    "difficulty": "심화",
+    "question": "Negative Word Line(NWL) 기술이 DRAM 특성에 미치는 영향을 분석하세요.",
+    "answer": "NWL(Negative Word Line) 기술은 DRAM 셀 트랜지스터가 비선택(Off) 상태일 때 워드라인(게이트) 전압을 0V가 아닌 음의 전압(예: -0.5V ~ -1V)으로 인가하여 셀 누설 전류를 최소화하는 기술입니다. 기존 DRAM에서 비선택 WL은 0V입니다. 셀 트랜지스터의 Vth가 낮아진 경우 Vgs = 0V에서 서브문턱 누설이 무시할 수 없는 수준입니다. 또한 스토리지 노드(드레인)에는 Vdd/2 정도의 전압이 인가되어 있으므로, WL이 0V이면 Vgd = -Vdd/2로 고전계가 게이트-드레인 중첩 영역에 집중됩니다. 이 고전계가 GIDL(Gate-Induced Drain Leakage) 누설을 야기합니다. NWL의 효과는 두 가지입니다. 첫째, 서브문턱 누설 억제입니다. WL을 음전압(Vbb)으로 낮추면 Vgs = Vbb - 0 < 0으로 더 강하게 Off 상태가 됩니다. 서브문턱 누설이 지수적으로 감소합니다. 둘째, GIDL 억제입니다. WL이 음전압이 되면 Vgd = Vbb - Vdd/2로 절대값이 감소하여 게이트-드레인 전계가 낮아집니다. GIDL이 크게 감소하여 Retention Time이 향상됩니다. 구현 시 고려 사항입니다. 음전압 발생 회로(Negative Charge Pump)가 추가됩니다. WL 스윙 폭(Vpp ~ Vbb)이 증가하여 구동 회로 설계 복잡도가 높아집니다.",
+    "keywords": [
+      "Negative Word Line",
+      "Ioff 감소",
+      "GIDL 감소",
+      "Retention Time",
+      "Charge Pump"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "NWL(Negative Word Line) 기술은 DRAM 셀 트랜지스터가 Off 상태일 때 워드라인 전압을 0V 대신 음의 전압(-0.5~-1V)으로 인가합니다. Off 시 Vgs = 0V에서 서브문턱 누설과 GIDL이 발생하는데, WL을 음전압으로 낮추면 Vgs가 음수가 되어 Ioff와 GIDL이 대폭 감소합니다. 이로써 커패시터 전하 손실이 줄어 Retention Time이 크게 향상됩니다. 단, 음전압 생성을 위한 차지 펌프 회로가 추가되고 게이트 산화막에 역방향 전기적 스트레스가 증가합니다."
+  },
+  {
+    "id": 52,
+    "jobRole": "소자",
+    "category": "메모리 소자",
+    "group": "other",
+    "difficulty": "심화",
+    "question": "NAND Flash의 3D Stacking(V-NAND) 기술에서 소자 특성 저하 요인과 대응 방안은?",
+    "answer": "V-NAND(Vertical NAND, 3D NAND) 기술은 셀을 수직으로 적층하여 평면 NAND 대비 집적도를 획기적으로 향상시킵니다. 그러나 적층 수(현재 200층 이상) 증가에 따른 소자 특성 저하 문제가 심각해집니다. 주요 저하 요인과 대응을 설명하겠습니다. 첫째, 폴리실리콘 채널 품질입니다. V-NAND의 채널은 수직 홀(Channel Hole) 내에 CVD로 증착한 폴리실리콘으로 형성됩니다. 폴리실리콘은 단결정 대비 그레인 경계(Grain Boundary)가 많아 이동도가 낮고 트랩 밀도가 높습니다. 대응으로 Macaroni 구조나 에피 채널 성장으로 개선합니다. 둘째, 층별 CD 불균일(Bowing)입니다. 깊은 홀 식각 시 홀 직경이 층에 따라 다릅니다. 상부는 넓고 하부는 좁아지는 Tapered 형태가 되어 층별 셀 특성이 달라집니다. Vth 분포가 층에 따라 산포됩니다. 셋째, 워드라인 저항 증가입니다. 적층 수 증가 시 텅스텐(W) 워드라인의 저항이 증가하여 RC 지연이 심화됩니다. 몰리브덴(Mo) 같은 저저항 금속 워드라인 도입이 연구됩니다. 넷째, 적층 Tier Bonding입니다. 200층 이상은 한 번에 식각하기 어려우므로 두 세그먼트를 별도 제조 후 W2W Bonding으로 접합합니다. 접합 계면의 전기적 연결 품질이 핵심입니다.",
+    "keywords": [
+      "V-NAND",
+      "Poly-Si Channel",
+      "ONO 균일도",
+      "Word Line RC",
+      "ALD"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "V-NAND에서 소자 특성 저하의 주요 요인은 네 가지입니다. 첫째, 폴리실리콘 채널의 그레인 경계 트랩으로 이동도가 낮고 Vth 변동이 큽니다. 둘째, 수직 홀 내 Gate Oxide·ONO 두께 불균일로 Vth 분포가 넓어집니다. 셋째, 층수 증가에 따른 워드라인 RC 지연으로 동작 속도가 저하됩니다. 넷째, 하부·상부층 간 열팽창 응력 차이가 소자 특성을 변화시킵니다. 대응으로 채널 폴리 결정화 품질 향상, ALD 균일도 개선, 저저항 워드라인 재료 적용이 지속적으로 이루어지고 있는 추세입니다."
+  },
+  {
+    "id": 53,
+    "jobRole": "소자",
+    "category": "메모리 소자",
+    "group": "other",
+    "difficulty": "심화",
+    "question": "DRAM의 Cell Transistor에서 Saddle-Fin 구조의 특성 향상 원리를 설명하세요.",
+    "answer": "Saddle-Fin 트랜지스터는 DRAM 셀 트랜지스터에서 평면 MOSFET의 SCE와 Retention 한계를 극복하기 위해 도입된 준-3D 구조입니다. 구조와 특성 향상 원리를 설명하겠습니다. 기판에 얕은 트렌치를 식각하여 능동 영역에 Fin을 형성합니다. Buried Word Line(게이트)이 이 Fin의 하부와 측면을 감싸는 형태입니다. 따라서 채널이 Fin 하부와 측면에 형성되어 게이트가 채널을 3면에서 제어합니다. 평면 MOSFET 대비 특성 향상을 설명하겠습니다. 첫째, 게이트 제어력 향상입니다. 3면 게이트 감싸기로 정전 제어력이 강화됩니다. 채널 길이(Effective Channel Length)를 Fin 깊이로 추가 확보합니다. 채널 길이를 줄이지 않고도 셀 면적을 축소할 수 있습니다. 둘째, SCE 억제입니다. 향상된 정전 제어로 DIBL과 Vth Roll-off가 개선됩니다. Punch-through 억제에 효과적입니다. 셋째, GIDL 감소입니다. Saddle-Fin 구조에서 드레인-게이트 중첩이 줄어 GIDL 전류가 감소합니다. NWL 기술과 결합 시 더욱 효과적입니다. 넷째, Retention 향상입니다. 위 개선들이 복합적으로 작용하여 Retention Time이 증가합니다. 공정 도전 과제입니다. 트렌치 식각 후 Fin 형성의 균일도 제어, Buried Word Line 금속의 균일한 매립, 내부 산화막 계면 품질 확보가 핵심입니다. 현재 20nm 이하 DRAM에서 표준 구조로 사용됩니다.",
+    "keywords": [
+      "Saddle-Fin",
+      "Buried Word Line",
+      "3면 게이트",
+      "DIBL 억제",
+      "Retention Time"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Saddle-Fin 트랜지스터는 DRAM 셀의 평면 MOSFET 한계를 극복한 준-3D 구조입니다. 얕은 트렌치를 식각해 Fin을 형성하고, Buried Word Line이 Fin의 하부와 측면을 감싸 채널을 3면에서 제어합니다. 평면 대비 개선점은 두 가지입니다. 첫째, 3면 게이트로 게이트 제어력이 향상되어 DIBL·Punch-through가 억제되고 GIDL이 감소해 Retention Time이 향상됩니다. 둘째, 채널 면적이 증가하여 동일 셀 면적에서 더 높은 Ion을 확보할 수 있습니다."
+  },
+  {
+    "id": 54,
+    "jobRole": "소자",
+    "category": "메모리 소자",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "차세대 메모리(MRAM, PCRAM, ReRAM)의 동작 원리와 DRAM/NAND 대비 기술적 장단점을 비교하세요.",
+    "answer": "MRAM, PCRAM, ReRAM은 차세대 비휘발성 메모리로, 기존 DRAM/NAND의 한계를 보완하는 각기 다른 물리 메커니즘을 사용합니다. MRAM(Magnetic RAM)입니다. STT-MRAM(Spin Transfer Torque)이 현재 양산 수준입니다. 자유층(Free Layer)의 자화 방향이 고정층(Pinned Layer)과 평행(저저항, P) 또는 반평행(고저항, AP)이 될 때 터널 자기 저항(TMR) 변화로 0/1을 구분합니다. 특성: 쓰기 속도 ~10ns, 무한대 Endurance, DRAM에 버금가는 속도. 과제: 작은 TMR 비율(~150%), 쓰기 전류 밀도가 높아 소자 크기 축소가 어렵습니다. PCRAM(Phase Change RAM)입니다. GST(GeSbTe) 같은 상변화 소재가 결정질(저저항)과 비정질(고저항) 사이를 전기 펄스로 전환합니다. 특성: MLC 구현 가능, NAND Flash 대체 가능한 집적도. 과제: 쓰기 에너지가 비교적 크고, 드리프트(저항이 시간에 따라 변화) 현상이 있습니다. Intel Optane이 대표 제품입니다. ReRAM(Resistive RAM)입니다. 금속 산화물(HfO₂, TaO₂ 등) 유전체에서 도전성 필라멘트(Conductive Filament)가 형성/단절되어 저항이 변화합니다. 특성: 초저전력, 단순 구조(1T1R 또는 1D1R), 시냅스 소자 응용(뉴로모픽). 과제: 필라멘트 형성의 무작위성으로 Cycle-to-Cycle 변동이 큽니다. DRAM/NAND 대비 비교입니다. 세 소재 모두 비휘발성으로 Refresh 불필요하나, DRAM의 속도와 NAND의 집적도를 동시에 능가하는 단일 소재는 아직 없습니다.",
+    "keywords": [
+      "STT-MRAM",
+      "PCRAM",
+      "ReRAM",
+      "TMR",
+      "Filament Variability"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "차세대 메모리 세 종류를 비교합니다. STT-MRAM은 자유층 자화 방향에 따른 터널 자기 저항(TMR) 차이로 데이터를 저장합니다. 쓰기 ~10ns와 무한 Endurance가 장점이나 셀 면적이 큰 것이 단점입니다. PCRAM은 GST 상변화 물질의 결정-비정질 저항 차이를 이용합니다. NAND보다 빠르고 Endurance가 높지만 Set 전류가 큰 것이 단점입니다. ReRAM은 필라멘트 형성·파괴로 저항을 변환합니다. 구조가 단순해 고집적이 가능하나 필라멘트 변동성 제어 기술 확보가 핵심 과제입니다."
+  },
+  {
+    "id": 55,
+    "jobRole": "소자",
+    "category": "박막·배선·접촉",
+    "group": "other",
+    "difficulty": "입문",
+    "question": "CVD(Chemical Vapor Deposition)와 PVD(Physical Vapor Deposition)의 차이점은?",
+    "answer": "CVD와 PVD는 반도체 박막 형성의 두 가지 핵심 방식으로, 원리와 적용 분야가 명확히 구분됩니다. CVD(Chemical Vapor Deposition)는 반응성 가스(전구체)를 공급하여 웨이퍼 표면에서 화학 반응을 일으켜 박막을 형성합니다. 종류로는 LPCVD, PECVD, SACVD, ALD 등이 있으며, 반응 온도와 압력에 따라 구분됩니다. CVD의 최대 장점은 스텝 커버리지(Step Coverage)가 우수하다는 점입니다. 가스가 모든 방향에서 표면에 도달하므로 깊은 Trench나 Via 내부도 균일하게 채울 수 있습니다. SiO₂, Si₃N₄, Poly-Si, W 플러그, Low-K 유전체 등에 활용됩니다. PVD(Physical Vapor Deposition)는 스퍼터링이나 열증발로 타겟 재료를 물리적으로 기화시켜 기판에 증착합니다. 화학 반응이 없어 순도가 매우 높고 조성 제어가 용이합니다. 그러나 방향성이 강해 스텝 커버리지가 낮아 고종횡비 구조 내부 코팅이 어렵습니다. 따라서 Ti, TiN, Ta, TaN 같은 Barrier Metal과 Cu 시드층 증착에 주로 사용됩니다. 최근에는 ALD(Atomic Layer Deposition)가 High-K 게이트 유전체와 초박막 Barrier 증착에 광범위하게 활용됩니다.",
+    "keywords": [
+      "CVD",
+      "PVD",
+      "스텝 커버리지",
+      "Sputtering",
+      "Barrier Metal"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "CVD와 PVD는 박막 형성의 두 핵심 방식입니다. CVD는 반응성 가스 전구체의 화학 반응으로 박막을 형성합니다. 스텝 커버리지(Step Coverage)가 우수해 깊은 트렌치·Via 내부도 균일하게 채울 수 있어 절연막·폴리실리콘·질화막 등 다양한 박막 형성에 사용됩니다. PVD는 스퍼터링 등 물리적 방법으로 타겟 원자를 날려 박막을 증착합니다. 스텝 커버리지가 낮아 고종횡비 구조에 불리하지만, Al·TiN·Cu Seed Layer 및 Barrier Metal 등 금속 박막 형성에 주로 활용됩니다."
+  },
+  {
+    "id": 56,
+    "jobRole": "소자",
+    "category": "박막·배선·접촉",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "Silicide 공정의 목적과 대표적인 재료(TiSi2, CoSi2, NiSi)를 설명하세요.",
+    "answer": "Silicide는 금속과 실리콘이 반응하여 형성되는 금속-실리콘 화합물로, 소자의 접촉 저항을 크게 낮추어 RC 지연을 감소시키는 역할을 합니다. 자기 정렬 공정인 Salicide(Self-Aligned Silicide) 방식으로 형성됩니다. 공정 순서는 다음과 같습니다. 금속(Ti, Co, Ni 등)을 전면 스퍼터링한 후 열처리하면 Si와 접촉한 영역에서만 Silicide가 형성되고, SiO₂나 Si₃N₄ Spacer 위에서는 반응이 일어나지 않습니다. 이후 미반응 금속을 선택적으로 Wet Etch로 제거하면 소스/드레인과 게이트 위에 자기 정렬로 Silicide가 남습니다. 재료별 특성을 비교하겠습니다. TiSi₂는 면저항이 낮지만 미세화 시 좁은 라인에서 저저항 C54상으로의 변환 온도가 높아져 적용이 어렵습니다. CoSi₂는 이 문제를 개선하여 130~90nm 노드에서 광범위하게 사용되었습니다. NiSi는 형성 온도가 낮고(400~500°C) 면저항이 우수하며, Si 소비량이 적어 얕은 접합 소자에 적합합니다. 현재 45nm 이하에서 NiSi가 표준입니다. NiSiGe는 SiGe 소스/드레인을 갖는 PMOS에 활용됩니다.",
+    "keywords": [
+      "Silicide",
+      "Salicide",
+      "Contact Resistance",
+      "NiSi",
+      "Selective Wet Etch"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Silicide는 금속과 실리콘의 반응으로 형성되는 금속-실리콘 화합물로, Salicide(자기 정렬) 공정을 통해 소스/드레인·게이트의 접촉 저항을 낮추고 RC 지연을 감소시킵니다. 재료별 특성: TiSi₂는 저저항이나 미세화 시 C49→C54 상변화가 어렵습니다. CoSi₂는 0.25~0.13μm 노드에서 사용됩니다. NiSi는 저온 형성(400°C)과 낮은 비저항으로 90nm 이하 표준이며 얕은 접합 소자에 유리합니다. 미반응 금속을 선택적 Wet Etch로 제거하여 자기 정렬이 완성됩니다."
+  },
+  {
+    "id": 57,
+    "jobRole": "소자",
+    "category": "박막·배선·접촉",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "Metal Interconnect에서 Barrier Metal이 필요한 이유를 설명하세요.",
+    "answer": "Metal Interconnect에서 Barrier Metal은 배선 금속(주로 Cu)과 주변 물질 사이에 삽입되어 금속 확산을 방지하는 매우 중요한 역할을 합니다. Barrier Metal이 필요한 이유를 상세히 설명하겠습니다. 첫째, Cu의 확산 문제입니다. Cu는 Al보다 비저항이 낮아 배선 금속으로 우수하지만, 실리콘 내에서 확산 계수가 매우 크고 실리콘 밴드갭 내에 Deep Level Trap을 형성합니다. 이는 소자 누설 전류 증가와 신뢰성 저하를 야기합니다. 또한 SiO₂ Low-K 유전체로의 Cu 확산은 유전 특성을 저하시킵니다. 둘째, 접착성 문제입니다. Cu는 유전체에 대한 접착성이 낮아 박리가 발생할 수 있습니다. Barrier Metal의 역할은 세 가지입니다. 확산 방지(Diffusion Barrier): Cu 원자가 유전체나 실리콘으로 침투하는 것을 물리적으로 차단합니다. 접착층(Adhesion Layer): Cu 씨드층과 유전체 사이의 접착력을 제공합니다. 시드층 지지: 후속 Cu 전기 도금(ECP)을 위한 시드층의 균일한 성장을 지원합니다. 현재 사용 재료는 Ta/TaN 이중층이 표준입니다. TaN이 확산 방지 역할을, Ta가 Cu와의 접착층 역할을 합니다. PVD 스퍼터링으로 증착하며, 미세화에 따라 ALD TaN 또는 Ru 등의 대안 재료도 연구 중입니다.",
+    "keywords": [
+      "Barrier Metal",
+      "Cu Diffusion",
+      "Deep Level Trap",
+      "Adhesion",
+      "Ta/TaN"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Barrier Metal은 Cu 배선과 주변 유전체·실리콘 사이에 삽입되는 얇은 금속층입니다. 필요한 이유는 세 가지입니다. 첫째, Cu 확산 방지: Cu는 실리콘·SiO₂ 내에서 빠르게 확산해 Deep Level Trap을 형성하고 누설 전류를 증가시킵니다. 둘째, Cu와 유전체 간 접착력 향상입니다. 셋째, 전기화학적 부식 방지입니다. 대표 재료로 Ta/TaN, TiN이 사용되며, 첨단 노드에서는 저저항 Ru·Mo 기반 Barrier로 전환하여 Contact 전체 저항을 효과적으로 줄이고 있습니다."
+  },
+  {
+    "id": 58,
+    "jobRole": "소자",
+    "category": "박막·배선·접촉",
+    "group": "other",
+    "difficulty": "입문",
+    "question": "반도체 공정에서 Deposition과 Etch의 스텝 커버리지(Step Coverage)란 무엇인가요?",
+    "answer": "스텝 커버리지(Step Coverage)는 단차(Step) 구조를 가진 표면에 박막을 증착할 때, 상부 평탄면 대비 단차 측면과 하부의 박막 두께 비율을 의미합니다. 스텝 커버리지 = (측벽 또는 하부 두께) / (상부 평탄면 두께) × 100%로 정의됩니다. 이상적인 스텝 커버리지는 100%입니다. 공정별 스텝 커버리지를 비교하겠습니다. PVD(스퍼터링)는 타겟에서 날아오는 입자가 직진성을 가져 방향성이 강합니다. 단차 측면과 하부에는 증착량이 현저히 적어 스텝 커버리지가 낮습니다. 고종횡비 Via나 트렌치에서 입구가 막히는 오버행(Overhang) 현상과 보이드(Void) 형성이 발생합니다. CVD는 반응성 가스가 모든 방향에서 표면에 도달하므로 스텝 커버리지가 PVD보다 우수합니다. LPCVD는 반응 속도 제한 모드에서 우수한 스텝 커버리지를 보입니다. ALD(Atomic Layer Deposition)는 자기 제한적(Self-limiting) 표면 반응으로 원자 단층씩 증착하므로 완벽에 가까운 스텝 커버리지를 달성합니다. 고종횡비 구조에도 균일한 증착이 가능합니다. 응용 측면에서, 3D NAND의 수십 층 스택 구조, FinFET의 Gate 산화막, 좁은 Via 내 Barrier Metal 증착 모두 높은 스텝 커버리지가 요구됩니다.",
+    "keywords": [
+      "스텝 커버리지",
+      "Aspect Ratio",
+      "PVD",
+      "CVD",
+      "ALD"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "스텝 커버리지(Step Coverage)는 단차 구조에서 상부 평탄면 대비 측벽과 하부의 박막 두께 비율(%)입니다. PVD(스퍼터링)는 타겟 원자가 직진성으로 날아와 측벽·하부 증착이 불균일하여 스텝 커버리지가 낮습니다. 고종횡비 구조에서 입구가 먼저 막히는 Overhang 문제가 발생합니다. CVD는 가스가 모든 방향에서 표면에 도달하여 스텝 커버리지가 우수합니다. ALD는 자기포화 표면 반응으로 100% 스텝 커버리지를 달성하여 극박막 균일 증착과 고종횡비 구조의 완전한 충진 공정에 가장 적합합니다."
+  },
+  {
+    "id": 59,
+    "jobRole": "소자",
+    "category": "박막·배선·접촉",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "Contact/Via 저항이 소자 성능에 미치는 영향과 저감 방법을 설명하세요.",
+    "answer": "Contact/Via 저항은 트랜지스터 소스/드레인과 첫 번째 금속 배선(M1) 사이의 Contact, 그리고 금속층 간 Via에서 발생하는 계면 저항으로, 소자 성능(RC 지연)에 직접 영향을 줍니다. 소자 미세화에 따라 Contact 크기가 줄면서 저항이 급증하는 문제가 심각해집니다. Contact 저항의 구성 요소를 분석하겠습니다. Total Contact Resistance = 비접촉 저항(Interfacial/Quantum Resistance) + Barrier Metal 저항 + Plug 금속 저항으로 구성됩니다. 비접촉 저항(ρc/A)이 Contact 크기(A)의 감소에 따라 급격히 증가합니다. ρc는 계면 도핑 농도와 금속-반도체 일함수 차이에 의존합니다. 저항 개선 방법은 여러 가지입니다. 첫째, 소스/드레인 도핑 최적화입니다. 계면 Si 도핑을 최대한 높여 터널링 저항을 낮춥니다. SiGe, SiC 에피 S/D로 고농도 도핑 및 Silicide 반응성을 개선합니다. 둘째, Silicide 최적화입니다. NiSi가 표준이나 NiPtSi나 NiSiGe로 안정성을 향상합니다. 셋째, Barrier Metal 최소화입니다. TiN Barrier를 얇게 하거나, TiSi₂ 직접 접촉 구조를 채택합니다. 넷째, 신규 금속 라이너 도입입니다. Ru(루테늄)는 벌크 저항이 낮고 Barrier 없이도 Cu 확산을 차단하여 최신 노드에서 적용됩니다. Co(코발트) 플러그도 채택됩니다. 다섯째, Epi Contact 구조입니다. Si 에피를 S/D 위에 성장시켜 Contact 면적을 늘리는 구조입니다.",
+    "keywords": [
+      "Contact Resistance",
+      "Via Resistance",
+      "Silicide",
+      "Barrier Metal",
+      "Ru/Co Plug"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Contact/Via 저항은 소자 미세화로 접촉 면적이 줄면서 RC 지연을 증가시키는 성능 저해 요인입니다. 저항 구성은 계면 저항 + Barrier Metal 저항 + Plug 금속 저항입니다. 저감 방법은 세 가지입니다. 첫째, Silicide(NiSi, NiSiGe)로 계면 저항을 최소화합니다. 둘째, 도핑 농도를 높여 Schottky 장벽을 줄입니다. 셋째, Ru·Co 같은 저저항 플러그 금속을 사용합니다. 2nm 이하 노드에서 Contact 저항이 전체 소자 저항의 지배적 요인이 됩니다."
+  },
+  {
+    "id": 60,
+    "jobRole": "소자",
+    "category": "소자 기초·전기 특성",
+    "group": "other",
+    "difficulty": "입문",
+    "question": "MOSFET의 동작 원리를 설명하세요. (Threshold Voltage, Channel, Drain Current)",
+    "answer": "MOSFET은 Metal-Oxide-Semiconductor Field-Effect Transistor의 약자로, 게이트 전압을 통해 소스-드레인 간 채널을 형성하고 전류 흐름을 제어하는 소자입니다. 동작 원리를 단계적으로 설명하겠습니다. 먼저, 게이트에 전압을 인가하면 게이트 산화막 아래의 반도체 표면에 전기장이 형성됩니다. P형 기판 기준으로 게이트 전압이 문턱전압(Vth)에 도달하면 표면에 반전층, 즉 전자 채널이 형성됩니다. 이 상태에서 드레인 전압을 인가하면 소스에서 드레인으로 전자가 이동하며 Drain Current가 흐릅니다. 선형 영역에서는 Vds가 작을 때 전류가 Vds에 비례하고, Vgs-Vth보다 Vds가 커지면 채널이 핀치오프 되어 포화 영역으로 진입합니다. 포화 영역에서는 전류가 Vds와 무관하게 (Vgs-Vth)²에 비례하여 결정됩니다. Vth는 게이트 산화막 두께(Tox), 기판 도핑 농도(Na), 플랫밴드 전압(Vfb)에 의해 결정되며, 소자 설계에서 가장 핵심적인 파라미터입니다. MOSFET의 이러한 동작 원리를 정확히 이해하는 것이 공정 설계 및 소자 최적화의 출발점이라고 생각합니다.",
+    "keywords": [
+      "MOSFET",
+      "Threshold Voltage",
+      "Channel",
+      "Drain Current",
+      "Saturation"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "MOSFET은 게이트 전압으로 소스-드레인 간 채널 형성을 제어하는 반도체 소자입니다. P형 기판에서 게이트 전압이 문턱전압(Vth)을 초과하면 표면에 전자 반전층(채널)이 형성됩니다. 드레인 전압을 인가하면 소스에서 드레인으로 전자가 이동하며 Drain Current가 흐릅니다. 선형 영역에서 Id는 Vds에 비례하고, 핀치오프 이후 포화 영역에서는 (Vgs-Vth)²에 비례합니다. 게이트 전압으로 전류 크기를 제어하는 전압 구동 소자이며, 현대 디지털·아날로그 집적회로에서 가장 기본이 되는 소자입니다."
+  },
+  {
+    "id": 61,
+    "jobRole": "소자",
+    "category": "소자 기초·전기 특성",
+    "group": "other",
+    "difficulty": "입문",
+    "question": "N-type과 P-type 반도체의 차이점은 무엇인가요?",
+    "answer": "N형과 P형 반도체는 순수 실리콘에 불순물을 의도적으로 첨가하는 도핑 공정을 통해 만들어집니다. N형 반도체는 인(P), 비소(As) 같은 5가 원소를 도핑하여 형성합니다. 5가 원소는 실리콘과 공유결합 후 전자 하나가 남아 자유 전자로 작용하므로, 전자가 다수 캐리어가 됩니다. 페르미 준위는 전도대 근처에 위치하며, 전기 전도는 주로 전자에 의해 이루어집니다. P형 반도체는 붕소(B) 같은 3가 원소를 도핑합니다. 3가 원소는 실리콘과 결합 시 전자가 하나 부족하여 정공(Hole)이 생기므로, 정공이 다수 캐리어가 됩니다. 페르미 준위는 가전자대 근처에 위치합니다. 소자 관점에서 N형은 NMOS 트랜지스터의 소스/드레인 영역에, P형은 PMOS의 소스/드레인 영역에 사용됩니다. CMOS 공정에서 N-well에 PMOS를, P형 기판에 NMOS를 구성하는 방식이 일반적입니다. 도핑 농도는 소자의 문턱전압, 접합 특성, 누설 전류에 직접적인 영향을 주기 때문에, 정밀한 이온 주입 제어가 공정에서 매우 중요합니다.",
+    "keywords": [
+      "N-Type",
+      "P-Type",
+      "Donor",
+      "Acceptor",
+      "Fermi Level"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "N형 반도체는 5가 원소(P, As)를 도핑하여 자유 전자가 다수 캐리어인 반도체입니다. 도너 원자가 여분의 전자를 제공하고 페르미 준위가 전도대 근처에 위치합니다. P형 반도체는 3가 원소(B)를 도핑하여 정공이 다수 캐리어인 반도체입니다. 억셉터 원자가 정공을 생성하고 페르미 준위가 가전자대 근처에 위치합니다. CMOS 회로에서 NMOS는 P형 기판(또는 P-well)에, PMOS는 N-well에 각각 형성됩니다. 두 타입 반도체의 전기 전도도는 도핑 농도와 캐리어 이동도에 각각 정비례합니다."
+  },
+  {
+    "id": 62,
+    "jobRole": "소자",
+    "category": "소자 기초·전기 특성",
+    "group": "other",
+    "difficulty": "입문",
+    "question": "PN 접합 다이오드의 순방향/역방향 바이어스 동작을 설명하세요.",
+    "answer": "PN 접합은 P형과 N형 반도체를 접합한 구조로, 계면에 공핍층(Depletion Region)과 내부 전위 장벽(Built-in Potential, Vbi)이 형성됩니다. 열평형 상태에서 다수 캐리어의 확산과 소수 캐리어의 드리프트가 균형을 이루어 전류는 흐르지 않습니다. 순방향 바이어스에서는 P에 양전압, N에 음전압을 인가합니다. 이로 인해 공핍층이 좁아지고 내부 전위 장벽이 낮아져 다수 캐리어가 접합을 넘어 확산합니다. 소수 캐리어 주입이 증가하며 지수함수적으로 전류가 증가합니다. 이를 Shockley 방정식 I = I₀(e^(qV/kT) - 1)으로 표현합니다. 역방향 바이어스에서는 반대로 공핍층이 넓어지고 전위 장벽이 높아져 다수 캐리어는 이동하지 못합니다. 소수 캐리어에 의한 역포화 전류(I₀)만 매우 작게 흐릅니다. 역방향 전압이 항복 전압(Vbr)을 초과하면 고전계에 의한 애벌런치 항복 또는 터널링에 의한 제너 항복이 발생합니다. ESD 보호 소자 설계 시 이 항복 특성을 적극적으로 활용합니다.",
+    "keywords": [
+      "PN Junction",
+      "Depletion Region",
+      "Forward Bias",
+      "Reverse Bias",
+      "Breakdown"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "PN 접합 다이오드는 P형과 N형 반도체 접합 계면에 공핍층과 내부 전위 장벽(Vbi)이 형성됩니다. 순방향 바이어스(P에 양전압)에서는 공핍층이 좁아지고 장벽이 낮아져 다수 캐리어가 확산하며, Shockley 방정식 I = I₀(e^(qV/kT)-1)에 따라 전류가 지수적으로 증가합니다. 역방향 바이어스에서는 공핍층이 넓어지고 장벽이 높아져 소수 캐리어에 의한 매우 작은 역포화 전류만 흐릅니다. 역방향 항복 전압 이상에서는 캐리어 증배(Avalanche) 또는 제너(Zener) 터널링 항복이 발생합니다."
+  },
+  {
+    "id": 63,
+    "jobRole": "소자",
+    "category": "소자 기초·전기 특성",
+    "group": "other",
+    "difficulty": "입문",
+    "question": "반도체 소자에서 Doping 농도가 소자 특성에 미치는 영향을 설명하세요.",
+    "answer": "도핑 농도는 반도체 소자의 전기적 특성을 가장 근본적으로 결정하는 파라미터입니다. 영역별로 나누어 설명하겠습니다. 채널 도핑 농도는 문턱전압(Vth)에 직접 영향을 줍니다. 기판 농도(Na 또는 Nd)가 높을수록 Vth가 증가하며, 이를 이용해 이온 주입으로 Vth를 의도적으로 조절합니다. 고농도 채널 도핑은 SCE 억제에 도움되지만 이동도를 저하시킵니다. 소스/드레인 도핑 농도는 접합 저항과 직결됩니다. 고농도(n+, p+) 도핑으로 접촉 저항을 낮춥니다. 그러나 너무 높은 농도는 채널 측으로의 확산을 야기해 Short Channel Effect를 악화시킬 수 있습니다. Halo/Pocket 이온 주입은 채널 끝단에 역방향 도핑을 추가하여 DIBL과 Vth Roll-off를 억제합니다. Well 도핑 농도는 소자 분리와 Latch-up 방지에 영향을 줍니다. 도핑 농도와 이동도 관계도 중요합니다. 농도 증가 시 불순물 이온에 의한 쿨롱 산란(Coulomb Scattering)이 증가하여 이동도가 감소합니다. 따라서 고성능 소자는 채널 도핑을 최소화하고 대신 일함수 조절(Metal Gate)로 Vth를 제어하는 방향으로 발전했습니다.",
+    "keywords": [
+      "Doping Concentration",
+      "Vth",
+      "Mobility",
+      "Contact Resistance",
+      "SCE"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "도핑 농도는 소자 특성을 결정하는 핵심 파라미터입니다. 채널 도핑 농도(Na)가 높으면 Vth가 증가하고 SCE가 억제되지만 이동도가 저하됩니다. 이온 주입으로 Vth를 정밀 조절합니다. 소스/드레인 도핑(n+/p+)이 높을수록 접촉 저항이 낮아지고 Ion이 증가하지만, 과도하면 채널 방향 확산으로 SCE가 심화됩니다. 기판 도핑 농도는 공핍층 깊이와 항복 전압에 영향을 줍니다. 도핑 농도와 소자 특성의 상관관계를 이해하고, 이온 주입량·어닐링 조건을 정밀하게 제어하는 것이 소자 설계의 핵심입니다."
+  },
+  {
+    "id": 64,
+    "jobRole": "소자",
+    "category": "소자 기초·전기 특성",
+    "group": "other",
+    "difficulty": "입문",
+    "question": "Threshold Voltage(Vth)란 무엇이며, 어떤 파라미터에 의해 결정되나요?",
+    "answer": "Threshold Voltage(Vth)는 MOSFET에서 채널이 형성되어 드레인 전류가 의미 있게 흐르기 시작하는 임계 게이트 전압으로, 소자 설계의 가장 중요한 파라미터입니다. Vth 결정 요인을 수식과 함께 설명하겠습니다. Vth = Vfb + 2φF + Qd/Cox 로 표현됩니다. 여기서 Vfb는 플랫밴드 전압으로 산화막 고정 전하와 일함수 차에 의해 결정됩니다. 2φF는 표면 전위로 기판 도핑 농도(Na)에 의존합니다. Qd는 공핍층 전하량이며 Cox는 게이트 산화막 커패시턴스입니다. 따라서 Vth에 영향을 주는 주요 파라미터는 다음과 같습니다. 첫째, Gate Oxide 두께(Tox): Cox = εox/Tox이므로 Tox가 얇아지면 Cox 증가, Vth 변동에 민감합니다. 둘째, 기판 도핑 농도(Na): Na가 증가하면 φF와 Qd 모두 증가하여 Vth가 높아집니다. 셋째, 기판 바이어스(Vbs): 역바이어스 인가 시 공핍층이 넓어져 Vth가 증가합니다(Body Effect). 넷째, Metal Gate 일함수: HKMG 공정에서 금속 게이트의 일함수 선택으로 Vth를 조절합니다. 공정에서는 채널 이온 주입(Vth Implant)과 Metal Gate 일함수 조절을 조합하여 Multi-Vth 소자를 구현합니다.",
+    "keywords": [
+      "Threshold Voltage",
+      "Flat-Band Voltage",
+      "2φF",
+      "Qd/Cox",
+      "Work Function"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Vth(Threshold Voltage)는 MOSFET에서 채널 반전층이 형성되어 드레인 전류가 의미 있게 흐르기 시작하는 임계 게이트 전압입니다. 수식: Vth = Vfb + 2φF + Qd/Cox. Vfb(플랫밴드 전압)는 산화막 전하와 게이트-기판 일함수 차에 의해 결정됩니다. 2φF는 표면 포텐셜로 기판 도핑 농도에 의존합니다. Qd는 공핍층 전하량이고 Cox는 게이트 산화막 커패시턴스입니다. 결론적으로 Vth는 기판 도핑 농도, 산화막 두께, 게이트 일함수, 산화막 전하량에 의해 결정됩니다."
+  },
+  {
+    "id": 65,
+    "jobRole": "소자",
+    "category": "소자 기초·전기 특성",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "Subthreshold Swing이란 무엇인지 설명하세요.",
+    "answer": "Subthreshold Swing(SS)은 MOSFET이 문턱전압 이하 영역에서 게이트 전압 변화에 따라 드레인 전류가 얼마나 급격히 변하는지를 나타내는 지표입니다. SS = dVgs / d(log Id) 로 정의되며, 단위는 mV/decade입니다. 물리적 의미는 SS값이 작을수록 작은 게이트 전압 변화로 소자를 On/Off할 수 있다는 의미이며, 저전력 스위칭 성능을 나타냅니다. 수식으로는 SS = (kT/q) × ln(10) × (1 + Cd/Cox)로 표현됩니다. 여기서 kT/q는 열전압(약 26mV at 300K), Cd는 공핍층 커패시턴스, Cox는 산화막 커패시턴스입니다. 이상적인 경우(Cd << Cox)에 SS = 60mV/dec(at room temp)가 됩니다. 이를 물리적 한계(Boltzmann Limit)라고 합니다. SS에 영향을 주는 요인은 두 가지입니다. 첫째, Cox를 높이면(Tox 감소 또는 High-K 사용) Cd/Cox 비율이 낮아져 SS가 개선됩니다. 둘째, 인터페이스 트랩 밀도(Dit)가 높으면 SS가 증가합니다. Short Channel Effect로 인해 SS가 60mV/dec 이상으로 악화되는 경우, 소자 스위칭 특성이 저하되고 Off 전류가 증가합니다. 이를 극복하기 위해 터널 FET(TFET)나 Negative Capacitance FET 같은 차세대 소자가 연구되고 있습니다.",
+    "keywords": [
+      "Subthreshold Swing",
+      "Boltzmann Limit",
+      "60mV/dec",
+      "Cox",
+      "Fully Depleted"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Subthreshold Swing(SS)은 MOSFET이 문턱전압 이하에서 게이트 전압 변화에 따라 드레인 전류가 변하는 기울기입니다. SS = dVgs/d(log Id)(mV/dec)로 정의되며 값이 작을수록 작은 전압으로 소자를 On/Off할 수 있어 저전력 스위칭에 유리합니다. 이상적 하한값(Boltzmann Limit)은 실온(300K)에서 60mV/dec입니다. SS = (kT/q)×ln10×(1+Cd/Cox)로 표현되며, Cox를 높이거나 Fully Depleted 구조(Cd→0)로 이상값에 가깝게 할 수 있습니다."
+  },
+  {
+    "id": 66,
+    "jobRole": "소자",
+    "category": "소자 기초·전기 특성",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "반도체에서 Leakage Current의 종류와 발생 원인을 설명하세요.",
+    "answer": "반도체 소자의 누설 전류(Leakage Current)는 소자가 Off 상태일 때도 흐르는 불필요한 전류로, 소비 전력 증가와 DRAM 데이터 손실의 핵심 원인입니다. 주요 종류와 발생 원인을 설명하겠습니다. 첫째, 서브문턱 누설(Subthreshold Leakage)입니다. Vgs < Vth 구간에서 소수 캐리어에 의해 소스-드레인 간 전류가 흐릅니다. Ioff = I₀ × exp(Vgs/n×VT) 형태로, Vth 감소나 SS 악화 시 지수적으로 증가합니다. 가장 큰 누설 원인으로, 고온에서 더욱 심각해집니다. 둘째, Gate Oxide 터널링 누설입니다. Tox가 수 나노미터 이하로 얇아지면 직접 터널링(Direct Tunneling)이 발생하여 게이트에서 채널로 전류가 흐릅니다. High-K 유전체(HfO₂ 등) 도입으로 물리적 두께를 유지하면서 EOT를 줄여 이 문제를 해결합니다. 셋째, Junction 역방향 누설(GIDL, Band-to-Band Tunneling 포함)입니다. PN 접합의 소수 캐리어 드리프트에 의해 발생하며, Gate-Induced Drain Leakage(GIDL)는 고전계 영역에서 밴드 간 터널링으로 발생합니다. 넷째, 펀치스루(Punch-through) 전류로 채널이 짧아질 때 소스-드레인 공핍층이 연결되어 발생합니다. DRAM에서는 이 누설들이 복합적으로 작용해 Retention Time을 결정합니다.",
+    "keywords": [
+      "Leakage Current",
+      "Subthreshold Leakage",
+      "Gate Oxide Tunneling",
+      "GIDL",
+      "Static Power"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "반도체 소자의 누설 전류(Leakage)는 Off 상태에서도 흐르는 전류로 정적 소비 전력과 DRAM Retention에 직결됩니다. 주요 종류는 세 가지입니다. 서브문턱 누설: Vgs < Vth에서 소수 캐리어 확산으로 S/D 간 전류가 흐르며, Vth 감소 시 지수적으로 증가합니다. Gate Oxide 터널링: 얇은 산화막을 통한 직접 터널링으로 발생하며 High-K로 억제합니다. GIDL(Gate-Induced Drain Leakage): 게이트-드레인 중첩 영역 고전계로 발생하며 DRAM Retention에 치명적입니다."
+  },
+  {
+    "id": 67,
+    "jobRole": "소자",
+    "category": "소자 기초·전기 특성",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "Gate Oxide의 역할과 두께가 얇아질 때 발생하는 문제점은?",
+    "answer": "Gate Oxide는 MOSFET에서 게이트 전극과 실리콘 채널 사이에 위치한 절연막으로, MOS 커패시터를 형성하여 전기장으로 채널을 제어하는 핵심 구성 요소입니다. Gate Oxide의 역할은 두 가지입니다. 첫째, 전기적 절연으로 게이트와 채널 간 직류 전류를 차단합니다. 둘째, 커패시터로서 Cox = εox/Tox가 크면 같은 게이트 전압으로 채널에 더 많은 전하를 유도하여 소자 성능이 향상됩니다. Tox가 얇아질 때의 장점은 명확합니다. Cox 증가로 Ion이 향상되고, 채널 제어력(게이트 전기장) 강화로 SCE가 억제되며, Vth도 감소합니다. 그러나 Tox가 1nm 수준으로 얇아지면 심각한 문제가 발생합니다. 첫째, 직접 터널링(Direct Tunneling) 누설 전류가 지수적으로 증가합니다. 둘째, TDDB(Time-Dependent Dielectric Breakdown)로 산화막 수명이 단축됩니다. 셋째, Poly-Si Gate의 공핍 현상(Poly Depletion)으로 실효 Tox가 증가합니다. 이를 해결하기 위해 45nm 노드부터 High-K 유전체(HfO₂, ε~22)가 도입되었습니다. 물리적 두께를 유지하면서 EOT(Equivalent Oxide Thickness)를 줄여 누설 억제와 성능 향상을 동시에 달성합니다.",
+    "keywords": [
+      "Gate Oxide",
+      "Cox",
+      "Tox",
+      "Direct Tunneling",
+      "TDDB"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Gate Oxide는 게이트 전극과 채널 사이의 절연막으로 두 가지 역할을 합니다. 전기적 절연으로 게이트-채널 간 직류를 차단하고, MOS 커패시터(Cox = εox/Tox)로서 게이트 전압으로 채널 전하를 유도합니다. Tox가 얇아지면 Cox 증가로 Ion이 향상되고 게이트 제어력이 강화되는 장점이 있습니다. 그러나 ~2nm 이하에서 직접 터널링 누설이 기하급수적으로 증가하고 TDDB 신뢰성이 급격히 저하됩니다. 이를 해결하기 위해 High-K 유전체(HfO₂)가 45nm 이후 도입되었습니다."
+  },
+  {
+    "id": 68,
+    "jobRole": "소자",
+    "category": "소자 기초·전기 특성",
+    "group": "other",
+    "difficulty": "입문",
+    "question": "Mobility(이동도)란 무엇이며, 전자와 정공의 이동도 차이가 소자 설계에 미치는 영향은?",
+    "answer": "이동도(Mobility, μ)는 단위 전기장 당 캐리어의 드리프트 속도로 정의되며, μ = v_drift / E 로 표현됩니다. 반도체 소자 성능을 결정하는 핵심 물성치입니다. 전자와 정공의 이동도를 비교하겠습니다. 순수 실리콘에서 전자 이동도(μn)는 약 1400 cm²/Vs, 정공 이동도(μp)는 약 450 cm²/Vs로 전자가 약 3배 높습니다. 전자 이동도가 높은 이유는 유효 질량(effective mass)의 차이입니다. 전자의 유효 질량이 정공보다 작아 같은 전기장에서 더 빠르게 가속됩니다. 소자 설계에 미치는 영향은 상당합니다. NMOS는 전자가 채널 캐리어이므로 PMOS 대비 동일 채널 크기에서 구동 전류(Ion)가 약 2~3배 큽니다. CMOS 설계에서 PMOS의 채널 폭(W)을 NMOS의 2~3배로 설계하여 상승/하강 속도를 균형 맞춥니다. 이동도를 높이는 방법으로 Strain Engineering이 핵심입니다. NMOS 채널에 Tensile Strain을 가하면 전자 이동도가 향상됩니다. 질화막(Si₃N₄) 응력 라이너나 SMT(Stress Memorization Technique)가 사용됩니다. PMOS 채널에는 SiGe 소스/드레인으로 Compressive Strain을 가하여 정공 이동도를 향상시킵니다. 도핑 증가, 온도 상승, 표면 조도 증가는 산란을 강화하여 이동도를 저하시킵니다.",
+    "keywords": [
+      "Mobility",
+      "Electron Mobility",
+      "Hole Mobility",
+      "PMOS Width",
+      "Strain Engineering"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "이동도(Mobility, μ)는 단위 전기장당 캐리어의 드리프트 속도로, μ = v/E [cm²/Vs]로 정의됩니다. 실리콘에서 전자 이동도(μn ≈ 1400)는 정공(μp ≈ 450)보다 약 3배 높습니다. 소자 설계 영향: NMOS는 μn이 높아 동일 크기에서 PMOS보다 전류가 크므로, 균형을 위해 PMOS 폭을 약 3배로 설계합니다. 이동도는 도핑 농도 증가·계면 결함·온도 상승 시 저하됩니다. Strain Engineering으로 Si 이동도를 향상시켜 소자 성능을 개선하는 것이 현대 공정의 표준 기법입니다."
+  },
+  {
+    "id": 69,
+    "jobRole": "소자",
+    "category": "소자 기초·전기 특성",
+    "group": "other",
+    "difficulty": "입문",
+    "question": "Well(N-well, P-well) 구조의 역할을 설명하세요.",
+    "answer": "Well은 반도체 기판 내에 이온 주입으로 형성하는 도핑 영역으로, CMOS 소자 구성의 기반이 됩니다. Well의 역할과 구조를 설명하겠습니다. CMOS 공정에서 Well의 필요성을 먼저 이해해야 합니다. NMOS는 P형 기판(또는 P-well)에, PMOS는 N형 영역(N-well)에 각각 형성되어야 합니다. 초기 공정은 P형 기판에 N-well만 형성하는 Single-Well 방식이었지만, 현재는 Twin-Well 구조가 표준입니다. Twin-Well 공정에서는 N-well과 P-well을 각각 독립적으로 도핑 농도와 깊이를 최적화할 수 있습니다. Well의 주요 역할은 다음 세 가지입니다. 첫째, 소자 분리 및 기판 제공입니다. 각 소자 타입에 맞는 기판 환경을 제공하고, 서로 다른 Well 간에 PN 접합이 형성되어 전기적 분리가 이루어집니다. 둘째, Vth 조절입니다. Well 도핑 농도와 프로파일을 조정하여 NMOS와 PMOS의 문턱전압을 독립적으로 설정합니다. 채널 이온 주입과 결합하여 Multi-Vth 소자를 구현합니다. 셋째, Latch-up 방지입니다. N-well과 P-substrate(P-well)가 기생 PNP와 NPN 트랜지스터를 형성하여 Latch-up이 발생할 수 있습니다. Well Contact(Tap)을 소자 근처에 배치하여 기판 저항을 낮추고 Latch-up을 억제합니다. Deep N-well(DNW) 구조는 P-well을 완전히 N-well로 둘러싸서 기판 노이즈 격리에 활용됩니다.",
+    "keywords": [
+      "Well Structure",
+      "N-Well",
+      "P-Well",
+      "Body Effect",
+      "Guard Ring"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Well은 이온 주입으로 기판에 형성하는 도핑 영역으로 CMOS 구성의 기반입니다. NMOS는 P-well에, PMOS는 N-well에 형성됩니다. 현재 Twin-Well 구조가 표준으로, N-well과 P-well을 독립적으로 도핑 농도와 깊이를 최적화합니다. Well의 역할은 세 가지입니다. 첫째, NMOS·PMOS를 동일 기판에 구현합니다. 둘째, Well 전압 조절로 Body Effect와 Vth를 제어합니다. 셋째, N+·P+ Guard Ring의 기반이 되어 Latch-up 방지에 기여합니다."
+  },
+  {
+    "id": 70,
+    "jobRole": "소자",
+    "category": "소자 기초·전기 특성",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "Body Effect(기판 바이어스 효과)란 무엇이며 회로 설계에 어떤 영향을 주나요?",
+    "answer": "Body Effect(기판 바이어스 효과)는 MOSFET에서 소스와 기판(Body) 사이에 역방향 전압(Vsb)이 인가될 때 문턱전압(Vth)이 증가하는 현상입니다. 발생 원리를 설명하겠습니다. 정상적으로 기판은 소스와 동일한 전위에 연결됩니다. 그러나 회로 구성에 따라 소스 전위가 기판보다 높아질 때(Vsb > 0), 이 역바이어스가 공핍층을 추가로 넓힙니다. 공핍층 전하(Qd)가 증가하여 Vth가 높아집니다. Vth(Vsb) = Vth0 + γ(√(2φF + Vsb) - √(2φF)) 로 표현됩니다. 여기서 γ는 Body Effect 계수로 기판 도핑 농도와 Cox에 의존합니다. 회로 설계에 미치는 영향을 설명하겠습니다. Source Follower 구성에서 출력 소스 전위가 상승하면 Vsb가 커지고 Vth가 증가하여 전류 능력이 감소, 입출력 선형성이 떨어집니다. 논리 회로의 트랜지스터 스택에서 하부 트랜지스터들의 소스 전위가 높아져 Vth가 증가하고 전파 지연이 길어집니다. SRAM의 읽기 동작에서도 Body Effect에 의한 Vth 변동이 SNM에 영향을 줍니다. Body Effect 최소화 구조입니다. FinFET과 FD-SOI는 채널이 Fully Depleted 상태이므로 Body Effect가 크게 억제됩니다. FD-SOI에서 BOX(Buried Oxide) 위의 얇은 Si 채널은 공핍층 변동이 거의 없습니다.",
+    "keywords": [
+      "Body Effect",
+      "Vsb",
+      "Vth 증가",
+      "Body Effect Coefficient",
+      "Stack Effect"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Body Effect는 MOSFET 소스-기판 간 역방향 전압(Vsb > 0) 인가 시 공핍층이 확장되어 Vth가 증가하는 현상입니다. Vth(Vsb) = Vth0 + γ(√(2φF + Vsb) - √(2φF))로 표현되며, γ는 Body Effect 계수입니다. 회로 설계 영향: 스택 구조에서 하위 트랜지스터의 소스 전위가 높아지면 Vth가 증가해 Ion이 감소합니다. SRAM·아날로그 회로에서 Vth 변동 원인이 됩니다. SOI 기판이나 직접 기판 연결로 Body Effect를 최소화하는 설계를 적용합니다."
+  },
+  {
+    "id": 71,
+    "jobRole": "소자",
+    "category": "소자 기초·전기 특성",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "소자 Mismatch의 원인과 회로 성능에 미치는 영향을 설명하세요.",
+    "answer": "소자 Mismatch는 동일 설계로 제작된 두 트랜지스터가 공정 변동으로 인해 서로 다른 전기적 특성을 나타내는 현상으로, 메모리와 아날로그 회로 성능의 핵심 제약입니다. Mismatch의 원인을 분석하겠습니다. 첫째, Random Dopant Fluctuation(RDF)입니다. 채널 내 도펀트 원자가 이산적으로 분포하여 트랜지스터마다 도핑 농도가 미세하게 다릅니다. 소자가 미세화될수록 채널 내 도펀트 원자 수가 줄어 RDF에 의한 Vth 변동성이 증가합니다. 둘째, Line Edge Roughness(LER)입니다. 리소그래피 패턴의 엣지 거칠기로 인해 Leff가 트랜지스터마다 달라집니다. 이는 Vth와 Ion Mismatch로 직결됩니다. 셋째, Oxide Thickness Variation입니다. 게이트 산화막 두께가 국소적으로 변동하여 Cox 차이를 야기합니다. Mismatch 모델은 Pelgrom 모델입니다. σ(ΔVth) = AVT / √(WL)으로 표현됩니다. 트랜지스터 면적(W×L)이 클수록 단위 면적당 변동이 평균화되어 Mismatch가 줄어듭니다. AVT는 공정 변동성 계수입니다. 회로에 미치는 영향입니다. SRAM: 셀 트랜지스터 Mismatch가 Static Noise Margin을 감소시켜 Vmin 저하의 주원인입니다. 아날로그/Mixed-Signal: 차동 쌍 트랜지스터 Mismatch가 오프셋 전압이 되어 ADC 분해능과 비교기 정확도를 제한합니다. Mismatch 개선 방법은 소자 크기 증가, Undoped Channel(RDF 제거), Metal Gate Vth 정밀 제어입니다.",
+    "keywords": [
+      "Device Mismatch",
+      "RDF",
+      "LER",
+      "Vth Variation",
+      "SRAM SNM"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "소자 Mismatch는 동일 설계의 트랜지스터들이 공정 변동으로 서로 다른 특성을 보이는 현상입니다. 주요 원인은 세 가지입니다. RDF(Random Dopant Fluctuation): 채널 내 도펀트의 확률적 분포로 Vth가 변동하며 σΔVth ∝ 1/√(WL)로 미세화 시 급증합니다. LER: 채널 길이 변동으로 Ion·Vth가 달라집니다. 산화막 두께 불균일도 영향을 줍니다. 회로 영향으로 아날로그 오프셋 전압 발생, SRAM SNM 저하, Sense Amplifier 불평형이 발생합니다."
+  },
+  {
+    "id": 72,
+    "jobRole": "소자",
+    "category": "소자 기초·전기 특성",
+    "group": "other",
+    "difficulty": "심화",
+    "question": "Quantum Tunneling이 극미세 소자에서 문제가 되는 이유와 억제 전략을 설명하세요.",
+    "answer": "양자 터널링(Quantum Tunneling)은 입자가 고전 역학적으로는 통과 불가능한 에너지 장벽을 파동 함수의 지수적 감쇠로 확률적으로 통과하는 현상입니다. 게이트 산화막 터널링입니다. SiO₂ Gate Oxide가 ~2nm 이하로 얇아지면 직접 터널링(Direct Tunneling) 전류가 기하급수적으로 증가합니다. 전류 밀도 J ∝ exp(-2κd)으로, d(두께)가 감소하면 지수적으로 증가합니다. 해결책은 High-K 유전체(HfO₂, ε~22)입니다. 물리적 두께를 3~4nm로 유지하면서 EOT는 0.5nm 수준을 달성하여 터널링을 수 자릿수 감소시킵니다. 소스-드레인 직접 터널링입니다. 채널 길이가 ~5nm 이하로 짧아지면 소스에서 드레인으로 직접 터널링 전류가 흐릅니다. 이 전류는 게이트 전압으로 제어되지 않아 소자 스위칭이 불가능해집니다. 이론적 한계 채널 길이로 Si MOSFET은 ~5nm, 2D 소재(MoS₂)는 ~1nm로 예측됩니다. 밴드-투-밴드 터널링(BTBT)입니다. 고전계에서 가전자대 전자가 전도대로 직접 터널링합니다. GIDL 누설의 주요 원인이며 DRAM Retention 저하를 야기합니다. 역으로 이를 활용한 터널 FET(TFET)가 연구됩니다. 억제 전략은 High-K 유전체로 산화막 터널링 억제, GAA/2D 채널로 SCE 없이 단채널 동작, 소스-드레인 직접 터널링은 소재와 구조 혁신이 필요합니다.",
+    "keywords": [
+      "Quantum Tunneling",
+      "Gate Oxide Tunneling",
+      "Source-To-Drain Tunneling",
+      "High-K",
+      "EOT"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Quantum Tunneling은 캐리어가 고전적으로 통과 불가능한 에너지 장벽을 파동함수 침투로 통과하는 현상입니다. 극미세 소자에서 두 가지 문제가 심각합니다. 첫째, Gate Oxide 터널링: Tox가 ~2nm 이하로 얇아지면 직접 터널링 전류가 J ∝ exp(-2κTox)로 기하급수적으로 증가합니다. High-K(HfO₂)로 물리적 두께를 유지하면서 EOT를 줄여 해결합니다. 둘째, Source-to-Drain 터널링: 채널이 수 nm로 짧아지면 밴드 간 터널링으로 게이트 제어와 무관한 누설이 발생합니다."
+  },
+  {
+    "id": 73,
+    "jobRole": "소자",
+    "category": "소자 기초·전기 특성",
+    "group": "other",
+    "difficulty": "심화",
+    "question": "RDF(Random Dopant Fluctuation)가 소자 Mismatch에 미치는 영향과 대응 방안을 설명하세요.",
+    "answer": "RDF(Random Dopant Fluctuation)는 반도체 채널 내 불순물 원자가 이산적이고 확률적으로 분포함으로써 발생하는 트랜지스터 Vth 변동성으로, 소자 미세화의 가장 근본적인 제약 중 하나입니다. 채널 내 도펀트 농도(Na)가 평균 N개의 원자라면, 실제 원자 수는 Poisson 분포를 따라 σ(N) = √N의 표준편차를 가집니다. 소자가 크면 N이 커서 상대 변동(1/√N)이 작지만, 미세화로 채널 체적이 줄면 N이 수백~수십 수준으로 감소하여 상대 변동이 급증합니다. Vth 변동성에 대한 영향입니다. σ(ΔVth) ∝ √(Na/(Tox × W × L))으로 표현됩니다. Tox 감소, W·L 감소(미세화)에 따라 RDF에 의한 Vth σ가 증가합니다. 90nm 세대에서는 σ(Vth) ~30mV였으나, 10nm 미만에서 수십~수백 mV에 달합니다. 회로에 미치는 영향입니다. SRAM에서 셀 트랜지스터 Vth Mismatch → SNM 감소 → Vmin 증가합니다. 아날로그 회로의 차동 쌍 오프셋 증가가 발생합니다. RDF 억제 전략입니다. Undoped Channel 채택이 가장 근본적 해결책입니다. FinFET은 Fin이 얇아 Fully Depleted 동작에 채널 도핑이 불필요합니다. 채널 도핑 없이 Metal Gate 일함수로 Vth를 조절합니다. GAA 나노시트에서도 동일하게 Undoped Channel이 표준입니다. 이로써 RDF 기인 Vth 변동성이 극적으로 감소합니다.",
+    "keywords": [
+      "RDF",
+      "Poisson Distribution",
+      "Vth Mismatch",
+      "Fully Depleted",
+      "High-K"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "RDF(Random Dopant Fluctuation)는 채널 내 도펀트 원자의 이산적·확률적 분포로 발생하는 Vth 변동성입니다. 채널 내 도펀트 원자 수 N이 Poisson 분포를 따르고 σ(N) = √N이므로, 소자 미세화로 N이 감소하면 상대 변동(1/√N)이 급증합니다. σ(ΔVth) ∝ 1/√(WLtox)로 표현됩니다. 대응 방안은 두 가지입니다. 채널 도핑 최소화: FinFET·GAA의 Fully Depleted 구조로 채널 도핑을 낮춰 RDF를 줄입니다. High-K 얇은 EOT로 낮은 채널 도핑에서도 SCE를 제어합니다."
+  },
+  {
+    "id": 74,
+    "jobRole": "소자",
+    "category": "소자 기초·전기 특성",
+    "group": "other",
+    "difficulty": "심화",
+    "question": "반도체 소자에서 Variability 분류(Systematic vs Random)와 각 대응 전략을 설명하세요.",
+    "answer": "소자 변동성(Variability)은 동일 설계로 제조된 소자들이 서로 다른 특성을 보이는 현상으로, 수율과 회로 성능을 결정합니다. Systematic과 Random으로 분류하고 각 대응 전략을 설명하겠습니다. Systematic Variability입니다. 예측 가능하고 레이아웃 또는 공정 조건에 의존합니다. 대표 사례입니다. Layout-Dependent Effects(LDE): WPE, STI Stress, PSE, ME 등 레이아웃에 따라 Vth, 이동도가 체계적으로 변합니다. CD Uniformity(CDU): 리소 노광 불균일, 식각 로딩 효과로 웨이퍼 내 Lgate가 체계적으로 변합니다. 대응 전략: SPICE 모델에 LDE 파라미터를 포함합니다. 레이아웃에서 더미 게이트/Well 사용으로 LDE를 균일화합니다. APC로 CDU를 실시간 관리합니다. Random Variability입니다. 예측 불가능하고 원자·분자 수준의 통계적 변동입니다. 대표 사례입니다. RDF: 채널 내 도펀트 원자 수 변동. LER: 게이트 패터닝 엣지 거칠기. MGG(Metal Gate Granularity): 다결정 Metal Gate의 결정립에 따른 일함수 변동. 대응 전략: Monte Carlo 시뮬레이션으로 통계 분포를 분석합니다. Undoped Channel(RDF 제거), 비정질 Metal Gate(MGG 최소화), 대형 소자로 Random 평균화를 추구합니다. Statistical SPICE(SSTA)로 수율을 예측합니다. 두 변동성을 합산한 전체 σ(Vth) = √(σ_sys² + σ_rand²)를 최소화하는 것이 소자 엔지니어의 목표입니다.",
+    "keywords": [
+      "Variability",
+      "Systematic Variability",
+      "Random Variability",
+      "LDE",
+      "σΔVth"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "소자 Variability는 Systematic과 Random으로 분류됩니다. Systematic Variability는 예측 가능한 레이아웃·공정 의존 변동입니다. WPE·STI Stress·LDE 등 레이아웃 위치에 따른 Vth·이동도 변화가 포함되며, SPICE 모델 파라미터로 설계 단계에서 보정합니다. Random Variability는 예측 불가능한 확률적 변동입니다. RDF·LER·OTF(Oxide Thickness Fluctuation)가 주요 원인으로 σΔVth로 정량화됩니다. Fully Depleted 구조와 공정 균일도 향상으로 대응합니다."
+  },
+  {
+    "id": 75,
+    "jobRole": "소자",
+    "category": "수율·공정 최적화",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "수율(Yield) 향상을 위한 공정 최적화 방법을 설명하세요.",
+    "answer": "수율(Yield) 향상은 반도체 양산 경쟁력의 핵심 지표로, 소자 엔지니어와 공정 엔지니어의 가장 중요한 과제 중 하나입니다. 수율 향상 방법론을 체계적으로 설명하겠습니다. 수율 모델을 먼저 이해해야 합니다. Gross Die = 전체 칩 수, Good Die = 양품 칩 수, Yield = Good Die/Gross Die × 100%입니다. Poisson 모델에서 Y = exp(-D₀A)로, 결함 밀도(D₀)와 칩 면적(A)이 핵심입니다. 수율 손실 원인 분류입니다. 첫째, 랜덤 결함(Random Defect): 파티클, 스크래치 등 외부 오염에 의한 수율 손실. 클린룸 환경과 장비 관리로 D₀를 낮춥니다. 둘째, 체계적 결함(Systematic Defect): 공정 파라미터 편차(리소 노광량, 식각 CD, 막 두께)로 인한 수율 손실. SPC(Statistical Process Control), APC로 공정을 안정화합니다. 셋째, 소자 변동성 기인 기능 불량: Vth Mismatch, SRAM SNM 부족 등으로 인한 Vmin 실패. 소자 설계와 공정 공동 최적화로 해결합니다. 수율 향상 방법론입니다. 불량 분석(FA): 물량 분류(bin) 분석, 전기적 특성 데이터 분석, 물리 분석(TEM, SIMS, SEM)으로 근본 원인을 파악합니다. DOE(Design of Experiment): 다변수 공정 파라미터를 체계적으로 변화시켜 최적 조건을 탐색합니다. Split Lot: 공정 변수별 비교 실험으로 가장 효과적인 개선 조건을 검증합니다. 빅데이터·머신러닝: 수만 개 파라미터에서 수율 상관 인자를 자동 발굴하는 기술도 활용됩니다.",
+    "keywords": [
+      "Yield",
+      "Defect Density",
+      "Process Window",
+      "SPC",
+      "Defect Analysis"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "수율 향상을 위한 공정 최적화 방법입니다. Yield 모델: Y = exp(-D₀A)에서 결함 밀도(D₀)와 칩 면적(A)이 핵심입니다. 첫째, 결함 밀도 감소: 오염 관리(클린룸·세정), 장비 안정성 향상, 파티클 모니터링을 강화합니다. 둘째, 공정 윈도우 확보: DOE로 최적 조건을 찾아 CPK ≥ 1.67을 달성합니다. 셋째, SPC(Statistical Process Control)로 공정 이상을 조기에 감지합니다. 넷째, 결함 분류·원인 분석(FDA)으로 재발 방지 대책을 적극 수립합니다."
+  },
+  {
+    "id": 76,
+    "jobRole": "소자",
+    "category": "수율·공정 최적화",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "DOE(Design of Experiment)를 활용한 공정 최적화 방법을 설명하세요.",
+    "answer": "DOE(Design of Experiment)는 다수의 공정 변수(Factor)를 동시에 체계적으로 변화시켜 응답 변수(Response)에 대한 각 인자의 주효과와 교호작용을 효율적으로 파악하고 최적 조건을 찾는 통계적 실험 계획법입니다. 반도체 공정 최적화에 필수적인 방법론입니다. DOE가 필요한 이유를 설명하겠습니다. 공정 파라미터가 수십 개인 반도체 공정에서 OFAT(One Factor At a Time) 방식으로 실험하면 시간과 비용이 기하급수적으로 증가합니다. 또한 변수 간 교호작용(Interaction)을 발견하지 못합니다. DOE로 최소 실험으로 최대 정보를 얻습니다. 주요 DOE 설계 유형입니다. 완전 요인 배열(Full Factorial): 모든 변수 조합을 실험합니다. 정확하지만 실험 수가 2^k로 많습니다. 부분 요인 배열(Fractional Factorial): 일부 조합만으로 주요 효과를 파악합니다. Taguchi 배열: 직교 배열로 잡음 인자(Noise Factor)에 강인한 공정 조건을 찾습니다. 반응 표면 방법론(RSM): 2차 모델로 최적점을 연속 탐색합니다. 반도체 공정 적용 예시입니다. 이온 주입 DOE: Dose, Energy, Tilt Angle을 변수로 Vth와 접합 깊이를 최적화합니다. 리소 DOE: Focus, Exposure Dose를 변수로 CD와 Sidewall Angle을 최적화합니다. DOE 결과를 ANOVA(분산 분석)로 통계적 유의성을 검증하고 회귀 모델을 구축하여 공정 조건을 결정합니다.",
+    "keywords": [
+      "DOE",
+      "Full Factorial",
+      "Fractional Factorial",
+      "RSM",
+      "Interaction Effect"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "DOE(Design of Experiment)는 다수 공정 변수를 동시에 체계적으로 변화시켜 각 인자의 주효과와 교호작용을 효율적으로 파악하는 통계적 실험 계획법입니다. Full Factorial DOE는 모든 조합을 실험하며, 인자 수 증가 시 실험 수가 기하급수적으로 늘어나 비효율적입니다. Fractional Factorial DOE는 일부 조합만 선택해 효율을 높입니다. Response Surface Method(RSM)는 2차 곡면 모델로 최적 조건을 탐색합니다. 반도체에서 공정 파라미터와 수율·CD 간 관계 최적화에 활용됩니다."
+  },
+  {
+    "id": 77,
+    "jobRole": "소자",
+    "category": "수율·공정 최적화",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "반도체 공정에서 CPK(Process Capability Index)의 의미와 활용 방법은?",
+    "answer": "CPK(Process Capability Index)는 반도체 공정의 안정성과 능력을 정량적으로 나타내는 핵심 통계 지표로, 공정이 규격(Specification)을 얼마나 여유 있게 만족하는지를 평가합니다. CPK의 정의와 의미를 설명하겠습니다. CPK = min[(USL - μ) / 3σ, (μ - LSL) / 3σ]로 정의됩니다. 여기서 USL은 규격 상한, LSL은 규격 하한, μ는 공정 평균, σ는 공정 표준편차입니다. CPK는 공정 평균의 치우침(편심)을 고려하여 공정 중심이 규격에서 얼마나 떨어져 있는지를 반영합니다. CPK 값의 의미를 해석하겠습니다. CPK = 1.0: 공정 평균±3σ가 규격에 딱 맞음. 불량률 약 0.27%. CPK = 1.33: ±4σ 여유. 불량률 약 64ppm. CPK = 1.67: ±5σ 여유. 불량률 약 0.6ppm. 반도체 공정은 일반적으로 CPK ≥ 1.33을 기본 요건으로, 핵심 공정은 CPK ≥ 1.67을 목표로 합니다. CPK와 CP의 차이도 중요합니다. CP = (USL - LSL) / 6σ는 공정 산포만 반영하고 치우침을 무시합니다. CPK는 치우침까지 고려하므로 실제 불량률을 더 정확히 반영합니다. CP ≥ CPK이며, CP = CPK일 때 공정 평균이 규격 중심에 정확히 위치합니다. 반도체 공정 적용에서 Gate Oxide 두께, CD(Critical Dimension), Overlay, 이온 주입 Dose 등 핵심 공정 파라미터를 SPC(Statistical Process Control) 관리도로 모니터링하고 CPK를 관리합니다.",
+    "keywords": [
+      "CPK",
+      "USL/LSL",
+      "3σ",
+      "SPC",
+      "산포 감소"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "CPK(Process Capability Index)는 공정이 규격을 얼마나 여유 있게 만족하는지 나타내는 지표입니다. CPK = min[(USL-μ)/3σ, (μ-LSL)/3σ]로 정의하며 평균 편심을 반영합니다. CPK=1이면 불량률 약 0.27%, 1.33이면 64ppm, 1.67이면 0.57ppm입니다. 반도체 공정에서는 CPK ≥ 1.67을 목표로 합니다. 활용 방법으로 SPC 차트와 함께 공정 모니터링에 사용하고, CPK < 1.33 이하 공정에 원인 분석 후 공정 중심 이동(μ 조정)이나 산포 감소(σ 최소화)로 개선합니다."
+  },
+  {
+    "id": 78,
+    "jobRole": "소자",
+    "category": "신뢰성·ESD",
+    "group": "other",
+    "difficulty": "입문",
+    "question": "ESD(Electrostatic Discharge)란 무엇이며 반도체 소자에 어떤 영향을 미치나요?",
+    "answer": "ESD(Electrostatic Discharge)는 서로 다른 전위를 가진 두 물체가 접촉하거나 근접할 때 발생하는 급격한 전하 이동 현상입니다. 반도체 소자에서 ESD는 수 나노초 이내에 수 암페어의 과도 전류를 유발하여 심각한 손상을 야기합니다. ESD의 손상 메커니즘은 세 가지입니다. 첫째, 게이트 산화막 파괴(Gate Oxide Breakdown): 과전압으로 얇은 게이트 산화막이 절연 파괴됩니다. Tox가 얇아질수록 ESD에 더 취약합니다. 둘째, Junction 손상: 과전류에 의한 줄 가열(Joule Heating)로 접합 부근 실리콘이 용융됩니다. 셋째, 금속 배선 용융: 높은 전류 밀도로 배선이 끊어집니다. ESD 시험 규격은 세 가지가 대표적입니다. HBM(Human Body Model): 인체가 소자를 만질 때 시뮬레이션, RC 회로(1.5kΩ, 100pF). MM(Machine Model): 자동화 장비 접촉 시뮬레이션. CDM(Charged Device Model): 소자 자체가 충전된 후 방전하는 모델. ESD 보호 설계는 다음과 같습니다. I/O 패드에 ESD 보호 다이오드(Rail-to-Rail Clamp)를 배치하여 과전압을 VDD/VSS로 바이패스합니다. SCR(Silicon Controlled Rectifier) 기반 Low Clamp 전압 보호 회로는 면적 효율이 높습니다. ESD 보호 소자는 정상 동작 시에는 Leakage를 최소화하면서 ESD 이벤트 시 빠르게 도통해야 합니다.",
+    "keywords": [
+      "ESD",
+      "Gate Oxide Breakdown",
+      "Joule Heating",
+      "HBM/MM/CDM",
+      "Protection Circuit"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "ESD(Electrostatic Discharge)는 서로 다른 전위의 두 물체 접촉·근접 시 발생하는 급격한 전하 이동으로, 수 ns 내에 수 A의 과전류가 흘러 소자를 손상시킵니다. 손상 메커니즘은 세 가지입니다. 첫째, Gate Oxide 파괴: 과전압으로 얇은 산화막이 절연 파괴됩니다. 둘째, Junction 손상: 과전류에 의한 Joule Heating으로 접합이 열 파괴됩니다. 셋째, 금속 배선 용단입니다. ESD 평가 모델로 HBM·MM·CDM이 있으며, 칩 설계 시 I/O 핀에 보호 회로 삽입이 필수입니다."
+  },
+  {
+    "id": 79,
+    "jobRole": "소자",
+    "category": "신뢰성·ESD",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "Hot Carrier Injection(HCI) 현상과 소자 신뢰성에 미치는 영향을 설명하세요.",
+    "answer": "HCI(Hot Carrier Injection)은 MOSFET 동작 중 채널 내 고전계 영역에서 캐리어가 충분한 에너지를 얻어 게이트 산화막 또는 Si/SiO₂ 인터페이스에 주입되는 현상으로, 소자 열화의 핵심 신뢰성 이슈입니다. 발생 메커니즘을 설명하겠습니다. NMOS 포화 영역에서 드레인 근방 핀치오프 영역에 강한 전기장이 형성됩니다. 전자들이 이 전기장에서 충분한 에너지(>3.2eV, SiO₂ 포텐셜 장벽)를 얻어 Hot Electron이 됩니다. Hot Electron이 게이트 산화막에 주입되거나 계면에 트랩을 생성합니다. Impact Ionization으로 전자-정공 쌍이 생성되어 기판 전류가 흐릅니다. HCI에 의한 소자 열화 효과는 다음과 같습니다. 인터페이스 트랩(Dit) 생성으로 이동도가 저하됩니다. 산화막 내 전하 트랩으로 Vth가 이동합니다. Gm(상호 컨덕턴스) 감소와 Ion 저하로 회로 타이밍이 변동합니다. 열화는 스트레스 시간의 n승에 비례(Power Law)하여 진행됩니다. HCI 억제 방법은 세 가지입니다. 전원 전압(VDD) 감소가 가장 효과적입니다. 전기장이 1/VDD에 비례하므로 VDD를 낮추면 급격히 개선됩니다. LDD 구조로 드레인 전기장 피크를 분산시킵니다. Nitrided Gate Oxide(SiON)는 인터페이스 강인성을 향상시킵니다. 신뢰성 평가는 가속 스트레스(고전압, 고온)로 수행하며 수명 외삽법으로 10년 수명을 예측합니다.",
+    "keywords": [
+      "HCI",
+      "Hot Carrier Injection",
+      "Drain Electric Field",
+      "Vth Shift",
+      "LDD"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "HCI(Hot Carrier Injection)은 MOSFET 채널 고전계에서 캐리어가 충분한 에너지를 얻어 게이트 산화막이나 Si/SiO₂ 계면에 주입·트랩화되는 현상입니다. 주로 NMOS 포화 영역 드레인 근방에서 발생하며, 전자가 산화막에 주입되거나 계면 트랩을 생성하면 Vth 증가·Gm 감소·Ion 감소가 나타납니다. 열화는 스트레스 시간의 n승 Power Law를 따릅니다. 억제 방법으로는 LDD 구조로 드레인 전기장을 분산시키고, 공급 전압(VDD)을 낮추는 것이 가장 효과적으로 알려져 있습니다."
+  },
+  {
+    "id": 80,
+    "jobRole": "소자",
+    "category": "신뢰성·ESD",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "NBTI(Negative Bias Temperature Instability)의 발생 메커니즘과 신뢰성 영향은?",
+    "answer": "NBTI(Negative Bias Temperature Instability)는 PMOS 소자에서 게이트에 음의 바이어스를 인가한 상태(On 상태)에서 시간이 경과함에 따라 인터페이스 트랩과 산화막 전하가 생성되어 소자 특성이 열화되는 현상입니다. NMOS의 PBTI와 함께 가장 중요한 신뢰성 이슈입니다. 발생 메커니즘은 Reaction-Diffusion(R-D) 모델로 설명합니다. Negative Bias 인가 시 강한 반전층이 형성되며, Si-H 결합이 끊어져 인터페이스 트랩(Pb Center)이 생성됩니다. 분리된 수소(H)가 산화막 내부로 확산됩니다. 열화 량은 스트레스 시간의 1/4승(t^0.25)에 비례합니다. NBTI의 특이점은 Recovery(회복) 거동입니다. 스트레스 제거 시 수소가 역확산하여 부분적으로 인터페이스 트랩이 회복됩니다. 이를 AC Stress에서 완화(Relaxation) 효과라 합니다. 실제 회로에서는 PMOS가 On/Off를 반복하므로 AC NBTI가 더 현실적인 평가 방법입니다. 열화 효과는 PMOS의 Vth 증가(절대값 감소), Gm 저하, Ion 감소로 나타나며, 회로 전파 지연이 증가합니다. 억제 방법으로는 Nitrided Oxide(SiON)나 High-K(HfO₂) 유전체로 Si-H 결합을 최소화하고, 플라즈마 수소 패시베이션을 최적화합니다. 동작 전압 감소도 효과적입니다.",
+    "keywords": [
+      "NBTI",
+      "PMOS",
+      "Si-H Bond",
+      "Vth Shift",
+      "Recovery"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "NBTI(Negative Bias Temperature Instability)는 PMOS에서 게이트에 음의 바이어스를 인가 시 Si-H 결합이 끊어져 인터페이스 트랩과 산화막 전하가 생성되어 소자가 열화되는 현상입니다. |Vth| 증가, |Gm|·Ion 감소가 나타나며 고온에서 심화됩니다. 완화(Recovery) 특성이 있어 바이어스 제거 시 일부 회복됩니다. AC 동작에서는 회복 효과로 DC보다 열화가 약합니다. 억제 방법으로는 계면 Si-H 결합 밀도를 줄이는 질화 처리, VDD 감소, 얇은 EOT 회피가 있습니다."
+  },
+  {
+    "id": 81,
+    "jobRole": "소자",
+    "category": "신뢰성·ESD",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "TDDB(Time-Dependent Dielectric Breakdown)란 무엇이며 어떻게 평가하나요?",
+    "answer": "TDDB(Time-Dependent Dielectric Breakdown)는 게이트 산화막이 전기적 스트레스를 받는 동안 시간에 따라 결함이 축적되어 결국 절연 파괴가 일어나는 현상으로, 산화막 수명 예측의 핵심 신뢰성 항목입니다. 파괴 메커니즘을 설명하겠습니다. 열 전자와 정공이 고전계에서 산화막에 주입되어 Si-O 결합을 끊고 결함(Trap)을 생성합니다. 이러한 결함이 축적되면서 소스에서 드레인까지 결함 연결 경로(Percolation Path)가 형성됩니다. 경로가 완성되는 순간 급격한 전류 증가와 함께 산화막이 파괴됩니다. 평가 모델로는 E-model(Thermochemical Model)과 1/E-model(Anode Hole Injection Model)이 있으며, 최근에는 두 모델을 결합한 통합 모델이 사용됩니다. 통계적 분석은 Weibull 분포로 수행합니다. Weibull Plot에서 형상 파라미터(β)와 척도 파라미터(t63%)를 추출하고, 가속 스트레스(높은 전계, 고온) 조건에서 측정한 파괴 시간을 실사용 조건으로 외삽하여 10년 수명을 보증합니다. 면적 의존성도 중요한데, 산화막 면적이 클수록 결함 밀도가 높아 파괴 확률이 증가합니다. Tox 감소에 따라 TDDB가 심각해지는데, High-K 유전체로 물리적 두께를 유지하면서 EOT를 줄이는 것이 근본 해결책입니다.",
+    "keywords": [
+      "TDDB",
+      "Dielectric Breakdown",
+      "Trap Generation",
+      "Percolation Path",
+      "Weibull Distribution"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "TDDB(Time-Dependent Dielectric Breakdown)는 게이트 산화막이 전기적 스트레스로 결함이 누적되다가 절연 파괴가 발생하는 신뢰성 항목입니다. 파괴 메커니즘: 고전계에서 전자·정공이 산화막에 주입되어 결함(Trap)을 생성합니다. 결함이 두께 방향으로 연결(Percolation Path)되면 급격한 전류 증가와 함께 파괴됩니다. 평가 방법: TDDB 수명 ∝ exp(-γ×Eox)×exp(Ea/kT)로 가속 조건(높은 전압·온도)에서 시험하고 Weibull 분포로 10년 수명을 외삽합니다."
+  },
+  {
+    "id": 82,
+    "jobRole": "소자",
+    "category": "신뢰성·ESD",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "EM(Electromigration) 현상과 Metal Interconnect 신뢰성에 미치는 영향은?",
+    "answer": "전자이주(Electromigration, EM)는 금속 배선에 높은 전류 밀도가 흐를 때 전자-금속 원자 간 운동량 교환으로 금속 원자가 전자 흐름 방향으로 이동하는 현상입니다. 배선 신뢰성의 핵심 이슈입니다. 파손 메커니즘을 설명하겠습니다. 금속 원자가 전자 방향으로 이동하면, 전자 유입측(Anode, 양극)에서는 금속이 과잉 축적되어 Hillock 또는 Extrusion이 형성됩니다. 전자 유출측(Cathode, 음극)에서는 금속이 고갈되어 Void가 형성됩니다. Void가 배선 단면을 완전히 차단하면 단선이 발생하고, Hillock이 인접 배선과 접촉하면 단락이 발생합니다. 수명 예측 모델은 Black 방정식입니다. MTTF = A × J^(-n) × exp(Ea/kT)로 표현됩니다. 여기서 J는 전류 밀도, n은 지수(Cu에서 약 2), Ea는 활성화 에너지, T는 온도입니다. 전류 밀도와 온도가 수명에 가장 큰 영향을 줍니다. Cu 배선의 EM 특성 개선 방법은 다음과 같습니다. Cu는 Al 대비 EM 저항이 약 100배 높아 배선 재료로 채택되었습니다. Cu/인터페이스의 EM은 Cu와 캡핑 유전체(SiN) 경계면이 취약합니다. CoWP(Cobalt Tungsten Phosphide)나 Mn 합금으로 계면 EM 저항을 강화합니다. 배선 폭과 두께를 충분히 확보하고, 전류 밀도 디자인 룰을 준수합니다.",
+    "keywords": [
+      "Electromigration",
+      "Current Density",
+      "Void",
+      "Hillock",
+      "Black Equation"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "EM(Electromigration)은 금속 배선에 높은 전류 밀도가 흐를 때 전자-금속 원자 간 운동량 교환으로 원자가 이동하는 현상입니다. Anode에서는 금속 과잉으로 Hillock이, Cathode에서는 금속 고갈로 Void가 형성됩니다. Void는 배선을 단절시키고 Hillock은 인접 배선을 단락시켜 고장을 야기합니다. Black 방정식 MTTF ∝ J^(-n)×exp(Ea/kT)로 수명을 예측합니다. 억제 방법으로 전류 밀도 마진 설계, Cu 배선 사용, Barrier Metal 적용, 온도 관리가 있습니다."
+  },
+  {
+    "id": 83,
+    "jobRole": "소자",
+    "category": "신뢰성·ESD",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "Latch-up 현상의 메커니즘과 방지 대책을 설명하세요.",
+    "answer": "Latch-up은 CMOS 소자 내부의 기생 사이리스터(Thyristor) 구조가 활성화되어 VDD에서 GND로 전원 단락에 가까운 과전류가 지속적으로 흐르는 현상입니다. 전원 차단 없이는 회복되지 않아 소자 소손을 야기합니다. 발생 메커니즘을 설명하겠습니다. CMOS 구조에서 N-well 내의 PMOS(PNP BJT: 소스-N-well-P-sub)와 P-substrate 위의 NMOS(NPN BJT: 소스-P-sub-N-well)가 병렬 기생 BJT를 형성합니다. 이 두 기생 BJT가 서로의 베이스-컬렉터를 연결한 PNPN 사이리스터 구조를 이룹니다. ESD, 전원 노이즈, 순간 과전압으로 한 BJT가 도통하면 양성 피드백으로 두 BJT 모두 강하게 도통합니다. 사이리스터의 유지 전류(Holding Current)보다 전류가 높게 유지되면 Latch-up이 지속됩니다. Latch-up 발생 조건을 분석하면, 두 기생 BJT의 전류 이득 곱(βnpn × βpnp > 1)이 조건입니다. 기판/Well 저항이 낮을수록 이 조건 달성이 어려워 Latch-up에 강해집니다. 억제 방법은 다음과 같습니다. 첫째, Well Tap(Substrate/Well Contact) 배치: NMOS/PMOS 근처에 기판/Well 컨택을 배치하여 기판 저항을 낮춥니다. 둘째, Guard Ring: P+ Well Tap이나 N+ Ring으로 기생 BJT의 베이스 역할을 억제합니다. 셋째, SOI 기판: 산화막 절연층으로 기생 BJT 경로 자체를 차단합니다. ESD 설계 규칙과 Latch-up 규칙을 동시에 만족해야 합니다.",
+    "keywords": [
+      "Latch-Up",
+      "PNPN Thyristor",
+      "Parasitic BJT",
+      "Guard Ring",
+      "Well Resistance"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Latch-up은 CMOS 내부 기생 PNPN 사이리스터가 활성화되어 VDD-GND 간 과전류가 지속되는 현상입니다. PMOS의 기생 PNP BJT와 NMOS의 기생 NPN BJT가 서로 베이스-컬렉터를 공유한 피드백 루프를 형성합니다. 과전류·과전압 등 트리거 조건에서 βPNP×βNPN > 1이 되면 래치업이 개시됩니다. 방지 대책으로 N+·P+ Guard Ring으로 기생 BJT 이득을 낮추고, Well 저항을 줄이며, 소자 간격을 충분히 확보하고, 디커플링 커패시터로 전원 노이즈를 억제합니다."
+  },
+  {
+    "id": 84,
+    "jobRole": "소자",
+    "category": "신뢰성·ESD",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "ESD 보호 회로(Protection Circuit)의 종류와 설계 시 고려 사항을 설명하세요.",
+    "answer": "ESD 보호 회로는 입출력(I/O) 핀에 가해지는 정전기 방전에 의한 과전압 및 과전류로부터 내부 회로를 보호하는 핵심 회로입니다. 주요 종류와 설계 고려 사항을 설명하겠습니다. 보호 회로의 기본 전략은 ESD 이벤트 발생 시 I/O 핀에서 VDD 또는 GND로 빠른 전류 경로를 제공하여 내부 회로 단자 전압이 안전 수준을 초과하지 않도록 클램핑하는 것입니다. 주요 ESD 보호 소자 종류입니다. 첫째, 역방향 다이오드 클램프: I/O에서 VDD와 GND로 각각 다이오드를 연결합니다. VDD 레일 클램프(RC-Triggered BigFET)와 조합하여 HBM 보호를 달성합니다. 면적이 크지만 설계가 단순합니다. 둘째, NMOS Snapback: ESD 전압에서 NMOS가 항복하고 기판 전류가 기생 NPN BJT를 트리거하여 저저항 Snapback 상태로 전류를 통전합니다. Trigger 전압과 Holding 전압 설계가 중요합니다. 셋째, SCR(Silicon Controlled Rectifier, 실리콘 제어 정류기): PNPN 구조로 낮은 Clamp 전압과 높은 전류 통전 능력을 가집니다. 면적 효율이 우수하지만 Holding 전압이 낮아 Latch-up 위험이 있습니다. Low-Vt SCR로 개선합니다. 설계 핵심 요구 사항은 세 가지입니다. 첫째, 낮은 클램프 전압: 내부 소자 Gate Oxide 파괴 전압 이하. 둘째, 빠른 응답 속도: ESD 펄스(수십 ns) 내에 도통. 셋째, 정상 동작 시 누설 최소화: 회로 기능 방해 없음. Human Body Model(HBM) 2kV 이상을 보증하는 것이 일반적 목표입니다.",
+    "keywords": [
+      "ESD Protection",
+      "Diode Clamp",
+      "SCR",
+      "GGNMOS",
+      "Clamping Voltage"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "ESD 보호 회로는 I/O 핀의 과전압·과전류로부터 내부 게이트 산화막을 보호합니다. 기본 전략은 ESD 이벤트 시 VDD 또는 GND로 빠른 방전 경로를 제공하는 것입니다. 주요 종류는 세 가지입니다. 역방향 다이오드 클램프: I/O에서 VDD·GND로 다이오드를 연결합니다. SCR(실리콘 제어 정류기): 낮은 클램핑 전압으로 대전류를 처리합니다. GGNMOS(Gate-Grounded NMOS): 구조가 단순합니다. 설계 고려 사항으로 클램핑 전압, 동작 속도, Hold-back 전압, 정상 동작 시 누설이 있습니다."
+  },
+  {
+    "id": 85,
+    "jobRole": "소자",
+    "category": "신뢰성·ESD",
+    "group": "other",
+    "difficulty": "심화",
+    "question": "Reliability 평가 항목(HCI, NBTI, TDDB, EM)을 종합적으로 비교 설명하세요.",
+    "answer": "HCI, NBTI, TDDB, EM은 반도체 소자와 배선의 시간적 열화를 야기하는 4대 신뢰성 항목입니다. 종합 비교 설명하겠습니다. HCI(Hot Carrier Injection)는 NMOS(주로)의 채널 고전계에서 핫 캐리어가 인터페이스에 주입되어 Vth 이동과 Gm 저하를 야기합니다. 가속 조건은 높은 Vds입니다. 열화는 스트레스 시간의 n승(Power Law)을 따릅니다. LDD 구조와 전원 전압 감소로 억제합니다. NBTI(Negative Bias Temperature Instability)는 PMOS의 Negative Gate Bias 하에서 Si-H 결합 파괴로 인터페이스 트랩이 생성되어 Vth 이동이 발생합니다. 가속 조건은 높은 |Vgs|와 고온입니다. 열화는 t^0.25를 따르며 Recovery 거동이 특징입니다. High-K/Nitrided Oxide로 억제합니다. TDDB(Time-Dependent Dielectric Breakdown)는 게이트 산화막 결함 축적에 의한 절연 파괴입니다. Percolation 모델, Weibull 통계를 사용합니다. 가속 조건은 높은 게이트 전계와 고온입니다. EOT 감소를 High-K로 달성하여 전계를 낮춥니다. EM(Electromigration)은 금속 배선에서 전자-원자 운동량 교환으로 Void/Hillock이 형성됩니다. Black 방정식(MTTF ∝ J^(-n) exp(Ea/kT))으로 수명을 예측합니다. Cu + CoWP 캡핑으로 EM 저항을 강화합니다. 4가지 항목은 온도, 전압, 전류 밀도에 공통 의존하며, 현대 공정에서는 VDD 감소가 모든 항목 개선에 가장 효과적인 단일 전략입니다.",
+    "keywords": [
+      "HCI",
+      "NBTI",
+      "TDDB",
+      "EM",
+      "Reliability Lifetime"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "4대 신뢰성 항목 비교입니다. HCI: NMOS 드레인 고전계에서 Hot Carrier가 산화막에 주입되어 Vth↑·Gm↓가 발생합니다. 높은 Vds에서 심각합니다. NBTI: PMOS에서 Negative Bias 인가 시 인터페이스 트랩 생성으로 |Vth|↑·Ion↓가 발생합니다. 고온에서 심화됩니다. TDDB: 게이트 산화막 결함 누적으로 절연 파괴가 발생합니다. 얇은 산화막·고전계에서 수명이 단축됩니다. EM: 금속 배선 원자 이동으로 Void·Hillock이 형성되어 단선·단락이 발생합니다. 고온·고전류 밀도에서 심화됩니다."
+  },
+  {
+    "id": 86,
+    "jobRole": "소자",
+    "category": "신뢰성·ESD",
+    "group": "other",
+    "difficulty": "심화",
+    "question": "소자 Aging 모델링(BTI, HCI 복합 모델)과 회로 수명 예측 방법을 설명하세요.",
+    "answer": "소자 Aging 모델링은 시간 경과에 따른 트랜지스터 특성 열화를 수학적으로 예측하여 10년 이상의 제품 수명을 보증하는 신뢰성 공학의 핵심입니다. BTI와 HCI 복합 모델을 중심으로 설명하겠습니다. 단일 메커니즘 모델의 한계입니다. NBTI 단독 모델은 DC 조건에서는 적합하지만, 실제 회로는 AC 동작(On/Off 반복)이므로 Recovery 효과를 포함한 AC NBTI 모델이 필요합니다. HCI는 높은 Vds 조건에서 주로 발생합니다. 복합 BTI+HCI 모델입니다. 실제 CMOS 회로에서 NMOS는 HCI 우세, PMOS는 NBTI 우세입니다. 복합 모델은 ΔVth_total = ΔVth_BTI + ΔVth_HCI + ΔVth_interaction으로 표현하며, 교호작용항이 보수적 예측을 위해 중요합니다. 열화 예측 방법론입니다. 가속 스트레스: 실사용 조건보다 높은 전압/온도/전류 밀도 조건에서 열화를 측정합니다. 수명 외삽: 열화량 vs. 시간 데이터를 Power Law(t^n)나 다른 모델로 피팅하고 실사용 조건으로 외삽하여 수명을 예측합니다. EOL(End-of-Life) 기준: Vth 이동이 특정 값(예: 50mV)을 초과하거나 Ion이 10% 이상 감소하는 시점을 수명 종점으로 정의합니다. 회로 설계 반영입니다. Fresh 소자 특성에서 EOL 상태의 열화량을 뺀 Fresh Vth를 사용하여 타이밍 마진을 보수적으로 설계합니다. 신뢰성 STA(Static Timing Analysis)로 EOL 시점의 최악 조건 타이밍 경로를 검증합니다.",
+    "keywords": [
+      "Aging Model",
+      "BTI",
+      "HCI",
+      "Power Law",
+      "Timing Simulation"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "소자 Aging 모델링은 열화를 수학적으로 예측하여 제품 수명을 보증하는 신뢰성 공학입니다. BTI+HCI 복합 모델: 실제 회로에서 NMOS는 HCI, PMOS는 NBTI가 우세하며, AC 동작 조건에서의 Recovery 효과가 중요합니다. ΔVth(t) = A × t^n 형태의 Power Law에 AC 듀티 사이클과 Recovery 인자를 결합합니다. 회로 수명 예측: 임계 경로의 Vth 변화를 타이밍 시뮬레이션에 반영해 성능 열화가 규격 한계를 초과하는 시점을 가속 조건 시험에서 외삽합니다."
+  },
+  {
+    "id": 87,
+    "jobRole": "소자",
+    "category": "차세대 소자·소재",
+    "group": "other",
+    "difficulty": "심화",
+    "question": "Negative Capacitance FET(NC-FET)의 개념과 기존 MOSFET 대비 장점은?",
+    "answer": "NC-FET(Negative Capacitance FET)는 강유전체(Ferroelectric) 게이트 절연막의 음의 커패시턴스 특성을 활용하여, 기존 MOSFET의 물리적 한계인 Subthreshold Swing 60mV/dec(at room temp)를 극복하는 차세대 트랜지스터 개념입니다. 기본 원리를 설명하겠습니다. 강유전체는 S자형 분극-전기장(P-E) 관계를 가집니다. 이 곡선의 불안정한 영역에서 커패시턴스가 음의 값(C = dQ/dV < 0)이 됩니다. 강유전체를 일반 유전체(SiO₂ 또는 High-K)와 직렬로 연결하면, 전압 분배에 의해 강유전체에 걸리는 전압이 외부 전압 감소를 상쇄하고 내부 전위가 오히려 증폭됩니다. 이를 내부 전압 증폭(Internal Voltage Amplification) 효과라 합니다. 채널 표면 전위가 게이트 전압보다 빠르게 변화하여 SS < 60mV/dec 달성이 가능합니다. 기존 MOSFET 대비 장점입니다. 동일 전원 전압에서 Ion/Ioff 비율을 크게 향상시킬 수 있습니다. 전원 전압(VDD)을 낮추어도 성능을 유지하여 초저전력 동작이 가능합니다. 재료 관점에서 HfO₂ 기반 강유전체(HZO: Hf₁₋ₓZrₓO₂)가 기존 CMOS 공정과 호환성이 높아 주목받습니다. 과제로는 강유전체 히스테리시스로 인한 동작 불안정성, 강유전체 피로(Fatigue), CMOS 공정 통합 등이 있습니다.",
+    "keywords": [
+      "NC-FET",
+      "Negative Capacitance",
+      "Ferroelectric",
+      "Subthreshold Swing",
+      "HZO"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "NC-FET(Negative Capacitance FET)은 강유전체 게이트 절연막의 음의 커패시턴스 특성을 활용해 Subthreshold Swing이 실온 한계(60mV/dec)를 극복하는 차세대 트랜지스터입니다. 강유전체와 일반 유전체를 직렬 연결하면 내부 전압 증폭 효과로 게이트 전압이 채널 전위를 더 민감하게 변화시켜 SS < 60mV/dec를 달성합니다. CMOS 공정과 호환되는 HfZrO₂(HZO) 강유전체가 주목받습니다. 강유전체 분극 히스테리시스 제거와 소자 균일성 확보가 주요 과제입니다."
+  },
+  {
+    "id": 88,
+    "jobRole": "소자",
+    "category": "차세대 소자·소재",
+    "group": "other",
+    "difficulty": "심화",
+    "question": "2D 반도체 소재(MoS2 등)의 트랜지스터 적용 가능성과 한계를 설명하세요.",
+    "answer": "2D 반도체 소재(MoS₂, WSe₂ 등 전이금속 디칼코게나이드, TMD)는 원자 한 층~수 층 두께의 채널을 가져 극한 Scaling에서 Si의 한계를 극복하는 후보 소재입니다. 2D 반도체의 장점입니다. 첫째, 극박 채널에 의한 뛰어난 정전 제어입니다. MoS₂ 단층 두께는 ~0.65nm로 Si FinFET의 Wfin(~5nm)보다 훨씬 얇습니다. 자연 길이(λ)가 극히 짧아 Lgate = 1~2nm에서도 SCE를 억제할 수 있습니다. 둘째, MoS₂ 단층은 ~1.8eV 직접 밴드갭으로 적절한 Ioff 달성에 유리합니다. 셋째, 이론적으로 높은 이동도 잠재력이 있으며, WSe₂는 정공 이동도가 양호합니다. 2D 반도체의 공정 통합 한계입니다. 첫째, 대면적 균일 성장: 300mm 웨이퍼에 단층 균일 성장이 극히 어렵습니다. 결정립 경계가 이동도를 급격히 저하시킵니다. 둘째, 금속 접촉 저항: 2D 소재와 금속 간 Schottky 장벽이 형성됩니다. Bi(비스무트) 접촉이 최근 주목받습니다. 셋째, 게이트 유전체 형성: 2D 소재 표면에 고품질 High-K를 ALD로 성장시키기 어렵습니다. 현재 단일 소자 성능은 우수하나 양산 집적 공정 통합까지 10년 이상의 과제가 남아 있습니다.",
+    "keywords": [
+      "2D Semiconductor",
+      "MoS₂",
+      "TMD",
+      "Contact Resistance",
+      "Large-Area Growth"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "2D 반도체(MoS₂, WSe₂ 등 TMD)는 원자 한 층 두께의 채널로 극한 Scaling에서 Si 한계를 극복하는 후보 소재입니다. 장점으로 단층 두께(~0.65nm)의 극박 채널로 Lgate 1~2nm에서도 SCE 억제가 가능하고, 직접 밴드갭으로 적절한 Ioff 달성이 유리합니다. 한계로는 고품질 대면적 단층 성장이 어렵고, 금속-반도체 접촉 저항이 Si 대비 크게 높으며 이동도가 낮습니다. 현재 연구 단계로 상용 양산 적용까지 해결해야 할 공정 통합 과제가 아직 상당히 많이 남아 있습니다."
+  },
+  {
+    "id": 89,
+    "jobRole": "소자",
+    "category": "차세대 소자·소재",
+    "group": "other",
+    "difficulty": "심화",
+    "question": "CFET(Complementary FET) 구조의 개념과 면적 효율 향상 원리를 설명하세요.",
+    "answer": "CFET(Complementary FET)은 NMOS와 PMOS 트랜지스터를 수평이 아닌 수직으로 적층하는 차세대 3D 트랜지스터 구조입니다. 기존 CMOS 로직에서 인버터는 NMOS와 PMOS가 나란히(Side-by-Side) 배치됩니다. CFET에서는 하부에 NMOS, 상부에 PMOS(또는 반대)를 수직 적층합니다. 동일한 게이트가 두 트랜지스터를 동시에 제어하므로 인버터가 단일 게이트 풋프린트(Footprint)에 구현됩니다. 면적 효율입니다. 이론적으로 CFET은 동일 성능에서 표준 셀 면적을 ~50% 감소시킵니다. 트랙 높이(Cell Height)를 현재 5~6T에서 3T~4T로 줄일 수 있어 칩 면적과 비용이 크게 감소합니다. NMOS/PMOS 사이의 웰 접촉 공간도 불필요해집니다. GAA와의 관계입니다. CFET은 GAA 나노시트 기술의 자연스러운 확장입니다. 하부 나노시트(NMOS용 Si)와 상부 나노시트(PMOS용 SiGe 또는 Si)를 적층합니다. 내부 Spacer와 선택적 식각으로 두 트랜지스터를 분리합니다. 공정 도전 과제입니다. 수직 적층된 두 트랜지스터의 독립 소스/드레인 접촉 형성이 극히 어렵습니다. 상부 PMOS 소스/드레인에 독립적으로 접근하는 배선이 필요합니다. 하부 NMOS 공정 후 상부 PMOS 공정의 Thermal Budget 제한이 심각합니다. IMEC, 삼성, TSMC가 2nm 이후 노드에서 도입을 연구 중입니다.",
+    "keywords": [
+      "CFET",
+      "Vertical Stacking",
+      "NMOS/PMOS",
+      "Cell Area Reduction",
+      "Thermal Budget"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "CFET(Complementary FET)은 NMOS와 PMOS를 수평 대신 수직으로 적층하는 차세대 3D 트랜지스터 구조입니다. 기존 CMOS 인버터에서 나란히 배치된 NMOS·PMOS를 하부(NMOS)·상부(PMOS)로 수직 적층하여 단일 게이트 풋프린트에 구현합니다. 면적 효율: 이론적으로 표준 셀 면적을 ~50% 감소시키고, 셀 트랙 높이를 4T 이하로 줄여 배선 밀도가 획기적으로 향상됩니다. 공정 과제로 하부 소자 완성 후 상부층 형성 시 Thermal Budget 제한이 핵심 도전입니다."
+  },
+  {
+    "id": 90,
+    "jobRole": "소자",
+    "category": "차세대 소자·소재",
+    "group": "other",
+    "difficulty": "심화",
+    "question": "Ferroelectric HfO2 기반 소자(FeFET, FeCAP)의 동작 원리와 차세대 메모리 응용 가능성은?",
+    "answer": "Ferroelectric HfO₂(HZO: Hf₁₋ₓZrₓO₂) 기반 소자는 기존 CMOS 공정에서 사용하는 HfO₂와 동일 재료 계열로 공정 통합이 용이하여 차세대 임베디드 비휘발성 메모리로 급부상하고 있습니다. FeFET(Ferroelectric FET)입니다. 게이트 유전체 내에 강유전 HZO층을 삽입합니다. 강유전 분극 방향에 따라 MOSFET 채널 Vth가 변화합니다. 분극 업(Up)이면 채널에 음전하가 유도되어 Vth가 낮아지고(저저항 상태), 분극 다운(Down)이면 Vth가 높아집니다(고저항 상태). 두 Vth 상태를 0/1 비트로 활용합니다. 비휘발성으로 전원 차단 후에도 데이터 보유, 소거 없는 임의 접근 가능, CMOS 공정 통합이 장점입니다. FeCAP(Ferroelectric Capacitor) 기반 FeRAM입니다. 1T-1C 구조에서 커패시터를 강유전 커패시터로 대체합니다. 분극 방향으로 0/1을 저장하며 비파괴 읽기가 불가하여 Read 후 Write-Back이 필요합니다. DRAM과 유사한 구조지만 Refresh가 불필요합니다. 주요 신뢰성 과제입니다. 피로(Fatigue): 반복 분극 전환으로 강유전 도메인이 고정되어 분극량이 감소합니다. 임프린트(Imprint): 동일 분극 상태 유지 시 반전 분극이 어려워지는 현상입니다. Endurance: FeFET은 10⁵~10⁶회, FeRAM은 10¹⁰~10¹² 회 목표입니다.",
+    "keywords": [
+      "Ferroelectric HfO₂",
+      "FeFET",
+      "FeCAP",
+      "HZO Polarization",
+      "Embedded NVM"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Ferroelectric HfO₂(HZO) 기반 소자는 CMOS 공정 호환이 용이한 차세대 임베디드 비휘발성 메모리입니다. FeFET은 게이트 유전체 내 강유전 HZO층의 분극 방향에 따라 채널 Vth가 두 상태로 변해 비휘발성 데이터를 저장합니다. FeCAP은 강유전 커패시터의 분극 방향으로 데이터를 저장하는 FeRAM의 기본 소자입니다. 장점으로 빠른 쓰기 속도(< 10ns)와 CMOS 공정 직접 통합 가능성이 있으며, P/E 사이클 내구성(Endurance) 향상과 Vth 분포 제어가 핵심 과제입니다."
+  },
+  {
+    "id": 91,
+    "jobRole": "소자",
+    "category": "차세대 소자·소재",
+    "group": "other",
+    "difficulty": "심화",
+    "question": "Si/SiGe 채널 소재의 이동도 향상 메커니즘과 GAA 적용 시 공정 이슈를 설명하세요.",
+    "answer": "Si/SiGe 채널 소재 공학은 NMOS와 PMOS 채널 이동도를 동시에 최적화하기 위해 각각에 적합한 소재를 선택하는 전략입니다. GAA 구조에서의 적용을 중심으로 설명하겠습니다. SiGe 이동도 향상 메커니즘입니다. Ge 함량에 비례하여 SiGe의 격자 상수가 Si보다 큽니다. Si 기판 위에 에피택셜 성장한 SiGe는 압축 응력(Compressive Strain) 하에 있습니다. 이 압축 변형이 정공의 밴드 구조를 변화시켜 유효 질량을 낮추고 이동도를 향상시킵니다. Ge 함량 25~35%에서 PMOS 이동도가 Si 대비 50~100% 향상됩니다. GAA 공정에서의 Si/SiGe 활용입니다. Si/SiGe 초격자(Superlattice) 에피를 성장합니다. Si층은 NMOS 채널, SiGe층은 PMOS 채널 나노시트로 활용합니다. 핵심 공정 단계는 SiGe 선택적 식각(Lateral Release)으로, Si를 유지하면서 SiGe만 제거하여 Si Nanosheet를 노출합니다. 공정 이슈는 세 가지입니다. 첫째, Si/SiGe 격자 불일치(Lattice Mismatch): 임계 두께 이상에서 전위(Dislocation) 결함이 발생합니다. Ge 함량과 층 두께를 임계값 이내로 제어합니다. 둘째, SiGe 선택적 식각 균일도: 웨이퍼 전면에서 SiGe 식각의 선택비와 균일도가 나노시트 두께를 결정합니다. 셋째, SiGe/High-K 계면 품질: SiGe 표면에 High-K ALD 시 GeO₂ 형성 가능성으로 계면 품질이 저하됩니다. 계면층(IL) 최적화가 필요합니다.",
+    "keywords": [
+      "Si/SiGe Channel",
+      "Compressive Strain",
+      "Hole Mobility",
+      "Superlattice",
+      "Selective Etch"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Si/SiGe 채널 소재 공학은 NMOS·PMOS 이동도를 각각 최적화하는 전략입니다. PMOS에 SiGe 채널: Ge 함량에 비례해 격자 상수가 커지고, Si 위의 SiGe는 압축 응력(Compressive Strain)을 받아 정공 유효 질량이 낮아져 이동도가 Si 대비 50~100% 향상됩니다. GAA 적용 공정 이슈: Si/SiGe 초격자를 교대로 에피성장 후 SiGe를 선택적으로 식각해 Si 나노시트를 형성합니다. 선택 식각 균일도와 게이트 산화막의 Ge 오염 방지가 핵심 공정 과제입니다."
+  },
+  {
+    "id": 92,
+    "jobRole": "소자",
+    "category": "차세대 소자·소재",
+    "group": "other",
+    "difficulty": "심화",
+    "question": "게이트 유전체에서 EOT(Equivalent Oxide Thickness) Scaling 한계와 대안 소재 전망을 설명하세요.",
+    "answer": "EOT(Equivalent Oxide Thickness) Scaling은 게이트 커패시턴스(Cox = ε₀ × εSiO₂ / EOT)를 높여 소자 구동 전류와 게이트 제어력을 향상시키는 핵심 지표입니다. EOT Scaling 역사와 현재입니다. SiO₂ 시대: EOT = Tox였으며, 1nm까지 감소. 1nm 이하에서 직접 터널링 누설이 수 A/cm²에 달해 한계. HKMG 시대(45nm 이후): HfO₂(ε~22)로 Tphys = 3nm에서 EOT ≈ 0.5nm 달성. 현재 선단 공정 EOT는 0.5~0.7nm 수준입니다. EOT 추가 감소의 물리적 한계입니다. HfO₂ 대비 높은 유전율 소재(TiO₂ ε~80, SrTiO₃ ε~300)는 밴드갭이 낮아 누설이 심합니다. 계면층(Interfacial Layer, IL) 제거는 이동도 저하와 신뢰성 열화를 야기합니다. EOT 0.3nm 이하는 현실적 한계에 근접합니다. 차세대 대안 소재입니다. La₂O₃(ε~30): HfO₂보다 높은 유전율, 낮은 누설. La를 HfO₂에 도핑하여 결정화 억제. Al₂O₃와 혼합하여 계면 품질 개선. 페로브스카이트(SrTiO₃, BaTiO₃): 초고유전율이나 열적 안정성과 밴드갭이 문제. 2D 계면층(hBN, MoS₂): 원자 두께 계면으로 계면 트랩을 최소화하는 연구 단계. 현재는 HfO₂에 La, Si, Al을 도핑하여 유전율과 계면 특성을 최적화하는 방향이 가장 현실적입니다.",
+    "keywords": [
+      "EOT Scaling",
+      "High-K",
+      "HfO₂",
+      "Direct Tunneling",
+      "Interface Quality"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "EOT(Equivalent Oxide Thickness) Scaling은 게이트 커패시턴스를 높여 소자 성능을 향상시키는 핵심 지표입니다. SiO₂는 1nm 이하에서 직접 터널링 한계에 도달했습니다. HKMG 도입(45nm 이후) 이후 HfO₂(ε~22)로 물리적 두께 3nm에서 EOT ~0.5nm를 달성했습니다. 현재 0.5~0.7nm 수준이 한계이며, 더 높은 유전율의 La₂O₃·TiO₂ 소재를 탐색 중입니다. 계면 품질·금속 오염·열적 안정성이 과제이며, SiGe·Ge 채널 소재로 이동도를 높여 EOT Scaling을 보완합니다."
+  },
+  {
+    "id": 93,
+    "jobRole": "소자",
+    "category": "특성 측정·Simulation",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "SPICE Simulation의 목적과 활용 방법을 설명하세요.",
+    "answer": "SPICE(Simulation Program with Integrated Circuit Emphasis)는 반도체 소자와 회로의 전기적 동작을 컴퓨터로 수치 시뮬레이션하는 표준 도구입니다. 활용 목적과 방법을 설명하겠습니다. SPICE 시뮬레이션의 주요 분석 모드는 세 가지입니다. DC 해석으로 동작점 결정과 Id-Vg, Id-Vd 특성을 시뮬레이션합니다. AC 해석으로 주파수 응답과 이득, 위상 특성을 분석합니다. Transient 해석으로 디지털 스위칭 속도, 전력 소비, 과도 응답을 분석합니다. SPICE 모델의 핵심인 MOSFET 모델은 BSIM(Berkeley Short-channel IGFET Model)이 표준입니다. BSIM4/BSIM-CMG는 Short Channel Effect, Quantum Effect, 이동도 변동 등을 물리 기반으로 모델링합니다. 공정 엔지니어 관점에서 SPICE 활용은 다음과 같습니다. 웨이퍼에서 측정된 소자 특성(Id-Vg, CV 등)으로 SPICE 모델 파라미터를 추출합니다(Model Extraction). 추출된 모델로 회로 설계자가 칩을 설계하며, 공정 변동을 반영한 Corner Model(FF, SS, TT, FS, SF)로 Worst Case 분석을 수행합니다. PVT(Process-Voltage-Temperature) Variation 분석을 통해 양산 수율을 예측합니다. Monte Carlo 시뮬레이션으로 공정 변동성의 통계적 영향을 분석합니다. SPICE 모델의 정확도는 칩 설계 성공률에 직결되므로, 모델 추출과 검증이 소자 엔지니어의 중요 업무입니다.",
+    "keywords": [
+      "SPICE",
+      "DC Analysis",
+      "AC Analysis",
+      "Transient Analysis",
+      "PDK"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "SPICE는 반도체 소자와 회로의 전기적 동작을 컴퓨터로 시뮬레이션하는 표준 도구입니다. 주요 분석 모드는 DC(동작점·Id-Vg 특성), AC(주파수 응답), Transient(스위칭 속도·전력)입니다. 소자 모델로 BSIM4, BSIM-CMG(FinFET/GAA) 등을 사용합니다. 활용 분야로는 회로 설계 검증·PPA 최적화·신뢰성 평가(Aging 모델 적용)·공정 코너 분석(SS/FF/SF/FS)이 있습니다. 파운드리가 제공하는 PDK(Process Design Kit) 내 SPICE 모델을 사용하며, 제품 설계의 첫 번째 검증 단계입니다."
+  },
+  {
+    "id": 94,
+    "jobRole": "소자",
+    "category": "특성 측정·Simulation",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "TCAD(Technology Computer-Aided Design) Simulation의 활용 목적과 한계를 설명하세요.",
+    "answer": "TCAD(Technology Computer-Aided Design)는 반도체 공정과 소자 동작을 컴퓨터 시뮬레이션으로 예측하는 도구로, Synopsys Sentaurus와 Silvaco ATLAS가 대표적입니다. 활용 목적과 한계를 설명하겠습니다. TCAD는 크게 두 부분으로 구성됩니다. Process Simulation(Sentaurus Process)은 이온 주입 도핑 프로파일, 확산, 산화, 식각, 증착 공정을 순서대로 시뮬레이션하여 3D 소자 구조와 도핑 분포를 생성합니다. Device Simulation(Sentaurus Device)은 생성된 소자 구조에서 포아송 방정식, 전류 연속 방정식, 에너지 전송 방정식을 연립으로 수치 풀어 전류-전압 특성, 전기장 분포, 캐리어 농도 분포 등을 계산합니다. TCAD의 활용 효과는 명확합니다. 실제 웨이퍼 공정 없이 공정 파라미터 변화의 효과를 예측할 수 있어 DOE 사이클을 크게 줄입니다. 새로운 소자 구조 탐색, SCE 분석, ESD 보호 소자 설계, Reliability 열화 시뮬레이션에 활용됩니다. 한계도 명확합니다. 물리 모델의 정확도가 실제 공정과 차이를 보일 수 있습니다. 특히 양자 역학 효과(터널링, 양자 한정), 원자 수준 변동성(RDF, LER), 나노 스케일 계면 효과는 연속체 기반 TCAD로 정확한 모델링이 어렵습니다. 이를 보완하기 위해 DFT(Density Functional Theory), KMC(Kinetic Monte Carlo) 등과의 멀티스케일 시뮬레이션이 연구됩니다.",
+    "keywords": [
+      "TCAD",
+      "Process Simulation",
+      "Device Simulation",
+      "Poisson Equation",
+      "Quantum Effect"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "TCAD는 반도체 공정과 소자 동작을 수치 시뮬레이션으로 예측하는 도구입니다. 크게 두 부분입니다. Process Simulation: 이온 주입·확산·산화·식각·증착 순서를 시뮬레이션하여 3D 도핑 프로파일과 소자 구조를 생성합니다. Device Simulation: Poisson·드리프트-확산 방정식으로 Id-Vg·Id-Vd 특성을 예측합니다. 활용으로 실험 전 소자 구조 탐색, 공정 파라미터 최적화, SCE·신뢰성 메커니즘 분석이 가능합니다. 한계로는 긴 계산 시간과 나노 소자에서 양자 효과·원자 스케일 현상 모델링 정확도가 과제입니다."
+  },
+  {
+    "id": 95,
+    "jobRole": "소자",
+    "category": "특성 측정·Simulation",
+    "group": "other",
+    "difficulty": "실전",
+    "question": "소자 특성 측정에서 Id-Vg, Id-Vd 커브에서 읽어낼 수 있는 정보는?",
+    "answer": "Id-Vg와 Id-Vd 특성 커브는 MOSFET 소자 특성을 파악하는 가장 기본적인 전기적 측정 결과로, 다양한 핵심 파라미터를 추출할 수 있습니다. Id-Vg 커브 분석입니다. 측정 방법: Vds를 일정하게 고정(선형: 50mV, 포화: VDD)하고 Vgs를 스윕합니다. 추출 파라미터는 다음과 같습니다. Vth: 선형 외삽법(Linear Extrapolation) - 최대 Gm 점에서의 접선이 Vgs축과 만나는 점. 또는 상수 전류법(Constant Current Method, Id = 100nA×W/L에서의 Vgs). Subthreshold Swing: Log(Id)-Vgs 그래프 기울기의 역수. 이상적으로 60mV/dec. Ioff: Vgs=0에서의 드레인 전류. 누설 전류 평가. Ion: Vgs=VDD, Vds=VDD에서의 전류. 소자 구동 능력. DIBL: 선형과 포화 Vds에서의 Vth 차이를 Vds 차이로 나눈 값. Gm(상호 컨덕턴스): dId/dVgs. 최대값에서 이동도를 추출. Id-Vd 커브 분석입니다. 측정 방법: Vgs를 여러 값으로 고정하고 Vds를 스윕합니다. 추출 파라미터는 다음과 같습니다. 선형 영역(Vds << Vgs-Vth): 기울기가 채널 전도도(On 저항). Rds_on = 1/(dId/dVds)에서 채널 저항과 기생 저항 포함. 포화 전류(Idsat): Vgs-Vth < Vds인 영역의 포화 전류. CLM(Channel Length Modulation): 포화 영역에서 Vds 증가에 따라 Idsat이 완만히 증가하는 기울기. Kink 효과: SOI 소자에서 부유 기판 충전으로 인한 전류 불연속. 두 커브를 종합하면 소자의 공정 이상(Vth 이동, 이동도 저하, 누설 증가), 열화 상태, 소자 모델 파라미터를 진단할 수 있습니다.",
+    "keywords": [
+      "Id-Vg",
+      "Id-Vd",
+      "Vth Extraction",
+      "DIBL",
+      "Transconductance"
+    ],
+    "active": true,
+    "estimatedAnswerMinutes": 2,
+    "shortAnswer": "Id-Vg·Id-Vd 커브에서 추출하는 주요 파라미터입니다. Id-Vg(Vds 고정): Vth는 선형 외삽법(최대 Gm 점의 접선 교점) 또는 상수 전류법으로 추출합니다. SS는 Vgs 대비 log(Id) 기울기입니다. DIBL = ΔVth/ΔVds입니다. Gm(전달 컨덕턴스)으로 이동도를 추정합니다. Id-Vd(Vgs 고정): 선형 영역 기울기로 Ron(On 저항)을 구합니다. 포화 전류 Idsat로 소자 성능을 평가합니다. 출력 컨덕턴스 gds = ∂Id/∂Vds로 DIBL과 채널 길이 변조 효과를 파악합니다."
+  }
+];
