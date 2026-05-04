@@ -2284,6 +2284,8 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
 }
 
 .question-bank-list.list-layout .question-bank-card-side {
+  position: relative;
+  z-index: 4;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -2295,9 +2297,9 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
 
 .question-bank-list.list-layout .question-bank-card-side > .bank-bookmark-list-button {
   display: grid;
-  flex: 0 0 30px;
-  width: 30px;
-  height: 30px;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
 }
 
 .question-bank-list.list-layout .question-bank-card.expanded .question-bank-card-side {
@@ -2477,6 +2479,7 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
 }
 
 .bank-icon-button {
+  position: relative;
   display: grid;
   place-items: center;
   width: 38px;
@@ -2485,11 +2488,25 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
   border-radius: 50%;
   background: var(--surface);
   color: var(--blue);
+  cursor: pointer;
+  touch-action: manipulation;
 }
 
 .bank-icon-button svg {
   width: 18px;
   height: 18px;
+  pointer-events: none;
+}
+
+.bank-bookmark-button {
+  z-index: 5;
+}
+
+.bank-bookmark-button::before {
+  position: absolute;
+  inset: -8px;
+  border-radius: 999px;
+  content: "";
 }
 
 .bank-bookmark-button.active {
@@ -2502,7 +2519,7 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
   position: absolute;
   top: 22px;
   right: 22px;
-  z-index: 1;
+  z-index: 5;
 }
 
 .question-bank-list.list-layout .question-bank-card-main > .bank-bookmark-button {
@@ -3830,27 +3847,30 @@ body.my-interview-active .site-footer {
   width: 0;
   height: 0;
   border-right: 7px solid transparent;
-  border-bottom: 7px solid #262626;
+  border-bottom: 7px solid #ffffff;
   border-left: 7px solid transparent;
   content: "";
+  filter: drop-shadow(0 -1px 0 rgba(148, 163, 184, 0.32));
   transform: translateX(-7px);
 }
 
 .bookmark-destination-popover.above::before {
   top: auto;
   bottom: -7px;
-  border-top: 7px solid #262626;
+  border-top: 7px solid #ffffff;
   border-bottom: 0;
+  filter: drop-shadow(0 1px 0 rgba(148, 163, 184, 0.32));
 }
 
 .bookmark-destination-dialog {
   display: grid;
   gap: 10px;
+  border: 1px solid #dbeafe;
   border-radius: 14px;
   padding: 14px;
-  background: #262626;
-  color: #ffffff;
-  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.28);
+  background: #ffffff;
+  color: var(--ink);
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.16);
 }
 
 .bookmark-destination-head {
@@ -3862,7 +3882,7 @@ body.my-interview-active .site-footer {
 
 .bookmark-destination-head h2 {
   margin: 0;
-  color: #ffffff;
+  color: var(--ink);
   font-size: 18px;
   font-weight: 950;
 }
@@ -3876,12 +3896,12 @@ body.my-interview-active .site-footer {
   border: 0;
   border-radius: 999px;
   background: transparent;
-  color: #d4d4d4;
+  color: var(--muted);
 }
 
 .bookmark-destination-close:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
+  background: #f1f5f9;
+  color: var(--blue);
 }
 
 .bookmark-destination-close svg {
@@ -3895,7 +3915,7 @@ body.my-interview-active .site-footer {
   gap: 2px;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: #737373 transparent;
+  scrollbar-color: #cbd5e1 transparent;
 }
 
 .bookmark-destination-set-button {
@@ -3905,19 +3925,20 @@ body.my-interview-active .site-footer {
   gap: 12px;
   width: 100%;
   min-height: 44px;
-  border: 0;
+  border: 1px solid transparent;
   border-radius: 10px;
   padding: 0 10px;
   background: transparent;
-  color: #ffffff;
+  color: var(--ink);
   font: inherit;
   font-size: 14px;
-  font-weight: 900;
+  font-weight: 500;
   cursor: pointer;
 }
 
 .bookmark-destination-set-button:hover {
-  background: rgba(255, 255, 255, 0.1);
+  border-color: #bfdbfe;
+  background: #eff6ff;
 }
 
 .bookmark-destination-set-button.added,
@@ -3949,23 +3970,24 @@ body.my-interview-active .site-footer {
 
 .bookmark-destination-set-button.create {
   margin-top: 4px;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 0 0 10px 10px;
+  border-top: 1px solid var(--line);
+  border-radius: 10px;
   padding-top: 4px;
-  color: #e5e7eb;
+  color: var(--blue);
 }
 
 .bookmark-destination-set-button strong {
   flex: 0 0 auto;
-  color: #a3a3a3;
+  color: var(--muted);
   font-size: 12px;
+  font-weight: 500;
 }
 
 .bookmark-destination-empty {
   padding: 10px;
-  color: #a3a3a3;
+  color: var(--muted);
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 500;
 }
 
 .bookmark-destination-create-form {
@@ -3974,24 +3996,24 @@ body.my-interview-active .site-footer {
   gap: 8px;
   margin-top: 6px;
   padding: 8px 0 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 1px solid var(--line);
 }
 
 .bookmark-destination-create-form input {
   min-width: 0;
   height: 38px;
-  border: 1px solid #525252;
+  border: 1px solid var(--line);
   border-radius: 10px;
   padding: 0 10px;
-  background: #171717;
-  color: #ffffff;
+  background: #f8fafc;
+  color: var(--ink);
   font: inherit;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 500;
 }
 
 .bookmark-destination-create-form input::placeholder {
-  color: #a3a3a3;
+  color: var(--muted);
 }
 
 .bookmark-destination-create-form button {
@@ -3999,11 +4021,11 @@ body.my-interview-active .site-footer {
   border: 0;
   border-radius: 10px;
   padding: 0 12px;
-  background: #ffffff;
-  color: #171717;
+  background: var(--blue);
+  color: #ffffff;
   font: inherit;
   font-size: 13px;
-  font-weight: 950;
+  font-weight: 500;
 }
 
 .my-page-empty {
