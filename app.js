@@ -5551,16 +5551,22 @@ const bindQuickPracticeControls = () => {
   elements.bookmarkDestinationSetList.addEventListener("click", (event) => {
     const bookmarkButton = event.target.closest("[data-bookmark-destination-bookmark]");
     if (bookmarkButton) {
+      event.preventDefault();
+      event.stopPropagation();
       toggleBookmarkDestinationBookmark();
       return;
     }
     const createButton = event.target.closest("[data-bookmark-destination-create]");
     if (createButton) {
+      event.preventDefault();
+      event.stopPropagation();
       startBookmarkDestinationSetCreate();
       return;
     }
     const setButton = event.target.closest("[data-bookmark-destination-set]");
     if (!setButton || setButton.disabled) return;
+    event.preventDefault();
+    event.stopPropagation();
     addBookmarkDestinationToSet(setButton.dataset.bookmarkDestinationSet);
   });
   elements.bookmarkDestinationSetList.addEventListener("submit", (event) => {
