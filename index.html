@@ -1174,29 +1174,16 @@
       </section>
     </div>
 
-    <div class="exit-modal" id="bookmarkDestinationModal" aria-hidden="true">
-      <section class="exit-dialog bookmark-destination-dialog" role="dialog" aria-modal="true" aria-labelledby="bookmarkDestinationTitle">
-        <div class="help-dialog-head">
-          <div>
-            <p class="module-label">질문 저장</p>
-            <h2 id="bookmarkDestinationTitle">어디에 담을까요?</h2>
-          </div>
-          <button class="icon-close" id="bookmarkDestinationCloseButton" type="button" aria-label="질문 저장 창 닫기">
+    <div class="bookmark-destination-popover" id="bookmarkDestinationModal" aria-hidden="true">
+      <section class="bookmark-destination-dialog" role="dialog" aria-labelledby="bookmarkDestinationTitle">
+        <div class="bookmark-destination-head">
+          <h2 id="bookmarkDestinationTitle">저장 위치</h2>
+          <button class="bookmark-destination-close" id="bookmarkDestinationCloseButton" type="button" aria-label="저장 위치 닫기">
             <i data-lucide="x"></i>
           </button>
         </div>
-        <p class="bookmark-destination-question" id="bookmarkDestinationQuestion"></p>
-        <div class="bookmark-destination-actions">
-          <button class="bookmark-destination-primary" id="bookmarkDestinationBookmarkButton" type="button">
-            <i data-lucide="bookmark"></i>
-            <span>북마크한 질문에 저장</span>
-          </button>
-        </div>
-        <div class="bookmark-destination-section">
-          <strong>생성된 면접 세트</strong>
-          <div class="bookmark-destination-set-list" id="bookmarkDestinationSetList"></div>
-        </div>
-        <p class="bookmark-destination-status" id="bookmarkDestinationStatus" aria-live="polite"></p>
+        <div class="bookmark-destination-set-list" id="bookmarkDestinationSetList"></div>
+        <p class="sr-only" id="bookmarkDestinationStatus" aria-live="polite"></p>
       </section>
     </div>
 

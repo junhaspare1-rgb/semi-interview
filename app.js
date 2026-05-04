@@ -124,6 +124,7 @@ const state = {
     sidebarCollapsed: false,
     filterDrawerOpen: false,
     bookmarkDestinationKey: "",
+    bookmarkDestinationCreatingSet: false,
   },
   myPage: {
     role: "all",
@@ -442,8 +443,6 @@ const cacheElements = () => {
     "questionBankEmpty",
     "bookmarkDestinationModal",
     "bookmarkDestinationCloseButton",
-    "bookmarkDestinationQuestion",
-    "bookmarkDestinationBookmarkButton",
     "bookmarkDestinationSetList",
     "bookmarkDestinationStatus",
     "quickPracticeBackButton",
@@ -3287,50 +3286,100 @@ const closeMyPageFilterDrawer = () => {
 
 const bookmarkDestinationQuestion = () => questionByProgressKey(state.questionBank.bookmarkDestinationKey);
 
+const positionBookmarkDestinationPopover = (anchorElement) => {
+  if (!anchorElement || !elements.bookmarkDestinationModal) return;
+  const popover = elements.bookmarkDestinationModal;
+  const margin = 12;
+  const anchorRect = anchorElement.getBoundingClientRect();
+  const popoverRect = popover.getBoundingClientRect();
+  const popoverWidth = popoverRect.width;
+  const popoverHeight = popoverRect.height;
+  let left = anchorRect.left + anchorRect.width / 2 - popoverWidth / 2;
+  left = Math.max(margin, Math.min(left, window.innerWidth - popoverWidth - margin));
+
+  let top = anchorRect.bottom + 10;
+  const openAbove = top + popoverHeight > window.innerHeight - margin && anchorRect.top - popoverHeight - 10 > margin;
+  if (openAbove) {
+    top = anchorRect.top - popoverHeight - 10;
+  }
+
+  popover.classList.toggle("above", openAbove);
+  popover.style.left = `${Math.round(left)}px`;
+  popover.style.top = `${Math.round(top)}px`;
+  popover.style.setProperty("--popover-arrow-left", `${Math.round(anchorRect.left + anchorRect.width / 2 - left)}px`);
+};
+
 const renderBookmarkDestinationModal = (status = "") => {
   const question = bookmarkDestinationQuestion();
   if (!question) return;
   const studyState = getQuestionStudyState(question);
   const bookmarked = studyState.bookmarked;
-  elements.bookmarkDestinationQuestion.textContent = question.text;
-  elements.bookmarkDestinationBookmarkButton.classList.toggle("active", bookmarked);
-  elements.bookmarkDestinationBookmarkButton.innerHTML = `
-    <i data-lucide="${bookmarked ? "bookmark-x" : "bookmark"}"></i>
-    <span>${bookmarked ? "북마크에서 해제" : "북마크한 질문에 저장"}</span>
+  const bookmarkOption = `
+    <button class="bookmark-destination-set-button bookmark-option ${bookmarked ? "added" : ""}" type="button" data-bookmark-destination-bookmark>
+      <span>
+        <i data-lucide="${bookmarked ? "bookmark-check" : "bookmark"}"></i>
+        <span>북마크한 질문</span>
+      </span>
+      <strong>${bookmarked ? "저장됨" : "저장"}</strong>
+    </button>
   `;
 
-  elements.bookmarkDestinationSetList.innerHTML = state.myInterview.sets.length
+  const setOptions = state.myInterview.sets.length
     ? state.myInterview.sets
         .map((set) => {
           const alreadyAdded = (set.items || []).some((item) => item.type === "bank" && item.key === progressKey(question));
           return `
             <button class="bookmark-destination-set-button ${alreadyAdded ? "added" : ""}" type="button" data-bookmark-destination-set="${escapeHtml(set.id)}" ${alreadyAdded ? "disabled" : ""}>
               <span>${escapeHtml(set.name)}</span>
-              <strong>${alreadyAdded ? "이미 담김" : `${set.items.length}개 질문`}</strong>
+              <strong>${alreadyAdded ? "저장됨" : "저장"}</strong>
             </button>
           `;
         })
         .join("")
-    : '<div class="bookmark-destination-empty">아직 생성된 면접 세트가 없습니다.</div>';
+    : '<div class="bookmark-destination-empty">생성된 면접 세트 없음</div>';
+  const createSetControl = state.questionBank.bookmarkDestinationCreatingSet
+    ? `
+      <form class="bookmark-destination-create-form" data-bookmark-destination-create-form>
+        <input id="bookmarkDestinationSetNameInput" type="text" maxlength="40" placeholder="새 면접 세트 이름" autocomplete="off" />
+        <button type="submit">생성</button>
+      </form>
+    `
+    : `
+      <button class="bookmark-destination-set-button create" type="button" data-bookmark-destination-create>
+        <span>
+          <i data-lucide="plus"></i>
+          <span>새 면접 세트 만들기</span>
+        </span>
+      </button>
+    `;
+  elements.bookmarkDestinationSetList.innerHTML = bookmarkOption + setOptions + createSetControl;
   elements.bookmarkDestinationStatus.textContent = status;
   renderIcons();
 };
 
-const showBookmarkDestinationModal = (questionId) => {
+const showBookmarkDestinationModal = (questionId, anchorElement) => {
   const question = questionBankQuestionById(questionId);
   if (!question) return;
   if (!requireLoginForStudySave("question_bank", "bookmark")) return;
   state.questionBank.bookmarkDestinationKey = progressKey(question);
+  state.questionBank.bookmarkDestinationCreatingSet = false;
   renderBookmarkDestinationModal();
   elements.bookmarkDestinationModal.classList.add("open");
   elements.bookmarkDestinationModal.setAttribute("aria-hidden", "false");
-  window.setTimeout(() => elements.bookmarkDestinationBookmarkButton.focus(), 0);
+  positionBookmarkDestinationPopover(anchorElement);
+  window.setTimeout(() => {
+    positionBookmarkDestinationPopover(anchorElement);
+    elements.bookmarkDestinationSetList.querySelector("button")?.focus();
+  }, 0);
 };
 
 const hideBookmarkDestinationModal = () => {
   elements.bookmarkDestinationModal.classList.remove("open");
+  elements.bookmarkDestinationModal.classList.remove("above");
   elements.bookmarkDestinationModal.setAttribute("aria-hidden", "true");
+  elements.bookmarkDestinationModal.removeAttribute("style");
   state.questionBank.bookmarkDestinationKey = "";
+  state.questionBank.bookmarkDestinationCreatingSet = false;
   elements.bookmarkDestinationStatus.textContent = "";
 };
 
@@ -3373,6 +3422,44 @@ const addBookmarkDestinationToSet = (setId) => {
     renderMyInterview();
   }
   renderBookmarkDestinationModal(`"${targetSet.name}" 세트에 담았습니다.`);
+};
+
+const startBookmarkDestinationSetCreate = () => {
+  state.questionBank.bookmarkDestinationCreatingSet = true;
+  renderBookmarkDestinationModal();
+  window.setTimeout(() => $("#bookmarkDestinationSetNameInput")?.focus(), 0);
+};
+
+const createBookmarkDestinationSet = () => {
+  const question = bookmarkDestinationQuestion();
+  const input = $("#bookmarkDestinationSetNameInput");
+  const name = input?.value.trim() || "";
+  if (!question || !input) return;
+  if (!name) {
+    input.focus();
+    return;
+  }
+
+  const key = progressKey(question);
+  const set = {
+    id: createMyInterviewId("set"),
+    name,
+    subtitle: "",
+    items: [{ type: "bank", key, addedAt: Date.now() }],
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+  };
+  state.myInterview.sets.unshift(set);
+  writeMyInterviewSets();
+  state.questionBank.bookmarkDestinationCreatingSet = false;
+  trackEvent("my_interview_set_create", {
+    source: "question_bank_bookmark_button",
+    question_key: key,
+  });
+  if (elements.myInterviewView?.classList.contains("active")) {
+    renderMyInterview();
+  }
+  renderBookmarkDestinationModal(`"${set.name}" 세트를 만들고 질문을 담았습니다.`);
 };
 
 const toggleQuestionBankStatus = (questionId, status) => {
@@ -5368,7 +5455,7 @@ const bindQuestionBankControls = () => {
 
     const bookmarkButton = event.target.closest("[data-bank-bookmark]");
     if (bookmarkButton) {
-      showBookmarkDestinationModal(bookmarkButton.dataset.bankBookmark);
+      showBookmarkDestinationModal(bookmarkButton.dataset.bankBookmark, bookmarkButton);
       return;
     }
 
@@ -5461,12 +5548,39 @@ const bindQuickPracticeControls = () => {
       hideBookmarkDestinationModal();
     }
   });
-  elements.bookmarkDestinationBookmarkButton.addEventListener("click", toggleBookmarkDestinationBookmark);
   elements.bookmarkDestinationSetList.addEventListener("click", (event) => {
+    const bookmarkButton = event.target.closest("[data-bookmark-destination-bookmark]");
+    if (bookmarkButton) {
+      toggleBookmarkDestinationBookmark();
+      return;
+    }
+    const createButton = event.target.closest("[data-bookmark-destination-create]");
+    if (createButton) {
+      startBookmarkDestinationSetCreate();
+      return;
+    }
     const setButton = event.target.closest("[data-bookmark-destination-set]");
     if (!setButton || setButton.disabled) return;
     addBookmarkDestinationToSet(setButton.dataset.bookmarkDestinationSet);
   });
+  elements.bookmarkDestinationSetList.addEventListener("submit", (event) => {
+    if (!event.target.closest("[data-bookmark-destination-create-form]")) return;
+    event.preventDefault();
+    createBookmarkDestinationSet();
+  });
+  document.addEventListener("click", (event) => {
+    if (!elements.bookmarkDestinationModal.classList.contains("open")) return;
+    if (elements.bookmarkDestinationModal.contains(event.target)) return;
+    if (event.target.closest("[data-bank-bookmark]")) return;
+    hideBookmarkDestinationModal();
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && elements.bookmarkDestinationModal.classList.contains("open")) {
+      hideBookmarkDestinationModal();
+    }
+  });
+  window.addEventListener("resize", hideBookmarkDestinationModal);
+  window.addEventListener("scroll", hideBookmarkDestinationModal);
 };
 
 const bindMyPageControls = () => {
