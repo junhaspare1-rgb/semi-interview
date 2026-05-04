@@ -101,6 +101,9 @@ const state = {
   pendingView: "home",
   pendingPracticeIndex: null,
   pendingSessionQuestionKeys: [],
+  pendingSessionQuestions: [],
+  pendingSessionLabel: "",
+  pendingSessionSource: "",
   pendingStartMode: "standard",
   landing: {
     selectedRole: "process",
@@ -120,6 +123,7 @@ const state = {
     page: 1,
     sidebarCollapsed: false,
     filterDrawerOpen: false,
+    bookmarkDestinationKey: "",
   },
   myPage: {
     role: "all",
@@ -130,11 +134,27 @@ const state = {
     filterDrawerOpen: false,
     selectedKeys: [],
     pendingRemoveKeys: [],
+    expandedAnswerKey: "",
+  },
+  myInterview: {
+    sets: [],
+    activeSetId: "",
+    addTab: "existing",
+    existingSearch: "",
+    existingRole: "all",
+    existingSelectedKeys: [],
+    setDrawerOpen: false,
+    expandedAnswerKey: "",
+    subtitleEditing: false,
+    answerEditingKey: "",
+    draggingKey: "",
   },
   quickPractice: {
     questionId: null,
     questionKey: "",
+    question: null,
     queueKeys: [],
+    queueQuestions: [],
     returnView: "question-bank",
     tab: "practice",
     recorder: null,
@@ -184,6 +204,8 @@ const FEEDBACK_QUEUE_KEY = "banmyeonppu_feedback_queue";
 const REPORT_QUEUE_KEY = "banmyeonppu_report_queue";
 const WAITLIST_QUEUE_KEY = "banmyeonppu_waitlist_queue";
 const STUDY_PROGRESS_KEY = "banmyeonppu_question_progress_v1";
+const MY_INTERVIEW_SETS_KEY = "banmyeonppu_my_interview_sets_v1";
+const MY_INTERVIEW_BOOKMARK_SET_ID = "__bookmarked_questions__";
 const STT_TEST_SCRIPT =
   "CVD와 ALD의 차이는 박막의 스텝커버리지 입니다. 증착 공정에서는 박막의 유니포미티가 매우 중요합니다.";
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
@@ -261,6 +283,45 @@ const cacheElements = () => {
     "landingWaitlistStatus",
     "closeLandingWaitlistButton",
     "questionBankView",
+    "myInterviewView",
+    "myInterviewSetBackdrop",
+    "myInterviewSetDrawerButton",
+    "myInterviewSetCloseButton",
+    "myInterviewCreateSetButton",
+    "myInterviewEmptyCreateButton",
+    "myInterviewSetCount",
+    "myInterviewSetList",
+    "myInterviewEmpty",
+    "myInterviewDetailContent",
+    "myInterviewActiveSetName",
+    "myInterviewSubtitleEditor",
+    "myInterviewPracticeButton",
+    "myInterviewStartButton",
+    "myInterviewDeleteSetButton",
+    "myInterviewQuestionList",
+    "myInterviewSetEmpty",
+    "myInterviewSetModal",
+    "myInterviewSetName",
+    "myInterviewSetStatus",
+    "cancelMyInterviewSetButton",
+    "closeMyInterviewSetButton",
+    "confirmMyInterviewSetButton",
+    "myInterviewAddModal",
+    "closeMyInterviewAddButton",
+    "myInterviewExistingTab",
+    "myInterviewCustomTab",
+    "myInterviewExistingPanel",
+    "myInterviewCustomPanel",
+    "myInterviewExistingSearch",
+    "myInterviewExistingRole",
+    "myInterviewExistingList",
+    "myInterviewExistingSelectedCount",
+    "confirmMyInterviewExistingButton",
+    "myInterviewCustomForm",
+    "myInterviewCustomQuestion",
+    "myInterviewCustomCategory",
+    "myInterviewCustomAnswer",
+    "myInterviewCustomStatus",
     "myPageView",
     "myPageSidebar",
     "myPageFilterBackdrop",
@@ -320,7 +381,6 @@ const cacheElements = () => {
     "mobileMenuDrawer",
     "mobileMenuCloseButton",
     "mobileMenuEmail",
-    "mobileMenuBookmarkButton",
     "mobileMenuHelpButton",
     "mobileMenuAuthButton",
     "mobileMenuLogoutButton",
@@ -353,7 +413,7 @@ const cacheElements = () => {
     "sttTestTranscript",
     "sttTestModel",
     "sttTestAudioPlayer",
-    "bookmarkNavButton",
+    "myInterviewNavButton",
     "questionBankSidebar",
     "questionBankFilterBackdrop",
     "questionBankSidebarCollapseButton",
@@ -380,6 +440,12 @@ const cacheElements = () => {
     "questionBankList",
     "questionBankPagination",
     "questionBankEmpty",
+    "bookmarkDestinationModal",
+    "bookmarkDestinationCloseButton",
+    "bookmarkDestinationQuestion",
+    "bookmarkDestinationBookmarkButton",
+    "bookmarkDestinationSetList",
+    "bookmarkDestinationStatus",
     "quickPracticeBackButton",
     "quickPracticeCounter",
     "quickPracticeBookmarkButton",
@@ -561,7 +627,14 @@ const viewFromRoute = () => {
       return "contact";
     case "/my-page":
     case "/my-questions":
-      return "my-page";
+      state.myInterview.activeSetId = MY_INTERVIEW_BOOKMARK_SET_ID;
+      state.myInterview.expandedAnswerKey = "";
+      state.myInterview.subtitleEditing = false;
+      state.myInterview.answerEditingKey = "";
+      state.myInterview.draggingKey = "";
+      return "my-interview";
+    case "/my-interview":
+      return "my-interview";
     case "/practice":
       return "quick-practice";
     default:
@@ -584,6 +657,7 @@ const routeForView = (view) => {
   if (view === "home") return "/mock-interview";
   if (view === "contact") return "/contact";
   if (view === "my-page") return "/my-questions";
+  if (view === "my-interview") return "/my-interview";
   if (view === "quick-practice") {
     const question = quickPracticeQuestion();
     if (!question) return "/questions";
@@ -713,8 +787,12 @@ const setView = (view, options = {}) => {
   if (nextView !== "my-page") {
     state.myPage.filterDrawerOpen = false;
   }
+  if (nextView !== "my-interview") {
+    state.myInterview.setDrawerOpen = false;
+  }
   elements.landingView.classList.toggle("active", nextView === "landing");
   elements.questionBankView.classList.toggle("active", nextView === "question-bank");
+  elements.myInterviewView.classList.toggle("active", nextView === "my-interview");
   elements.myPageView.classList.toggle("active", nextView === "my-page");
   elements.quickPracticeView.classList.toggle("active", nextView === "quick-practice");
   elements.homeView.classList.toggle("active", nextView === "home");
@@ -728,19 +806,23 @@ const setView = (view, options = {}) => {
   document.body.classList.toggle("landing-active", nextView === "landing");
   document.body.classList.toggle("question-bank-active", nextView === "question-bank");
   document.body.classList.toggle("my-questions-active", nextView === "my-page");
+  document.body.classList.toggle("my-interview-active", nextView === "my-interview");
   document.body.classList.toggle("question-bank-sidebar-collapsed", nextView === "question-bank" && state.questionBank.sidebarCollapsed);
   document.body.classList.toggle(
     "question-filter-open",
     (nextView === "question-bank" && state.questionBank.filterDrawerOpen) ||
-      (nextView === "my-page" && state.myPage.filterDrawerOpen),
+      (nextView === "my-page" && state.myPage.filterDrawerOpen) ||
+      (nextView === "my-interview" && state.myInterview.setDrawerOpen),
   );
-  const activeNavView = ["about", "contact", "question-bank", "quick-practice", "home", "landing", "my-page"].includes(nextView)
-    ? nextView === "quick-practice"
-      ? "question-bank"
-      : nextView === "my-page"
-        ? ""
-      : nextView
+  let activeNavView = ["about", "contact", "question-bank", "quick-practice", "home", "landing", "my-page", "my-interview"].includes(nextView)
+    ? nextView
     : "home";
+  if (nextView === "quick-practice") {
+    activeNavView = "question-bank";
+  }
+  if (nextView === "my-page") {
+    activeNavView = "";
+  }
   const isQuestionBankNavActive = activeNavView === "question-bank";
   $$(".main-nav [data-view]").forEach((button) => {
     const isRoleSubmenuItem =
@@ -767,6 +849,8 @@ const setView = (view, options = {}) => {
     "active",
     isQuestionBankNavActive && state.questionBank.role === "personality",
   );
+  elements.myInterviewNavButton?.classList.toggle("active", nextView === "my-interview");
+  elements.myInterviewNavButton?.setAttribute("aria-pressed", String(nextView === "my-interview"));
   if (nextView === "question-bank") {
     renderQuestionBank();
   }
@@ -775,6 +859,9 @@ const setView = (view, options = {}) => {
   }
   if (nextView === "my-page") {
     renderMyPage();
+  }
+  if (nextView === "my-interview") {
+    renderMyInterview();
   }
   if (updateRoute) {
     updateAppRoute(nextView, { replace: replaceRoute });
@@ -984,11 +1071,17 @@ const startInterview = () => {
 const showStartEnvironmentModal = (options = {}) => {
   const hasPracticeTarget = Number.isInteger(options.practiceIndex);
   const customQuestionKeys = Array.isArray(options.questionKeys) ? options.questionKeys.filter((key) => questionByProgressKey(key)) : [];
-  const hasCustomSession = customQuestionKeys.length > 0;
+  const directSessionQuestions = Array.isArray(options.sessionQuestions)
+    ? options.sessionQuestions.filter((question) => question?.text)
+    : [];
+  const hasCustomSession = customQuestionKeys.length > 0 || directSessionQuestions.length > 0;
   const mode = hasPracticeTarget || hasCustomSession ? "standard" : getSelectedInterviewMode();
   if (!hasPracticeTarget && !hasCustomSession && elements.startInterview.disabled) return;
   state.pendingPracticeIndex = hasPracticeTarget ? options.practiceIndex : null;
   state.pendingSessionQuestionKeys = hasCustomSession ? customQuestionKeys : [];
+  state.pendingSessionQuestions = hasCustomSession ? directSessionQuestions : [];
+  state.pendingSessionLabel = hasCustomSession ? String(options.sessionLabel || "선택 문항") : "";
+  state.pendingSessionSource = hasCustomSession ? String(options.sessionSource || "selected_questions") : "";
   state.pendingStartMode = mode;
   const isAiMode = mode === "ai";
   if (isAiMode && !isAiAdminUnlocked()) {
@@ -1013,6 +1106,9 @@ const hideStartEnvironmentModal = (clearPracticeTarget = true) => {
   if (clearPracticeTarget) {
     state.pendingPracticeIndex = null;
     state.pendingSessionQuestionKeys = [];
+    state.pendingSessionQuestions = [];
+    state.pendingSessionLabel = "";
+    state.pendingSessionSource = "";
   }
   state.pendingStartMode = "standard";
   elements.startEnvironmentConsent.checked = false;
@@ -1024,18 +1120,30 @@ const hideStartEnvironmentModal = (clearPracticeTarget = true) => {
 const confirmStartEnvironment = () => {
   const practiceIndex = state.pendingPracticeIndex;
   const sessionQuestionKeys = [...state.pendingSessionQuestionKeys];
+  const sessionQuestions = [...state.pendingSessionQuestions];
+  const sessionLabel = state.pendingSessionLabel;
+  const sessionSource = state.pendingSessionSource;
   const startMode = state.pendingStartMode;
   if (startMode === "ai" && !elements.startEnvironmentConsent.checked) return;
   state.aiEvaluationConsent = startMode === "ai";
   hideStartEnvironmentModal(false);
   state.pendingPracticeIndex = null;
   state.pendingSessionQuestionKeys = [];
+  state.pendingSessionQuestions = [];
+  state.pendingSessionLabel = "";
+  state.pendingSessionSource = "";
   if (Number.isInteger(practiceIndex)) {
     startSingleQuestionPractice(practiceIndex, "environment_confirm");
     return;
   }
-  if (sessionQuestionKeys.length) {
-    startSelectedQuestionInterview(sessionQuestionKeys.map((key) => questionByProgressKey(key)).filter(Boolean));
+  if (sessionQuestionKeys.length || sessionQuestions.length) {
+    startSelectedQuestionInterview(
+      [
+        ...sessionQuestionKeys.map((key) => questionByProgressKey(key)).filter(Boolean),
+        ...sessionQuestions,
+      ],
+      { label: sessionLabel, source: sessionSource },
+    );
     return;
   }
   startInterview();
@@ -1756,6 +1864,9 @@ const renderStudyProgressSurfaces = () => {
   }
   if (elements.myPageView?.classList.contains("active")) {
     renderMyPage();
+  }
+  if (elements.myInterviewView?.classList.contains("active")) {
+    renderMyInterview();
   }
 };
 
@@ -2554,6 +2665,31 @@ const renderPersonalityAnswerBlock = (question) => `
   </div>
 `;
 
+const isCustomQuestion = (question) => question?.questionType === "custom" || question?.source === "custom";
+
+const renderListAnswerPanel = (question) => {
+  if (isCustomQuestion(question)) {
+    return `
+      <section class="question-bank-answer my-list-answer-panel">
+        <div class="question-bank-answer-head">
+          <h3>사용자 답안</h3>
+        </div>
+        <div class="model-answer-text">${renderModelAnswerHtml(question.answer || "아직 입력된 사용자 답안이 없습니다.")}</div>
+      </section>
+    `;
+  }
+
+  const personalityQuestion = isPersonalityQuestion(question);
+  return `
+    <section class="question-bank-answer my-list-answer-panel">
+      <div class="question-bank-answer-head">
+        <h3>${personalityQuestion ? "인성 답변 가이드" : "모범 답안"}</h3>
+      </div>
+      ${personalityQuestion ? renderPersonalityAnswerBlock(question) : `<div class="model-answer-text">${renderModelAnswerBlock(question)}</div>`}
+    </section>
+  `;
+};
+
 const activeAnswerQuestionForAnalytics = () => {
   if (elements.quickPracticeView?.classList.contains("active")) {
     return { question: quickPracticeQuestion(), source: "quick_practice" };
@@ -2561,6 +2697,16 @@ const activeAnswerQuestionForAnalytics = () => {
 
   if (elements.questionBankView?.classList.contains("active") && state.questionBank.expandedId) {
     return { question: questionBankQuestionById(state.questionBank.expandedId), source: "question_bank" };
+  }
+
+  if (elements.myPageView?.classList.contains("active") && state.myPage.expandedAnswerKey) {
+    return { question: questionByProgressKey(state.myPage.expandedAnswerKey), source: "my_page" };
+  }
+
+  if (elements.myInterviewView?.classList.contains("active") && state.myInterview.expandedAnswerKey) {
+    const activeSet = myInterviewActiveSet();
+    const item = (activeSet?.items || []).find((candidate) => myInterviewItemKey(candidate) === state.myInterview.expandedAnswerKey);
+    return { question: item ? myInterviewQuestionFromItem(item) : null, source: "my_interview" };
   }
 
   return { question: null, source: "unknown" };
@@ -3012,10 +3158,6 @@ const renderQuestionBankList = () => {
                 <span>연습 필요</span>
               </button>
             </div>
-            <button class="small-button bank-practice-button" type="button" data-bank-practice="${question.originalIndex}" data-bank-practice-role="${escapeHtml(question.roleId || "process")}" aria-label="연습하기" title="연습하기">
-              <span>연습하기</span>
-              <i data-lucide="arrow-right"></i>
-            </button>
           `;
       return `
         <article class="question-bank-card ${expanded ? "expanded" : ""} ${personalityQuestion ? "personality-card" : ""}" data-bank-card="${escapeHtml(question.id)}">
@@ -3143,10 +3285,58 @@ const closeMyPageFilterDrawer = () => {
   syncMyPageFilterDrawer();
 };
 
-const toggleQuestionBankBookmark = (questionId) => {
+const bookmarkDestinationQuestion = () => questionByProgressKey(state.questionBank.bookmarkDestinationKey);
+
+const renderBookmarkDestinationModal = (status = "") => {
+  const question = bookmarkDestinationQuestion();
+  if (!question) return;
+  const studyState = getQuestionStudyState(question);
+  const bookmarked = studyState.bookmarked;
+  elements.bookmarkDestinationQuestion.textContent = question.text;
+  elements.bookmarkDestinationBookmarkButton.classList.toggle("active", bookmarked);
+  elements.bookmarkDestinationBookmarkButton.innerHTML = `
+    <i data-lucide="${bookmarked ? "bookmark-x" : "bookmark"}"></i>
+    <span>${bookmarked ? "북마크에서 해제" : "북마크한 질문에 저장"}</span>
+  `;
+
+  elements.bookmarkDestinationSetList.innerHTML = state.myInterview.sets.length
+    ? state.myInterview.sets
+        .map((set) => {
+          const alreadyAdded = (set.items || []).some((item) => item.type === "bank" && item.key === progressKey(question));
+          return `
+            <button class="bookmark-destination-set-button ${alreadyAdded ? "added" : ""}" type="button" data-bookmark-destination-set="${escapeHtml(set.id)}" ${alreadyAdded ? "disabled" : ""}>
+              <span>${escapeHtml(set.name)}</span>
+              <strong>${alreadyAdded ? "이미 담김" : `${set.items.length}개 질문`}</strong>
+            </button>
+          `;
+        })
+        .join("")
+    : '<div class="bookmark-destination-empty">아직 생성된 면접 세트가 없습니다.</div>';
+  elements.bookmarkDestinationStatus.textContent = status;
+  renderIcons();
+};
+
+const showBookmarkDestinationModal = (questionId) => {
   const question = questionBankQuestionById(questionId);
   if (!question) return;
   if (!requireLoginForStudySave("question_bank", "bookmark")) return;
+  state.questionBank.bookmarkDestinationKey = progressKey(question);
+  renderBookmarkDestinationModal();
+  elements.bookmarkDestinationModal.classList.add("open");
+  elements.bookmarkDestinationModal.setAttribute("aria-hidden", "false");
+  window.setTimeout(() => elements.bookmarkDestinationBookmarkButton.focus(), 0);
+};
+
+const hideBookmarkDestinationModal = () => {
+  elements.bookmarkDestinationModal.classList.remove("open");
+  elements.bookmarkDestinationModal.setAttribute("aria-hidden", "true");
+  state.questionBank.bookmarkDestinationKey = "";
+  elements.bookmarkDestinationStatus.textContent = "";
+};
+
+const toggleBookmarkDestinationBookmark = () => {
+  const question = bookmarkDestinationQuestion();
+  if (!question) return;
   const studyState = getQuestionStudyState(question);
   const nextBookmarked = !studyState.bookmarked;
   setQuestionStudyState(question, { bookmarked: nextBookmarked });
@@ -3158,7 +3348,31 @@ const toggleQuestionBankBookmark = (questionId) => {
       action: nextBookmarked ? "add" : "remove",
     }),
   );
-  renderQuestionBankList();
+  renderStudyProgressSurfaces();
+  renderBookmarkDestinationModal(nextBookmarked ? "북마크한 질문에 저장했습니다." : "북마크에서 해제했습니다.");
+};
+
+const addBookmarkDestinationToSet = (setId) => {
+  const question = bookmarkDestinationQuestion();
+  const targetSet = state.myInterview.sets.find((set) => set.id === setId);
+  if (!question || !targetSet) return;
+  const key = progressKey(question);
+  if ((targetSet.items || []).some((item) => item.type === "bank" && item.key === key)) {
+    renderBookmarkDestinationModal("이미 이 면접 세트에 담긴 질문입니다.");
+    return;
+  }
+  targetSet.items.push({ type: "bank", key, addedAt: Date.now() });
+  targetSet.updatedAt = Date.now();
+  writeMyInterviewSets();
+  trackEvent("my_interview_question_add", {
+    source: "question_bank_bookmark_button",
+    set_id: targetSet.id,
+    question_key: key,
+  });
+  if (elements.myInterviewView?.classList.contains("active")) {
+    renderMyInterview();
+  }
+  renderBookmarkDestinationModal(`"${targetSet.name}" 세트에 담았습니다.`);
 };
 
 const toggleQuestionBankStatus = (questionId, status) => {
@@ -3298,7 +3512,9 @@ const renderMyPageFilters = (bookmarks) => {
   ].join("");
   elements.myPageRoleFilter.value = state.myPage.role;
 
-  elements.myPageSearch.value = state.myPage.search;
+  if (elements.myPageSearch.value !== state.myPage.search) {
+    elements.myPageSearch.value = state.myPage.search;
+  }
   elements.myPageSort.value = state.myPage.sort;
   syncMyPageFilterOptions(bookmarks);
 };
@@ -3345,10 +3561,10 @@ const renderMyPage = () => {
   const bookmarks = myPageBookmarkedQuestions();
   const bookmarkKeys = new Set(bookmarks.map((question) => progressKey(question)));
   state.myPage.selectedKeys = state.myPage.selectedKeys.filter((key) => bookmarkKeys.has(key));
-  const visibleQuestions = myPageFilteredBookmarks();
 
   elements.myPageBookmarkCount.textContent = bookmarks.length;
   renderMyPageFilters(bookmarks);
+  const visibleQuestions = myPageFilteredBookmarks();
 
   const hasBookmarks = bookmarks.length > 0;
   elements.myPageEmpty.hidden = hasBookmarks && visibleQuestions.length > 0;
@@ -3379,22 +3595,33 @@ const renderMyPage = () => {
       const key = progressKey(question);
       const studyState = getQuestionStudyState(question);
       const selected = state.myPage.selectedKeys.includes(key);
+      const personalityQuestion = isPersonalityQuestion(question);
+      const expanded = state.myPage.expandedAnswerKey === key;
       const status = studyState.status || "none";
+      const difficultyBadge = personalityQuestion
+        ? ""
+        : `<span class="bank-difficulty-badge ${questionBankDifficultyClass(question.difficulty)}">${escapeHtml(question.difficulty)}</span>`;
+      const categoryBadge = personalityQuestion
+        ? `<span class="personality-category-badge ${personalityCategoryClass(question.category)}">${escapeHtml(question.category)}</span>`
+        : `<span>${escapeHtml(question.category)}</span>`;
+      const statusBadge = personalityQuestion
+        ? ""
+        : `<span class="my-bookmark-status ${status}">${escapeHtml(myPageStatusLabel(studyState.status))}</span>`;
       return `
-        <article class="my-bookmark-item ${selected ? "selected" : ""}" data-my-page-key="${escapeHtml(key)}">
+        <article class="my-bookmark-item ${selected ? "selected" : ""} ${expanded ? "expanded" : ""}" data-my-page-key="${escapeHtml(key)}">
           <label class="my-bookmark-check">
             <input type="checkbox" data-my-page-select="${escapeHtml(key)}" ${selected ? "checked" : ""} />
             <span class="sr-only">질문 선택</span>
           </label>
-          <div class="my-bookmark-main">
-            <div class="my-bookmark-meta">
+          <button class="my-bookmark-main my-question-answer-toggle" type="button" data-my-page-answer="${escapeHtml(key)}" aria-expanded="${expanded}">
+            <span class="my-bookmark-meta">
               <span>${escapeHtml(questionBankRoleById(questionRoleId(question)).shortLabel)}</span>
-              <span class="bank-difficulty-badge ${questionBankDifficultyClass(question.difficulty)}">${escapeHtml(question.difficulty)}</span>
-              <span>${escapeHtml(question.category)}</span>
-              <span class="my-bookmark-status ${status}">${escapeHtml(myPageStatusLabel(studyState.status))}</span>
-            </div>
+              ${difficultyBadge}
+              ${categoryBadge}
+              ${statusBadge}
+            </span>
             <strong>${escapeHtml(question.text)}</strong>
-          </div>
+          </button>
           <div class="my-bookmark-actions">
             <button class="my-bookmark-icon-button quick" type="button" data-my-page-practice="${escapeHtml(key)}" aria-label="빠른 연습" title="빠른 연습">
               <i data-lucide="mic"></i>
@@ -3406,6 +3633,7 @@ const renderMyPage = () => {
               <i data-lucide="bookmark-x"></i>
             </button>
           </div>
+          ${expanded ? renderListAnswerPanel(question) : ""}
         </article>
       `;
     })
@@ -3413,6 +3641,11 @@ const renderMyPage = () => {
 
   renderMyPageSelectionBar(visibleQuestions);
   renderIcons();
+};
+
+const toggleMyPageAnswer = (key) => {
+  state.myPage.expandedAnswerKey = state.myPage.expandedAnswerKey === key ? "" : key;
+  renderMyPage();
 };
 
 const setMyPageSelection = (keys) => {
@@ -3439,6 +3672,9 @@ const removeMyPageBookmarks = (keys) => {
 
   const removedKeys = new Set(questionsToRemove.map((question) => progressKey(question)));
   state.myPage.selectedKeys = state.myPage.selectedKeys.filter((key) => !removedKeys.has(key));
+  if (removedKeys.has(state.myPage.expandedAnswerKey)) {
+    state.myPage.expandedAnswerKey = "";
+  }
   renderMyPage();
   renderStudyProgressSurfaces();
 };
@@ -3487,17 +3723,18 @@ const confirmMyBookmarkRemove = () => {
   removeMyPageBookmarks(keysToRemove);
 };
 
-const startSelectedQuestionInterview = (questionsToInterview) => {
+const startSelectedQuestionInterview = (questionsToInterview, options = {}) => {
   if (!questionsToInterview.length) return;
   state.interviewMode = "standard";
   state.aiEvaluationConsent = false;
   state.config.role = questionRoleId(questionsToInterview[0]);
-  state.config.rigor = "선택 문항";
+  state.config.rigor = options.label || "선택 문항";
   state.config.questionCount = questionsToInterview.length;
   state.config.prepSeconds = Math.max(0, Number(elements.myPracticePrepTime.value) || 0);
   state.config.answerSeconds = Math.max(60, Number(elements.myPracticeAnswerTime.value) || 120);
   setRecordingMode(state.recordingEnabled);
-  trackEvent("my_page_mock_practice_start", {
+  trackEvent("selected_questions_mock_practice_start", {
+    source: options.source || "my_page",
     question_count: questionsToInterview.length,
     prep_seconds: state.config.prepSeconds,
     answer_seconds: state.config.answerSeconds,
@@ -3511,13 +3748,809 @@ const confirmMyPractice = () => {
   if (!questionsToInterview.length) return;
   state.pendingSessionQuestionKeys = progressKeysForQuestions(questionsToInterview);
   hideMyPracticeModal();
-  showStartEnvironmentModal({ questionKeys: state.pendingSessionQuestionKeys });
+  showStartEnvironmentModal({
+    questionKeys: state.pendingSessionQuestionKeys,
+    sessionLabel: "북마크 선택 문항",
+    sessionSource: "my_page",
+  });
 };
 
+const createMyInterviewId = (prefix) =>
+  `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+
+const normalizeMyInterviewItem = (item) => {
+  if (!item || typeof item !== "object") return null;
+  if (item.type === "bank" && item.key && questionByProgressKey(item.key)) {
+    return {
+      type: "bank",
+      key: String(item.key),
+      answerOverride: String(item.answerOverride || "").trim(),
+      addedAt: Number(item.addedAt) || Date.now(),
+    };
+  }
+  if (item.type === "custom" && item.text) {
+    return {
+      type: "custom",
+      id: String(item.id || createMyInterviewId("custom")),
+      roleId: questionBankRoleById(item.roleId).id,
+      category: String(item.category || "기타"),
+      difficulty: normalizeDifficulty(item.difficulty || "입문"),
+      text: String(item.text || "").trim(),
+      answer: String(item.answer || "").trim(),
+      addedAt: Number(item.addedAt) || Date.now(),
+    };
+  }
+  return null;
+};
+
+const normalizeMyInterviewSet = (set) => {
+  if (!set || typeof set !== "object") return null;
+  const id = String(set.id || createMyInterviewId("set"));
+  const name = String(set.name || "").trim();
+  if (!name) return null;
+  const items = Array.isArray(set.items) ? set.items.map(normalizeMyInterviewItem).filter(Boolean) : [];
+  return {
+    id,
+    name,
+    subtitle: String(set.subtitle || "").trim(),
+    items,
+    createdAt: Number(set.createdAt) || Date.now(),
+    updatedAt: Number(set.updatedAt) || Date.now(),
+  };
+};
+
+const readMyInterviewSets = () => {
+  try {
+    const saved = JSON.parse(localStorage.getItem(MY_INTERVIEW_SETS_KEY) || "[]");
+    return Array.isArray(saved) ? saved.map(normalizeMyInterviewSet).filter(Boolean) : [];
+  } catch (error) {
+    return [];
+  }
+};
+
+const writeMyInterviewSets = () => {
+  try {
+    localStorage.setItem(MY_INTERVIEW_SETS_KEY, JSON.stringify(state.myInterview.sets));
+  } catch (error) {
+    // localStorage가 막힌 환경에서도 현재 세션 안의 MY 면접 화면은 계속 동작합니다.
+  }
+};
+
+const isMyInterviewBookmarkSet = (setOrId) =>
+  typeof setOrId === "string"
+    ? setOrId === MY_INTERVIEW_BOOKMARK_SET_ID
+    : Boolean(setOrId?.isBookmarkSet || setOrId?.id === MY_INTERVIEW_BOOKMARK_SET_ID);
+
+const myInterviewBookmarkedQuestions = () =>
+  myPageBookmarkedQuestions().sort(
+    (a, b) => getQuestionStudyState(b).updatedAt - getQuestionStudyState(a).updatedAt || questionBankBaseSort(a, b),
+  );
+
+const myInterviewBookmarkSet = () => {
+  const questions = myInterviewBookmarkedQuestions();
+  return {
+    id: MY_INTERVIEW_BOOKMARK_SET_ID,
+    name: "북마크한 질문",
+    subtitle: "",
+    items: questions.map((question) => ({
+      type: "bank",
+      key: progressKey(question),
+      addedAt: getQuestionStudyState(question).updatedAt || 0,
+    })),
+    createdAt: 0,
+    updatedAt: questions.reduce((latest, question) => Math.max(latest, getQuestionStudyState(question).updatedAt || 0), 0),
+    isBookmarkSet: true,
+  };
+};
+
+const myInterviewVisibleSets = () => [myInterviewBookmarkSet(), ...state.myInterview.sets];
+
+const myInterviewActiveSet = () =>
+  myInterviewVisibleSets().find((set) => set.id === state.myInterview.activeSetId) || myInterviewVisibleSets()[0] || null;
+
+const setMyInterviewActiveSet = (setId) => {
+  const nextSet = myInterviewVisibleSets().find((set) => set.id === setId) || myInterviewVisibleSets()[0] || null;
+  state.myInterview.activeSetId = nextSet?.id || "";
+};
+
+const toggleMyInterviewAnswer = (key) => {
+  state.myInterview.expandedAnswerKey = state.myInterview.expandedAnswerKey === key ? "" : key;
+  state.myInterview.answerEditingKey = "";
+  renderMyInterview();
+};
+
+const myInterviewQuestionFromItem = (item) => {
+  if (item.type === "bank") {
+    const question = questionByProgressKey(item.key);
+    if (!question) return null;
+    if (!item.answerOverride) return question;
+    return {
+      ...question,
+      answer: item.answerOverride,
+      shortAnswer: item.answerOverride,
+      recommendedAnswer: item.answerOverride,
+      answerOverridden: true,
+    };
+  }
+  if (item.type !== "custom") return null;
+  return {
+    id: item.id,
+    roleId: item.roleId || "process",
+    jobRole: "내 질문",
+    category: item.category || "기타",
+    group: "custom",
+    difficulty: item.difficulty || "입문",
+    text: item.text,
+    answer: item.answer || "",
+    shortAnswer: item.answer || "",
+    recommendedAnswer: item.answer || "",
+    avoidAnswer: "",
+    questionType: "custom",
+    keywords: [],
+    source: "custom",
+  };
+};
+
+const myInterviewQuestionsForSet = (set) =>
+  (set?.items || []).map(myInterviewQuestionFromItem).filter((question) => question?.text);
+
+const myInterviewItemKey = (item) => (item.type === "bank" ? item.key : `custom:${item.id}`);
+
+const myInterviewDefaultSubtitle = (questionCount) => `${questionCount}개 질문으로 구성되어 있습니다.`;
+
+const myInterviewCategoryBadge = (question) =>
+  isPersonalityQuestion(question)
+    ? `<span class="personality-category-badge ${personalityCategoryClass(question.category)}">${escapeHtml(question.category)}</span>`
+    : `<span>${escapeHtml(question.category)}</span>`;
+
+const myInterviewSourceLabel = (question, item) =>
+  item.type === "custom" ? "내 질문" : questionBankRoleById(questionRoleId(question)).shortLabel;
+
+const findMyInterviewItem = (itemKey) => {
+  const activeSet = myInterviewActiveSet();
+  return (activeSet?.items || []).find((item) => myInterviewItemKey(item) === itemKey) || null;
+};
+
+const myInterviewDefaultAnswerText = (item, question) => {
+  if (item.type === "custom") return item.answer || "";
+  if (isPersonalityQuestion(question)) return question.recommendedAnswer || question.answer || "";
+  return question.answer || question.shortAnswer || question.recommendedAnswer || "";
+};
+
+const myInterviewEditableAnswerText = (item, question) =>
+  item.type === "bank" && item.answerOverride ? item.answerOverride : myInterviewDefaultAnswerText(item, question);
+
+const renderMyInterviewAnswerPanel = (item, question, options = {}) => {
+  const key = myInterviewItemKey(item);
+  const editable = options.editable !== false;
+  const editing = editable && state.myInterview.answerEditingKey === key;
+  const hasOverride = item.type === "bank" && Boolean(item.answerOverride);
+  const title = item.type === "custom"
+    ? "사용자 답안"
+    : hasOverride
+      ? "수정한 모범 답안"
+      : isPersonalityQuestion(question)
+        ? "인성 답변 가이드"
+        : "모범 답안";
+
+  if (editing) {
+    return `
+      <section class="question-bank-answer my-list-answer-panel my-interview-answer-editor">
+        <div class="question-bank-answer-head">
+          <h3>${escapeHtml(item.type === "custom" ? "사용자 답안 수정" : "모범 답안 수정")}</h3>
+        </div>
+        <textarea data-my-interview-answer-input rows="7" maxlength="4000" placeholder="이 면접 세트에서 사용할 답안을 입력하세요.">${escapeHtml(myInterviewEditableAnswerText(item, question))}</textarea>
+        <div class="my-interview-answer-edit-actions">
+          <button class="black-button" type="button" data-my-interview-answer-save="${escapeHtml(key)}">저장</button>
+          <button class="outline-button" type="button" data-my-interview-answer-cancel>취소</button>
+          ${hasOverride ? `<button class="text-button" type="button" data-my-interview-answer-reset="${escapeHtml(key)}">기본 답안으로 되돌리기</button>` : ""}
+        </div>
+      </section>
+    `;
+  }
+
+  const answerBody = hasOverride || item.type === "custom"
+    ? `<div class="model-answer-text">${renderModelAnswerHtml(myInterviewEditableAnswerText(item, question) || "아직 입력된 사용자 답안이 없습니다.")}</div>`
+    : isPersonalityQuestion(question)
+      ? renderPersonalityAnswerBlock(question)
+      : `<div class="model-answer-text">${renderModelAnswerBlock(question)}</div>`;
+
+  return `
+    <section class="question-bank-answer my-list-answer-panel">
+      <div class="question-bank-answer-head">
+        <h3>${title}</h3>
+        ${editable ? `<button class="bank-answer-report-button" type="button" data-my-interview-answer-edit="${escapeHtml(key)}">
+          <i data-lucide="pencil"></i>
+          <span>답안 수정</span>
+        </button>` : ""}
+      </div>
+      ${answerBody}
+    </section>
+  `;
+};
+
+const renderMyInterviewSetList = () => {
+  const sets = myInterviewVisibleSets();
+  const activeSet = myInterviewActiveSet();
+  elements.myInterviewSetCount.textContent = sets.length;
+  if (!sets.length) {
+    elements.myInterviewSetList.innerHTML = "";
+    return;
+  }
+
+  elements.myInterviewSetList.innerHTML = sets
+    .map((set) => `
+      <article class="my-interview-set-card ${set.id === activeSet?.id ? "active" : ""} ${isMyInterviewBookmarkSet(set) ? "system" : ""}">
+        <button class="my-interview-set-select" type="button" data-my-interview-set="${escapeHtml(set.id)}">
+          <span>${escapeHtml(set.name)}</span>
+          <strong>${set.items.length}개 질문</strong>
+        </button>
+        ${isMyInterviewBookmarkSet(set) ? "" : `<button class="my-interview-set-delete" type="button" data-my-interview-delete-set="${escapeHtml(set.id)}" aria-label="${escapeHtml(set.name)} 세트 삭제" title="세트 삭제">
+          <i data-lucide="trash-2"></i>
+        </button>`}
+      </article>
+    `)
+    .join("");
+};
+
+const syncMyInterviewSetDrawer = () => {
+  const drawerOpen = elements.myInterviewView?.classList.contains("active") && state.myInterview.setDrawerOpen;
+  elements.myInterviewView?.classList.toggle("set-drawer-open", drawerOpen);
+  elements.myInterviewSetDrawerButton?.setAttribute("aria-expanded", String(drawerOpen));
+  elements.myInterviewSetBackdrop?.setAttribute("aria-hidden", String(!drawerOpen));
+  document.body.classList.toggle("question-filter-open", drawerOpen);
+};
+
+const closeMyInterviewSetDrawer = () => {
+  state.myInterview.setDrawerOpen = false;
+  syncMyInterviewSetDrawer();
+};
+
+const renderMyInterviewSubtitle = (set, questionCount) => {
+  if (isMyInterviewBookmarkSet(set)) {
+    elements.myInterviewSubtitleEditor.innerHTML = `
+      <p class="my-interview-subtitle">
+        <span>북마크한 질문 ${questionCount}개를 MY 면접에서 바로 연습할 수 있습니다.</span>
+      </p>
+    `;
+    return;
+  }
+
+  const defaultSubtitle = myInterviewDefaultSubtitle(questionCount);
+  if (state.myInterview.subtitleEditing) {
+    elements.myInterviewSubtitleEditor.innerHTML = `
+      <div class="my-interview-subtitle-edit">
+        <label class="sr-only" for="myInterviewSubtitleInput">면접 세트 부제목</label>
+        <input id="myInterviewSubtitleInput" type="text" maxlength="120" value="${escapeHtml(set.subtitle)}" placeholder="${escapeHtml(defaultSubtitle)}" autocomplete="off" />
+        <button class="black-button" type="button" data-my-interview-subtitle-save>저장</button>
+        <button class="outline-button" type="button" data-my-interview-subtitle-cancel>취소</button>
+      </div>
+    `;
+    return;
+  }
+
+  elements.myInterviewSubtitleEditor.innerHTML = `
+    <p class="my-interview-subtitle">
+      <span>${escapeHtml(set.subtitle || defaultSubtitle)}</span>
+      <button class="my-interview-subtitle-edit-button" type="button" data-my-interview-subtitle-edit aria-label="면접 세트 부제목 수정" title="부제목 수정">
+        <i data-lucide="pencil"></i>
+      </button>
+    </p>
+  `;
+};
+
+const startMyInterviewSubtitleEdit = () => {
+  const activeSet = myInterviewActiveSet();
+  if (!activeSet || isMyInterviewBookmarkSet(activeSet)) return;
+  state.myInterview.subtitleEditing = true;
+  renderMyInterview();
+  window.setTimeout(() => {
+    const input = $("#myInterviewSubtitleInput");
+    input?.focus();
+    input?.select();
+  }, 0);
+};
+
+const cancelMyInterviewSubtitleEdit = () => {
+  state.myInterview.subtitleEditing = false;
+  renderMyInterview();
+};
+
+const saveMyInterviewSubtitle = () => {
+  const activeSet = myInterviewActiveSet();
+  const input = $("#myInterviewSubtitleInput");
+  if (!activeSet || isMyInterviewBookmarkSet(activeSet) || !input) return;
+  activeSet.subtitle = input.value.trim();
+  activeSet.updatedAt = Date.now();
+  state.myInterview.subtitleEditing = false;
+  writeMyInterviewSets();
+  renderMyInterview();
+};
+
+const renderMyInterviewQuestionList = (set) => {
+  const questions = myInterviewQuestionsForSet(set);
+  const bookmarkSet = isMyInterviewBookmarkSet(set);
+  const bottomAddButton = elements.myInterviewDetailContent.querySelector("[data-my-interview-add-bottom]");
+  const kicker = elements.myInterviewDetailContent.querySelector(".my-interview-kicker");
+  elements.myInterviewDetailContent.classList.toggle("bookmark-set", bookmarkSet);
+  if (kicker) {
+    kicker.textContent = bookmarkSet ? "북마크" : "면접 세트";
+  }
+  if (bottomAddButton) {
+    bottomAddButton.hidden = bookmarkSet;
+  }
+  elements.myInterviewActiveSetName.textContent = set.name;
+  renderMyInterviewSubtitle(set, questions.length);
+  elements.myInterviewPracticeButton.disabled = questions.length === 0;
+  elements.myInterviewStartButton.disabled = questions.length === 0;
+  elements.myInterviewDeleteSetButton.hidden = bookmarkSet;
+  elements.myInterviewSetEmpty.hidden = questions.length > 0;
+  elements.myInterviewQuestionList.hidden = questions.length === 0;
+  elements.myInterviewSetEmpty.innerHTML = bookmarkSet
+    ? `
+        <strong>북마크한 질문이 없습니다.</strong>
+        <p>질문 모음에서 필요한 질문을 북마크하면 이곳에서 바로 연습할 수 있습니다.</p>
+      `
+    : `
+        <strong>아직 질문이 없습니다.</strong>
+        <p>기존 질문을 담거나 직접 만든 질문을 추가해 세트를 완성하세요.</p>
+      `;
+
+  elements.myInterviewQuestionList.innerHTML = (set.items || [])
+    .map((item, index) => {
+      const question = myInterviewQuestionFromItem(item);
+      if (!question) return "";
+      const key = myInterviewItemKey(item);
+      const sourceLabel = myInterviewSourceLabel(question, item);
+      const expanded = state.myInterview.expandedAnswerKey === key;
+      const difficultyBadge = item.type === "custom" || isPersonalityQuestion(question)
+        ? ""
+        : `<span class="bank-difficulty-badge ${questionBankDifficultyClass(question.difficulty)}">${escapeHtml(question.difficulty)}</span>`;
+      const orderControl = bookmarkSet
+        ? `<div class="my-interview-question-index">${index + 1}</div>`
+        : `
+          <button class="my-interview-drag-handle" type="button" draggable="true" data-my-interview-drag="${escapeHtml(key)}" aria-label="${index + 1}번 질문 순서 변경" title="순서 변경">
+            <i data-lucide="grip-vertical"></i>
+            <span>${index + 1}</span>
+          </button>
+        `;
+      const removeLabel = bookmarkSet ? "북마크 해제" : "세트에서 제거";
+      return `
+        <article class="my-interview-question-item ${expanded ? "expanded" : ""} ${bookmarkSet ? "bookmark-set-item" : ""}" data-my-interview-item="${escapeHtml(key)}">
+          ${orderControl}
+          <button class="my-bookmark-main my-question-answer-toggle" type="button" data-my-interview-answer="${escapeHtml(key)}" aria-expanded="${expanded}">
+            <span class="my-bookmark-meta">
+              <span>${escapeHtml(sourceLabel)}</span>
+              ${difficultyBadge}
+              ${myInterviewCategoryBadge(question)}
+            </span>
+            <strong>${escapeHtml(question.text)}</strong>
+          </button>
+          <button class="my-bookmark-icon-button bookmark" type="button" data-my-interview-remove="${escapeHtml(key)}" aria-label="${removeLabel}" title="${removeLabel}">
+            <i data-lucide="${bookmarkSet ? "bookmark-x" : "x"}"></i>
+          </button>
+          ${expanded ? renderMyInterviewAnswerPanel(item, question, { editable: !bookmarkSet }) : ""}
+        </article>
+      `;
+    })
+    .join("");
+};
+
+const renderMyInterview = () => {
+  setMyInterviewActiveSet(state.myInterview.activeSetId);
+  const activeSet = myInterviewActiveSet();
+  if (!activeSet) {
+    state.myInterview.subtitleEditing = false;
+    state.myInterview.expandedAnswerKey = "";
+    state.myInterview.answerEditingKey = "";
+    state.myInterview.draggingKey = "";
+  }
+  syncMyInterviewSetDrawer();
+  renderMyInterviewSetList();
+  elements.myInterviewEmpty.hidden = Boolean(activeSet);
+  elements.myInterviewDetailContent.hidden = !activeSet;
+  if (activeSet) {
+    renderMyInterviewQuestionList(activeSet);
+  }
+  renderIcons();
+};
+
+const showMyInterviewSetModal = () => {
+  elements.myInterviewSetName.value = "";
+  elements.myInterviewSetStatus.textContent = "";
+  elements.myInterviewSetModal.classList.add("open");
+  elements.myInterviewSetModal.setAttribute("aria-hidden", "false");
+  window.setTimeout(() => elements.myInterviewSetName.focus(), 0);
+};
+
+const hideMyInterviewSetModal = () => {
+  elements.myInterviewSetModal.classList.remove("open");
+  elements.myInterviewSetModal.setAttribute("aria-hidden", "true");
+  elements.myInterviewSetStatus.textContent = "";
+};
+
+const createMyInterviewSet = () => {
+  const name = elements.myInterviewSetName.value.trim();
+  if (!name) {
+    elements.myInterviewSetStatus.textContent = "면접 세트 이름을 입력해주세요.";
+    elements.myInterviewSetName.focus();
+    return;
+  }
+
+  const set = {
+    id: createMyInterviewId("set"),
+    name,
+    subtitle: "",
+    items: [],
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+  };
+  state.myInterview.sets.unshift(set);
+  state.myInterview.activeSetId = set.id;
+  state.myInterview.setDrawerOpen = false;
+  state.myInterview.expandedAnswerKey = "";
+  state.myInterview.subtitleEditing = false;
+  state.myInterview.answerEditingKey = "";
+  writeMyInterviewSets();
+  hideMyInterviewSetModal();
+  renderMyInterview();
+};
+
+const deleteMyInterviewActiveSet = () => {
+  const activeSet = myInterviewActiveSet();
+  if (!activeSet || isMyInterviewBookmarkSet(activeSet)) return;
+  deleteMyInterviewSet(activeSet.id);
+};
+
+const deleteMyInterviewSet = (setId) => {
+  if (isMyInterviewBookmarkSet(setId)) return;
+  const targetSet = state.myInterview.sets.find((set) => set.id === setId);
+  if (!targetSet) return;
+  if (!window.confirm(`"${targetSet.name}" 면접 세트를 삭제할까요?`)) return;
+  state.myInterview.sets = state.myInterview.sets.filter((set) => set.id !== targetSet.id);
+  if (state.myInterview.activeSetId === targetSet.id) {
+    state.myInterview.activeSetId = state.myInterview.sets[0]?.id || MY_INTERVIEW_BOOKMARK_SET_ID;
+  }
+  state.myInterview.expandedAnswerKey = "";
+  state.myInterview.subtitleEditing = false;
+  state.myInterview.answerEditingKey = "";
+  writeMyInterviewSets();
+  renderMyInterview();
+};
+
+const myInterviewCategoryOptions = () => [
+  ...QUESTION_BANK_ROLES.filter((role) => role.enabled)
+    .map((role) => ({
+      role,
+      categories: [...new Set(questionBankQuestionsForRole(role.id).map((question) => question.category))]
+        .sort((a, b) => a.localeCompare(b, "ko")),
+    }))
+    .filter((group) => group.categories.length),
+  {
+    role: { id: "process", shortLabel: "기타" },
+    categories: ["기타"],
+  },
+];
+
+const renderMyInterviewCustomCategoryOptions = () => {
+  elements.myInterviewCustomCategory.innerHTML = myInterviewCategoryOptions()
+    .map(({ role, categories }) => `
+      <optgroup label="${escapeHtml(role.shortLabel)}">
+        ${categories.map((category) => `<option value="${escapeHtml(`${role.id}||${category}`)}">${escapeHtml(category)}</option>`).join("")}
+      </optgroup>
+    `)
+    .join("");
+};
+
+const renderMyInterviewExistingRoleOptions = () => {
+  const bookmarkCount = myPageBookmarkedQuestions().length;
+  elements.myInterviewExistingRole.innerHTML = [
+    `<option value="bookmarked">북마크된 질문${bookmarkCount ? ` (${bookmarkCount})` : ""}</option>`,
+    '<option value="all">전체</option>',
+    ...QUESTION_BANK_ROLES.filter((role) => role.enabled)
+      .map((role) => `<option value="${escapeHtml(role.id)}">${escapeHtml(role.shortLabel)}</option>`),
+  ].join("");
+  elements.myInterviewExistingRole.value = state.myInterview.existingRole;
+};
+
+const myInterviewExistingMatches = (question) => {
+  if (state.myInterview.existingRole === "bookmarked" && !getQuestionStudyState(question).bookmarked) return false;
+  if (
+    state.myInterview.existingRole !== "all" &&
+    state.myInterview.existingRole !== "bookmarked" &&
+    questionRoleId(question) !== state.myInterview.existingRole
+  ) return false;
+  const query = state.myInterview.existingSearch.trim().toLowerCase();
+  if (!query) return true;
+  return [
+    question.text,
+    question.answer,
+    question.shortAnswer,
+    question.recommendedAnswer,
+    question.avoidAnswer,
+    question.category,
+    question.difficulty,
+    questionBankRoleById(questionRoleId(question)).shortLabel,
+    ...(question.keywords || []),
+  ].join(" ").toLowerCase().includes(query);
+};
+
+const renderMyInterviewExistingList = () => {
+  const activeSet = myInterviewActiveSet();
+  const existingKeys = new Set((activeSet?.items || []).filter((item) => item.type === "bank").map((item) => item.key));
+  const selectedKeys = new Set(state.myInterview.existingSelectedKeys);
+  const questions = allQuestionBankQuestions()
+    .filter(myInterviewExistingMatches)
+    .sort((a, b) =>
+      state.myInterview.existingRole === "bookmarked"
+        ? getQuestionStudyState(b).updatedAt - getQuestionStudyState(a).updatedAt || questionBankBaseSort(a, b)
+        : questionBankBaseSort(a, b),
+    );
+
+  elements.myInterviewExistingSelectedCount.textContent = state.myInterview.existingSelectedKeys.length;
+  elements.confirmMyInterviewExistingButton.disabled = state.myInterview.existingSelectedKeys.length === 0;
+  elements.myInterviewExistingList.innerHTML = questions.length
+    ? questions.map((question) => {
+        const key = progressKey(question);
+        const isAdded = existingKeys.has(key);
+        const isSelected = selectedKeys.has(key);
+        const personalityQuestion = isPersonalityQuestion(question);
+        const difficultyBadge = personalityQuestion
+          ? ""
+          : `<span class="bank-difficulty-badge ${questionBankDifficultyClass(question.difficulty)}">${escapeHtml(question.difficulty)}</span>`;
+        return `
+          <label class="my-interview-existing-item ${isAdded ? "added" : ""}">
+            <input type="checkbox" data-my-interview-existing-key="${escapeHtml(key)}" ${isSelected ? "checked" : ""} ${isAdded ? "disabled" : ""} />
+            <div>
+              <div class="my-bookmark-meta">
+                <span>${escapeHtml(questionBankRoleById(questionRoleId(question)).shortLabel)}</span>
+                ${difficultyBadge}
+                ${myInterviewCategoryBadge(question)}
+                ${isAdded ? "<span>추가됨</span>" : ""}
+              </div>
+              <strong>${escapeHtml(question.text)}</strong>
+            </div>
+          </label>
+        `;
+      }).join("")
+    : '<div class="my-interview-modal-empty">조건에 맞는 질문이 없습니다.</div>';
+  renderIcons();
+};
+
+const setMyInterviewAddTab = (tab) => {
+  state.myInterview.addTab = tab === "custom" ? "custom" : "existing";
+  const isExisting = state.myInterview.addTab === "existing";
+  elements.myInterviewExistingTab.classList.toggle("active", isExisting);
+  elements.myInterviewCustomTab.classList.toggle("active", !isExisting);
+  elements.myInterviewExistingTab.setAttribute("aria-selected", String(isExisting));
+  elements.myInterviewCustomTab.setAttribute("aria-selected", String(!isExisting));
+  elements.myInterviewExistingPanel.hidden = !isExisting;
+  elements.myInterviewCustomPanel.hidden = isExisting;
+};
+
+const showMyInterviewAddModal = () => {
+  const activeSet = myInterviewActiveSet();
+  if (!activeSet || isMyInterviewBookmarkSet(activeSet)) {
+    showMyInterviewSetModal();
+    return;
+  }
+  state.myInterview.addTab = "existing";
+  state.myInterview.existingSearch = "";
+  state.myInterview.existingRole = "all";
+  state.myInterview.existingSelectedKeys = [];
+  elements.myInterviewExistingSearch.value = "";
+  elements.myInterviewCustomQuestion.value = "";
+  elements.myInterviewCustomAnswer.value = "";
+  elements.myInterviewCustomStatus.textContent = "";
+  renderMyInterviewExistingRoleOptions();
+  renderMyInterviewCustomCategoryOptions();
+  setMyInterviewAddTab("existing");
+  renderMyInterviewExistingList();
+  elements.myInterviewAddModal.classList.add("open");
+  elements.myInterviewAddModal.setAttribute("aria-hidden", "false");
+  renderIcons();
+};
+
+const hideMyInterviewAddModal = () => {
+  elements.myInterviewAddModal.classList.remove("open");
+  elements.myInterviewAddModal.setAttribute("aria-hidden", "true");
+  state.myInterview.existingSelectedKeys = [];
+};
+
+const addExistingQuestionsToMyInterview = () => {
+  const activeSet = myInterviewActiveSet();
+  if (!activeSet || isMyInterviewBookmarkSet(activeSet)) return;
+  const existingKeys = new Set(activeSet.items.filter((item) => item.type === "bank").map((item) => item.key));
+  const nextKeys = state.myInterview.existingSelectedKeys.filter((key) => questionByProgressKey(key) && !existingKeys.has(key));
+  if (!nextKeys.length) return;
+  activeSet.items.push(...nextKeys.map((key) => ({ type: "bank", key, addedAt: Date.now() })));
+  activeSet.updatedAt = Date.now();
+  state.myInterview.existingSelectedKeys = [];
+  state.myInterview.expandedAnswerKey = "";
+  state.myInterview.answerEditingKey = "";
+  writeMyInterviewSets();
+  hideMyInterviewAddModal();
+  renderMyInterview();
+};
+
+const addCustomQuestionToMyInterview = () => {
+  const activeSet = myInterviewActiveSet();
+  if (!activeSet || isMyInterviewBookmarkSet(activeSet)) return;
+  const text = elements.myInterviewCustomQuestion.value.trim();
+  if (!text) {
+    elements.myInterviewCustomStatus.textContent = "질문을 입력해주세요.";
+    elements.myInterviewCustomQuestion.focus();
+    return;
+  }
+  const [roleId = "process", category = "기타"] = elements.myInterviewCustomCategory.value.split("||");
+  activeSet.items.push({
+    type: "custom",
+    id: createMyInterviewId("custom"),
+    roleId: questionBankRoleById(roleId).id,
+    category,
+    difficulty: "입문",
+    text,
+    answer: elements.myInterviewCustomAnswer.value.trim(),
+    addedAt: Date.now(),
+  });
+  activeSet.updatedAt = Date.now();
+  state.myInterview.expandedAnswerKey = "";
+  state.myInterview.answerEditingKey = "";
+  writeMyInterviewSets();
+  hideMyInterviewAddModal();
+  renderMyInterview();
+};
+
+const removeMyInterviewQuestion = (itemKey) => {
+  const activeSet = myInterviewActiveSet();
+  if (!activeSet) return;
+  if (isMyInterviewBookmarkSet(activeSet)) {
+    const question = questionByProgressKey(itemKey);
+    if (!question) return;
+    setQuestionStudyState(question, { bookmarked: false });
+    if (state.myInterview.expandedAnswerKey === itemKey) {
+      state.myInterview.expandedAnswerKey = "";
+    }
+    if (state.myInterview.answerEditingKey === itemKey) {
+      state.myInterview.answerEditingKey = "";
+    }
+    trackEvent(
+      "bookmark_click",
+      analyticsQuestionPayload(question, {
+        source: "my_interview_bookmark_set",
+        bookmarked: 0,
+        action: "remove",
+      }),
+    );
+    renderStudyProgressSurfaces();
+    return;
+  }
+  activeSet.items = activeSet.items.filter((item) => myInterviewItemKey(item) !== itemKey);
+  activeSet.updatedAt = Date.now();
+  if (state.myInterview.expandedAnswerKey === itemKey) {
+    state.myInterview.expandedAnswerKey = "";
+  }
+  if (state.myInterview.answerEditingKey === itemKey) {
+    state.myInterview.answerEditingKey = "";
+  }
+  writeMyInterviewSets();
+  renderMyInterview();
+};
+
+const startMyInterviewAnswerEdit = (itemKey) => {
+  if (isMyInterviewBookmarkSet(myInterviewActiveSet()) || !findMyInterviewItem(itemKey)) return;
+  state.myInterview.expandedAnswerKey = itemKey;
+  state.myInterview.answerEditingKey = itemKey;
+  renderMyInterview();
+  window.setTimeout(() => {
+    const input = elements.myInterviewQuestionList.querySelector("[data-my-interview-answer-input]");
+    input?.focus();
+    input?.select();
+  }, 0);
+};
+
+const cancelMyInterviewAnswerEdit = () => {
+  state.myInterview.answerEditingKey = "";
+  renderMyInterview();
+};
+
+const saveMyInterviewAnswerEdit = (itemKey) => {
+  const activeSet = myInterviewActiveSet();
+  const item = findMyInterviewItem(itemKey);
+  const input = elements.myInterviewQuestionList.querySelector("[data-my-interview-answer-input]");
+  if (!activeSet || isMyInterviewBookmarkSet(activeSet) || !item || !input) return;
+  const value = input.value.trim();
+  if (item.type === "custom") {
+    item.answer = value;
+  } else {
+    item.answerOverride = value;
+  }
+  activeSet.updatedAt = Date.now();
+  state.myInterview.answerEditingKey = "";
+  writeMyInterviewSets();
+  renderMyInterview();
+};
+
+const resetMyInterviewAnswerEdit = (itemKey) => {
+  const activeSet = myInterviewActiveSet();
+  const item = findMyInterviewItem(itemKey);
+  if (!activeSet || isMyInterviewBookmarkSet(activeSet) || !item || item.type !== "bank") return;
+  item.answerOverride = "";
+  activeSet.updatedAt = Date.now();
+  state.myInterview.answerEditingKey = "";
+  writeMyInterviewSets();
+  renderMyInterview();
+};
+
+const reorderMyInterviewQuestion = (sourceKey, targetKey, placement = "before") => {
+  const activeSet = myInterviewActiveSet();
+  if (!activeSet || isMyInterviewBookmarkSet(activeSet) || !sourceKey || !targetKey || sourceKey === targetKey) return;
+  const sourceIndex = activeSet.items.findIndex((item) => myInterviewItemKey(item) === sourceKey);
+  const targetIndex = activeSet.items.findIndex((item) => myInterviewItemKey(item) === targetKey);
+  if (sourceIndex < 0 || targetIndex < 0) return;
+
+  const [moved] = activeSet.items.splice(sourceIndex, 1);
+  const nextTargetIndex = activeSet.items.findIndex((item) => myInterviewItemKey(item) === targetKey);
+  const insertIndex = placement === "after" ? nextTargetIndex + 1 : nextTargetIndex;
+  activeSet.items.splice(insertIndex, 0, moved);
+  activeSet.updatedAt = Date.now();
+  writeMyInterviewSets();
+  renderMyInterview();
+};
+
+const clearMyInterviewDragIndicators = () => {
+  elements.myInterviewQuestionList.querySelectorAll(".dragging, .drag-over-before, .drag-over-after").forEach((item) => {
+    item.classList.remove("dragging", "drag-over-before", "drag-over-after");
+  });
+};
+
+const startMyInterviewSetPractice = () => {
+  const activeSet = myInterviewActiveSet();
+  const questionsToPractice = myInterviewQuestionsForSet(activeSet);
+  if (!activeSet || !questionsToPractice.length) return;
+  trackEvent("my_interview_set_quick_practice_start", {
+    set_id: activeSet.id,
+    question_count: questionsToPractice.length,
+  });
+  openQuickPractice(questionsToPractice[0], {
+    queueQuestions: questionsToPractice,
+    returnView: "my-interview",
+  });
+};
+
+const startMyInterviewSetInterview = () => {
+  const activeSet = myInterviewActiveSet();
+  const questionsToInterview = myInterviewQuestionsForSet(activeSet);
+  if (!activeSet || !questionsToInterview.length) return;
+  trackEvent("my_interview_set_start", {
+    set_id: activeSet.id,
+    question_count: questionsToInterview.length,
+  });
+  showStartEnvironmentModal({
+    sessionQuestions: questionsToInterview,
+    sessionLabel: activeSet.name,
+    sessionSource: "my_interview",
+  });
+};
+
+const quickPracticeQuestionSnapshot = (question) => question
+  ? {
+      ...question,
+      keywords: Array.isArray(question.keywords) ? [...question.keywords] : [],
+    }
+  : null;
+
 const quickPracticeQuestion = () =>
-  questionByProgressKey(state.quickPractice.questionKey) || questionBankQuestionById(state.quickPractice.questionId);
+  state.quickPractice.question ||
+  questionByProgressKey(state.quickPractice.questionKey) ||
+  questionBankQuestionById(state.quickPractice.questionId);
 
 const quickPracticeSequence = () => {
+  const storedQuestions = (state.quickPractice.queueQuestions || []).filter(Boolean);
+  if (storedQuestions.length) {
+    return storedQuestions;
+  }
+
   const queueQuestions = state.quickPractice.queueKeys.map((key) => questionByProgressKey(key)).filter(Boolean);
   if (queueQuestions.length) {
     return queueQuestions;
@@ -3730,12 +4763,24 @@ const renderQuickPracticeAudioDock = (notice = "") => {
   renderIcons();
 };
 
-const renderQuickPracticeAnswerPanel = (question) => `
-  <div class="quick-answer-card">
-    <h2>모범 답안</h2>
-    <div class="model-answer-text">${renderModelAnswerBlock(question)}</div>
-  </div>
-`;
+const renderQuickPracticeAnswerPanel = (question) => {
+  if (isCustomQuestion(question)) {
+    return `
+      <div class="quick-answer-card">
+        <h2>사용자 답안</h2>
+        <div class="model-answer-text">${renderModelAnswerHtml(question.answer || "아직 입력된 사용자 답안이 없습니다.")}</div>
+      </div>
+    `;
+  }
+
+  const personalityQuestion = isPersonalityQuestion(question);
+  return `
+    <div class="quick-answer-card">
+      <h2>${personalityQuestion ? "인성 답변 가이드" : "모범 답안"}</h2>
+      ${personalityQuestion ? renderPersonalityAnswerBlock(question) : `<div class="model-answer-text">${renderModelAnswerBlock(question)}</div>`}
+    </div>
+  `;
+};
 
 const renderQuickPracticeRelatedPanel = (question) => {
   const related = quickPracticeRelatedQuestions(question);
@@ -3814,10 +4859,13 @@ const openQuickPractice = (question, options = {}) => {
   }
   state.quickPractice.questionId = question.id;
   state.quickPractice.questionKey = progressKey(question);
+  state.quickPractice.question = quickPracticeQuestionSnapshot(question);
   if (queueQuestions) {
     state.quickPractice.queueKeys = progressKeysForQuestions(queueQuestions);
+    state.quickPractice.queueQuestions = queueQuestions.map(quickPracticeQuestionSnapshot).filter(Boolean);
   } else if (options.clearQueue !== false) {
     state.quickPractice.queueKeys = [];
+    state.quickPractice.queueQuestions = [];
   }
   state.quickPractice.returnView = options.returnView || state.quickPractice.returnView || "question-bank";
   state.quickPractice.tab = "practice";
@@ -4142,6 +5190,12 @@ const renderResultPage = () => {
       const recording = recordingForQuestion(question.originalIndex, question);
       const keywordBlock = renderKeywordBlock(question.keywords);
       const aiEvaluationBlock = renderAiEvaluationBlock(question, recording);
+      const canRetryQuestion = Number.isInteger(Number(question.originalIndex)) && questionBankQuestionById(question.id, question.roleId);
+      const retryButton = canRetryQuestion
+        ? `<button class="small-button retry-question" type="button" data-question-index="${question.originalIndex}" data-question-role="${escapeHtml(question.roleId || "process")}">
+              이 문항 다시 연습
+            </button>`
+        : "";
       const reviewMedia = recording?.blob
         ? `<video src="${recording.url}" controls></video>`
         : recording?.audioBlob
@@ -4152,9 +5206,7 @@ const renderResultPage = () => {
         <article class="result-card">
           <div class="result-card-head">
             <span>${index + 1}번 문항</span>
-            <button class="small-button retry-question" type="button" data-question-index="${question.originalIndex}" data-question-role="${escapeHtml(question.roleId || "process")}">
-              이 문항 다시 연습
-            </button>
+            ${retryButton}
           </div>
           <h2>${question.text}</h2>
           <div class="result-card-body ${state.interviewMode === "ai" ? "ai-result-card-body" : ""}">
@@ -4186,6 +5238,12 @@ const renderActiveAnswerScriptView = () => {
   }
   if (elements.resultView.classList.contains("active")) {
     renderResultPage();
+  }
+  if (elements.myPageView.classList.contains("active")) {
+    renderMyPage();
+  }
+  if (elements.myInterviewView.classList.contains("active")) {
+    renderMyInterview();
   }
 };
 
@@ -4308,19 +5366,9 @@ const bindQuestionBankControls = () => {
       return;
     }
 
-    const practiceButton = event.target.closest("[data-bank-practice]");
-    if (practiceButton) {
-      startSingleQuestionPractice(
-        Number(practiceButton.dataset.bankPractice),
-        "question_bank",
-        practiceButton.dataset.bankPracticeRole || state.questionBank.role,
-      );
-      return;
-    }
-
     const bookmarkButton = event.target.closest("[data-bank-bookmark]");
     if (bookmarkButton) {
-      toggleQuestionBankBookmark(bookmarkButton.dataset.bankBookmark);
+      showBookmarkDestinationModal(bookmarkButton.dataset.bankBookmark);
       return;
     }
 
@@ -4405,6 +5453,19 @@ const bindQuickPracticeControls = () => {
         openQuickPractice(question);
       }
     }
+  });
+
+  elements.bookmarkDestinationCloseButton.addEventListener("click", hideBookmarkDestinationModal);
+  elements.bookmarkDestinationModal.addEventListener("click", (event) => {
+    if (event.target === elements.bookmarkDestinationModal) {
+      hideBookmarkDestinationModal();
+    }
+  });
+  elements.bookmarkDestinationBookmarkButton.addEventListener("click", toggleBookmarkDestinationBookmark);
+  elements.bookmarkDestinationSetList.addEventListener("click", (event) => {
+    const setButton = event.target.closest("[data-bookmark-destination-set]");
+    if (!setButton || setButton.disabled) return;
+    addBookmarkDestinationToSet(setButton.dataset.bookmarkDestinationSet);
   });
 };
 
@@ -4491,6 +5552,12 @@ const bindMyPageControls = () => {
     const unbookmarkButton = event.target.closest("[data-my-page-unbookmark]");
     if (unbookmarkButton) {
       showMyBookmarkRemoveModal([unbookmarkButton.dataset.myPageUnbookmark]);
+      return;
+    }
+
+    const answerButton = event.target.closest("[data-my-page-answer]");
+    if (answerButton) {
+      toggleMyPageAnswer(answerButton.dataset.myPageAnswer);
     }
   });
 
@@ -4507,6 +5574,208 @@ const bindMyPageControls = () => {
     if (event.target === elements.myBookmarkConfirmModal) {
       hideMyBookmarkRemoveModal();
     }
+  });
+};
+
+const bindMyInterviewControls = () => {
+  elements.myInterviewSetDrawerButton.addEventListener("click", () => {
+    state.myInterview.setDrawerOpen = true;
+    syncMyInterviewSetDrawer();
+  });
+  elements.myInterviewSetCloseButton.addEventListener("click", closeMyInterviewSetDrawer);
+  elements.myInterviewSetBackdrop.addEventListener("click", closeMyInterviewSetDrawer);
+  elements.myInterviewCreateSetButton.addEventListener("click", showMyInterviewSetModal);
+  elements.myInterviewEmptyCreateButton.addEventListener("click", showMyInterviewSetModal);
+  elements.cancelMyInterviewSetButton.addEventListener("click", hideMyInterviewSetModal);
+  elements.closeMyInterviewSetButton.addEventListener("click", hideMyInterviewSetModal);
+  elements.confirmMyInterviewSetButton.addEventListener("click", createMyInterviewSet);
+  elements.myInterviewSetName.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      createMyInterviewSet();
+    }
+  });
+  elements.myInterviewSetModal.addEventListener("click", (event) => {
+    if (event.target === elements.myInterviewSetModal) {
+      hideMyInterviewSetModal();
+    }
+  });
+
+  elements.myInterviewSetList.addEventListener("click", (event) => {
+    const deleteButton = event.target.closest("[data-my-interview-delete-set]");
+    if (deleteButton) {
+      deleteMyInterviewSet(deleteButton.dataset.myInterviewDeleteSet);
+      return;
+    }
+
+    const button = event.target.closest("[data-my-interview-set]");
+    if (!button) return;
+    if (state.myInterview.activeSetId !== button.dataset.myInterviewSet) {
+      state.myInterview.expandedAnswerKey = "";
+      state.myInterview.subtitleEditing = false;
+      state.myInterview.answerEditingKey = "";
+      state.myInterview.draggingKey = "";
+    }
+    state.myInterview.activeSetId = button.dataset.myInterviewSet;
+    state.myInterview.setDrawerOpen = false;
+    renderMyInterview();
+  });
+
+  elements.myInterviewPracticeButton.addEventListener("click", startMyInterviewSetPractice);
+  elements.myInterviewStartButton.addEventListener("click", startMyInterviewSetInterview);
+  elements.myInterviewDeleteSetButton.addEventListener("click", deleteMyInterviewActiveSet);
+  elements.myInterviewDetailContent.addEventListener("click", (event) => {
+    const answerEditButton = event.target.closest("[data-my-interview-answer-edit]");
+    if (answerEditButton) {
+      startMyInterviewAnswerEdit(answerEditButton.dataset.myInterviewAnswerEdit);
+      return;
+    }
+
+    const answerSaveButton = event.target.closest("[data-my-interview-answer-save]");
+    if (answerSaveButton) {
+      saveMyInterviewAnswerEdit(answerSaveButton.dataset.myInterviewAnswerSave);
+      return;
+    }
+
+    const answerResetButton = event.target.closest("[data-my-interview-answer-reset]");
+    if (answerResetButton) {
+      resetMyInterviewAnswerEdit(answerResetButton.dataset.myInterviewAnswerReset);
+      return;
+    }
+
+    if (event.target.closest("[data-my-interview-answer-cancel]")) {
+      cancelMyInterviewAnswerEdit();
+      return;
+    }
+
+    if (event.target.closest("[data-my-interview-subtitle-edit]")) {
+      startMyInterviewSubtitleEdit();
+      return;
+    }
+
+    if (event.target.closest("[data-my-interview-subtitle-save]")) {
+      saveMyInterviewSubtitle();
+      return;
+    }
+
+    if (event.target.closest("[data-my-interview-subtitle-cancel]")) {
+      cancelMyInterviewSubtitleEdit();
+      return;
+    }
+
+    if (event.target.closest("[data-my-interview-add-bottom]")) {
+      showMyInterviewAddModal();
+      return;
+    }
+    const removeButton = event.target.closest("[data-my-interview-remove]");
+    if (removeButton) {
+      removeMyInterviewQuestion(removeButton.dataset.myInterviewRemove);
+      return;
+    }
+
+    const answerButton = event.target.closest("[data-my-interview-answer]");
+    if (answerButton) {
+      toggleMyInterviewAnswer(answerButton.dataset.myInterviewAnswer);
+    }
+  });
+
+  elements.myInterviewDetailContent.addEventListener("keydown", (event) => {
+    if (event.target?.matches("[data-my-interview-answer-input]")) {
+      if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+        event.preventDefault();
+        saveMyInterviewAnswerEdit(state.myInterview.answerEditingKey);
+      }
+      if (event.key === "Escape") {
+        event.preventDefault();
+        cancelMyInterviewAnswerEdit();
+      }
+      return;
+    }
+
+    if (event.target?.id !== "myInterviewSubtitleInput") return;
+    if (event.key === "Enter") {
+      event.preventDefault();
+      saveMyInterviewSubtitle();
+    }
+    if (event.key === "Escape") {
+      event.preventDefault();
+      cancelMyInterviewSubtitleEdit();
+    }
+  });
+
+  elements.myInterviewQuestionList.addEventListener("dragstart", (event) => {
+    const handle = event.target.closest("[data-my-interview-drag]");
+    if (!handle) return;
+    state.myInterview.draggingKey = handle.dataset.myInterviewDrag;
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", state.myInterview.draggingKey);
+    handle.closest("[data-my-interview-item]")?.classList.add("dragging");
+  });
+
+  elements.myInterviewQuestionList.addEventListener("dragover", (event) => {
+    if (!state.myInterview.draggingKey) return;
+    const target = event.target.closest("[data-my-interview-item]");
+    if (!target || target.dataset.myInterviewItem === state.myInterview.draggingKey) return;
+    event.preventDefault();
+    const rect = target.getBoundingClientRect();
+    const placement = event.clientY > rect.top + rect.height / 2 ? "after" : "before";
+    clearMyInterviewDragIndicators();
+    target.classList.add(placement === "after" ? "drag-over-after" : "drag-over-before");
+  });
+
+  elements.myInterviewQuestionList.addEventListener("dragleave", (event) => {
+    const listItem = event.target.closest("[data-my-interview-item]");
+    if (!listItem || listItem.contains(event.relatedTarget)) return;
+    listItem.classList.remove("drag-over-before", "drag-over-after");
+  });
+
+  elements.myInterviewQuestionList.addEventListener("drop", (event) => {
+    if (!state.myInterview.draggingKey) return;
+    const target = event.target.closest("[data-my-interview-item]");
+    if (!target) return;
+    event.preventDefault();
+    const rect = target.getBoundingClientRect();
+    const placement = event.clientY > rect.top + rect.height / 2 ? "after" : "before";
+    const sourceKey = state.myInterview.draggingKey;
+    state.myInterview.draggingKey = "";
+    clearMyInterviewDragIndicators();
+    reorderMyInterviewQuestion(sourceKey, target.dataset.myInterviewItem, placement);
+  });
+
+  elements.myInterviewQuestionList.addEventListener("dragend", () => {
+    state.myInterview.draggingKey = "";
+    clearMyInterviewDragIndicators();
+  });
+
+  elements.closeMyInterviewAddButton.addEventListener("click", hideMyInterviewAddModal);
+  elements.myInterviewAddModal.addEventListener("click", (event) => {
+    if (event.target === elements.myInterviewAddModal) {
+      hideMyInterviewAddModal();
+    }
+  });
+  elements.myInterviewExistingTab.addEventListener("click", () => setMyInterviewAddTab("existing"));
+  elements.myInterviewCustomTab.addEventListener("click", () => setMyInterviewAddTab("custom"));
+  elements.myInterviewExistingSearch.addEventListener("input", () => {
+    state.myInterview.existingSearch = elements.myInterviewExistingSearch.value;
+    renderMyInterviewExistingList();
+  });
+  elements.myInterviewExistingRole.addEventListener("change", () => {
+    state.myInterview.existingRole = elements.myInterviewExistingRole.value;
+    renderMyInterviewExistingList();
+  });
+  elements.myInterviewExistingList.addEventListener("change", (event) => {
+    const checkbox = event.target.closest("[data-my-interview-existing-key]");
+    if (!checkbox) return;
+    const key = checkbox.dataset.myInterviewExistingKey;
+    state.myInterview.existingSelectedKeys = checkbox.checked
+      ? [...new Set([...state.myInterview.existingSelectedKeys, key])]
+      : state.myInterview.existingSelectedKeys.filter((item) => item !== key);
+    renderMyInterviewExistingList();
+  });
+  elements.confirmMyInterviewExistingButton.addEventListener("click", addExistingQuestionsToMyInterview);
+  elements.myInterviewCustomForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    addCustomQuestionToMyInterview();
   });
 };
 
@@ -4675,13 +5944,9 @@ const bindInterviewControls = () => {
       showAuthModal();
     }
   });
-  elements.bookmarkNavButton.addEventListener("click", () => {
-    if (state.auth.user) {
-      hideAccountMenu();
-      requestViewChange("my-page");
-    } else {
-      showAuthModal();
-    }
+  elements.myInterviewNavButton.addEventListener("click", () => {
+    hideAccountMenu();
+    requestViewChange("my-interview");
   });
   elements.personalityQuestionsMenuButton.addEventListener("click", () => {
     trackEvent("personality_questions_menu_click");
@@ -4701,14 +5966,6 @@ const bindInterviewControls = () => {
   elements.mobileMenuDrawer.addEventListener("click", (event) => {
     if (event.target.closest("[data-view]")) {
       closeMobileMenu();
-    }
-  });
-  elements.mobileMenuBookmarkButton.addEventListener("click", () => {
-    closeMobileMenu();
-    if (state.auth.user) {
-      requestViewChange("my-page");
-    } else {
-      showAuthModal();
     }
   });
   elements.mobileMenuHelpButton.addEventListener("click", () => {
@@ -4815,11 +6072,14 @@ window.addEventListener("load", () => {
   bindQuestionBankControls();
   bindQuickPracticeControls();
   bindMyPageControls();
+  bindMyInterviewControls();
   bindSetupControls();
   bindInterviewControls();
   bindResultControls();
   bindSttTestControls();
   setRecordingMode(true);
+  state.myInterview.sets = readMyInterviewSets();
+  state.myInterview.activeSetId = state.myInterview.sets[0]?.id || MY_INTERVIEW_BOOKMARK_SET_ID;
   const openedView = openRouteFromLocation();
   flushQueuedFeedback().catch(() => {});
   flushQueuedReports().catch(() => {});
