@@ -2182,7 +2182,7 @@ const selectedLandingRoleLabel = () => LANDING_ROLE_LABELS[state.landing.selecte
 
 const landingRoleCardCaption = (roleId) => {
   const role = questionBankRoleById(roleId);
-  if (!role.enabled || role.id !== roleId) return "곧 공개";
+  if (!role.enabled || role.id !== roleId) return "준비 중";
   const count = questionBankQuestionsForRole(role.id).length;
   return count > 0 ? `${count}개 질문` : "질문 준비";
 };
