@@ -190,7 +190,7 @@ button {
   font-weight: 900;
 }
 
-.utility-nav .bookmark-nav-button {
+.utility-nav .my-interview-nav-button {
   display: inline-flex;
   width: auto;
   min-width: 36px;
@@ -202,7 +202,19 @@ button {
   font-weight: 900;
 }
 
-.utility-nav .bookmark-nav-button svg {
+.utility-nav .my-interview-nav-button.active {
+  border-color: #2563eb;
+  background: #eff6ff;
+  color: #1d4ed8;
+  box-shadow: inset 0 0 0 1px #2563eb;
+}
+
+.utility-nav .my-interview-nav-button:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 2px 6px rgba(37, 99, 235, 0.18);
+}
+
+.utility-nav .my-interview-nav-button svg {
   width: 17px;
   height: 17px;
 }
@@ -1888,7 +1900,7 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
 }
 
 .question-bank-list.list-layout .question-bank-card.expanded {
-  grid-template-columns: minmax(0, 1fr) 180px;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 240px);
   align-items: stretch;
   border-radius: var(--radius);
   box-shadow: 0 14px 36px rgba(15, 23, 42, 0.05);
@@ -2117,7 +2129,9 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
 }
 
 .question-bank-list.list-layout .question-bank-card.expanded .question-bank-answer {
-  width: min(720px, 100%);
+  justify-self: stretch;
+  width: 100%;
+  max-width: none;
 }
 
 .question-bank-keywords {
@@ -2291,7 +2305,8 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
   align-content: center;
   justify-items: stretch;
   gap: 12px;
-  width: auto;
+  width: 100%;
+  min-width: 0;
   border-left: 1px solid var(--line);
   padding: 18px;
 }
@@ -2512,49 +2527,6 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
   fill: currentColor;
 }
 
-.bank-practice-button {
-  width: 100%;
-  justify-content: center;
-  border-color: #2563eb;
-  background: #2563eb;
-  color: #ffffff;
-  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.22);
-}
-
-.question-bank-list.list-layout .bank-practice-button {
-  width: 30px;
-  min-width: 30px;
-  min-height: 30px;
-  padding: 0;
-  font-size: 13px;
-}
-
-.question-bank-list.list-layout .question-bank-card.expanded .bank-practice-button {
-  width: 100%;
-  min-width: 0;
-  min-height: 38px;
-  padding: 0 14px;
-}
-
-.question-bank-list.list-layout .bank-practice-button span {
-  display: none;
-}
-
-.question-bank-list.list-layout .question-bank-card.expanded .bank-practice-button span {
-  display: inline;
-}
-
-.bank-practice-button:hover {
-  border-color: #1d4ed8;
-  background: #1d4ed8;
-  color: #ffffff;
-}
-
-.bank-practice-button svg {
-  width: 16px;
-  height: 16px;
-}
-
 .question-bank-coming-soon,
 .question-bank-empty {
   display: grid;
@@ -2655,17 +2627,57 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
   padding-top: 30px;
 }
 
-.my-interview-detail-actions .black-button,
-.my-interview-detail-actions .outline-button {
+.my-interview-action-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
+  min-height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0 12px;
+  background: #ffffff;
+  color: #334155;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 950;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.my-interview-action-button.primary {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+  color: var(--blue);
+}
+
+.my-interview-action-button.danger {
+  border-color: #fecdd3;
+  background: #fff1f2;
+  color: #be123c;
+}
+
+.my-interview-action-button:hover {
+  border-color: #93c5fd;
+  background: #f8fbff;
+  transform: translateY(-1px);
+}
+
+.my-interview-action-button.danger:hover {
+  border-color: #fb7185;
+  background: #ffe4e6;
+}
+
+.my-interview-action-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+  transform: none;
 }
 
 .my-interview-detail-actions svg {
   width: 17px;
   height: 17px;
+  flex: 0 0 auto;
 }
 
 .my-interview-set-backdrop {
@@ -2808,6 +2820,12 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
   box-shadow: inset 0 0 0 1px #2563eb;
 }
 
+.my-interview-set-card.system {
+  grid-template-columns: minmax(0, 1fr);
+  border-color: #bfdbfe;
+  background: #f8fbff;
+}
+
 .my-interview-set-delete {
   display: grid;
   width: 34px;
@@ -2909,6 +2927,71 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
   font-weight: 800;
 }
 
+.my-interview-subtitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.my-interview-subtitle span {
+  min-width: 0;
+  line-height: 1.5;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.my-interview-subtitle-edit-button {
+  display: inline-grid;
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--muted);
+}
+
+.my-interview-subtitle-edit-button:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+.my-interview-subtitle-edit-button svg {
+  width: 14px;
+  height: 14px;
+}
+
+.my-interview-subtitle-edit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  max-width: 640px;
+}
+
+.my-interview-subtitle-edit input {
+  flex: 1 1 280px;
+  min-width: min(280px, 100%);
+  height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0 12px;
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.my-interview-subtitle-edit .black-button,
+.my-interview-subtitle-edit .outline-button {
+  min-height: 40px;
+  padding: 0 14px;
+}
+
 .my-interview-detail-actions {
   display: flex;
   align-items: center;
@@ -2948,6 +3031,13 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
   background: #ffffff;
 }
 
+.my-interview-question-item.expanded,
+.my-bookmark-item.expanded {
+  align-items: start;
+  border-color: #bfdbfe;
+  background: #f8fbff;
+}
+
 .my-interview-question-index {
   display: grid;
   width: 30px;
@@ -2960,7 +3050,48 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
   font-weight: 950;
 }
 
-.my-interview-question-item p {
+.my-interview-drag-handle {
+  display: grid;
+  grid-template-rows: auto auto;
+  align-self: stretch;
+  width: 30px;
+  min-height: 48px;
+  place-items: center;
+  border: 1px solid #dbeafe;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: var(--blue);
+  cursor: grab;
+}
+
+.my-interview-drag-handle:active {
+  cursor: grabbing;
+}
+
+.my-interview-drag-handle svg {
+  width: 15px;
+  height: 15px;
+}
+
+.my-interview-drag-handle span {
+  color: #475569;
+  font-size: 11px;
+  font-weight: 950;
+}
+
+.my-interview-question-item.dragging {
+  opacity: 0.55;
+}
+
+.my-interview-question-item.drag-over-before {
+  box-shadow: inset 0 3px 0 var(--blue);
+}
+
+.my-interview-question-item.drag-over-after {
+  box-shadow: inset 0 -3px 0 var(--blue);
+}
+
+.my-interview-question-item > .my-bookmark-main > p {
   overflow: hidden;
   margin: 0;
   color: var(--muted);
@@ -2968,6 +3099,39 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
   line-height: 1.55;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.my-interview-question-item .personality-category-badge {
+  flex: 0 0 auto;
+  width: fit-content;
+  max-width: max-content;
+  align-self: flex-start;
+}
+
+.my-interview-answer-editor textarea {
+  width: 100%;
+  min-height: 180px;
+  resize: vertical;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px;
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.my-interview-answer-edit-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.my-interview-answer-edit-actions .black-button,
+.my-interview-answer-edit-actions .outline-button {
+  min-height: 38px;
+  padding: 0 14px;
 }
 
 .my-interview-set-empty {
@@ -3252,7 +3416,16 @@ body.my-interview-active .site-footer {
   }
 
   .my-interview-question-item {
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: 30px minmax(0, 1fr) auto;
+  }
+
+  .my-interview-subtitle-edit input {
+    flex-basis: 100%;
+  }
+
+  .my-interview-subtitle-edit .black-button,
+  .my-interview-subtitle-edit .outline-button {
+    flex: 1 1 120px;
   }
 
   .my-interview-question-index {
@@ -3260,17 +3433,40 @@ body.my-interview-active .site-footer {
   }
 
   .my-interview-detail-actions,
-  .my-interview-detail-actions .black-button,
-  .my-interview-detail-actions .outline-button,
-  .my-interview-detail-actions .danger-outline-button,
   .my-interview-bottom-add-button,
   .my-interview-set-panel .black-button {
     width: 100%;
   }
 
+  .my-interview-detail-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .my-interview-action-button {
+    width: 100%;
+    min-width: 0;
+    padding: 0 8px;
+  }
+
   .my-interview-add-footer {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .my-interview-answer-edit-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .my-interview-answer-edit-actions .black-button,
+  .my-interview-answer-edit-actions .outline-button,
+  .my-interview-answer-edit-actions .text-button {
+    width: 100%;
+  }
+
+  .my-list-answer-panel {
+    padding: 14px;
   }
 }
 
@@ -3472,6 +3668,46 @@ body.my-interview-active .site-footer {
   gap: 5px;
 }
 
+.my-question-answer-toggle {
+  width: 100%;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.my-question-answer-toggle:hover strong,
+.my-question-answer-toggle[aria-expanded="true"] strong {
+  color: var(--blue-dark);
+}
+
+.my-question-answer-toggle:focus-visible {
+  outline: 2px solid rgba(37, 99, 235, 0.45);
+  outline-offset: 4px;
+  border-radius: 8px;
+}
+
+.my-list-answer-panel {
+  grid-column: 1 / -1;
+  width: 100%;
+  min-width: 0;
+  margin-top: 4px;
+  background: #ffffff;
+}
+
+.my-list-answer-panel .model-answer-text,
+.my-list-answer-panel .model-answer-text p {
+  min-width: 0;
+  max-width: 100%;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
 .my-bookmark-meta {
   display: flex;
   flex-wrap: wrap;
@@ -3574,6 +3810,131 @@ body.my-interview-active .site-footer {
 
 .my-bookmark-confirm-dialog .danger-outline-button {
   min-height: 44px;
+}
+
+.bookmark-destination-dialog {
+  display: grid;
+  gap: 14px;
+  width: min(460px, calc(100vw - 28px));
+}
+
+.bookmark-destination-question {
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px;
+  background: #f8fafc;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1.55;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.bookmark-destination-actions {
+  display: grid;
+  gap: 8px;
+}
+
+.bookmark-destination-primary,
+.bookmark-destination-set-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0 14px;
+  background: #ffffff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 950;
+  cursor: pointer;
+}
+
+.bookmark-destination-primary {
+  justify-content: center;
+  border-color: #fde68a;
+  background: #fffbeb;
+  color: #b45309;
+}
+
+.bookmark-destination-primary.active {
+  border-color: #f59e0b;
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.bookmark-destination-primary svg {
+  width: 17px;
+  height: 17px;
+  fill: currentColor;
+}
+
+.bookmark-destination-section {
+  display: grid;
+  gap: 10px;
+}
+
+.bookmark-destination-section > strong {
+  color: #475569;
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.bookmark-destination-set-list {
+  display: grid;
+  max-height: 220px;
+  gap: 8px;
+  overflow-y: auto;
+}
+
+.bookmark-destination-set-button:hover {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+}
+
+.bookmark-destination-set-button.added,
+.bookmark-destination-set-button:disabled {
+  cursor: default;
+  opacity: 0.62;
+}
+
+.bookmark-destination-set-button span {
+  min-width: 0;
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bookmark-destination-set-button strong {
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.bookmark-destination-empty {
+  border: 1px dashed var(--line-strong);
+  border-radius: 12px;
+  padding: 14px;
+  background: #f8fafc;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.bookmark-destination-status {
+  min-height: 20px;
+  margin: 0;
+  color: var(--blue-dark);
+  font-size: 13px;
+  font-weight: 900;
 }
 
 .my-page-empty {
@@ -7286,7 +7647,7 @@ input[type="number"] {
     top: 50%;
     right: 12px;
     display: grid;
-    grid-template-columns: repeat(2, 34px);
+    grid-template-columns: 34px;
     align-items: center;
     justify-content: center;
     gap: 6px;
@@ -7305,13 +7666,6 @@ input[type="number"] {
     display: none;
   }
 
-  .question-bank-list.list-layout .bank-practice-button {
-    grid-column: 2;
-    grid-row: 1;
-    width: 34px;
-    min-width: 34px;
-  }
-
   .question-bank-list.list-layout .question-bank-card.expanded .question-bank-card-side {
     position: static;
     display: grid;
@@ -7324,8 +7678,7 @@ input[type="number"] {
   }
 
   .question-bank-list.list-layout .question-bank-card.expanded .bank-status-actions,
-  .question-bank-list.list-layout .question-bank-card.expanded .bank-status-button,
-  .question-bank-list.list-layout .question-bank-card.expanded .bank-practice-button {
+  .question-bank-list.list-layout .question-bank-card.expanded .bank-status-button {
     width: 100%;
   }
 
@@ -7334,8 +7687,7 @@ input[type="number"] {
   }
 
   .question-bank-list.list-layout .question-bank-card.expanded .bank-status-button.known,
-  .question-bank-list.list-layout .question-bank-card.expanded .bank-status-button.practice,
-  .question-bank-list.list-layout .question-bank-card.expanded .bank-practice-button {
+  .question-bank-list.list-layout .question-bank-card.expanded .bank-status-button.practice {
     grid-column: auto;
     grid-row: auto;
   }
@@ -7352,6 +7704,26 @@ input[type="number"] {
     padding: 18px;
   }
 
+  .question-bank-view.personality-bank .question-bank-list.list-layout .question-bank-card.expanded .question-bank-card-main > .bank-bookmark-button {
+    display: grid;
+    top: 18px;
+    right: 18px;
+  }
+
+  .question-bank-view.personality-bank .question-bank-list.list-layout .question-bank-card.expanded .question-bank-card-meta {
+    padding-right: 48px;
+  }
+
+  .question-bank-view.personality-bank .question-bank-list.list-layout .question-bank-card.expanded h2 {
+    width: 100%;
+    overflow: visible;
+    line-height: 1.45;
+    text-overflow: clip;
+    white-space: normal;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+
   .question-bank-view.personality-bank .question-bank-list.list-layout .question-bank-card-side.personality-side {
     grid-template-columns: 34px;
   }
@@ -7362,10 +7734,6 @@ input[type="number"] {
 
   .bank-status-actions {
     grid-template-columns: 1fr;
-  }
-
-  .bank-practice-button {
-    width: 100%;
   }
 
   .quick-practice-view {

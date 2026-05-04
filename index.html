@@ -72,15 +72,14 @@
             <button type="button" id="personalityQuestionsMenuButton" role="menuitem">인성 면접</button>
           </div>
         </div>
-        <button type="button" data-view="my-interview">MY 면접</button>
         <button type="button" data-view="home">모의 면접</button>
         <button type="button" data-view="contact">Contact</button>
       </nav>
 
       <div class="utility-nav" aria-label="사용자 메뉴">
-        <button class="bookmark-nav-button" id="bookmarkNavButton" type="button" aria-label="북마크로 이동" title="북마크">
-          <i data-lucide="bookmark"></i>
-          <span>북마크</span>
+        <button class="my-interview-nav-button" id="myInterviewNavButton" type="button" aria-label="MY 면접으로 이동" title="MY 면접" aria-pressed="false">
+          <i data-lucide="briefcase-business"></i>
+          <span>MY 면접</span>
         </button>
         <button class="auth-nav-button" id="authButton" type="button" aria-label="로그인">
           <i data-lucide="user-circle"></i>
@@ -120,7 +119,6 @@
         <button type="button" data-view="my-interview">MY 면접</button>
         <button type="button" data-view="home">모의 면접</button>
         <button type="button" data-view="contact">Contact</button>
-        <button type="button" id="mobileMenuBookmarkButton">북마크</button>
         <button type="button" id="mobileMenuHelpButton">개발자 메시지</button>
         <button type="button" id="mobileMenuAuthButton">로그인</button>
         <button type="button" id="mobileMenuLogoutButton" hidden>로그아웃</button>
@@ -524,14 +522,21 @@
                 <div>
                   <span class="my-interview-kicker">면접 세트</span>
                   <h2 id="myInterviewActiveSetName">-</h2>
-                  <p><span id="myInterviewActiveSetCount">0</span>개 질문으로 구성되어 있습니다.</p>
+                  <div class="my-interview-subtitle-editor" id="myInterviewSubtitleEditor"></div>
                 </div>
                 <div class="my-interview-detail-actions">
-                  <button class="black-button" id="myInterviewStartButton" type="button">
-                    <i data-lucide="video"></i>
-                    <span>이 세트로 모의면접</span>
+                  <button class="my-interview-action-button" id="myInterviewPracticeButton" type="button" aria-label="연습하기" title="연습하기">
+                    <i data-lucide="mic"></i>
+                    <span>연습</span>
                   </button>
-                  <button class="danger-outline-button" id="myInterviewDeleteSetButton" type="button">세트 삭제</button>
+                  <button class="my-interview-action-button primary" id="myInterviewStartButton" type="button" aria-label="이 세트로 모의면접" title="이 세트로 모의면접">
+                    <i data-lucide="video"></i>
+                    <span>모의면접</span>
+                  </button>
+                  <button class="my-interview-action-button danger" id="myInterviewDeleteSetButton" type="button" aria-label="세트 삭제" title="세트 삭제">
+                    <i data-lucide="trash-2"></i>
+                    <span>삭제</span>
+                  </button>
                 </div>
               </header>
 
@@ -1166,6 +1171,32 @@
           <button class="outline-button" id="cancelMyBookmarkRemoveButton" type="button">취소</button>
           <button class="danger-outline-button" id="confirmMyBookmarkRemoveButton" type="button">제거하기</button>
         </div>
+      </section>
+    </div>
+
+    <div class="exit-modal" id="bookmarkDestinationModal" aria-hidden="true">
+      <section class="exit-dialog bookmark-destination-dialog" role="dialog" aria-modal="true" aria-labelledby="bookmarkDestinationTitle">
+        <div class="help-dialog-head">
+          <div>
+            <p class="module-label">질문 저장</p>
+            <h2 id="bookmarkDestinationTitle">어디에 담을까요?</h2>
+          </div>
+          <button class="icon-close" id="bookmarkDestinationCloseButton" type="button" aria-label="질문 저장 창 닫기">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <p class="bookmark-destination-question" id="bookmarkDestinationQuestion"></p>
+        <div class="bookmark-destination-actions">
+          <button class="bookmark-destination-primary" id="bookmarkDestinationBookmarkButton" type="button">
+            <i data-lucide="bookmark"></i>
+            <span>북마크한 질문에 저장</span>
+          </button>
+        </div>
+        <div class="bookmark-destination-section">
+          <strong>생성된 면접 세트</strong>
+          <div class="bookmark-destination-set-list" id="bookmarkDestinationSetList"></div>
+        </div>
+        <p class="bookmark-destination-status" id="bookmarkDestinationStatus" aria-live="polite"></p>
       </section>
     </div>
 
