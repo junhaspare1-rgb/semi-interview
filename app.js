@@ -4095,11 +4095,7 @@ const closeMyInterviewSetDrawer = () => {
 
 const renderMyInterviewSubtitle = (set, questionCount) => {
   if (isMyInterviewBookmarkSet(set)) {
-    elements.myInterviewSubtitleEditor.innerHTML = `
-      <p class="my-interview-subtitle">
-        <span>북마크한 질문 ${questionCount}개를 MY 면접에서 바로 연습할 수 있습니다.</span>
-      </p>
-    `;
+    elements.myInterviewSubtitleEditor.innerHTML = "";
     return;
   }
 
