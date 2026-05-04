@@ -12,6 +12,9 @@ const packageTestSourceQuestions = Array.isArray(window.BANMYEONPPU_PACKAGE_TEST
 const personalitySourceQuestions = Array.isArray(window.BANMYEONPPU_PERSONALITY_QUESTIONS)
   ? window.BANMYEONPPU_PERSONALITY_QUESTIONS
   : [];
+const deviceSourceQuestions = Array.isArray(window.BANMYEONPPU_DEVICE_QUESTIONS)
+  ? window.BANMYEONPPU_DEVICE_QUESTIONS
+  : [];
 const buildQuestionBank = (sourceQuestions, { roleId, jobRole, mainCategories = new Set() }) =>
   sourceQuestions
     .map((question, index) => ({
@@ -44,6 +47,10 @@ const questionBanksByRole = {
   "package-test": buildQuestionBank(packageTestSourceQuestions, {
     roleId: "package-test",
     jobRole: "Package & Test",
+  }),
+  device: buildQuestionBank(deviceSourceQuestions, {
+    roleId: "device",
+    jobRole: "소자",
   }),
   personality: buildQuestionBank(personalitySourceQuestions, {
     roleId: "personality",
@@ -240,6 +247,13 @@ const QUESTION_BANK_ROLES = [
     enabled: true,
   },
   {
+    id: "device",
+    label: "소자",
+    shortLabel: "소자",
+    description: "소자 구조, 전기적 특성, 차세대 디바이스, 신뢰성 중심 면접 질문",
+    enabled: true,
+  },
+  {
     id: "personality",
     label: "인성 면접",
     shortLabel: "인성 면접",
@@ -252,13 +266,6 @@ const QUESTION_BANK_ROLES = [
     label: "회로설계",
     shortLabel: "회로설계",
     description: "디지털/아날로그 회로설계 직무 문제는 준비중입니다.",
-    enabled: false,
-  },
-  {
-    id: "device",
-    label: "소자",
-    shortLabel: "소자",
-    description: "소자 물리와 디바이스 특성 직무 문제는 준비중입니다.",
     enabled: false,
   },
 ];
