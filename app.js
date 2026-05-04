@@ -1591,6 +1591,11 @@ const applyAuthSession = (session) => {
   state.auth.session = session || null;
   state.auth.user = session?.user || null;
   renderAuthUi();
+  if (!state.auth.user && elements.myInterviewView?.classList.contains("active")) {
+    setView("landing", { replaceRoute: true });
+    showAuthModal();
+    setAuthStatus("MY 면접은 로그인 후 사용할 수 있습니다. 로그인하면 면접 세트와 북마크를 저장할 수 있습니다.", "warning");
+  }
 };
 
 const setAuthStatus = (message = "", tone = "muted") => {
@@ -1756,6 +1761,18 @@ const requireLoginForStudySave = (source = "unknown", action = "save_progress") 
   trackEvent("login_required", {
     source,
     action,
+  });
+  return false;
+};
+
+const requireLoginForMyInterview = (source = "unknown") => {
+  if (state.auth.user) return true;
+
+  showAuthModal();
+  setAuthStatus("MY 면접은 로그인 후 사용할 수 있습니다. 로그인하면 면접 세트와 북마크를 저장할 수 있습니다.", "warning");
+  trackEvent("login_required", {
+    source,
+    action: "open_my_interview",
   });
   return false;
 };
@@ -2149,6 +2166,10 @@ const leaveInterview = async () => {
 };
 
 const requestViewChange = (view) => {
+  if (view === "my-interview" && !requireLoginForMyInterview("navigation")) {
+    return;
+  }
+
   if (isInterviewOpen()) {
     state.pendingView = view;
     showExitModal();
@@ -2158,6 +2179,25 @@ const requestViewChange = (view) => {
 };
 
 const selectedLandingRoleLabel = () => LANDING_ROLE_LABELS[state.landing.selectedRole] || "선택한 직무";
+
+const landingRoleCardCaption = (roleId) => {
+  const role = questionBankRoleById(roleId);
+  if (!role.enabled || role.id !== roleId) return "곧 공개";
+  const count = questionBankQuestionsForRole(role.id).length;
+  return count > 0 ? `${count}개 질문` : "질문 준비";
+};
+
+const syncLandingRoleCardCaptions = () => {
+  $$(".landing-role-card").forEach((card) => {
+    const caption = card.querySelector("span");
+    if (!caption) return;
+    const roleId = card.dataset.landingRole || "process";
+    const role = questionBankRoleById(roleId);
+    const available = role.enabled && role.id === roleId;
+    caption.textContent = landingRoleCardCaption(roleId);
+    caption.classList.toggle("available", available);
+  });
+};
 
 const showLandingWaitlistModal = () => {
   elements.landingWaitlistTitle.textContent = "준비중인 직무에요.";
@@ -5921,6 +5961,8 @@ const bindSetupControls = () => {
 };
 
 const bindLandingControls = () => {
+  syncLandingRoleCardCaptions();
+
   $$(".landing-role-card").forEach((card) => {
     card.setAttribute("aria-pressed", String(card.classList.contains("active")));
     card.addEventListener("click", () => setLandingRole(card));
