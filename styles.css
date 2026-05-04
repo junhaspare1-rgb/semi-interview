@@ -3776,6 +3776,11 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
   min-width: 180px;
 }
 
+.my-interview-bottom-add-button[hidden],
+.my-interview-detail-content.bookmark-set .my-interview-bottom-add-button {
+  display: none;
+}
+
 .my-interview-bottom-add-button svg {
   width: 17px;
   height: 17px;
@@ -3915,6 +3920,10 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
 }
 
 .exit-dialog.my-interview-add-dialog {
+  display: flex;
+  max-height: min(840px, calc(100dvh - 40px));
+  flex-direction: column;
+  overflow: hidden;
   width: min(920px, calc(100vw - 28px));
 }
 
@@ -3953,11 +3962,17 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
 
 .my-interview-add-panel {
   display: grid;
+  min-height: 0;
   gap: 14px;
 }
 
 .my-interview-add-panel[hidden] {
   display: none;
+}
+
+.my-interview-add-dialog .my-interview-add-panel:not([hidden]) {
+  flex: 1 1 auto;
+  overflow: hidden;
 }
 
 .my-interview-add-toolbar {
@@ -3967,8 +3982,19 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
   align-items: center;
 }
 
+.my-interview-add-dialog #myInterviewExistingPanel,
+.my-interview-add-dialog #devMyInterviewExistingPanel {
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.my-interview-add-dialog #myInterviewCustomPanel:not([hidden]) {
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
 .my-interview-existing-list {
   display: grid;
+  min-height: 0;
   max-height: min(430px, 48vh);
   gap: 7px;
   overflow-y: auto;
@@ -4002,12 +4028,18 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
   accent-color: var(--blue);
 }
 
+.my-interview-existing-item > div {
+  min-width: 0;
+}
+
 .my-interview-existing-item strong {
   display: block;
   margin-top: 4px;
   color: var(--ink);
   font-size: 14px;
   line-height: 1.45;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
 }
 
 .my-interview-add-footer {
@@ -4169,6 +4201,98 @@ body.my-interview-active .site-footer {
 }
 
 @media (max-width: 640px) {
+  #myInterviewAddModal {
+    padding: 10px;
+  }
+
+  .exit-dialog.my-interview-add-dialog {
+    width: min(100%, calc(100vw - 20px));
+    max-height: calc(100dvh - 20px);
+    border-radius: 18px;
+    padding: 18px;
+  }
+
+  .exit-dialog.my-interview-add-dialog .help-dialog-head {
+    align-items: center;
+    gap: 12px;
+  }
+
+  .exit-dialog.my-interview-add-dialog h2 {
+    margin: 0;
+    font-size: 24px;
+    line-height: 1.25;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+
+  .exit-dialog.my-interview-add-dialog .module-label {
+    margin-bottom: 8px;
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .exit-dialog.my-interview-add-dialog .icon-close {
+    width: 42px;
+    height: 42px;
+  }
+
+  .my-interview-add-tabs {
+    width: 100%;
+  }
+
+  .my-interview-add-tabs button {
+    flex: 1 1 0;
+    padding: 0 10px;
+  }
+
+  .my-interview-add-dialog #myInterviewExistingPanel {
+    gap: 10px;
+  }
+
+  .my-interview-add-toolbar {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .my-interview-add-toolbar .bank-search input {
+    min-height: 44px;
+  }
+
+  .my-interview-add-toolbar .bank-sort {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    width: 100%;
+  }
+
+  .my-interview-add-toolbar .bank-sort select {
+    width: 100%;
+  }
+
+  .my-interview-existing-list {
+    max-height: none;
+    padding-right: 2px;
+  }
+
+  .my-interview-existing-item {
+    gap: 9px;
+    padding: 10px;
+  }
+
+  .my-interview-existing-item strong {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .my-interview-add-footer {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .my-interview-add-footer .black-button {
+    width: 100%;
+  }
+
   .my-interview-view.active {
     padding: 24px 14px 72px;
   }
@@ -4179,6 +4303,10 @@ body.my-interview-active .site-footer {
 
   .my-interview-question-item {
     grid-template-columns: 30px minmax(0, 1fr) auto;
+  }
+
+  .my-interview-question-item.bookmark-set-item {
+    grid-template-columns: minmax(0, 1fr) auto;
   }
 
   .my-interview-subtitle-edit input {
@@ -4209,11 +4337,6 @@ body.my-interview-active .site-footer {
     width: 100%;
     min-width: 0;
     padding: 0 8px;
-  }
-
-  .my-interview-add-footer {
-    align-items: stretch;
-    flex-direction: column;
   }
 
   .my-interview-answer-edit-actions {

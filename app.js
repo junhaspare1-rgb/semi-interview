@@ -156,6 +156,10 @@ const state = {
     subtitleEditing: false,
     answerEditingKey: "",
     draggingKey: "",
+    remoteLoaded: false,
+    syncInProgress: false,
+    syncPending: false,
+    syncTimerId: null,
   },
   quickPractice: {
     questionId: null,
@@ -1595,8 +1599,19 @@ const loadAuthConfig = async () => {
 const authClientFactory = () => window.supabase?.createClient;
 
 const applyAuthSession = (session) => {
+  const previousUserId = state.auth.user?.id || "";
   state.auth.session = session || null;
   state.auth.user = session?.user || null;
+  const nextUserId = state.auth.user?.id || "";
+  if (previousUserId !== nextUserId) {
+    state.myInterview.remoteLoaded = false;
+    state.myInterview.syncPending = false;
+    state.myInterview.syncInProgress = false;
+    if (state.myInterview.syncTimerId) {
+      window.clearTimeout(state.myInterview.syncTimerId);
+      state.myInterview.syncTimerId = null;
+    }
+  }
   renderAuthUi();
   if (!state.auth.user && elements.myInterviewView?.classList.contains("active")) {
     setView("landing", { replaceRoute: true });
@@ -1986,7 +2001,18 @@ const syncAccountData = async ({ silent = false } = {}) => {
       if (upsertError) throw upsertError;
     }
 
-    if (!silent) {
+    let myInterviewSyncFailed = false;
+    try {
+      await syncMyInterviewSetsFromRemote();
+    } catch (error) {
+      myInterviewSyncFailed = true;
+      reportAuthSyncError("my interview set account sync", error);
+      if (!silent) {
+        setAuthStatus("학습 진도는 동기화했지만 MY 면접 세트 동기화에 실패했습니다.", "warning");
+      }
+    }
+
+    if (!silent && !myInterviewSyncFailed) {
       setAuthStatus("학습 진도 동기화가 완료되었습니다.", "success");
     }
   } finally {
@@ -3388,7 +3414,7 @@ const renderBookmarkDestinationModal = (status = "") => {
         .map((set) => {
           const alreadyAdded = (set.items || []).some((item) => item.type === "bank" && item.key === progressKey(question));
           return `
-            <button class="bookmark-destination-set-button ${alreadyAdded ? "added" : ""}" type="button" data-bookmark-destination-set="${escapeHtml(set.id)}" ${alreadyAdded ? "disabled" : ""}>
+            <button class="bookmark-destination-set-button ${alreadyAdded ? "added" : ""}" type="button" data-bookmark-destination-set="${escapeHtml(set.id)}">
               <span>${escapeHtml(set.name)}</span>
               <strong>${alreadyAdded ? "저장됨" : "저장"}</strong>
             </button>
@@ -3465,8 +3491,27 @@ const addBookmarkDestinationToSet = (setId) => {
   const targetSet = state.myInterview.sets.find((set) => set.id === setId);
   if (!question || !targetSet) return;
   const key = progressKey(question);
-  if ((targetSet.items || []).some((item) => item.type === "bank" && item.key === key)) {
-    renderBookmarkDestinationModal("이미 이 면접 세트에 담긴 질문입니다.");
+  const existingIndex = (targetSet.items || []).findIndex((item) => item.type === "bank" && item.key === key);
+  if (existingIndex >= 0) {
+    targetSet.items.splice(existingIndex, 1);
+    targetSet.updatedAt = Date.now();
+    writeMyInterviewSets();
+    trackEvent("my_interview_question_remove", {
+      source: "question_bank_bookmark_button",
+      set_id: targetSet.id,
+      question_key: key,
+    });
+    if (state.myInterview.expandedAnswerKey === key) {
+      state.myInterview.expandedAnswerKey = "";
+    }
+    if (state.myInterview.answerEditingKey === key) {
+      state.myInterview.answerEditingKey = "";
+    }
+    if (elements.myInterviewView?.classList.contains("active")) {
+      renderMyInterview();
+    }
+    renderStudyProgressSurfaces();
+    renderBookmarkDestinationModal(`"${targetSet.name}" 세트에서 해제했습니다.`);
     return;
   }
   targetSet.items.push({ type: "bank", key, addedAt: Date.now() });
@@ -3942,6 +3987,7 @@ const normalizeMyInterviewSet = (set) => {
     name,
     subtitle: String(set.subtitle || "").trim(),
     items,
+    sortOrder: Number.isFinite(Number(set.sortOrder)) ? Number(set.sortOrder) : 0,
     createdAt: Number(set.createdAt) || Date.now(),
     updatedAt: Number(set.updatedAt) || Date.now(),
   };
@@ -3956,12 +4002,159 @@ const readMyInterviewSets = () => {
   }
 };
 
-const writeMyInterviewSets = () => {
+const writeMyInterviewSets = ({ syncRemote = true } = {}) => {
   try {
     localStorage.setItem(MY_INTERVIEW_SETS_KEY, JSON.stringify(state.myInterview.sets));
   } catch (error) {
     // localStorage가 막힌 환경에서도 현재 세션 안의 MY 면접 화면은 계속 동작합니다.
   }
+  if (syncRemote) {
+    queueMyInterviewRemoteSync();
+  }
+};
+
+const myInterviewSetFromRemoteRow = (row) =>
+  normalizeMyInterviewSet({
+    id: row.id,
+    name: row.name,
+    subtitle: row.subtitle,
+    items: Array.isArray(row.items) ? row.items : [],
+    sortOrder: Number(row.sort_order) || 0,
+    createdAt: Date.parse(row.created_at || "") || Date.now(),
+    updatedAt: Date.parse(row.updated_at || "") || Date.now(),
+  });
+
+const myInterviewSetToRemoteRow = (set, index = 0) => {
+  if (!state.auth.user) return null;
+  const normalized = normalizeMyInterviewSet({
+    ...set,
+    sortOrder: index,
+  });
+  if (!normalized) return null;
+  return {
+    user_id: state.auth.user.id,
+    id: normalized.id,
+    name: normalized.name,
+    subtitle: normalized.subtitle || "",
+    items: normalized.items,
+    sort_order: index,
+    created_at: new Date(normalized.createdAt || Date.now()).toISOString(),
+    updated_at: new Date(normalized.updatedAt || Date.now()).toISOString(),
+  };
+};
+
+const queueMyInterviewRemoteSync = () => {
+  if (!state.auth.client || !state.auth.user || !state.myInterview.remoteLoaded) return;
+  if (state.myInterview.syncTimerId) {
+    window.clearTimeout(state.myInterview.syncTimerId);
+  }
+  state.myInterview.syncTimerId = window.setTimeout(() => {
+    state.myInterview.syncTimerId = null;
+    syncMyInterviewSetsToRemote().catch((error) => {
+      reportAuthSyncError("my interview set sync", error);
+    });
+  }, 400);
+};
+
+const syncMyInterviewSetsToRemote = async ({ deleteMissing = true } = {}) => {
+  if (!state.auth.client || !state.auth.user || !state.myInterview.remoteLoaded) return;
+  if (state.myInterview.syncInProgress) {
+    state.myInterview.syncPending = true;
+    return;
+  }
+
+  state.myInterview.syncInProgress = true;
+  try {
+    const rows = state.myInterview.sets
+      .map((set, index) => myInterviewSetToRemoteRow(set, index))
+      .filter(Boolean);
+
+    if (rows.length) {
+      const { error } = await state.auth.client
+        .from("my_interview_sets")
+        .upsert(rows, { onConflict: "user_id,id" });
+      if (error) throw error;
+    }
+
+    if (deleteMissing) {
+      const localIds = new Set(rows.map((row) => row.id));
+      const { data, error } = await state.auth.client
+        .from("my_interview_sets")
+        .select("id")
+        .eq("user_id", state.auth.user.id);
+      if (error) throw error;
+
+      const remoteIdsToDelete = (data || [])
+        .map((row) => row.id)
+        .filter((id) => !localIds.has(id));
+
+      if (remoteIdsToDelete.length) {
+        const { error: deleteError } = await state.auth.client
+          .from("my_interview_sets")
+          .delete()
+          .eq("user_id", state.auth.user.id)
+          .in("id", remoteIdsToDelete);
+        if (deleteError) throw deleteError;
+      }
+    }
+  } finally {
+    state.myInterview.syncInProgress = false;
+    if (state.myInterview.syncPending) {
+      state.myInterview.syncPending = false;
+      queueMyInterviewRemoteSync();
+    }
+  }
+};
+
+const syncMyInterviewSetsFromRemote = async () => {
+  if (!state.auth.client || !state.auth.user) return;
+
+  const localSets = state.myInterview.sets.map(normalizeMyInterviewSet).filter(Boolean);
+  const { data, error } = await state.auth.client
+    .from("my_interview_sets")
+    .select("id,name,subtitle,items,sort_order,created_at,updated_at")
+    .eq("user_id", state.auth.user.id)
+    .order("sort_order", { ascending: true })
+    .order("updated_at", { ascending: false });
+  if (error) throw error;
+
+  const remoteSets = (data || []).map(myInterviewSetFromRemoteRow).filter(Boolean);
+  const remoteById = new Map(remoteSets.map((set) => [set.id, set]));
+  const localIds = new Set(localSets.map((set) => set.id));
+  const merged = [];
+
+  localSets.forEach((localSet) => {
+    const remoteSet = remoteById.get(localSet.id);
+    if (!remoteSet) {
+      merged.push(localSet);
+      return;
+    }
+    const localUpdatedAt = Number(localSet.updatedAt) || 0;
+    const remoteUpdatedAt = Number(remoteSet.updatedAt) || 0;
+    merged.push(remoteUpdatedAt > localUpdatedAt ? remoteSet : localSet);
+  });
+
+  remoteSets.forEach((remoteSet) => {
+    if (!localIds.has(remoteSet.id)) {
+      merged.push(remoteSet);
+    }
+  });
+
+  state.myInterview.sets = merged.map((set, index) => ({
+    ...set,
+    sortOrder: index,
+  }));
+  state.myInterview.remoteLoaded = true;
+
+  if (!myInterviewVisibleSets().some((set) => set.id === state.myInterview.activeSetId)) {
+    state.myInterview.activeSetId = state.myInterview.sets[0]?.id || MY_INTERVIEW_BOOKMARK_SET_ID;
+  }
+
+  writeMyInterviewSets({ syncRemote: false });
+  if (elements.myInterviewView?.classList.contains("active")) {
+    renderMyInterview();
+  }
+  await syncMyInterviewSetsToRemote();
 };
 
 const isMyInterviewBookmarkSet = (setOrId) =>

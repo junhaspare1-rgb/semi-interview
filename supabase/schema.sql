@@ -137,6 +137,51 @@ grant select, insert, update, delete on public.profiles to authenticated;
 grant select, insert, update, delete on public.question_progress to authenticated;
 grant select, insert, update, delete on public.behavior_answers to authenticated;
 
+create table if not exists public.my_interview_sets (
+  user_id uuid not null references auth.users(id) on delete cascade,
+  id text not null,
+  name text not null,
+  subtitle text not null default '',
+  items jsonb not null default '[]'::jsonb,
+  sort_order integer not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  primary key (user_id, id),
+  check (jsonb_typeof(items) = 'array')
+);
+
+create index if not exists my_interview_sets_user_order_idx
+  on public.my_interview_sets (user_id, sort_order, updated_at desc);
+
+alter table public.my_interview_sets enable row level security;
+
+drop policy if exists "my_interview_sets_select_own" on public.my_interview_sets;
+create policy "my_interview_sets_select_own"
+  on public.my_interview_sets
+  for select
+  using (auth.uid() = user_id);
+
+drop policy if exists "my_interview_sets_insert_own" on public.my_interview_sets;
+create policy "my_interview_sets_insert_own"
+  on public.my_interview_sets
+  for insert
+  with check (auth.uid() = user_id);
+
+drop policy if exists "my_interview_sets_update_own" on public.my_interview_sets;
+create policy "my_interview_sets_update_own"
+  on public.my_interview_sets
+  for update
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+drop policy if exists "my_interview_sets_delete_own" on public.my_interview_sets;
+create policy "my_interview_sets_delete_own"
+  on public.my_interview_sets
+  for delete
+  using (auth.uid() = user_id);
+
+grant select, insert, update, delete on public.my_interview_sets to authenticated;
+
 create table if not exists public.question_roles (
   id text primary key,
   label text not null,

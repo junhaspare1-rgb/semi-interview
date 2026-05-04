@@ -1,4 +1,4 @@
-dev-my-questions-preview.html
+dev-*.html
 
 # Local source/question-bank files are managed outside the deployed app.
 source/
