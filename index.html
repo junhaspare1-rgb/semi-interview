@@ -51,10 +51,11 @@
     <script src="data/process-questions.js?v=20260501-1" defer></script>
     <script src="data/package-test-questions.js?v=20260501-1" defer></script>
     <script src="data/personality-questions.js?v=20260503-1" defer></script>
+    <script src="data/device-questions.js?v=20260504-1" defer></script>
     <script src="data/auth-config.js?v=20260502-auth" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
-    <script src="app.js?v=20260503-myinterview-wide-add-fix" defer></script>
+    <script src="app.js?v=20260504-device" defer></script>
   </head>
   <body>
     <header class="top-nav">
@@ -171,7 +172,7 @@
             <h1 id="landingTitle">어떤 직무를 준비하고 있나요?</h1>
             <p>
               반도체 지식은 있는데, 면접 답변은 아직 막막한가요?<br />
-              300개 이상의 직무별 질문과 모범 답안으로 실전 감각을 완성하세요.
+              400개 이상의 직무별 질문과 모범 답안으로 실전 감각을 완성하세요.
             </p>
           </div>
 
@@ -186,15 +187,15 @@
               <strong>Package &amp; Test</strong>
               <span class="available">이용 가능</span>
             </button>
+            <button class="landing-role-card" type="button" data-landing-role="device" data-enabled="true" role="listitem">
+              <i data-lucide="atom"></i>
+              <strong>소자</strong>
+              <span class="available">이용 가능</span>
+            </button>
             <button class="landing-role-card" type="button" data-landing-role="personality" data-enabled="true" role="listitem">
               <i data-lucide="user-round"></i>
               <strong>인성 면접</strong>
               <span class="available">이용 가능</span>
-            </button>
-            <button class="landing-role-card" type="button" data-landing-role="device" data-enabled="false" role="listitem">
-              <i data-lucide="atom"></i>
-              <strong>소자</strong>
-              <span>준비 중</span>
             </button>
             <button class="landing-role-card" type="button" data-landing-role="circuit" data-enabled="false" role="listitem">
               <i data-lucide="cpu"></i>
@@ -240,7 +241,7 @@
               <div class="landing-dashboard-head">
                 <div>
                   <strong>질문 모음</strong>
-                  <span>184개 질문</span>
+                  <span>400개+ 질문</span>
                 </div>
                 <div class="landing-dashboard-search">
                   <i data-lucide="search"></i>
@@ -399,7 +400,7 @@
                 <span class="landing-role-icon atom"><i data-lucide="atom"></i></span>
                 <div class="landing-role-copy">
                   <h3>소자</h3>
-                  <p>소자 구조, 동작 원리, 공정 연계 질문을 곧 직무 흐름에 맞춰 제공합니다.</p>
+                  <p>소자 구조, 동작 원리, 전기적 특성 질문을 직무 흐름에 맞춰 제공합니다.</p>
                 </div>
                 <div class="landing-role-chips">
                   <em>MOSFET</em>
@@ -427,7 +428,7 @@
           <section class="landing-metrics-strip" aria-label="반면뿌 콘텐츠 현황">
             <div>
               <i data-lucide="layers"></i>
-              <strong>350+</strong>
+              <strong>400+</strong>
               <span>반도체 기술 질문</span>
             </div>
             <div>
@@ -495,9 +496,9 @@
             <select id="questionBankRole">
               <option value="process">공정기술 (양산기술)</option>
               <option value="package-test">Package &amp; Test</option>
+              <option value="device">소자</option>
               <option value="personality">인성 면접</option>
               <option value="design">회로설계 (준비중)</option>
-              <option value="device">소자 (준비중)</option>
             </select>
           </div>
 
@@ -850,7 +851,7 @@
                 <select id="targetRole">
                   <option value="process">공정기술/양산기술</option>
                   <option value="package-test">Package &amp; Test</option>
-                  <option value="device">소자 (준비중)</option>
+                  <option value="device">소자</option>
                   <option value="design">회로설계 (준비중)</option>
                 </select>
                 <i data-lucide="chevrons-down"></i>
