@@ -3676,11 +3676,21 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
 }
 
 .my-interview-detail-head h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
   margin: 4px 0 6px;
   color: var(--ink);
   font-size: 28px;
   line-height: 1.2;
   letter-spacing: 0;
+}
+
+.my-interview-detail-head h2 > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
 }
 
 .my-interview-detail-head p {
@@ -3725,6 +3735,55 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
 .my-interview-subtitle-edit-button svg {
   width: 14px;
   height: 14px;
+}
+
+.my-interview-title-edit-button {
+  display: inline-grid;
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--muted);
+}
+
+.my-interview-title-edit-button:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+.my-interview-title-edit-button svg {
+  width: 15px;
+  height: 15px;
+}
+
+.my-interview-title-edit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  width: min(640px, 100%);
+}
+
+.my-interview-title-edit input {
+  flex: 1 1 280px;
+  min-width: min(280px, 100%);
+  height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0 12px;
+  color: var(--ink);
+  font: inherit;
+  font-size: 18px;
+  font-weight: 950;
+}
+
+.my-interview-title-edit .black-button,
+.my-interview-title-edit .outline-button {
+  min-height: 40px;
+  padding: 0 14px;
 }
 
 .my-interview-subtitle-edit {
@@ -4307,6 +4366,16 @@ body.my-interview-active .site-footer {
 
   .my-interview-question-item.bookmark-set-item {
     grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .my-interview-title-edit input {
+    flex-basis: 100%;
+    min-width: 0;
+  }
+
+  .my-interview-title-edit .black-button,
+  .my-interview-title-edit .outline-button {
+    flex: 1 1 120px;
   }
 
   .my-interview-subtitle-edit input {
@@ -4894,6 +4963,32 @@ body.my-interview-active .site-footer {
   font: inherit;
   font-size: 13px;
   font-weight: 500;
+}
+
+@media (max-width: 640px) {
+  .bookmark-destination-popover.creating {
+    top: auto !important;
+    right: 12px;
+    bottom: max(12px, env(safe-area-inset-bottom));
+    left: 12px !important;
+    width: auto;
+  }
+
+  .bookmark-destination-popover.creating::before {
+    display: none;
+  }
+
+  .bookmark-destination-popover.creating .bookmark-destination-dialog {
+    max-height: min(420px, calc(100dvh - 24px));
+  }
+
+  .bookmark-destination-popover.creating .bookmark-destination-set-list {
+    max-height: min(300px, calc(100dvh - 128px));
+  }
+
+  .bookmark-destination-create-form input {
+    font-size: 16px;
+  }
 }
 
 .my-page-empty {
