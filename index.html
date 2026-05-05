@@ -30,7 +30,7 @@
     <meta name="twitter:description" content="반도체 공정기술 면접을 실전처럼 연습하세요." />
     <meta name="twitter:image" content="https://xn--e42b13ak0f.kr/og-image-20260505.png" />
     <link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
-    <link rel="stylesheet" href="styles.css?v=20260505-mobile-menu-save-fix" />
+    <link rel="stylesheet" href="styles.css?v=20260505-myquestions-redirect" />
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-V8PWYYDSJC"></script>
     <script>
@@ -55,7 +55,7 @@
     <script src="data/auth-config.js?v=20260502-auth" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
-    <script src="app.js?v=20260505-mobile-menu-save-fix" defer></script>
+    <script src="app.js?v=20260505-myquestions-redirect" defer></script>
   </head>
   <body>
     <header class="top-nav">
@@ -607,93 +607,6 @@
             <span>직무, 카테고리, 난이도 또는 검색어를 조정해보세요.</span>
           </div>
         </section>
-      </section>
-
-      <section class="my-page-view question-bank-view app-view" id="myPageView" aria-labelledby="myPageTitle">
-        <div class="question-bank-filter-backdrop" id="myPageFilterBackdrop" aria-hidden="true"></div>
-        <aside class="question-bank-sidebar my-page-sidebar" id="myPageSidebar" aria-label="북마크 질문 필터" hidden>
-          <div class="question-bank-sidebar-head">
-            <strong>필터</strong>
-            <button class="sidebar-drawer-close" id="myPageFilterCloseButton" type="button" aria-label="필터 닫기">
-              <i data-lucide="x"></i>
-            </button>
-          </div>
-          <div class="bank-filter-block">
-            <label for="myPageRoleFilter">직무 선택</label>
-            <select id="myPageRoleFilter"></select>
-          </div>
-          <div class="bank-filter-block">
-            <span>난이도</span>
-            <div class="bank-difficulty-list" id="myPageDifficultyFilter" aria-label="북마크 난이도 필터"></div>
-          </div>
-          <div class="bank-filter-block">
-            <span>카테고리</span>
-            <div class="bank-category-list" id="myPageCategoryFilter" aria-label="북마크 카테고리 필터"></div>
-          </div>
-        </aside>
-
-        <section class="question-bank-main my-page-main" id="myPageSignedIn" hidden>
-          <header class="question-bank-hero my-page-hero">
-            <div>
-              <h1 id="myPageTitle">저장한 질문</h1>
-              <p>북마크한 질문을 모아보고, 필요한 것만 골라 연습해보세요.</p>
-            </div>
-          </header>
-
-          <div class="question-bank-toolbar my-page-toolbar">
-            <div class="bank-toolbar-left">
-              <button class="filter-drawer-button" id="myPageFilterButton" type="button" aria-expanded="false" aria-controls="myPageSidebar">
-                <i data-lucide="sliders-horizontal"></i>
-                <span>필터</span>
-              </button>
-            </div>
-            <div class="bank-toolbar-actions">
-              <div class="question-bank-search-row">
-                <label class="bank-search my-page-search-label" for="myPageSearch">
-                  <i data-lucide="search"></i>
-                  <input id="myPageSearch" type="search" placeholder="질문, 키워드, 공정명 검색" autocomplete="off" />
-                </label>
-              </div>
-              <label class="bank-sort my-page-sort-label" for="myPageSort">
-                <span>정렬</span>
-                <select id="myPageSort">
-                  <option value="recent">최근 북마크순</option>
-                  <option value="role">직무순</option>
-                  <option value="difficulty">난이도순</option>
-                  <option value="category">카테고리순</option>
-                </select>
-              </label>
-            </div>
-          </div>
-
-          <div class="my-page-list-head">
-            <label class="my-page-check-all">
-              <input id="myPageSelectAll" type="checkbox" />
-              <span>현재 목록 전체 선택</span>
-            </label>
-            <div class="my-page-list-actions">
-              <span class="my-page-bookmark-total">북마크 <strong><span id="myPageBookmarkCount">0</span>개</strong></span>
-              <button class="text-button" id="myPageClearSelection" type="button">선택 해제</button>
-            </div>
-          </div>
-
-          <section class="my-bookmark-list" id="myPageList" aria-label="북마크 질문 목록"></section>
-
-          <section class="my-page-empty" id="myPageEmpty" hidden>
-            <strong>아직 북마크한 질문이 없습니다.</strong>
-            <p>질문을 북마크해두면 이곳에서 확인할 수 있습니다.</p>
-            <button class="black-button" type="button" data-view="question-bank">질문 모음으로 이동</button>
-          </section>
-        </section>
-
-        <div class="my-page-selection-bar" id="myPageSelectedBar" hidden>
-          <strong><span id="myPageSelectedCount">0</span>개 선택됨</strong>
-          <div>
-            <button class="outline-button" id="myPageQuickPracticeButton" type="button">빠른 연습</button>
-            <button class="outline-button" id="myPageMockPracticeButton" type="button">모의면접으로 연습</button>
-            <button class="danger-outline-button" id="myPageRemoveSelectedButton" type="button">북마크 해제</button>
-          </div>
-        </div>
       </section>
 
       <section class="my-interview-view app-view" id="myInterviewView" aria-labelledby="myInterviewTitle">
@@ -1374,7 +1287,7 @@
     <div class="exit-modal" id="myBookmarkConfirmModal" aria-hidden="true">
       <section class="exit-dialog my-bookmark-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="myBookmarkConfirmTitle">
         <h2 id="myBookmarkConfirmTitle">북마크에서 제거하시겠습니까?</h2>
-        <p>선택한 질문은 마이 페이지 북마크 목록에서 사라집니다.</p>
+        <p>선택한 질문은 MY 면접의 북마크한 질문 목록에서 사라집니다.</p>
         <div class="exit-actions">
           <button class="outline-button" id="cancelMyBookmarkRemoveButton" type="button">취소</button>
           <button class="danger-outline-button" id="confirmMyBookmarkRemoveButton" type="button">제거하기</button>
