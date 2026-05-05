@@ -220,10 +220,12 @@ const REPORT_QUEUE_KEY = "banmyeonppu_report_queue";
 const WAITLIST_QUEUE_KEY = "banmyeonppu_waitlist_queue";
 const STUDY_PROGRESS_KEY = "banmyeonppu_question_progress_v1";
 const MY_INTERVIEW_SETS_KEY = "banmyeonppu_my_interview_sets_v1";
+const MY_INTERVIEW_DELETED_SETS_KEY = "banmyeonppu_my_interview_deleted_sets_v1";
 const MY_INTERVIEW_BOOKMARK_SET_ID = "__bookmarked_questions__";
 const STT_TEST_SCRIPT =
   "CVD와 ALD의 차이는 박막의 스텝커버리지 입니다. 증착 공정에서는 박막의 유니포미티가 매우 중요합니다.";
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+const MY_INTERVIEW_DELETED_SET_RETENTION_MS = 90 * ONE_DAY_MS;
 const AI_INTERVIEW_CONFIG = {
   questionCount: 1,
   prepSeconds: 10,
@@ -4021,6 +4023,7 @@ const normalizeMyInterviewItem = (item) => {
     return {
       type: "bank",
       key: String(item.key),
+      questionOverride: String(item.questionOverride || "").trim(),
       answerOverride: String(item.answerOverride || "").trim(),
       addedAt: Number(item.addedAt) || Date.now(),
     };
@@ -4064,6 +4067,45 @@ const readMyInterviewSets = () => {
   } catch (error) {
     return [];
   }
+};
+
+const readMyInterviewDeletedSets = () => {
+  try {
+    const saved = JSON.parse(localStorage.getItem(MY_INTERVIEW_DELETED_SETS_KEY) || "{}");
+    if (!saved || typeof saved !== "object" || Array.isArray(saved)) return {};
+    const now = Date.now();
+    return Object.fromEntries(
+      Object.entries(saved)
+        .map(([id, deletedAt]) => [String(id), Number(deletedAt) || 0])
+        .filter(([id, deletedAt]) => id && deletedAt > 0 && now - deletedAt < MY_INTERVIEW_DELETED_SET_RETENTION_MS),
+    );
+  } catch (error) {
+    return {};
+  }
+};
+
+const writeMyInterviewDeletedSets = (deletedSets) => {
+  try {
+    localStorage.setItem(MY_INTERVIEW_DELETED_SETS_KEY, JSON.stringify(deletedSets || {}));
+  } catch (error) {
+    // 삭제 이력 저장에 실패해도 현재 세션에서는 세트 삭제를 계속 진행합니다.
+  }
+};
+
+const markMyInterviewSetDeleted = (set) => {
+  if (!set?.id || isMyInterviewBookmarkSet(set)) return;
+  const deletedSets = readMyInterviewDeletedSets();
+  const deletedAt = Math.max(Date.now(), Number(set.updatedAt) || 0);
+  deletedSets[String(set.id)] = deletedAt;
+  writeMyInterviewDeletedSets(deletedSets);
+};
+
+const isMyInterviewSetLocallyDeleted = (set, deletedSets = readMyInterviewDeletedSets()) => {
+  if (!set?.id) return false;
+  const deletedAt = Number(deletedSets[String(set.id)]) || 0;
+  if (!deletedAt) return false;
+  const updatedAt = Number(set.updatedAt) || 0;
+  return deletedAt >= updatedAt;
 };
 
 const writeMyInterviewSets = ({ syncRemote = true } = {}) => {
@@ -4173,7 +4215,11 @@ const syncMyInterviewSetsToRemote = async ({ deleteMissing = true } = {}) => {
 const syncMyInterviewSetsFromRemote = async () => {
   if (!state.auth.client || !state.auth.user) return;
 
-  const localSets = state.myInterview.sets.map(normalizeMyInterviewSet).filter(Boolean);
+  const deletedSets = readMyInterviewDeletedSets();
+  const localSets = state.myInterview.sets
+    .map(normalizeMyInterviewSet)
+    .filter(Boolean)
+    .filter((set) => !isMyInterviewSetLocallyDeleted(set, deletedSets));
   const { data, error } = await state.auth.client
     .from("my_interview_sets")
     .select("id,name,subtitle,items,sort_order,created_at,updated_at")
@@ -4182,7 +4228,10 @@ const syncMyInterviewSetsFromRemote = async () => {
     .order("updated_at", { ascending: false });
   if (error) throw error;
 
-  const remoteSets = (data || []).map(myInterviewSetFromRemoteRow).filter(Boolean);
+  const remoteSets = (data || [])
+    .map(myInterviewSetFromRemoteRow)
+    .filter(Boolean)
+    .filter((set) => !isMyInterviewSetLocallyDeleted(set, deletedSets));
   const remoteById = new Map(remoteSets.map((set) => [set.id, set]));
   const localIds = new Set(localSets.map((set) => set.id));
   const merged = [];
@@ -4268,13 +4317,15 @@ const myInterviewQuestionFromItem = (item) => {
   if (item.type === "bank") {
     const question = questionByProgressKey(item.key);
     if (!question) return null;
-    if (!item.answerOverride) return question;
+    if (!item.questionOverride && !item.answerOverride) return question;
     return {
       ...question,
-      answer: item.answerOverride,
-      shortAnswer: item.answerOverride,
-      recommendedAnswer: item.answerOverride,
-      answerOverridden: true,
+      text: item.questionOverride || question.text,
+      answer: item.answerOverride || question.answer,
+      shortAnswer: item.answerOverride || question.shortAnswer,
+      recommendedAnswer: item.answerOverride || question.recommendedAnswer,
+      questionOverridden: Boolean(item.questionOverride),
+      answerOverridden: Boolean(item.answerOverride),
     };
   }
   if (item.type !== "custom") return null;
@@ -4322,6 +4373,14 @@ const myInterviewDefaultAnswerText = (item, question) => {
   return question.answer || question.shortAnswer || question.recommendedAnswer || "";
 };
 
+const myInterviewDefaultQuestionText = (item, question) => {
+  if (item.type === "custom") return item.text || "";
+  return questionByProgressKey(item.key)?.text || question?.text || "";
+};
+
+const myInterviewEditableQuestionText = (item, question) =>
+  item.type === "bank" && item.questionOverride ? item.questionOverride : myInterviewDefaultQuestionText(item, question);
+
 const myInterviewEditableAnswerText = (item, question) =>
   item.type === "bank" && item.answerOverride ? item.answerOverride : myInterviewDefaultAnswerText(item, question);
 
@@ -4329,10 +4388,12 @@ const renderMyInterviewAnswerPanel = (item, question, options = {}) => {
   const key = myInterviewItemKey(item);
   const editable = options.editable !== false;
   const editing = editable && state.myInterview.answerEditingKey === key;
-  const hasOverride = item.type === "bank" && Boolean(item.answerOverride);
+  const hasQuestionOverride = item.type === "bank" && Boolean(item.questionOverride);
+  const hasAnswerOverride = item.type === "bank" && Boolean(item.answerOverride);
+  const hasOverride = hasQuestionOverride || hasAnswerOverride;
   const title = item.type === "custom"
     ? "사용자 답안"
-    : hasOverride
+    : hasAnswerOverride
       ? "수정한 모범 답안"
       : isPersonalityQuestion(question)
         ? "인성 답변 가이드"
@@ -4342,19 +4403,26 @@ const renderMyInterviewAnswerPanel = (item, question, options = {}) => {
     return `
       <section class="question-bank-answer my-list-answer-panel my-interview-answer-editor">
         <div class="question-bank-answer-head">
-          <h3>${escapeHtml(item.type === "custom" ? "사용자 답안 수정" : "모범 답안 수정")}</h3>
+          <h3>질문/답안 수정</h3>
         </div>
-        <textarea data-my-interview-answer-input rows="7" maxlength="4000" placeholder="이 면접 세트에서 사용할 답안을 입력하세요.">${escapeHtml(myInterviewEditableAnswerText(item, question))}</textarea>
+        <label>
+          <span>질문</span>
+          <textarea data-my-interview-question-input rows="3" maxlength="1000" placeholder="이 면접 세트에서 사용할 질문을 입력하세요.">${escapeHtml(myInterviewEditableQuestionText(item, question))}</textarea>
+        </label>
+        <label>
+          <span>답안</span>
+          <textarea data-my-interview-answer-input rows="7" maxlength="4000" placeholder="이 면접 세트에서 사용할 답안을 입력하세요.">${escapeHtml(myInterviewEditableAnswerText(item, question))}</textarea>
+        </label>
         <div class="my-interview-answer-edit-actions">
           <button class="black-button" type="button" data-my-interview-answer-save="${escapeHtml(key)}">저장</button>
           <button class="outline-button" type="button" data-my-interview-answer-cancel>취소</button>
-          ${hasOverride ? `<button class="text-button" type="button" data-my-interview-answer-reset="${escapeHtml(key)}">기본 답안으로 되돌리기</button>` : ""}
+          ${hasOverride ? `<button class="text-button" type="button" data-my-interview-answer-reset="${escapeHtml(key)}">기본 질문/답안으로 되돌리기</button>` : ""}
         </div>
       </section>
     `;
   }
 
-  const answerBody = hasOverride || item.type === "custom"
+  const answerBody = hasAnswerOverride || item.type === "custom"
     ? `<div class="model-answer-text">${renderModelAnswerHtml(myInterviewEditableAnswerText(item, question) || "아직 입력된 사용자 답안이 없습니다.")}</div>`
     : isPersonalityQuestion(question)
       ? renderPersonalityAnswerBlock(question)
@@ -4366,7 +4434,7 @@ const renderMyInterviewAnswerPanel = (item, question, options = {}) => {
         <h3>${title}</h3>
         ${editable ? `<button class="bank-answer-report-button" type="button" data-my-interview-answer-edit="${escapeHtml(key)}">
           <i data-lucide="pencil"></i>
-          <span>답안 수정</span>
+          <span>질문/답안 수정</span>
         </button>` : ""}
       </div>
       ${answerBody}
@@ -4671,6 +4739,7 @@ const deleteMyInterviewSet = (setId) => {
   const targetSet = state.myInterview.sets.find((set) => set.id === setId);
   if (!targetSet) return;
   if (!window.confirm(`"${targetSet.name}" 면접 세트를 삭제할까요?`)) return;
+  markMyInterviewSetDeleted(targetSet);
   state.myInterview.sets = state.myInterview.sets.filter((set) => set.id !== targetSet.id);
   if (state.myInterview.activeSetId === targetSet.id) {
     state.myInterview.activeSetId = state.myInterview.sets[0]?.id || MY_INTERVIEW_BOOKMARK_SET_ID;
@@ -4908,7 +4977,7 @@ const startMyInterviewAnswerEdit = (itemKey) => {
   state.myInterview.answerEditingKey = itemKey;
   renderMyInterview();
   window.setTimeout(() => {
-    const input = elements.myInterviewQuestionList.querySelector("[data-my-interview-answer-input]");
+    const input = elements.myInterviewQuestionList.querySelector("[data-my-interview-question-input]");
     input?.focus();
     input?.select();
   }, 0);
@@ -4922,13 +4991,25 @@ const cancelMyInterviewAnswerEdit = () => {
 const saveMyInterviewAnswerEdit = (itemKey) => {
   const activeSet = myInterviewActiveSet();
   const item = findMyInterviewItem(itemKey);
-  const input = elements.myInterviewQuestionList.querySelector("[data-my-interview-answer-input]");
-  if (!activeSet || isMyInterviewBookmarkSet(activeSet) || !item || !input) return;
-  const value = input.value.trim();
+  const questionInput = elements.myInterviewQuestionList.querySelector("[data-my-interview-question-input]");
+  const answerInput = elements.myInterviewQuestionList.querySelector("[data-my-interview-answer-input]");
+  if (!activeSet || isMyInterviewBookmarkSet(activeSet) || !item || !questionInput || !answerInput) return;
+  const questionValue = questionInput.value.trim();
+  const answerValue = answerInput.value.trim();
+  if (!questionValue) {
+    questionInput.focus();
+    return;
+  }
   if (item.type === "custom") {
-    item.answer = value;
+    item.text = questionValue;
+    item.answer = answerValue;
   } else {
-    item.answerOverride = value;
+    const baseQuestion = questionByProgressKey(item.key);
+    const baseItem = { ...item, questionOverride: "", answerOverride: "" };
+    const defaultQuestion = myInterviewDefaultQuestionText(baseItem, baseQuestion);
+    const defaultAnswer = myInterviewDefaultAnswerText(baseItem, baseQuestion);
+    item.questionOverride = questionValue && questionValue !== defaultQuestion ? questionValue : "";
+    item.answerOverride = answerValue && answerValue !== defaultAnswer ? answerValue : "";
   }
   activeSet.updatedAt = Date.now();
   state.myInterview.answerEditingKey = "";
@@ -4940,6 +5021,7 @@ const resetMyInterviewAnswerEdit = (itemKey) => {
   const activeSet = myInterviewActiveSet();
   const item = findMyInterviewItem(itemKey);
   if (!activeSet || isMyInterviewBookmarkSet(activeSet) || !item || item.type !== "bank") return;
+  item.questionOverride = "";
   item.answerOverride = "";
   activeSet.updatedAt = Date.now();
   state.myInterview.answerEditingKey = "";
@@ -6207,7 +6289,7 @@ const bindMyInterviewControls = () => {
   });
 
   elements.myInterviewDetailContent.addEventListener("keydown", (event) => {
-    if (event.target?.matches("[data-my-interview-answer-input]")) {
+    if (event.target?.matches("[data-my-interview-question-input], [data-my-interview-answer-input]")) {
       if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
         event.preventDefault();
         saveMyInterviewAnswerEdit(state.myInterview.answerEditingKey);
