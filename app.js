@@ -961,7 +961,7 @@ const renderQuestion = () => {
   const question = currentQuestion();
   elements.questionProgress.textContent = `${state.currentIndex + 1} / ${total}`;
   elements.rigorLabel.textContent = state.config.rigor;
-  elements.questionText.textContent = `${state.currentIndex + 1}. ${question.text}`;
+  elements.questionText.textContent = `${state.currentIndex + 1}. ${question.isFollowUp ? "꼬리질문: " : ""}${question.text}`;
 };
 
 const beginPrep = () => {
@@ -4017,6 +4017,21 @@ const confirmMyPractice = () => {
 const createMyInterviewId = (prefix) =>
   `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 
+const normalizeMyInterviewFollowUps = (followUps) =>
+  (Array.isArray(followUps) ? followUps : [])
+    .map((followUp) => {
+      if (typeof followUp === "string") {
+        return { question: followUp.trim(), answer: "" };
+      }
+      if (!followUp || typeof followUp !== "object") return null;
+      return {
+        question: String(followUp.question || followUp.text || "").trim(),
+        answer: String(followUp.answer || "").trim(),
+      };
+    })
+    .filter((followUp) => followUp?.question)
+    .slice(0, 20);
+
 const normalizeMyInterviewItem = (item) => {
   if (!item || typeof item !== "object") return null;
   if (item.type === "bank" && item.key && questionByProgressKey(item.key)) {
@@ -4025,6 +4040,7 @@ const normalizeMyInterviewItem = (item) => {
       key: String(item.key),
       questionOverride: String(item.questionOverride || "").trim(),
       answerOverride: String(item.answerOverride || "").trim(),
+      followUps: normalizeMyInterviewFollowUps(item.followUps),
       addedAt: Number(item.addedAt) || Date.now(),
     };
   }
@@ -4037,6 +4053,7 @@ const normalizeMyInterviewItem = (item) => {
       difficulty: normalizeDifficulty(item.difficulty || "입문"),
       text: String(item.text || "").trim(),
       answer: String(item.answer || "").trim(),
+      followUps: normalizeMyInterviewFollowUps(item.followUps),
       addedAt: Number(item.addedAt) || Date.now(),
     };
   }
@@ -4317,13 +4334,15 @@ const myInterviewQuestionFromItem = (item) => {
   if (item.type === "bank") {
     const question = questionByProgressKey(item.key);
     if (!question) return null;
-    if (!item.questionOverride && !item.answerOverride) return question;
+    const followUps = normalizeMyInterviewFollowUps(item.followUps);
+    if (!item.questionOverride && !item.answerOverride && !followUps.length) return question;
     return {
       ...question,
       text: item.questionOverride || question.text,
       answer: item.answerOverride || question.answer,
       shortAnswer: item.answerOverride || question.shortAnswer,
       recommendedAnswer: item.answerOverride || question.recommendedAnswer,
+      followUps,
       questionOverridden: Boolean(item.questionOverride),
       answerOverridden: Boolean(item.answerOverride),
     };
@@ -4343,12 +4362,47 @@ const myInterviewQuestionFromItem = (item) => {
     avoidAnswer: "",
     questionType: "custom",
     keywords: [],
+    followUps: normalizeMyInterviewFollowUps(item.followUps),
     source: "custom",
   };
 };
 
 const myInterviewQuestionsForSet = (set) =>
   (set?.items || []).map(myInterviewQuestionFromItem).filter((question) => question?.text);
+
+const myInterviewFollowUpQuestionsForItem = (item, parentQuestion) => {
+  const followUps = normalizeMyInterviewFollowUps(item.followUps);
+  if (!parentQuestion || !followUps.length) return [];
+  const itemKey = myInterviewItemKey(item);
+  return followUps.map((followUp, index) => {
+    const answer = followUp.answer || "아직 입력된 꼬리질문 답안이 없습니다.";
+    return {
+      ...parentQuestion,
+      id: `${parentQuestion.id || itemKey}__followup_${index + 1}`,
+      originalIndex: `${parentQuestion.originalIndex ?? parentQuestion.id ?? itemKey}__followup_${index + 1}`,
+      text: followUp.question,
+      answer,
+      shortAnswer: answer,
+      recommendedAnswer: answer,
+      avoidAnswer: "",
+      keywords: [],
+      questionType: "followup",
+      source: "my_interview_follow_up",
+      isFollowUp: true,
+      followUpAnswer: followUp.answer,
+      followUpIndex: index + 1,
+      parentQuestionKey: itemKey,
+      parentQuestionText: parentQuestion.text,
+    };
+  });
+};
+
+const myInterviewSessionQuestionsForSet = (set) =>
+  (set?.items || []).flatMap((item) => {
+    const question = myInterviewQuestionFromItem(item);
+    if (!question?.text) return [];
+    return [question, ...myInterviewFollowUpQuestionsForItem(item, question)];
+  });
 
 const myInterviewItemKey = (item) => (item.type === "bank" ? item.key : `custom:${item.id}`);
 
@@ -4384,6 +4438,37 @@ const myInterviewEditableQuestionText = (item, question) =>
 const myInterviewEditableAnswerText = (item, question) =>
   item.type === "bank" && item.answerOverride ? item.answerOverride : myInterviewDefaultAnswerText(item, question);
 
+const myInterviewFollowUpEditorItemHtml = (followUp = {}) => `
+  <article class="my-interview-followup-editor-item" data-my-interview-followup-item>
+    <label>
+      <span>꼬리질문</span>
+      <textarea data-my-interview-followup-question-input rows="2" maxlength="800" placeholder="면접관이 이어서 물어볼 질문을 입력하세요.">${escapeHtml(followUp.question || "")}</textarea>
+    </label>
+    <label>
+      <span>답안</span>
+      <textarea data-my-interview-followup-answer-input rows="4" maxlength="3000" placeholder="꼬리질문에 대한 답변 방향이나 준비한 답안을 입력하세요.">${escapeHtml(followUp.answer || "")}</textarea>
+    </label>
+    <button class="text-button" type="button" data-my-interview-followup-remove>꼬리질문 삭제</button>
+  </article>
+`;
+
+const renderMyInterviewFollowUpEditor = (followUps) => {
+  return `
+    <div class="my-interview-followup-editor" data-my-interview-followup-editor>
+      <div class="my-interview-followup-editor-head">
+        <span>꼬리질문</span>
+      </div>
+      <div class="my-interview-followup-editor-list" data-my-interview-followup-list>
+        ${
+          followUps.length
+            ? followUps.map(myInterviewFollowUpEditorItemHtml).join("")
+            : `<p class="my-interview-followup-empty" data-my-interview-followup-empty>추가된 꼬리질문이 없습니다.</p>`
+        }
+      </div>
+    </div>
+  `;
+};
+
 const renderMyInterviewAnswerPanel = (item, question, options = {}) => {
   const key = myInterviewItemKey(item);
   const editable = options.editable !== false;
@@ -4404,6 +4489,7 @@ const renderMyInterviewAnswerPanel = (item, question, options = {}) => {
       <section class="question-bank-answer my-list-answer-panel my-interview-answer-editor">
         <div class="question-bank-answer-head">
           <h3>질문/답안 수정</h3>
+          <button class="outline-button my-interview-followup-add-button" type="button" data-my-interview-followup-add>꼬리질문 추가</button>
         </div>
         <label>
           <span>질문</span>
@@ -4413,6 +4499,7 @@ const renderMyInterviewAnswerPanel = (item, question, options = {}) => {
           <span>답안</span>
           <textarea data-my-interview-answer-input rows="7" maxlength="4000" placeholder="이 면접 세트에서 사용할 답안을 입력하세요.">${escapeHtml(myInterviewEditableAnswerText(item, question))}</textarea>
         </label>
+        ${renderMyInterviewFollowUpEditor(normalizeMyInterviewFollowUps(item.followUps))}
         <div class="my-interview-answer-edit-actions">
           <button class="black-button" type="button" data-my-interview-answer-save="${escapeHtml(key)}">저장</button>
           <button class="outline-button" type="button" data-my-interview-answer-cancel>취소</button>
@@ -4427,6 +4514,22 @@ const renderMyInterviewAnswerPanel = (item, question, options = {}) => {
     : isPersonalityQuestion(question)
       ? renderPersonalityAnswerBlock(question)
       : `<div class="model-answer-text">${renderModelAnswerBlock(question)}</div>`;
+  const followUps = normalizeMyInterviewFollowUps(item.followUps);
+  const followUpBlock = followUps.length
+    ? `
+      <div class="my-interview-followups">
+        <h4>꼬리질문</h4>
+        <ol>
+          ${followUps.map((followUp) => `
+            <li>
+              <strong>${escapeHtml(followUp.question)}</strong>
+              <div class="my-interview-followup-answer">${renderModelAnswerHtml(followUp.answer || "아직 입력된 꼬리질문 답안이 없습니다.")}</div>
+            </li>
+          `).join("")}
+        </ol>
+      </div>
+    `
+    : "";
 
   return `
     <section class="question-bank-answer my-list-answer-panel">
@@ -4438,6 +4541,7 @@ const renderMyInterviewAnswerPanel = (item, question, options = {}) => {
         </button>` : ""}
       </div>
       ${answerBody}
+      ${followUpBlock}
     </section>
   `;
 };
@@ -4633,6 +4737,7 @@ const renderMyInterviewQuestionList = (set) => {
       const key = myInterviewItemKey(item);
       const sourceLabel = myInterviewSourceLabel(question, item);
       const expanded = state.myInterview.expandedAnswerKey === key;
+      const followUpCount = normalizeMyInterviewFollowUps(item.followUps).length;
       const difficultyBadge = item.type === "custom" || isPersonalityQuestion(question)
         ? ""
         : `<span class="bank-difficulty-badge ${questionBankDifficultyClass(question.difficulty)}">${escapeHtml(question.difficulty)}</span>`;
@@ -4653,6 +4758,7 @@ const renderMyInterviewQuestionList = (set) => {
               <span>${escapeHtml(sourceLabel)}</span>
               ${difficultyBadge}
               ${myInterviewCategoryBadge(question)}
+              ${followUpCount ? `<span>꼬리질문 ${followUpCount}개</span>` : ""}
             </span>
             <strong>${escapeHtml(question.text)}</strong>
           </button>
@@ -4988,6 +5094,34 @@ const cancelMyInterviewAnswerEdit = () => {
   renderMyInterview();
 };
 
+const myInterviewFollowUpsFromEditor = () =>
+  [...elements.myInterviewQuestionList.querySelectorAll("[data-my-interview-followup-item]")]
+    .map((row) => ({
+      question: row.querySelector("[data-my-interview-followup-question-input]")?.value.trim() || "",
+      answer: row.querySelector("[data-my-interview-followup-answer-input]")?.value.trim() || "",
+    }))
+    .filter((followUp) => followUp.question)
+    .slice(0, 20);
+
+const addMyInterviewFollowUpEditorItem = () => {
+  const list = elements.myInterviewQuestionList.querySelector("[data-my-interview-followup-list]");
+  if (!list) return;
+  list.querySelector("[data-my-interview-followup-empty]")?.remove();
+  list.insertAdjacentHTML("beforeend", myInterviewFollowUpEditorItemHtml());
+  const nextInput = list.querySelector("[data-my-interview-followup-item]:last-child [data-my-interview-followup-question-input]");
+  nextInput?.focus();
+};
+
+const removeMyInterviewFollowUpEditorItem = (button) => {
+  const row = button?.closest("[data-my-interview-followup-item]");
+  const list = row?.closest("[data-my-interview-followup-list]");
+  if (!row || !list) return;
+  row.remove();
+  if (!list.querySelector("[data-my-interview-followup-item]")) {
+    list.innerHTML = `<p class="my-interview-followup-empty" data-my-interview-followup-empty>추가된 꼬리질문이 없습니다.</p>`;
+  }
+};
+
 const saveMyInterviewAnswerEdit = (itemKey) => {
   const activeSet = myInterviewActiveSet();
   const item = findMyInterviewItem(itemKey);
@@ -4996,10 +5130,12 @@ const saveMyInterviewAnswerEdit = (itemKey) => {
   if (!activeSet || isMyInterviewBookmarkSet(activeSet) || !item || !questionInput || !answerInput) return;
   const questionValue = questionInput.value.trim();
   const answerValue = answerInput.value.trim();
+  const followUps = myInterviewFollowUpsFromEditor();
   if (!questionValue) {
     questionInput.focus();
     return;
   }
+  item.followUps = followUps;
   if (item.type === "custom") {
     item.text = questionValue;
     item.answer = answerValue;
@@ -5053,7 +5189,7 @@ const clearMyInterviewDragIndicators = () => {
 
 const startMyInterviewSetPractice = () => {
   const activeSet = myInterviewActiveSet();
-  const questionsToPractice = myInterviewQuestionsForSet(activeSet);
+  const questionsToPractice = myInterviewSessionQuestionsForSet(activeSet);
   if (!activeSet || !questionsToPractice.length) return;
   trackEvent("my_interview_set_quick_practice_start", {
     set_id: activeSet.id,
@@ -5067,7 +5203,7 @@ const startMyInterviewSetPractice = () => {
 
 const startMyInterviewSetInterview = () => {
   const activeSet = myInterviewActiveSet();
-  const questionsToInterview = myInterviewQuestionsForSet(activeSet);
+  const questionsToInterview = myInterviewSessionQuestionsForSet(activeSet);
   if (!activeSet || !questionsToInterview.length) return;
   trackEvent("my_interview_set_start", {
     set_id: activeSet.id,
@@ -5755,10 +5891,10 @@ const renderResultPage = () => {
       return `
         <article class="result-card">
           <div class="result-card-head">
-            <span>${index + 1}번 문항</span>
+            <span>${index + 1}번 ${question.isFollowUp ? "꼬리질문" : "문항"}</span>
             ${retryButton}
           </div>
-          <h2>${question.text}</h2>
+          <h2>${escapeHtml(question.text)}</h2>
           <div class="result-card-body ${state.interviewMode === "ai" ? "ai-result-card-body" : ""}">
             <section>
               <h3>답변 복기</h3>
@@ -6225,6 +6361,17 @@ const bindMyInterviewControls = () => {
       return;
     }
 
+    if (event.target.closest("[data-my-interview-followup-add]")) {
+      addMyInterviewFollowUpEditorItem();
+      return;
+    }
+
+    const followUpRemoveButton = event.target.closest("[data-my-interview-followup-remove]");
+    if (followUpRemoveButton) {
+      removeMyInterviewFollowUpEditorItem(followUpRemoveButton);
+      return;
+    }
+
     const answerSaveButton = event.target.closest("[data-my-interview-answer-save]");
     if (answerSaveButton) {
       saveMyInterviewAnswerEdit(answerSaveButton.dataset.myInterviewAnswerSave);
@@ -6289,7 +6436,7 @@ const bindMyInterviewControls = () => {
   });
 
   elements.myInterviewDetailContent.addEventListener("keydown", (event) => {
-    if (event.target?.matches("[data-my-interview-question-input], [data-my-interview-answer-input]")) {
+    if (event.target?.matches("[data-my-interview-question-input], [data-my-interview-answer-input], [data-my-interview-followup-question-input], [data-my-interview-followup-answer-input]")) {
       if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
         event.preventDefault();
         saveMyInterviewAnswerEdit(state.myInterview.answerEditingKey);
