@@ -75,6 +75,7 @@ const state = {
   timerId: null,
   cameraStream: null,
   audioStream: null,
+  micAudioContext: null,
   sttTestStream: null,
   sttTestRecorder: null,
   sttTestChunks: [],
@@ -629,6 +630,17 @@ const normalizeAppPath = (pathname = window.location.pathname) => {
   return normalized || "/";
 };
 
+const isLegacyMyQuestionsRoute = () => ["/my-page", "/my-questions"].includes(normalizeAppPath());
+
+const activateMyInterviewBookmarkSet = () => {
+  state.myInterview.activeSetId = MY_INTERVIEW_BOOKMARK_SET_ID;
+  state.myInterview.expandedAnswerKey = "";
+  state.myInterview.titleEditing = false;
+  state.myInterview.subtitleEditing = false;
+  state.myInterview.answerEditingKey = "";
+  state.myInterview.draggingKey = "";
+};
+
 const viewFromRoute = () => {
   switch (normalizeAppPath()) {
     case "/questions":
@@ -639,12 +651,7 @@ const viewFromRoute = () => {
       return "contact";
     case "/my-page":
     case "/my-questions":
-      state.myInterview.activeSetId = MY_INTERVIEW_BOOKMARK_SET_ID;
-      state.myInterview.expandedAnswerKey = "";
-      state.myInterview.titleEditing = false;
-      state.myInterview.subtitleEditing = false;
-      state.myInterview.answerEditingKey = "";
-      state.myInterview.draggingKey = "";
+      activateMyInterviewBookmarkSet();
       return "my-interview";
     case "/my-interview":
       return "my-interview";
@@ -669,7 +676,7 @@ const routeForView = (view) => {
   }
   if (view === "home") return "/mock-interview";
   if (view === "contact") return "/contact";
-  if (view === "my-page") return "/my-questions";
+  if (view === "my-page") return "/my-interview";
   if (view === "my-interview") return "/my-interview";
   if (view === "quick-practice") {
     const question = quickPracticeQuestion();
@@ -790,7 +797,11 @@ const currentQuestion = () => activeQuestions()[state.currentIndex] || activeQue
 
 const setView = (view, options = {}) => {
   const { updateRoute = true, replaceRoute = false } = options;
-  const nextView = view;
+  let nextView = view;
+  if (nextView === "my-page") {
+    activateMyInterviewBookmarkSet();
+    nextView = "my-interview";
+  }
   if (nextView !== "quick-practice") {
     cleanupQuickPracticeRecording();
   }
@@ -806,7 +817,7 @@ const setView = (view, options = {}) => {
   elements.landingView.classList.toggle("active", nextView === "landing");
   elements.questionBankView.classList.toggle("active", nextView === "question-bank");
   elements.myInterviewView.classList.toggle("active", nextView === "my-interview");
-  elements.myPageView.classList.toggle("active", nextView === "my-page");
+  elements.myPageView?.classList.toggle("active", nextView === "my-page");
   elements.quickPracticeView.classList.toggle("active", nextView === "quick-practice");
   elements.homeView.classList.toggle("active", nextView === "home");
   elements.aboutView.classList.toggle("active", nextView === "about");
@@ -886,6 +897,36 @@ const stopTimer = () => {
   if (state.timerId) {
     clearInterval(state.timerId);
     state.timerId = null;
+  }
+};
+
+const stopMicMeter = () => {
+  if (state.micAnimationId) {
+    cancelAnimationFrame(state.micAnimationId);
+    state.micAnimationId = null;
+  }
+  if (state.micAudioContext) {
+    state.micAudioContext.close().catch(() => {});
+    state.micAudioContext = null;
+  }
+};
+
+const stopInterviewMediaStreams = () => {
+  stopMicMeter();
+  state.cameraStream?.getTracks().forEach((track) => track.stop());
+  state.audioStream?.getTracks().forEach((track) => track.stop());
+  state.cameraStream = null;
+  state.audioStream = null;
+  if (elements.cameraPreview) {
+    elements.cameraPreview.srcObject = null;
+  }
+  if (elements.cameraCheckPreview) {
+    elements.cameraCheckPreview.srcObject = null;
+  }
+  elements.webcamPanel?.classList.remove("camera-on", "recording");
+  elements.cameraCheckFrame?.classList.remove("camera-on");
+  if (elements.recordingBadge) {
+    elements.recordingBadge.textContent = "대기중";
   }
 };
 
@@ -1204,6 +1245,7 @@ const finishCurrentAnswer = async () => {
 
 const finishInterview = async () => {
   await finishRecording();
+  stopInterviewMediaStreams();
   stopTimer();
   elements.phaseLabel.textContent = "면접 종료";
   elements.timerMode.textContent = "종료";
@@ -1644,7 +1686,7 @@ const renderAuthUi = () => {
   const signedIn = Boolean(state.auth.user);
   const email = state.auth.user?.email || "";
   elements.authButton.classList.toggle("signed-in", signedIn);
-  elements.authButton.setAttribute("aria-label", signedIn ? `${email} 마이 페이지` : "로그인");
+  elements.authButton.setAttribute("aria-label", signedIn ? `${email} 계정 메뉴` : "로그인");
   elements.authButton.setAttribute("aria-haspopup", signedIn ? "menu" : "dialog");
   elements.authButton.setAttribute("aria-expanded", elements.accountMenu?.classList.contains("open") ? "true" : "false");
   elements.authButtonLabel.hidden = signedIn;
@@ -1657,6 +1699,9 @@ const renderAuthUi = () => {
   }
   if (elements.mobileMenuAuthButton) {
     elements.mobileMenuAuthButton.hidden = signedIn;
+    elements.mobileMenuAuthButton.style.display = signedIn ? "none" : "";
+    elements.mobileMenuAuthButton.setAttribute("aria-hidden", String(signedIn));
+    elements.mobileMenuAuthButton.tabIndex = signedIn ? -1 : 0;
     elements.mobileMenuAuthButton.textContent = "로그인";
   }
   if (elements.mobileMenuLogoutButton) {
@@ -2199,6 +2244,7 @@ const leaveInterview = async () => {
   hideExitModal();
   stopTimer();
   await finishRecording();
+  stopInterviewMediaStreams();
   setView(nextView);
 };
 
@@ -2344,7 +2390,9 @@ const startMicMeter = (stream) => {
   const audioTrack = stream.getAudioTracks()[0];
   if (!AudioContextClass || !audioTrack) return;
 
+  stopMicMeter();
   const audioContext = new AudioContextClass();
+  state.micAudioContext = audioContext;
   const source = audioContext.createMediaStreamSource(new MediaStream([audioTrack]));
   const analyser = audioContext.createAnalyser();
   const data = new Uint8Array(analyser.frequencyBinCount);
@@ -2352,6 +2400,7 @@ const startMicMeter = (stream) => {
   source.connect(analyser);
 
   const tick = () => {
+    if (audioTrack.readyState !== "live" || state.micAudioContext !== audioContext) return;
     analyser.getByteFrequencyData(data);
     const average = data.reduce((sum, value) => sum + value, 0) / data.length;
     const level = Math.min(100, Math.round(average * 1.6));
@@ -2366,7 +2415,8 @@ const startMicMeter = (stream) => {
 };
 
 const ensureCamera = async () => {
-  if (state.cameraStream) return state.cameraStream;
+  if (state.cameraStream?.getTracks().some((track) => track.readyState === "live")) return state.cameraStream;
+  state.cameraStream = null;
 
   try {
     state.cameraStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
@@ -5330,6 +5380,9 @@ const openRouteFromLocation = () => {
   }
 
   setView(routeView, { updateRoute: false });
+  if (isLegacyMyQuestionsRoute()) {
+    updateAppRoute("my-interview", { replace: true });
+  }
   return routeView;
 };
 
@@ -5654,7 +5707,7 @@ const renderActiveAnswerScriptView = () => {
   if (elements.resultView.classList.contains("active")) {
     renderResultPage();
   }
-  if (elements.myPageView.classList.contains("active")) {
+  if (elements.myPageView?.classList.contains("active")) {
     renderMyPage();
   }
   if (elements.myInterviewView.classList.contains("active")) {
@@ -5926,6 +5979,8 @@ const bindQuickPracticeControls = () => {
 };
 
 const bindMyPageControls = () => {
+  if (!elements.myPageView) return;
+
   elements.myPageFilterButton.addEventListener("click", () => {
     state.myPage.filterDrawerOpen = true;
     syncMyPageFilterDrawer();
@@ -6460,9 +6515,7 @@ const bindInterviewControls = () => {
   });
   elements.mobileMenuAuthButton.addEventListener("click", () => {
     closeMobileMenu();
-    if (state.auth.user) {
-      requestViewChange("my-page");
-    } else {
+    if (!state.auth.user) {
       showAuthModal();
     }
   });

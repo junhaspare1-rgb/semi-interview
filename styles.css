@@ -440,6 +440,10 @@ button {
   text-align: center;
 }
 
+#mobileMenuAuthButton[hidden] {
+  display: none !important;
+}
+
 body.mobile-menu-open {
   overflow: hidden;
 }
