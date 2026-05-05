@@ -132,6 +132,7 @@ const state = {
     filterDrawerOpen: false,
     bookmarkDestinationKey: "",
     bookmarkDestinationCreatingSet: false,
+    bookmarkDestinationAnchorElement: null,
   },
   myPage: {
     role: "all",
@@ -153,6 +154,7 @@ const state = {
     existingSelectedKeys: [],
     setDrawerOpen: false,
     expandedAnswerKey: "",
+    titleEditing: false,
     subtitleEditing: false,
     answerEditingKey: "",
     draggingKey: "",
@@ -639,6 +641,7 @@ const viewFromRoute = () => {
     case "/my-questions":
       state.myInterview.activeSetId = MY_INTERVIEW_BOOKMARK_SET_ID;
       state.myInterview.expandedAnswerKey = "";
+      state.myInterview.titleEditing = false;
       state.myInterview.subtitleEditing = false;
       state.myInterview.answerEditingKey = "";
       state.myInterview.draggingKey = "";
@@ -1653,7 +1656,8 @@ const renderAuthUi = () => {
     elements.mobileMenuEmail.textContent = signedIn ? email : "로그인이 필요합니다";
   }
   if (elements.mobileMenuAuthButton) {
-    elements.mobileMenuAuthButton.textContent = signedIn ? "마이 페이지" : "로그인";
+    elements.mobileMenuAuthButton.hidden = signedIn;
+    elements.mobileMenuAuthButton.textContent = "로그인";
   }
   if (elements.mobileMenuLogoutButton) {
     elements.mobileMenuLogoutButton.hidden = !signedIn;
@@ -3397,6 +3401,7 @@ const positionBookmarkDestinationPopover = (anchorElement) => {
 const renderBookmarkDestinationModal = (status = "") => {
   const question = bookmarkDestinationQuestion();
   if (!question) return;
+  elements.bookmarkDestinationModal.classList.toggle("creating", state.questionBank.bookmarkDestinationCreatingSet);
   const studyState = getQuestionStudyState(question);
   const bookmarked = studyState.bookmarked;
   const bookmarkOption = `
@@ -3448,6 +3453,7 @@ const showBookmarkDestinationModal = (questionId, anchorElement) => {
   if (!requireLoginForStudySave("question_bank", "bookmark")) return;
   state.questionBank.bookmarkDestinationKey = progressKey(question);
   state.questionBank.bookmarkDestinationCreatingSet = false;
+  state.questionBank.bookmarkDestinationAnchorElement = anchorElement;
   renderBookmarkDestinationModal();
   elements.bookmarkDestinationModal.classList.add("open");
   elements.bookmarkDestinationModal.setAttribute("aria-hidden", "false");
@@ -3461,10 +3467,12 @@ const showBookmarkDestinationModal = (questionId, anchorElement) => {
 const hideBookmarkDestinationModal = () => {
   elements.bookmarkDestinationModal.classList.remove("open");
   elements.bookmarkDestinationModal.classList.remove("above");
+  elements.bookmarkDestinationModal.classList.remove("creating");
   elements.bookmarkDestinationModal.setAttribute("aria-hidden", "true");
   elements.bookmarkDestinationModal.removeAttribute("style");
   state.questionBank.bookmarkDestinationKey = "";
   state.questionBank.bookmarkDestinationCreatingSet = false;
+  state.questionBank.bookmarkDestinationAnchorElement = null;
   elements.bookmarkDestinationStatus.textContent = "";
 };
 
@@ -3532,7 +3540,13 @@ const addBookmarkDestinationToSet = (setId) => {
 const startBookmarkDestinationSetCreate = () => {
   state.questionBank.bookmarkDestinationCreatingSet = true;
   renderBookmarkDestinationModal();
-  window.setTimeout(() => $("#bookmarkDestinationSetNameInput")?.focus(), 0);
+  if (state.questionBank.bookmarkDestinationAnchorElement?.isConnected) {
+    positionBookmarkDestinationPopover(state.questionBank.bookmarkDestinationAnchorElement);
+  }
+  const shouldAutofocus = !window.matchMedia?.("(pointer: coarse)")?.matches;
+  if (shouldAutofocus) {
+    window.setTimeout(() => $("#bookmarkDestinationSetNameInput")?.focus(), 0);
+  }
 };
 
 const createBookmarkDestinationSet = () => {
@@ -4334,6 +4348,32 @@ const renderMyInterviewSetList = () => {
     .join("");
 };
 
+const renderMyInterviewTitle = (set) => {
+  if (isMyInterviewBookmarkSet(set)) {
+    elements.myInterviewActiveSetName.textContent = set.name;
+    return;
+  }
+
+  if (state.myInterview.titleEditing) {
+    elements.myInterviewActiveSetName.innerHTML = `
+      <span class="my-interview-title-edit">
+        <label class="sr-only" for="myInterviewTitleInput">면접 세트 제목</label>
+        <input id="myInterviewTitleInput" type="text" maxlength="40" value="${escapeHtml(set.name)}" autocomplete="off" />
+        <button class="black-button" type="button" data-my-interview-title-save>저장</button>
+        <button class="outline-button" type="button" data-my-interview-title-cancel>취소</button>
+      </span>
+    `;
+    return;
+  }
+
+  elements.myInterviewActiveSetName.innerHTML = `
+    <span>${escapeHtml(set.name)}</span>
+    <button class="my-interview-title-edit-button" type="button" data-my-interview-title-edit aria-label="면접 세트 제목 수정" title="제목 수정">
+      <i data-lucide="pencil"></i>
+    </button>
+  `;
+};
+
 const syncMyInterviewSetDrawer = () => {
   const drawerOpen = elements.myInterviewView?.classList.contains("active") && state.myInterview.setDrawerOpen;
   elements.myInterviewView?.classList.toggle("set-drawer-open", drawerOpen);
@@ -4380,6 +4420,7 @@ const startMyInterviewSubtitleEdit = () => {
   const activeSet = myInterviewActiveSet();
   if (!activeSet || isMyInterviewBookmarkSet(activeSet)) return;
   state.myInterview.subtitleEditing = true;
+  state.myInterview.titleEditing = false;
   renderMyInterview();
   window.setTimeout(() => {
     const input = $("#myInterviewSubtitleInput");
@@ -4404,6 +4445,40 @@ const saveMyInterviewSubtitle = () => {
   renderMyInterview();
 };
 
+const startMyInterviewTitleEdit = () => {
+  const activeSet = myInterviewActiveSet();
+  if (!activeSet || isMyInterviewBookmarkSet(activeSet)) return;
+  state.myInterview.titleEditing = true;
+  state.myInterview.subtitleEditing = false;
+  renderMyInterview();
+  window.setTimeout(() => {
+    const input = $("#myInterviewTitleInput");
+    input?.focus();
+    input?.select();
+  }, 0);
+};
+
+const cancelMyInterviewTitleEdit = () => {
+  state.myInterview.titleEditing = false;
+  renderMyInterview();
+};
+
+const saveMyInterviewTitle = () => {
+  const activeSet = myInterviewActiveSet();
+  const input = $("#myInterviewTitleInput");
+  if (!activeSet || isMyInterviewBookmarkSet(activeSet) || !input) return;
+  const nextName = input.value.trim();
+  if (!nextName) {
+    input.focus();
+    return;
+  }
+  activeSet.name = nextName;
+  activeSet.updatedAt = Date.now();
+  state.myInterview.titleEditing = false;
+  writeMyInterviewSets();
+  renderMyInterview();
+};
+
 const renderMyInterviewQuestionList = (set) => {
   const questions = myInterviewQuestionsForSet(set);
   const bookmarkSet = isMyInterviewBookmarkSet(set);
@@ -4416,7 +4491,7 @@ const renderMyInterviewQuestionList = (set) => {
   if (bottomAddButton) {
     bottomAddButton.hidden = bookmarkSet;
   }
-  elements.myInterviewActiveSetName.textContent = set.name;
+  renderMyInterviewTitle(set);
   renderMyInterviewSubtitle(set, questions.length);
   elements.myInterviewPracticeButton.disabled = questions.length === 0;
   elements.myInterviewStartButton.disabled = questions.length === 0;
@@ -4477,6 +4552,7 @@ const renderMyInterview = () => {
   setMyInterviewActiveSet(state.myInterview.activeSetId);
   const activeSet = myInterviewActiveSet();
   if (!activeSet) {
+    state.myInterview.titleEditing = false;
     state.myInterview.subtitleEditing = false;
     state.myInterview.expandedAnswerKey = "";
     state.myInterview.answerEditingKey = "";
@@ -4526,6 +4602,7 @@ const createMyInterviewSet = () => {
   state.myInterview.activeSetId = set.id;
   state.myInterview.setDrawerOpen = false;
   state.myInterview.expandedAnswerKey = "";
+  state.myInterview.titleEditing = false;
   state.myInterview.subtitleEditing = false;
   state.myInterview.answerEditingKey = "";
   writeMyInterviewSets();
@@ -4549,6 +4626,7 @@ const deleteMyInterviewSet = (setId) => {
     state.myInterview.activeSetId = state.myInterview.sets[0]?.id || MY_INTERVIEW_BOOKMARK_SET_ID;
   }
   state.myInterview.expandedAnswerKey = "";
+  state.myInterview.titleEditing = false;
   state.myInterview.subtitleEditing = false;
   state.myInterview.answerEditingKey = "";
   writeMyInterviewSets();
@@ -5824,6 +5902,14 @@ const bindQuickPracticeControls = () => {
     event.preventDefault();
     createBookmarkDestinationSet();
   });
+  const shouldKeepBookmarkDestinationOpenForInput = () =>
+    state.questionBank.bookmarkDestinationCreatingSet ||
+    Boolean(document.activeElement?.closest?.("[data-bookmark-destination-create-form]"));
+  const handleBookmarkDestinationViewportChange = () => {
+    if (!elements.bookmarkDestinationModal.classList.contains("open")) return;
+    if (shouldKeepBookmarkDestinationOpenForInput()) return;
+    hideBookmarkDestinationModal();
+  };
   document.addEventListener("click", (event) => {
     if (!elements.bookmarkDestinationModal.classList.contains("open")) return;
     if (elements.bookmarkDestinationModal.contains(event.target)) return;
@@ -5835,8 +5921,8 @@ const bindQuickPracticeControls = () => {
       hideBookmarkDestinationModal();
     }
   });
-  window.addEventListener("resize", hideBookmarkDestinationModal);
-  window.addEventListener("scroll", hideBookmarkDestinationModal);
+  window.addEventListener("resize", handleBookmarkDestinationViewportChange);
+  window.addEventListener("scroll", handleBookmarkDestinationViewportChange);
 };
 
 const bindMyPageControls = () => {
@@ -5982,6 +6068,7 @@ const bindMyInterviewControls = () => {
     if (!button) return;
     if (state.myInterview.activeSetId !== button.dataset.myInterviewSet) {
       state.myInterview.expandedAnswerKey = "";
+      state.myInterview.titleEditing = false;
       state.myInterview.subtitleEditing = false;
       state.myInterview.answerEditingKey = "";
       state.myInterview.draggingKey = "";
@@ -6015,6 +6102,21 @@ const bindMyInterviewControls = () => {
 
     if (event.target.closest("[data-my-interview-answer-cancel]")) {
       cancelMyInterviewAnswerEdit();
+      return;
+    }
+
+    if (event.target.closest("[data-my-interview-title-edit]")) {
+      startMyInterviewTitleEdit();
+      return;
+    }
+
+    if (event.target.closest("[data-my-interview-title-save]")) {
+      saveMyInterviewTitle();
+      return;
+    }
+
+    if (event.target.closest("[data-my-interview-title-cancel]")) {
+      cancelMyInterviewTitleEdit();
       return;
     }
 
@@ -6058,6 +6160,18 @@ const bindMyInterviewControls = () => {
       if (event.key === "Escape") {
         event.preventDefault();
         cancelMyInterviewAnswerEdit();
+      }
+      return;
+    }
+
+    if (event.target?.id === "myInterviewTitleInput") {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        saveMyInterviewTitle();
+      }
+      if (event.key === "Escape") {
+        event.preventDefault();
+        cancelMyInterviewTitleEdit();
       }
       return;
     }
