@@ -30,7 +30,7 @@
     <meta name="twitter:description" content="반도체 공정기술 면접을 실전처럼 연습하세요." />
     <meta name="twitter:image" content="https://xn--e42b13ak0f.kr/og-image-20260505.png" />
     <link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
-    <link rel="stylesheet" href="styles.css?v=20260505-myinterview-followup-answers" />
+    <link rel="stylesheet" href="styles.css?v=20260506-resume-generator-ai-v1" />
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-V8PWYYDSJC"></script>
     <script>
@@ -55,7 +55,7 @@
     <script src="data/auth-config.js?v=20260502-auth" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
-    <script src="app.js?v=20260505-myinterview-followup-answers" defer></script>
+    <script src="app.js?v=20260506-resume-generator-ai-v1" defer></script>
   </head>
   <body>
     <header class="top-nav">
@@ -74,6 +74,7 @@
           </div>
         </div>
         <button type="button" data-view="home">모의 면접</button>
+        <button type="button" data-view="resume-generator">AI 자소서 질문</button>
         <button type="button" data-view="contact">Contact</button>
       </nav>
 
@@ -119,6 +120,7 @@
         <button type="button" id="mobilePersonalityQuestionsMenuButton">인성 면접 질문</button>
         <button type="button" data-view="my-interview">MY 면접</button>
         <button type="button" data-view="home">모의 면접</button>
+        <button type="button" data-view="resume-generator">AI 자소서 질문</button>
         <button type="button" data-view="contact">Contact</button>
         <button type="button" id="mobileMenuHelpButton">개발자 메시지</button>
         <button type="button" id="mobileMenuAuthButton">로그인</button>
@@ -679,6 +681,88 @@
           <i data-lucide="list"></i>
           <span>면접 세트 선택</span>
         </button>
+      </section>
+
+      <section class="resume-generator-view app-view" id="resumeGeneratorView" aria-labelledby="resumeGeneratorTitle">
+        <div class="resume-generator-shell">
+          <header class="resume-generator-head">
+            <p class="module-label">AI 자소서 질문 생성기</p>
+            <h1 id="resumeGeneratorTitle">지원서 기반 예상 질문을 MY 면접으로 저장하기</h1>
+            <p>
+              지원서 파일이나 핵심 내용을 바탕으로 면접관 관점의 예상 질문 10개를 생성합니다. 저장한 질문은 MY 면접에서 바로 연습할 수 있습니다.
+            </p>
+          </header>
+
+          <div class="resume-generator-layout">
+            <form class="resume-generator-form" id="resumeGeneratorForm">
+              <div class="resume-generator-form-grid">
+                <label class="report-field" for="resumeTargetCompany">
+                  <span>지원 회사</span>
+                  <input id="resumeTargetCompany" type="text" maxlength="40" value="삼성전자" autocomplete="off" />
+                </label>
+                <label class="report-field" for="resumeTargetRole">
+                  <span>지원 직무</span>
+                  <select id="resumeTargetRole">
+                    <option value="process">공정기술/양산기술</option>
+                    <option value="package-test">Package & Test</option>
+                    <option value="device">소자</option>
+                    <option value="personality">인성 면접</option>
+                  </select>
+                </label>
+                <label class="report-field" for="resumeInterviewType">
+                  <span>면접 유형</span>
+                  <select id="resumeInterviewType">
+                    <option value="종합">종합</option>
+                    <option value="직무">직무</option>
+                    <option value="인성">인성</option>
+                    <option value="임원">임원</option>
+                  </select>
+                </label>
+                <label class="report-field" for="resumeFileInput">
+                  <span>지원서 파일</span>
+                  <input
+                    id="resumeFileInput"
+                    type="file"
+                    accept=".pdf,.doc,.docx,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
+                  />
+                </label>
+              </div>
+
+              <label class="report-field" for="resumeSourceText">
+                <span>지원서 핵심 내용</span>
+                <textarea id="resumeSourceText" rows="9" maxlength="8000" placeholder="파일을 올리거나 자소서 문항, 프로젝트 경험, 지원동기 등 핵심 내용을 붙여넣으세요.">반도체 공정 실습에서 Etch 조건을 조정하며 불량 원인을 분석했습니다.
+플라즈마 조건과 마스크 패턴 변화를 비교했고, 수율 개선을 위해 실험 조건을 정리했습니다.
+팀 프로젝트에서는 데이터 정리와 발표를 맡아 공정 조건 변화가 결과에 미치는 영향을 설명했습니다.</textarea>
+              </label>
+
+              <div class="resume-generator-actions">
+                <button class="black-button" id="resumeGenerateMockButton" type="submit">
+                  <i data-lucide="sparkles"></i>
+                  <span>AI 질문 10개 생성</span>
+                </button>
+                <p id="resumeGeneratorStatus" aria-live="polite"></p>
+              </div>
+            </form>
+
+            <section class="resume-generator-results" id="resumeGeneratorResults" hidden>
+              <header class="resume-generator-results-head">
+                <div>
+                  <p class="module-label">생성 결과</p>
+                  <h2 id="resumeGeneratorSummary">예상 질문을 생성했습니다.</h2>
+                  <span id="resumeGeneratorRunMeta">AI run</span>
+                </div>
+                <div class="resume-generator-result-actions">
+                  <button class="outline-button" id="resumeSelectAllButton" type="button">전체 선택</button>
+                  <button class="black-button" id="resumeSaveSelectedButton" type="button">
+                    <i data-lucide="briefcase-business"></i>
+                    <span>선택 MY면접 저장</span>
+                  </button>
+                </div>
+              </header>
+              <div class="resume-question-list" id="resumeGeneratedQuestionList"></div>
+            </section>
+          </div>
+        </div>
       </section>
 
       <section class="quick-practice-view app-view" id="quickPracticeView" aria-labelledby="quickPracticeTitle">
