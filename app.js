@@ -158,6 +158,12 @@ const state = {
     titleEditing: false,
     subtitleEditing: false,
     answerEditingKey: "",
+    answerEditDrafts: {},
+    customDraft: {
+      question: "",
+      category: "",
+      answer: "",
+    },
     draggingKey: "",
     draggingSetId: "",
     remoteLoaded: false,
@@ -4450,6 +4456,51 @@ const myInterviewEditableQuestionText = (item, question) =>
 const myInterviewEditableAnswerText = (item, question) =>
   item.type === "bank" && item.answerOverride ? item.answerOverride : myInterviewDefaultAnswerText(item, question);
 
+const myInterviewAnswerEditDraftKey = (setId, itemKey) =>
+  setId && itemKey ? `${setId}::${itemKey}` : "";
+
+const myInterviewCurrentAnswerEditDraftKey = (itemKey = state.myInterview.answerEditingKey) =>
+  myInterviewAnswerEditDraftKey(myInterviewActiveSet()?.id, itemKey);
+
+const defaultMyInterviewAnswerEditDraft = (item, question) => ({
+  question: myInterviewEditableQuestionText(item, question),
+  answer: myInterviewEditableAnswerText(item, question),
+  followUps: normalizeMyInterviewFollowUps(item.followUps),
+});
+
+const getMyInterviewAnswerEditDraft = (item, question, itemKey) =>
+  state.myInterview.answerEditDrafts[myInterviewCurrentAnswerEditDraftKey(itemKey)] ||
+  defaultMyInterviewAnswerEditDraft(item, question);
+
+const ensureMyInterviewAnswerEditDraft = (itemKey) => {
+  const activeSet = myInterviewActiveSet();
+  const item = findMyInterviewItem(itemKey);
+  const question = item ? myInterviewQuestionFromItem(item) : null;
+  const draftKey = myInterviewAnswerEditDraftKey(activeSet?.id, itemKey);
+  if (!activeSet || !item || !question || !draftKey) return null;
+  if (!state.myInterview.answerEditDrafts[draftKey]) {
+    state.myInterview.answerEditDrafts[draftKey] = defaultMyInterviewAnswerEditDraft(item, question);
+  }
+  return state.myInterview.answerEditDrafts[draftKey];
+};
+
+const clearMyInterviewAnswerEditDraft = (itemKey, setId = myInterviewActiveSet()?.id) => {
+  const draftKey = myInterviewAnswerEditDraftKey(setId, itemKey);
+  if (draftKey) {
+    delete state.myInterview.answerEditDrafts[draftKey];
+  }
+};
+
+const clearMyInterviewSetAnswerEditDrafts = (setId) => {
+  const prefix = setId ? `${setId}::` : "";
+  if (!prefix) return;
+  Object.keys(state.myInterview.answerEditDrafts)
+    .filter((key) => key.startsWith(prefix))
+    .forEach((key) => {
+      delete state.myInterview.answerEditDrafts[key];
+    });
+};
+
 const myInterviewFollowUpEditorItemHtml = (followUp = {}) => `
   <article class="my-interview-followup-editor-item" data-my-interview-followup-item>
     <label>
@@ -4497,6 +4548,7 @@ const renderMyInterviewAnswerPanel = (item, question, options = {}) => {
         : "모범 답안";
 
   if (editing) {
+    const draft = getMyInterviewAnswerEditDraft(item, question, key);
     return `
       <section class="question-bank-answer my-list-answer-panel my-interview-answer-editor">
         <div class="question-bank-answer-head">
@@ -4505,13 +4557,13 @@ const renderMyInterviewAnswerPanel = (item, question, options = {}) => {
         </div>
         <label>
           <span>질문</span>
-          <textarea data-my-interview-question-input rows="3" maxlength="1000" placeholder="이 면접 세트에서 사용할 질문을 입력하세요.">${escapeHtml(myInterviewEditableQuestionText(item, question))}</textarea>
+          <textarea data-my-interview-question-input rows="3" maxlength="1000" placeholder="이 면접 세트에서 사용할 질문을 입력하세요.">${escapeHtml(draft.question || "")}</textarea>
         </label>
         <label>
           <span>답안</span>
-          <textarea data-my-interview-answer-input rows="7" maxlength="4000" placeholder="이 면접 세트에서 사용할 답안을 입력하세요.">${escapeHtml(myInterviewEditableAnswerText(item, question))}</textarea>
+          <textarea data-my-interview-answer-input rows="7" maxlength="4000" placeholder="이 면접 세트에서 사용할 답안을 입력하세요.">${escapeHtml(draft.answer || "")}</textarea>
         </label>
-        ${renderMyInterviewFollowUpEditor(normalizeMyInterviewFollowUps(item.followUps))}
+        ${renderMyInterviewFollowUpEditor(Array.isArray(draft.followUps) ? draft.followUps : [])}
         <div class="my-interview-answer-edit-actions">
           <button class="black-button" type="button" data-my-interview-answer-save="${escapeHtml(key)}">저장</button>
           <button class="outline-button" type="button" data-my-interview-answer-cancel>취소</button>
@@ -4885,6 +4937,7 @@ const deleteMyInterviewSet = (setId) => {
   if (!window.confirm(`"${targetSet.name}" 면접 세트를 삭제할까요?`)) return;
   markMyInterviewSetDeleted(targetSet);
   state.myInterview.sets = state.myInterview.sets.filter((set) => set.id !== targetSet.id);
+  clearMyInterviewSetAnswerEditDrafts(targetSet.id);
   if (state.myInterview.activeSetId === targetSet.id) {
     state.myInterview.activeSetId = state.myInterview.sets[0]?.id || MY_INTERVIEW_BOOKMARK_SET_ID;
   }
@@ -4918,6 +4971,32 @@ const renderMyInterviewCustomCategoryOptions = () => {
       </optgroup>
     `)
     .join("");
+};
+
+const captureMyInterviewCustomDraft = () => {
+  state.myInterview.customDraft = {
+    question: elements.myInterviewCustomQuestion?.value || "",
+    category: elements.myInterviewCustomCategory?.value || state.myInterview.customDraft.category || "",
+    answer: elements.myInterviewCustomAnswer?.value || "",
+  };
+};
+
+const clearMyInterviewCustomDraft = () => {
+  state.myInterview.customDraft = {
+    question: "",
+    category: "",
+    answer: "",
+  };
+};
+
+const applyMyInterviewCustomDraft = () => {
+  const draft = state.myInterview.customDraft || {};
+  elements.myInterviewCustomQuestion.value = draft.question || "";
+  elements.myInterviewCustomAnswer.value = draft.answer || "";
+  if (draft.category && [...elements.myInterviewCustomCategory.options].some((option) => option.value === draft.category)) {
+    elements.myInterviewCustomCategory.value = draft.category;
+  }
+  captureMyInterviewCustomDraft();
 };
 
 const renderMyInterviewExistingRoleOptions = () => {
@@ -5017,11 +5096,10 @@ const showMyInterviewAddModal = () => {
   state.myInterview.existingRole = "all";
   state.myInterview.existingSelectedKeys = [];
   elements.myInterviewExistingSearch.value = "";
-  elements.myInterviewCustomQuestion.value = "";
-  elements.myInterviewCustomAnswer.value = "";
   elements.myInterviewCustomStatus.textContent = "";
   renderMyInterviewExistingRoleOptions();
   renderMyInterviewCustomCategoryOptions();
+  applyMyInterviewCustomDraft();
   setMyInterviewAddTab("existing");
   renderMyInterviewExistingList();
   elements.myInterviewAddModal.classList.add("open");
@@ -5074,6 +5152,7 @@ const addCustomQuestionToMyInterview = () => {
   activeSet.updatedAt = Date.now();
   state.myInterview.expandedAnswerKey = "";
   state.myInterview.answerEditingKey = "";
+  clearMyInterviewCustomDraft();
   writeMyInterviewSets();
   hideMyInterviewAddModal();
   renderMyInterview();
@@ -5092,6 +5171,7 @@ const removeMyInterviewQuestion = (itemKey) => {
     if (state.myInterview.answerEditingKey === itemKey) {
       state.myInterview.answerEditingKey = "";
     }
+    clearMyInterviewAnswerEditDraft(itemKey, activeSet.id);
     trackEvent(
       "bookmark_click",
       analyticsQuestionPayload(question, {
@@ -5111,41 +5191,61 @@ const removeMyInterviewQuestion = (itemKey) => {
   if (state.myInterview.answerEditingKey === itemKey) {
     state.myInterview.answerEditingKey = "";
   }
+  clearMyInterviewAnswerEditDraft(itemKey, activeSet.id);
   writeMyInterviewSets();
   renderMyInterview();
 };
 
 const startMyInterviewAnswerEdit = (itemKey) => {
   if (isMyInterviewBookmarkSet(myInterviewActiveSet()) || !findMyInterviewItem(itemKey)) return;
+  const hadDraft = Boolean(state.myInterview.answerEditDrafts[myInterviewCurrentAnswerEditDraftKey(itemKey)]);
+  ensureMyInterviewAnswerEditDraft(itemKey);
   state.myInterview.expandedAnswerKey = itemKey;
   state.myInterview.answerEditingKey = itemKey;
   renderMyInterview();
   window.setTimeout(() => {
     const input = elements.myInterviewQuestionList.querySelector("[data-my-interview-question-input]");
     input?.focus();
-    input?.select();
+    if (!hadDraft) {
+      input?.select();
+    }
   }, 0);
 };
 
 const cancelMyInterviewAnswerEdit = () => {
+  clearMyInterviewAnswerEditDraft(state.myInterview.answerEditingKey);
   state.myInterview.answerEditingKey = "";
   renderMyInterview();
 };
 
-const myInterviewFollowUpsFromEditor = () =>
+const myInterviewFollowUpsFromEditor = ({ includeBlank = false } = {}) =>
   [...elements.myInterviewQuestionList.querySelectorAll("[data-my-interview-followup-item]")]
     .map((row) => ({
       question: row.querySelector("[data-my-interview-followup-question-input]")?.value.trim() || "",
       answer: row.querySelector("[data-my-interview-followup-answer-input]")?.value.trim() || "",
     }))
-    .filter((followUp) => followUp.question)
+    .filter((followUp) => includeBlank ? followUp.question || followUp.answer : followUp.question)
     .slice(0, 20);
+
+const captureMyInterviewAnswerEditDraft = () => {
+  const itemKey = state.myInterview.answerEditingKey;
+  const draftKey = myInterviewCurrentAnswerEditDraftKey(itemKey);
+  const questionInput = elements.myInterviewQuestionList.querySelector("[data-my-interview-question-input]");
+  const answerInput = elements.myInterviewQuestionList.querySelector("[data-my-interview-answer-input]");
+  if (!draftKey || !questionInput || !answerInput) return;
+  state.myInterview.answerEditDrafts[draftKey] = {
+    question: questionInput.value,
+    answer: answerInput.value,
+    followUps: myInterviewFollowUpsFromEditor({ includeBlank: true }),
+  };
+};
 
 const addMyInterviewFollowUpEditorItem = () => {
   const list = elements.myInterviewQuestionList.querySelector("[data-my-interview-followup-list]");
   if (!list) return;
   list.querySelector("[data-my-interview-followup-empty]")?.remove();
   list.insertAdjacentHTML("beforeend", myInterviewFollowUpEditorItemHtml());
+  captureMyInterviewAnswerEditDraft();
   const nextInput = list.querySelector("[data-my-interview-followup-item]:last-child [data-my-interview-followup-question-input]");
   nextInput?.focus();
 };
@@ -5158,6 +5258,7 @@ const removeMyInterviewFollowUpEditorItem = (button) => {
   if (!list.querySelector("[data-my-interview-followup-item]")) {
     list.innerHTML = `<p class="my-interview-followup-empty" data-my-interview-followup-empty>추가된 꼬리질문이 없습니다.</p>`;
   }
+  captureMyInterviewAnswerEditDraft();
 };
 
 const saveMyInterviewAnswerEdit = (itemKey) => {
@@ -5166,6 +5267,7 @@ const saveMyInterviewAnswerEdit = (itemKey) => {
   const questionInput = elements.myInterviewQuestionList.querySelector("[data-my-interview-question-input]");
   const answerInput = elements.myInterviewQuestionList.querySelector("[data-my-interview-answer-input]");
   if (!activeSet || isMyInterviewBookmarkSet(activeSet) || !item || !questionInput || !answerInput) return;
+  captureMyInterviewAnswerEditDraft();
   const questionValue = questionInput.value.trim();
   const answerValue = answerInput.value.trim();
   const followUps = myInterviewFollowUpsFromEditor();
@@ -5186,6 +5288,7 @@ const saveMyInterviewAnswerEdit = (itemKey) => {
     item.answerOverride = answerValue && answerValue !== defaultAnswer ? answerValue : "";
   }
   activeSet.updatedAt = Date.now();
+  clearMyInterviewAnswerEditDraft(itemKey, activeSet.id);
   state.myInterview.answerEditingKey = "";
   writeMyInterviewSets();
   renderMyInterview();
@@ -5198,6 +5301,7 @@ const resetMyInterviewAnswerEdit = (itemKey) => {
   item.questionOverride = "";
   item.answerOverride = "";
   activeSet.updatedAt = Date.now();
+  clearMyInterviewAnswerEditDraft(itemKey, activeSet.id);
   state.myInterview.answerEditingKey = "";
   writeMyInterviewSets();
   renderMyInterview();
@@ -6548,6 +6652,12 @@ const bindMyInterviewControls = () => {
     }
   });
 
+  elements.myInterviewDetailContent.addEventListener("input", (event) => {
+    if (event.target?.matches("[data-my-interview-question-input], [data-my-interview-answer-input], [data-my-interview-followup-question-input], [data-my-interview-followup-answer-input]")) {
+      captureMyInterviewAnswerEditDraft();
+    }
+  });
+
   elements.myInterviewDetailContent.addEventListener("keydown", (event) => {
     if (event.target?.matches("[data-my-interview-question-input], [data-my-interview-answer-input], [data-my-interview-followup-question-input], [data-my-interview-followup-answer-input]")) {
       if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
@@ -6654,6 +6764,8 @@ const bindMyInterviewControls = () => {
     renderMyInterviewExistingList();
   });
   elements.confirmMyInterviewExistingButton.addEventListener("click", addExistingQuestionsToMyInterview);
+  elements.myInterviewCustomForm.addEventListener("input", captureMyInterviewCustomDraft);
+  elements.myInterviewCustomCategory.addEventListener("change", captureMyInterviewCustomDraft);
   elements.myInterviewCustomForm.addEventListener("submit", (event) => {
     event.preventDefault();
     addCustomQuestionToMyInterview();
