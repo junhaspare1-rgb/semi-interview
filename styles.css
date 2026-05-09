@@ -3417,6 +3417,12 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
   color: var(--blue);
 }
 
+.my-interview-action-button.export {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+  color: #334155;
+}
+
 .my-interview-action-button.danger {
   border-color: #fecdd3;
   background: #fff1f2;
@@ -4170,8 +4176,70 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
 }
 
 .exit-dialog.my-interview-set-dialog,
-.exit-dialog.my-interview-add-dialog {
+.exit-dialog.my-interview-add-dialog,
+.exit-dialog.my-interview-export-dialog {
   width: min(720px, calc(100vw - 28px));
+}
+
+.exit-dialog.my-interview-export-dialog {
+  width: min(520px, calc(100vw - 28px));
+}
+
+.my-interview-export-options {
+  display: grid;
+  gap: 10px;
+}
+
+.my-interview-export-option {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px;
+  background: #ffffff;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+}
+
+.my-interview-export-option:hover {
+  border-color: #93c5fd;
+  background: #f8fbff;
+  transform: translateY(-1px);
+}
+
+.my-interview-export-option > svg {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  padding: 10px;
+  background: #eff6ff;
+  color: var(--blue);
+}
+
+.my-interview-export-option span {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.my-interview-export-option strong {
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+.my-interview-export-option em {
+  color: var(--muted);
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 800;
+  line-height: 1.45;
 }
 
 .exit-dialog.my-interview-add-dialog {
@@ -4595,7 +4663,7 @@ body.my-interview-active .site-footer {
 
   .my-interview-detail-actions {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .my-interview-action-button {

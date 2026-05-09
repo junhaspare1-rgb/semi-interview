@@ -30,7 +30,7 @@
     <meta name="twitter:description" content="반도체 공정기술 면접을 실전처럼 연습하세요." />
     <meta name="twitter:image" content="https://xn--e42b13ak0f.kr/og-image-20260505.png" />
     <link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
-    <link rel="stylesheet" href="styles.css?v=20260505-myinterview-followup-answers" />
+    <link rel="stylesheet" href="styles.css?v=20260509-myinterview-pdf-export" />
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-V8PWYYDSJC"></script>
     <script>
@@ -55,7 +55,7 @@
     <script src="data/auth-config.js?v=20260502-auth" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
-    <script src="app.js?v=20260505-myinterview-followup-answers" defer></script>
+    <script src="app.js?v=20260509-myinterview-pdf-export" defer></script>
   </head>
   <body>
     <header class="top-nav">
@@ -653,6 +653,10 @@
                   <button class="my-interview-action-button primary" id="myInterviewStartButton" type="button" aria-label="이 세트로 모의면접" title="이 세트로 모의면접">
                     <i data-lucide="video"></i>
                     <span>모의면접</span>
+                  </button>
+                  <button class="my-interview-action-button export" id="myInterviewExportButton" type="button" aria-label="PDF 내보내기" title="PDF 내보내기">
+                    <i data-lucide="file-down"></i>
+                    <span>PDF</span>
                   </button>
                   <button class="my-interview-action-button danger" id="myInterviewDeleteSetButton" type="button" aria-label="세트 삭제" title="세트 삭제">
                     <i data-lucide="trash-2"></i>
@@ -1384,6 +1388,39 @@
             <button class="black-button" type="submit">직접 만든 질문 추가</button>
           </form>
         </section>
+      </section>
+    </div>
+
+    <div class="exit-modal" id="myInterviewExportModal" aria-hidden="true">
+      <section class="exit-dialog my-interview-export-dialog" role="dialog" aria-modal="true" aria-labelledby="myInterviewExportTitle">
+        <div class="help-dialog-head">
+          <div>
+            <p class="module-label">PDF</p>
+            <h2 id="myInterviewExportTitle">PDF 내보내기</h2>
+          </div>
+          <button class="icon-close" id="closeMyInterviewExportButton" type="button" aria-label="PDF 내보내기 닫기">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <div class="my-interview-export-options">
+          <button class="my-interview-export-option" id="exportMyInterviewQuestionsButton" type="button">
+            <i data-lucide="list-checks"></i>
+            <span>
+              <strong>질문 + 꼬리질문만</strong>
+              <em>질문, 꼬리질문</em>
+            </span>
+          </button>
+          <button class="my-interview-export-option" id="exportMyInterviewAnswersButton" type="button">
+            <i data-lucide="file-text"></i>
+            <span>
+              <strong>질문 + 답변 함께</strong>
+              <em>질문, 답변, 꼬리질문 답변</em>
+            </span>
+          </button>
+        </div>
+        <div class="exit-actions">
+          <button class="outline-button" id="cancelMyInterviewExportButton" type="button">취소</button>
+        </div>
       </section>
     </div>
 
