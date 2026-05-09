@@ -3931,6 +3931,38 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
   white-space: nowrap;
 }
 
+.my-interview-followup-preview {
+  display: grid;
+  gap: 4px;
+  margin-top: 2px;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.45;
+}
+
+.my-interview-followup-preview > span {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  gap: 5px;
+  font-weight: 400;
+}
+
+.my-interview-followup-preview span {
+  font-weight: 400;
+}
+
+.my-interview-followup-prefix {
+  flex: 0 0 auto;
+  color: #94a3b8;
+}
+
+.my-interview-followup-more {
+  padding-left: 18px;
+  color: #64748b;
+}
+
 .my-interview-question-item .personality-category-badge {
   flex: 0 0 auto;
   width: fit-content;

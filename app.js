@@ -4701,6 +4701,24 @@ const saveMyInterviewTitle = () => {
   renderMyInterview();
 };
 
+const renderMyInterviewFollowUpPreview = (followUps) => {
+  const normalized = normalizeMyInterviewFollowUps(followUps);
+  if (!normalized.length) return "";
+  const visibleFollowUps = normalized.slice(0, 3);
+  const remainingCount = normalized.length - visibleFollowUps.length;
+  return `
+    <span class="my-interview-followup-preview" aria-label="꼬리질문 미리보기">
+      ${visibleFollowUps.map((followUp) => `
+        <span>
+          <span class="my-interview-followup-prefix">ㄴ</span>
+          <span>${escapeHtml(followUp.question)}</span>
+        </span>
+      `).join("")}
+      ${remainingCount > 0 ? `<span class="my-interview-followup-more">+${remainingCount}개 더</span>` : ""}
+    </span>
+  `;
+};
+
 const renderMyInterviewQuestionList = (set) => {
   const questions = myInterviewQuestionsForSet(set);
   const bookmarkSet = isMyInterviewBookmarkSet(set);
@@ -4737,7 +4755,8 @@ const renderMyInterviewQuestionList = (set) => {
       const key = myInterviewItemKey(item);
       const sourceLabel = myInterviewSourceLabel(question, item);
       const expanded = state.myInterview.expandedAnswerKey === key;
-      const followUpCount = normalizeMyInterviewFollowUps(item.followUps).length;
+      const followUps = normalizeMyInterviewFollowUps(item.followUps);
+      const followUpCount = followUps.length;
       const difficultyBadge = item.type === "custom" || isPersonalityQuestion(question)
         ? ""
         : `<span class="bank-difficulty-badge ${questionBankDifficultyClass(question.difficulty)}">${escapeHtml(question.difficulty)}</span>`;
@@ -4761,6 +4780,7 @@ const renderMyInterviewQuestionList = (set) => {
               ${followUpCount ? `<span>꼬리질문 ${followUpCount}개</span>` : ""}
             </span>
             <strong>${escapeHtml(question.text)}</strong>
+            ${renderMyInterviewFollowUpPreview(followUps)}
           </button>
           <button class="my-bookmark-icon-button bookmark" type="button" data-my-interview-remove="${escapeHtml(key)}" aria-label="${removeLabel}" title="${removeLabel}">
             <i data-lucide="${bookmarkSet ? "bookmark-x" : "x"}"></i>
