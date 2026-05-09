@@ -321,6 +321,7 @@ const cacheElements = () => {
     "myInterviewSubtitleEditor",
     "myInterviewPracticeButton",
     "myInterviewStartButton",
+    "myInterviewExportButton",
     "myInterviewDeleteSetButton",
     "myInterviewQuestionList",
     "myInterviewSetEmpty",
@@ -346,6 +347,11 @@ const cacheElements = () => {
     "myInterviewCustomCategory",
     "myInterviewCustomAnswer",
     "myInterviewCustomStatus",
+    "myInterviewExportModal",
+    "closeMyInterviewExportButton",
+    "cancelMyInterviewExportButton",
+    "exportMyInterviewQuestionsButton",
+    "exportMyInterviewAnswersButton",
     "myPageView",
     "myPageSidebar",
     "myPageFilterBackdrop",
@@ -4434,6 +4440,343 @@ const myInterviewCategoryBadge = (question) =>
 const myInterviewSourceLabel = (question, item) =>
   item.type === "custom" ? "내 질문" : questionBankRoleById(questionRoleId(question)).shortLabel;
 
+const myInterviewExportEntriesForSet = (set) =>
+  (set?.items || [])
+    .map((item) => {
+      const question = myInterviewQuestionFromItem(item);
+      if (!question?.text) return null;
+      return { item, question };
+    })
+    .filter(Boolean)
+    .map((entry, index) => ({ ...entry, index }));
+
+const myInterviewExportParagraphs = (value, emptyText = "") => {
+  const raw = String(value || "").replace(/\r\n?/g, "\n").trim();
+  if (!raw) return emptyText ? [emptyText] : [];
+  return answerParagraphs(raw);
+};
+
+const renderMyInterviewExportParagraphs = (value, emptyText = "") =>
+  myInterviewExportParagraphs(value, emptyText)
+    .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
+    .join("");
+
+const myInterviewExportAnswerSections = (item, question) => {
+  if (item.type === "custom") {
+    return [
+      {
+        title: "사용자 답안",
+        text: myInterviewEditableAnswerText(item, question),
+        emptyText: "아직 입력된 사용자 답안이 없습니다.",
+      },
+    ];
+  }
+
+  if (item.answerOverride) {
+    return [
+      {
+        title: "수정한 모범 답안",
+        text: myInterviewEditableAnswerText(item, question),
+        emptyText: "아직 입력된 답안이 없습니다.",
+      },
+    ];
+  }
+
+  if (isPersonalityQuestion(question)) {
+    return [
+      {
+        title: "권장 답변",
+        text: question.recommendedAnswer || question.answer,
+        emptyText: "아직 준비된 권장 답변이 없습니다.",
+      },
+      ...(question.avoidAnswer
+        ? [
+            {
+              title: "피해야할 답변",
+              text: question.avoidAnswer,
+              emptyText: "",
+            },
+          ]
+        : []),
+    ];
+  }
+
+  return [
+    {
+      title: "모범 답안",
+      text: myInterviewEditableAnswerText(item, question),
+      emptyText: "아직 준비된 모범 답안이 없습니다.",
+    },
+  ];
+};
+
+const renderMyInterviewExportAnswerSections = (item, question) =>
+  myInterviewExportAnswerSections(item, question)
+    .map((section) => `
+      <section class="answer-section">
+        <h3>${escapeHtml(section.title)}</h3>
+        ${renderMyInterviewExportParagraphs(section.text, section.emptyText)}
+      </section>
+    `)
+    .join("");
+
+const renderMyInterviewExportFollowUps = (followUps, includeAnswers) => {
+  if (!followUps.length) return "";
+  return `
+    <section class="followup-section">
+      <h3>꼬리질문</h3>
+      <ol>
+        ${followUps.map((followUp) => `
+          <li>
+            <strong>${escapeHtml(followUp.question)}</strong>
+            ${includeAnswers ? `<div class="followup-answer">${renderMyInterviewExportParagraphs(followUp.answer, "아직 입력된 꼬리질문 답안이 없습니다.")}</div>` : ""}
+          </li>
+        `).join("")}
+      </ol>
+    </section>
+  `;
+};
+
+const renderMyInterviewExportQuestionCard = ({ item, question, index }, includeAnswers) => {
+  const followUps = normalizeMyInterviewFollowUps(item.followUps);
+  const meta = [
+    myInterviewSourceLabel(question, item),
+    question.category,
+    item.type === "custom" || isPersonalityQuestion(question) ? "" : question.difficulty,
+    followUps.length ? `꼬리질문 ${followUps.length}개` : "",
+  ].filter(Boolean);
+
+  return `
+    <article class="question-card">
+      <div class="question-card-head">
+        <span class="question-number">Q${index + 1}</span>
+        <div class="question-meta">${meta.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}</div>
+      </div>
+      <h2>${escapeHtml(question.text)}</h2>
+      ${includeAnswers ? renderMyInterviewExportAnswerSections(item, question) : ""}
+      ${renderMyInterviewExportFollowUps(followUps, includeAnswers)}
+    </article>
+  `;
+};
+
+const buildMyInterviewPrintHtml = (set, includeAnswers) => {
+  const entries = myInterviewExportEntriesForSet(set);
+  const subtitle = set.subtitle || myInterviewDefaultSubtitle(entries.length);
+  const modeLabel = includeAnswers ? "질문 + 답변 함께" : "질문 + 꼬리질문만";
+  const exportedAt = new Date().toLocaleString("ko-KR", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  return `<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>${escapeHtml(set.name)} | 반면뿌 MY 면접</title>
+    <style>
+      @page {
+        size: A4;
+        margin: 16mm 14mm;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: #ffffff;
+        color: #0f172a;
+        font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: 12.5px;
+        line-height: 1.65;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .export-document {
+        display: grid;
+        gap: 16px;
+      }
+
+      .document-head {
+        display: grid;
+        gap: 6px;
+        border-bottom: 2px solid #0f172a;
+        padding-bottom: 14px;
+      }
+
+      .document-kicker {
+        margin: 0;
+        color: #2563eb;
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 0.04em;
+      }
+
+      h1 {
+        margin: 0;
+        color: #020617;
+        font-size: 25px;
+        line-height: 1.22;
+        letter-spacing: 0;
+        overflow-wrap: anywhere;
+        word-break: keep-all;
+      }
+
+      .document-summary {
+        margin: 0;
+        color: #475569;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .question-list {
+        display: grid;
+        gap: 12px;
+        margin: 0;
+        padding: 0;
+      }
+
+      .question-card {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        display: grid;
+        gap: 9px;
+        border: 1px solid #cbd5e1;
+        border-radius: 12px;
+        padding: 14px;
+        background: #ffffff;
+      }
+
+      .question-card-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .question-number {
+        display: inline-flex;
+        align-items: center;
+        min-height: 24px;
+        border-radius: 999px;
+        padding: 0 9px;
+        background: #eff6ff;
+        color: #2563eb;
+        font-size: 11px;
+        font-weight: 900;
+      }
+
+      .question-meta {
+        display: flex;
+        justify-content: flex-end;
+        gap: 5px;
+        flex-wrap: wrap;
+      }
+
+      .question-meta span {
+        border-radius: 999px;
+        padding: 3px 8px;
+        background: #f1f5f9;
+        color: #475569;
+        font-size: 10.5px;
+        font-weight: 800;
+      }
+
+      h2 {
+        margin: 0;
+        color: #020617;
+        font-size: 15px;
+        line-height: 1.48;
+        overflow-wrap: anywhere;
+        word-break: keep-all;
+      }
+
+      h3 {
+        margin: 0 0 5px;
+        color: #0f172a;
+        font-size: 12px;
+        line-height: 1.35;
+      }
+
+      .answer-section,
+      .followup-section {
+        border-top: 1px solid #e2e8f0;
+        padding-top: 9px;
+      }
+
+      p {
+        margin: 0 0 6px;
+        color: #334155;
+        overflow-wrap: anywhere;
+        word-break: keep-all;
+      }
+
+      p:last-child {
+        margin-bottom: 0;
+      }
+
+      ol {
+        display: grid;
+        gap: 7px;
+        margin: 0;
+        padding-left: 19px;
+      }
+
+      li {
+        padding-left: 2px;
+      }
+
+      li strong {
+        display: block;
+        margin-bottom: 4px;
+        color: #0f172a;
+        font-size: 12.5px;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+        word-break: keep-all;
+      }
+
+      .followup-answer {
+        border-left: 3px solid #bfdbfe;
+        padding-left: 9px;
+      }
+
+      @media print {
+        body {
+          min-width: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="export-document">
+      <header class="document-head">
+        <p class="document-kicker">반면뿌 MY 면접</p>
+        <h1>${escapeHtml(set.name)}</h1>
+        <p class="document-summary">${escapeHtml(subtitle)} | ${entries.length}개 질문 | ${escapeHtml(modeLabel)} | ${escapeHtml(exportedAt)}</p>
+      </header>
+      <section class="question-list">
+        ${entries.map((entry) => renderMyInterviewExportQuestionCard(entry, includeAnswers)).join("")}
+      </section>
+    </main>
+    <script>
+      window.addEventListener("load", () => {
+        window.setTimeout(() => {
+          window.focus();
+          window.print();
+        }, 250);
+      });
+    <\/script>
+  </body>
+</html>`;
+};
+
 const findMyInterviewItem = (itemKey) => {
   const activeSet = myInterviewActiveSet();
   return (activeSet?.items || []).find((item) => myInterviewItemKey(item) === itemKey) || null;
@@ -4804,6 +5147,7 @@ const renderMyInterviewQuestionList = (set) => {
   renderMyInterviewSubtitle(set, questions.length);
   elements.myInterviewPracticeButton.disabled = questions.length === 0;
   elements.myInterviewStartButton.disabled = questions.length === 0;
+  elements.myInterviewExportButton.disabled = questions.length === 0;
   elements.myInterviewDeleteSetButton.hidden = bookmarkSet;
   elements.myInterviewSetEmpty.hidden = questions.length > 0;
   elements.myInterviewQuestionList.hidden = questions.length === 0;
@@ -5111,6 +5455,38 @@ const hideMyInterviewAddModal = () => {
   elements.myInterviewAddModal.classList.remove("open");
   elements.myInterviewAddModal.setAttribute("aria-hidden", "true");
   state.myInterview.existingSelectedKeys = [];
+};
+
+const showMyInterviewExportModal = () => {
+  const activeSet = myInterviewActiveSet();
+  if (!activeSet || !myInterviewExportEntriesForSet(activeSet).length) return;
+  elements.myInterviewExportModal.classList.add("open");
+  elements.myInterviewExportModal.setAttribute("aria-hidden", "false");
+  renderIcons();
+};
+
+const hideMyInterviewExportModal = () => {
+  elements.myInterviewExportModal.classList.remove("open");
+  elements.myInterviewExportModal.setAttribute("aria-hidden", "true");
+};
+
+const exportMyInterviewPdf = (includeAnswers = false) => {
+  const activeSet = myInterviewActiveSet();
+  if (!activeSet || !myInterviewExportEntriesForSet(activeSet).length) return;
+  const printWindow = window.open("", "_blank");
+  if (!printWindow) {
+    window.alert("팝업 차단을 해제한 뒤 다시 시도해주세요.");
+    return;
+  }
+  printWindow.document.open();
+  printWindow.document.write(buildMyInterviewPrintHtml(activeSet, includeAnswers));
+  printWindow.document.close();
+  hideMyInterviewExportModal();
+  trackEvent("my_interview_pdf_export", {
+    set_id: activeSet.id,
+    question_count: myInterviewExportEntriesForSet(activeSet).length,
+    include_answers: includeAnswers ? 1 : 0,
+  });
 };
 
 const addExistingQuestionsToMyInterview = () => {
@@ -6570,6 +6946,7 @@ const bindMyInterviewControls = () => {
 
   elements.myInterviewPracticeButton.addEventListener("click", startMyInterviewSetPractice);
   elements.myInterviewStartButton.addEventListener("click", startMyInterviewSetInterview);
+  elements.myInterviewExportButton.addEventListener("click", showMyInterviewExportModal);
   elements.myInterviewDeleteSetButton.addEventListener("click", deleteMyInterviewActiveSet);
   elements.myInterviewDetailContent.addEventListener("click", (event) => {
     const answerEditButton = event.target.closest("[data-my-interview-answer-edit]");
@@ -6744,6 +7121,15 @@ const bindMyInterviewControls = () => {
       hideMyInterviewAddModal();
     }
   });
+  elements.closeMyInterviewExportButton.addEventListener("click", hideMyInterviewExportModal);
+  elements.cancelMyInterviewExportButton.addEventListener("click", hideMyInterviewExportModal);
+  elements.myInterviewExportModal.addEventListener("click", (event) => {
+    if (event.target === elements.myInterviewExportModal) {
+      hideMyInterviewExportModal();
+    }
+  });
+  elements.exportMyInterviewQuestionsButton.addEventListener("click", () => exportMyInterviewPdf(false));
+  elements.exportMyInterviewAnswersButton.addEventListener("click", () => exportMyInterviewPdf(true));
   elements.myInterviewExistingTab.addEventListener("click", () => setMyInterviewAddTab("existing"));
   elements.myInterviewCustomTab.addEventListener("click", () => setMyInterviewAddTab("custom"));
   elements.myInterviewExistingSearch.addEventListener("input", () => {
