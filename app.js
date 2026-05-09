@@ -159,6 +159,7 @@ const state = {
     subtitleEditing: false,
     answerEditingKey: "",
     draggingKey: "",
+    draggingSetId: "",
     remoteLoaded: false,
     syncInProgress: false,
     syncPending: false,
@@ -641,6 +642,7 @@ const activateMyInterviewBookmarkSet = () => {
   state.myInterview.subtitleEditing = false;
   state.myInterview.answerEditingKey = "";
   state.myInterview.draggingKey = "";
+  state.myInterview.draggingSetId = "";
 };
 
 const viewFromRoute = () => {
@@ -4557,7 +4559,12 @@ const renderMyInterviewSetList = () => {
 
   elements.myInterviewSetList.innerHTML = sets
     .map((set) => `
-      <article class="my-interview-set-card ${set.id === activeSet?.id ? "active" : ""} ${isMyInterviewBookmarkSet(set) ? "system" : ""}">
+      <article class="my-interview-set-card ${set.id === activeSet?.id ? "active" : ""} ${isMyInterviewBookmarkSet(set) ? "system" : "sortable"}" data-my-interview-set-card="${escapeHtml(set.id)}">
+        ${isMyInterviewBookmarkSet(set) ? "" : `
+          <button class="my-interview-set-drag-handle" type="button" draggable="true" data-my-interview-set-drag="${escapeHtml(set.id)}" aria-label="${escapeHtml(set.name)} 세트 순서 변경" title="순서 변경">
+            <i data-lucide="grip-vertical"></i>
+          </button>
+        `}
         <button class="my-interview-set-select" type="button" data-my-interview-set="${escapeHtml(set.id)}">
           <span>${escapeHtml(set.name)}</span>
           <strong>${set.items.length}개 질문</strong>
@@ -4801,6 +4808,7 @@ const renderMyInterview = () => {
     state.myInterview.expandedAnswerKey = "";
     state.myInterview.answerEditingKey = "";
     state.myInterview.draggingKey = "";
+    state.myInterview.draggingSetId = "";
   }
   syncMyInterviewSetDrawer();
   renderMyInterviewSetList();
@@ -5201,8 +5209,34 @@ const reorderMyInterviewQuestion = (sourceKey, targetKey, placement = "before") 
   renderMyInterview();
 };
 
+const reorderMyInterviewSet = (sourceSetId, targetSetId, placement = "before") => {
+  if (!sourceSetId || !targetSetId || sourceSetId === targetSetId) return;
+  if (isMyInterviewBookmarkSet(sourceSetId) || isMyInterviewBookmarkSet(targetSetId)) return;
+  const sourceIndex = state.myInterview.sets.findIndex((set) => set.id === sourceSetId);
+  const targetIndex = state.myInterview.sets.findIndex((set) => set.id === targetSetId);
+  if (sourceIndex < 0 || targetIndex < 0) return;
+
+  const [moved] = state.myInterview.sets.splice(sourceIndex, 1);
+  const nextTargetIndex = state.myInterview.sets.findIndex((set) => set.id === targetSetId);
+  const insertIndex = placement === "after" ? nextTargetIndex + 1 : nextTargetIndex;
+  state.myInterview.sets.splice(insertIndex, 0, moved);
+  state.myInterview.sets = state.myInterview.sets.map((set, index) => ({
+    ...set,
+    sortOrder: index,
+    updatedAt: set.id === sourceSetId ? Date.now() : set.updatedAt,
+  }));
+  writeMyInterviewSets();
+  renderMyInterview();
+};
+
 const clearMyInterviewDragIndicators = () => {
   elements.myInterviewQuestionList.querySelectorAll(".dragging, .drag-over-before, .drag-over-after").forEach((item) => {
+    item.classList.remove("dragging", "drag-over-before", "drag-over-after");
+  });
+};
+
+const clearMyInterviewSetDragIndicators = () => {
+  elements.myInterviewSetList.querySelectorAll(".dragging, .drag-over-before, .drag-over-after").forEach((item) => {
     item.classList.remove("dragging", "drag-over-before", "drag-over-after");
   });
 };
@@ -6365,10 +6399,59 @@ const bindMyInterviewControls = () => {
       state.myInterview.subtitleEditing = false;
       state.myInterview.answerEditingKey = "";
       state.myInterview.draggingKey = "";
+      state.myInterview.draggingSetId = "";
     }
     state.myInterview.activeSetId = button.dataset.myInterviewSet;
     state.myInterview.setDrawerOpen = false;
     renderMyInterview();
+  });
+
+  elements.myInterviewSetList.addEventListener("dragstart", (event) => {
+    const handle = event.target.closest("[data-my-interview-set-drag]");
+    if (!handle) return;
+    state.myInterview.draggingSetId = handle.dataset.myInterviewSetDrag;
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", state.myInterview.draggingSetId);
+    handle.closest("[data-my-interview-set-card]")?.classList.add("dragging");
+  });
+
+  elements.myInterviewSetList.addEventListener("dragover", (event) => {
+    if (!state.myInterview.draggingSetId) return;
+    const target = event.target.closest("[data-my-interview-set-card]");
+    if (
+      !target ||
+      target.classList.contains("system") ||
+      target.dataset.myInterviewSetCard === state.myInterview.draggingSetId
+    ) return;
+    event.preventDefault();
+    const rect = target.getBoundingClientRect();
+    const placement = event.clientY > rect.top + rect.height / 2 ? "after" : "before";
+    clearMyInterviewSetDragIndicators();
+    target.classList.add(placement === "after" ? "drag-over-after" : "drag-over-before");
+  });
+
+  elements.myInterviewSetList.addEventListener("dragleave", (event) => {
+    const setCard = event.target.closest("[data-my-interview-set-card]");
+    if (!setCard || setCard.contains(event.relatedTarget)) return;
+    setCard.classList.remove("drag-over-before", "drag-over-after");
+  });
+
+  elements.myInterviewSetList.addEventListener("drop", (event) => {
+    if (!state.myInterview.draggingSetId) return;
+    const target = event.target.closest("[data-my-interview-set-card]");
+    if (!target || target.classList.contains("system")) return;
+    event.preventDefault();
+    const rect = target.getBoundingClientRect();
+    const placement = event.clientY > rect.top + rect.height / 2 ? "after" : "before";
+    const sourceSetId = state.myInterview.draggingSetId;
+    state.myInterview.draggingSetId = "";
+    clearMyInterviewSetDragIndicators();
+    reorderMyInterviewSet(sourceSetId, target.dataset.myInterviewSetCard, placement);
+  });
+
+  elements.myInterviewSetList.addEventListener("dragend", () => {
+    state.myInterview.draggingSetId = "";
+    clearMyInterviewSetDragIndicators();
   });
 
   elements.myInterviewPracticeButton.addEventListener("click", startMyInterviewSetPractice);
