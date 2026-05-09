@@ -164,16 +164,6 @@ const state = {
     syncPending: false,
     syncTimerId: null,
   },
-  resumeGenerator: {
-    runId: "",
-    sourceSpans: [],
-    documentSummary: null,
-    qualityWarnings: [],
-    questions: [],
-    selectedIds: [],
-    loading: false,
-    error: "",
-  },
   quickPractice: {
     questionId: null,
     questionKey: "",
@@ -349,21 +339,6 @@ const cacheElements = () => {
     "myInterviewCustomCategory",
     "myInterviewCustomAnswer",
     "myInterviewCustomStatus",
-    "resumeGeneratorView",
-    "resumeGeneratorForm",
-    "resumeTargetCompany",
-    "resumeTargetRole",
-    "resumeInterviewType",
-    "resumeFileInput",
-    "resumeSourceText",
-    "resumeGenerateMockButton",
-    "resumeGeneratorStatus",
-    "resumeGeneratorResults",
-    "resumeGeneratorSummary",
-    "resumeGeneratorRunMeta",
-    "resumeSelectAllButton",
-    "resumeSaveSelectedButton",
-    "resumeGeneratedQuestionList",
     "myPageView",
     "myPageSidebar",
     "myPageFilterBackdrop",
@@ -676,8 +651,6 @@ const viewFromRoute = () => {
       return "home";
     case "/contact":
       return "contact";
-    case "/resume-questions":
-      return "resume-generator";
     case "/my-page":
     case "/my-questions":
       activateMyInterviewBookmarkSet();
@@ -704,7 +677,6 @@ const routeForView = (view) => {
     return query ? `/questions?${query}` : "/questions";
   }
   if (view === "home") return "/mock-interview";
-  if (view === "resume-generator") return "/resume-questions";
   if (view === "contact") return "/contact";
   if (view === "my-page") return "/my-interview";
   if (view === "my-interview") return "/my-interview";
@@ -847,7 +819,6 @@ const setView = (view, options = {}) => {
   elements.landingView.classList.toggle("active", nextView === "landing");
   elements.questionBankView.classList.toggle("active", nextView === "question-bank");
   elements.myInterviewView.classList.toggle("active", nextView === "my-interview");
-  elements.resumeGeneratorView?.classList.toggle("active", nextView === "resume-generator");
   elements.myPageView?.classList.toggle("active", nextView === "my-page");
   elements.quickPracticeView.classList.toggle("active", nextView === "quick-practice");
   elements.homeView.classList.toggle("active", nextView === "home");
@@ -869,7 +840,7 @@ const setView = (view, options = {}) => {
       (nextView === "my-page" && state.myPage.filterDrawerOpen) ||
       (nextView === "my-interview" && state.myInterview.setDrawerOpen),
   );
-  let activeNavView = ["about", "contact", "question-bank", "quick-practice", "home", "landing", "my-page", "my-interview", "resume-generator"].includes(nextView)
+  let activeNavView = ["about", "contact", "question-bank", "quick-practice", "home", "landing", "my-page", "my-interview"].includes(nextView)
     ? nextView
     : "home";
   if (nextView === "quick-practice") {
@@ -917,9 +888,6 @@ const setView = (view, options = {}) => {
   }
   if (nextView === "my-interview") {
     renderMyInterview();
-  }
-  if (nextView === "resume-generator") {
-    renderResumeGenerator();
   }
   if (updateRoute) {
     updateAppRoute(nextView, { replace: replaceRoute });
@@ -1692,13 +1660,10 @@ const applyAuthSession = (session) => {
     }
   }
   renderAuthUi();
-  if (
-    !state.auth.user &&
-    (elements.myInterviewView?.classList.contains("active") || elements.resumeGeneratorView?.classList.contains("active"))
-  ) {
+  if (!state.auth.user && elements.myInterviewView?.classList.contains("active")) {
     setView("landing", { replaceRoute: true });
     showAuthModal();
-    setAuthStatus("MY 면접과 AI 자소서 질문 생성기는 로그인 후 사용할 수 있습니다.", "warning");
+    setAuthStatus("MY 면접은 로그인 후 사용할 수 있습니다. 로그인하면 면접 세트와 북마크를 저장할 수 있습니다.", "warning");
   }
 };
 
@@ -1876,17 +1841,11 @@ const requireLoginForStudySave = (source = "unknown", action = "save_progress") 
 const requireLoginForMyInterview = (source = "unknown") => {
   if (state.auth.user) return true;
 
-  const isResumeGenerator = String(source).startsWith("resume_generator");
   showAuthModal();
-  setAuthStatus(
-    isResumeGenerator
-      ? "AI 자소서 질문 생성기는 로그인 후 사용할 수 있습니다. 생성한 질문은 MY 면접에 저장됩니다."
-      : "MY 면접은 로그인 후 사용할 수 있습니다. 로그인하면 면접 세트와 북마크를 저장할 수 있습니다.",
-    "warning",
-  );
+  setAuthStatus("MY 면접은 로그인 후 사용할 수 있습니다. 로그인하면 면접 세트와 북마크를 저장할 수 있습니다.", "warning");
   trackEvent("login_required", {
     source,
-    action: isResumeGenerator ? "open_resume_generator" : "open_my_interview",
+    action: "open_my_interview",
   });
   return false;
 };
@@ -2292,10 +2251,7 @@ const leaveInterview = async () => {
 };
 
 const requestViewChange = (view) => {
-  if (
-    (view === "my-interview" || view === "resume-generator") &&
-    !requireLoginForMyInterview(view === "resume-generator" ? "resume_generator_navigation" : "navigation")
-  ) {
+  if (view === "my-interview" && !requireLoginForMyInterview("navigation")) {
     return;
   }
 
@@ -4061,66 +4017,6 @@ const confirmMyPractice = () => {
 const createMyInterviewId = (prefix) =>
   `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 
-const GENERATED_QUESTION_PROMPT_VERSION = "resume_interview_question_generator_v1.0";
-const GENERATED_QUESTION_MODEL_VERSION = "server-ai";
-
-const GENERATED_CATEGORY_LABELS = {
-  Self_Introduction: "자기소개",
-  Motivation: "지원동기",
-  Experience_Deep_Dive: "경험 검증",
-  Technical_Depth: "기술 심화",
-  Semiconductor_Process: "반도체 공정",
-  Problem_Solving: "문제해결",
-  Collaboration: "협업",
-  Risk_Or_Gap: "약점 보완",
-  Follow_Up: "꼬리질문",
-};
-
-const GENERATED_PRIORITY_LABELS = {
-  High: "우선순위 높음",
-  Medium: "우선순위 보통",
-  Low: "우선순위 낮음",
-};
-
-const GENERATED_DIFFICULTY_LABELS = {
-  Easy: "입문",
-  Medium: "실전",
-  Hard: "심화",
-};
-
-const normalizeGeneratedQuestionCategory = (category) =>
-  GENERATED_CATEGORY_LABELS[category] ? category : "Experience_Deep_Dive";
-
-const normalizeGeneratedQuestionPriority = (priority) =>
-  GENERATED_PRIORITY_LABELS[priority] ? priority : "Medium";
-
-const normalizeGeneratedQuestionDifficulty = (difficulty) =>
-  GENERATED_DIFFICULTY_LABELS[difficulty] ? difficulty : "Medium";
-
-const normalizeStringArray = (items, limit = 20) =>
-  (Array.isArray(items) ? items : [])
-    .map((item) => String(item || "").trim())
-    .filter(Boolean)
-    .slice(0, limit);
-
-const normalizeGeneratedEvidence = (items) =>
-  (Array.isArray(items) ? items : [])
-    .map((item) => ({
-      sourceSpanId: String(item?.sourceSpanId || item?.source_span_id || "").trim(),
-      quote: String(item?.quote || "").trim(),
-      reason: String(item?.reason || "").trim(),
-    }))
-    .filter((item) => item.quote)
-    .slice(0, 4);
-
-const normalizeGeneratedRubricScores = (scores = {}) => ({
-  evidenceFit: Math.min(5, Math.max(1, Number(scores.evidenceFit || scores.evidence_fit) || 3)),
-  roleRelevance: Math.min(5, Math.max(1, Number(scores.roleRelevance || scores.role_relevance) || 3)),
-  specificity: Math.min(5, Math.max(1, Number(scores.specificity) || 3)),
-  diagnosticValue: Math.min(5, Math.max(1, Number(scores.diagnosticValue || scores.diagnostic_value) || 3)),
-  followUpPotential: Math.min(5, Math.max(1, Number(scores.followUpPotential || scores.follow_up_potential) || 3)),
-});
-
 const normalizeMyInterviewFollowUps = (followUps) =>
   (Array.isArray(followUps) ? followUps : [])
     .map((followUp) => {
@@ -4158,39 +4054,6 @@ const normalizeMyInterviewItem = (item) => {
       text: String(item.text || "").trim(),
       answer: String(item.answer || "").trim(),
       followUps: normalizeMyInterviewFollowUps(item.followUps),
-      addedAt: Number(item.addedAt) || Date.now(),
-    };
-  }
-  if (item.type === "generated" && item.text) {
-    const targetRole = questionBankRoleById(item.roleId || item.targetRole);
-    const generatedCategory = normalizeGeneratedQuestionCategory(item.generatedCategory || item.categoryKey);
-    const difficulty = normalizeGeneratedQuestionDifficulty(item.generatedDifficulty || item.difficultyKey);
-    return {
-      type: "generated",
-      id: String(item.id || createMyInterviewId("generated")),
-      roleId: targetRole.id,
-      category: String(item.category || GENERATED_CATEGORY_LABELS[generatedCategory] || "자소서 기반"),
-      generatedCategory,
-      priority: normalizeGeneratedQuestionPriority(item.priority),
-      generatedDifficulty: difficulty,
-      difficulty: normalizeDifficulty(item.difficulty || GENERATED_DIFFICULTY_LABELS[difficulty] || "실전"),
-      text: String(item.text || "").trim(),
-      answer: String(item.answer || "").trim(),
-      interviewerIntent: String(item.interviewerIntent || "").trim(),
-      answerDirection: normalizeStringArray(item.answerDirection, 8),
-      evidence: normalizeGeneratedEvidence(item.evidence),
-      followUps: normalizeMyInterviewFollowUps(item.followUps),
-      sourceDocumentId: String(item.sourceDocumentId || "").trim(),
-      sourceSpanIds: normalizeStringArray(item.sourceSpanIds, 8),
-      sourceQuotes: normalizeStringArray(item.sourceQuotes, 8),
-      targetCompany: String(item.targetCompany || "").trim(),
-      targetRole: String(item.targetRole || targetRole.shortLabel || "").trim(),
-      focusArea: String(item.focusArea || "").trim(),
-      tags: normalizeStringArray(item.tags, 12),
-      rubricScores: normalizeGeneratedRubricScores(item.rubricScores || item.rubric_scores),
-      promptVersion: String(item.promptVersion || GENERATED_QUESTION_PROMPT_VERSION).trim(),
-      modelVersion: String(item.modelVersion || GENERATED_QUESTION_MODEL_VERSION).trim(),
-      generationRunId: String(item.generationRunId || "").trim(),
       addedAt: Number(item.addedAt) || Date.now(),
     };
   }
@@ -4484,9 +4347,6 @@ const myInterviewQuestionFromItem = (item) => {
       answerOverridden: Boolean(item.answerOverride),
     };
   }
-  if (item.type === "generated") {
-    return myInterviewGeneratedQuestionFromItem(item);
-  }
   if (item.type !== "custom") return null;
   return {
     id: item.id,
@@ -4544,26 +4404,7 @@ const myInterviewSessionQuestionsForSet = (set) =>
     return [question, ...myInterviewFollowUpQuestionsForItem(item, question)];
   });
 
-const myInterviewGeneratedQuestionFromItem = (item) => ({
-  id: item.id,
-  roleId: item.roleId || "process",
-  jobRole: "AI 자소서 질문",
-  category: item.category || "자소서 기반",
-  group: "generated",
-  difficulty: item.difficulty || GENERATED_DIFFICULTY_LABELS[item.generatedDifficulty] || "실전",
-  text: item.text,
-  answer: item.answer || item.answerDirection?.join("\n") || "",
-  shortAnswer: item.answer || item.answerDirection?.join("\n") || "",
-  recommendedAnswer: item.answer || item.answerDirection?.join("\n") || "",
-  avoidAnswer: "",
-  questionType: "generated",
-  keywords: item.tags || [],
-  followUps: normalizeMyInterviewFollowUps(item.followUps),
-  source: "generated",
-});
-
-const myInterviewItemKey = (item) =>
-  item.type === "bank" ? item.key : `${item.type === "generated" ? "generated" : "custom"}:${item.id}`;
+const myInterviewItemKey = (item) => (item.type === "bank" ? item.key : `custom:${item.id}`);
 
 const myInterviewDefaultSubtitle = (questionCount) => `${questionCount}개 질문으로 구성되어 있습니다.`;
 
@@ -4573,11 +4414,7 @@ const myInterviewCategoryBadge = (question) =>
     : `<span>${escapeHtml(question.category)}</span>`;
 
 const myInterviewSourceLabel = (question, item) =>
-  item.type === "custom"
-    ? "내 질문"
-    : item.type === "generated"
-      ? "AI 자소서"
-      : questionBankRoleById(questionRoleId(question)).shortLabel;
+  item.type === "custom" ? "내 질문" : questionBankRoleById(questionRoleId(question)).shortLabel;
 
 const findMyInterviewItem = (itemKey) => {
   const activeSet = myInterviewActiveSet();
@@ -4585,13 +4422,13 @@ const findMyInterviewItem = (itemKey) => {
 };
 
 const myInterviewDefaultAnswerText = (item, question) => {
-  if (item.type === "custom" || item.type === "generated") return item.answer || "";
+  if (item.type === "custom") return item.answer || "";
   if (isPersonalityQuestion(question)) return question.recommendedAnswer || question.answer || "";
   return question.answer || question.shortAnswer || question.recommendedAnswer || "";
 };
 
 const myInterviewDefaultQuestionText = (item, question) => {
-  if (item.type === "custom" || item.type === "generated") return item.text || "";
+  if (item.type === "custom") return item.text || "";
   return questionByProgressKey(item.key)?.text || question?.text || "";
 };
 
@@ -4632,51 +4469,6 @@ const renderMyInterviewFollowUpEditor = (followUps) => {
   `;
 };
 
-const renderGeneratedInterviewAnswerBlock = (item, question) => {
-  const evidence = normalizeGeneratedEvidence(item.evidence);
-  const answerText = myInterviewEditableAnswerText(item, question) || "아직 입력된 답변 방향이 없습니다.";
-  const directionItems = answerParagraphs(answerText);
-  return `
-    <div class="generated-interview-answer">
-      ${item.interviewerIntent ? `
-        <section>
-          <h4>면접관 의도</h4>
-          <p>${escapeHtml(item.interviewerIntent)}</p>
-        </section>
-      ` : ""}
-      <section>
-        <h4>답변 방향</h4>
-        ${
-          directionItems.length > 1
-            ? `<ol>${directionItems.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ol>`
-            : `<div class="model-answer-text">${renderModelAnswerHtml(answerText)}</div>`
-        }
-      </section>
-      ${evidence.length ? `
-        <section>
-          <h4>지원서 근거</h4>
-          <ul>
-            ${evidence.map((item) => `
-              <li>
-                <blockquote>${escapeHtml(item.quote)}</blockquote>
-                ${item.reason ? `<p>${escapeHtml(item.reason)}</p>` : ""}
-              </li>
-            `).join("")}
-          </ul>
-        </section>
-      ` : ""}
-      <section class="generated-interview-meta">
-        <h4>생성 메타</h4>
-        <p>
-          ${escapeHtml(item.targetCompany || "지원 회사 미입력")} ·
-          ${escapeHtml(item.targetRole || questionBankRoleById(item.roleId).shortLabel)} ·
-          ${escapeHtml(GENERATED_PRIORITY_LABELS[item.priority] || "우선순위 보통")}
-        </p>
-      </section>
-    </div>
-  `;
-};
-
 const renderMyInterviewAnswerPanel = (item, question, options = {}) => {
   const key = myInterviewItemKey(item);
   const editable = options.editable !== false;
@@ -4686,8 +4478,6 @@ const renderMyInterviewAnswerPanel = (item, question, options = {}) => {
   const hasOverride = hasQuestionOverride || hasAnswerOverride;
   const title = item.type === "custom"
     ? "사용자 답안"
-    : item.type === "generated"
-      ? "AI 답변 방향"
     : hasAnswerOverride
       ? "수정한 모범 답안"
       : isPersonalityQuestion(question)
@@ -4719,9 +4509,7 @@ const renderMyInterviewAnswerPanel = (item, question, options = {}) => {
     `;
   }
 
-  const answerBody = item.type === "generated"
-    ? renderGeneratedInterviewAnswerBlock(item, question)
-    : hasAnswerOverride || item.type === "custom"
+  const answerBody = hasAnswerOverride || item.type === "custom"
     ? `<div class="model-answer-text">${renderModelAnswerHtml(myInterviewEditableAnswerText(item, question) || "아직 입력된 사용자 답안이 없습니다.")}</div>`
     : isPersonalityQuestion(question)
       ? renderPersonalityAnswerBlock(question)
@@ -4913,6 +4701,24 @@ const saveMyInterviewTitle = () => {
   renderMyInterview();
 };
 
+const renderMyInterviewFollowUpPreview = (followUps) => {
+  const normalized = normalizeMyInterviewFollowUps(followUps);
+  if (!normalized.length) return "";
+  const visibleFollowUps = normalized.slice(0, 3);
+  const remainingCount = normalized.length - visibleFollowUps.length;
+  return `
+    <span class="my-interview-followup-preview" aria-label="꼬리질문 미리보기">
+      ${visibleFollowUps.map((followUp) => `
+        <span>
+          <span class="my-interview-followup-prefix">ㄴ</span>
+          <span>${escapeHtml(followUp.question)}</span>
+        </span>
+      `).join("")}
+      ${remainingCount > 0 ? `<span class="my-interview-followup-more">+${remainingCount}개 더</span>` : ""}
+    </span>
+  `;
+};
+
 const renderMyInterviewQuestionList = (set) => {
   const questions = myInterviewQuestionsForSet(set);
   const bookmarkSet = isMyInterviewBookmarkSet(set);
@@ -4949,7 +4755,8 @@ const renderMyInterviewQuestionList = (set) => {
       const key = myInterviewItemKey(item);
       const sourceLabel = myInterviewSourceLabel(question, item);
       const expanded = state.myInterview.expandedAnswerKey === key;
-      const followUpCount = normalizeMyInterviewFollowUps(item.followUps).length;
+      const followUps = normalizeMyInterviewFollowUps(item.followUps);
+      const followUpCount = followUps.length;
       const difficultyBadge = item.type === "custom" || isPersonalityQuestion(question)
         ? ""
         : `<span class="bank-difficulty-badge ${questionBankDifficultyClass(question.difficulty)}">${escapeHtml(question.difficulty)}</span>`;
@@ -4973,6 +4780,7 @@ const renderMyInterviewQuestionList = (set) => {
               ${followUpCount ? `<span>꼬리질문 ${followUpCount}개</span>` : ""}
             </span>
             <strong>${escapeHtml(question.text)}</strong>
+            ${renderMyInterviewFollowUpPreview(followUps)}
           </button>
           <button class="my-bookmark-icon-button bookmark" type="button" data-my-interview-remove="${escapeHtml(key)}" aria-label="${removeLabel}" title="${removeLabel}">
             <i data-lucide="${bookmarkSet ? "bookmark-x" : "x"}"></i>
@@ -5253,529 +5061,6 @@ const addCustomQuestionToMyInterview = () => {
   renderMyInterview();
 };
 
-const resumeSourceSpansFromText = (value) => {
-  const paragraphs = String(value || "")
-    .split(/\n{1,}/)
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .slice(0, 12);
-  const source = paragraphs.length
-    ? paragraphs
-    : ["지원서 핵심 내용이 비어 있어 샘플 공정 실습 경험을 기준으로 질문을 생성했습니다."];
-  return source.map((text, index) => ({
-    sourceSpanId: `s_${String(index + 1).padStart(3, "0")}`,
-    section: `지원서 문단 ${index + 1}`,
-    text,
-  }));
-};
-
-const resumeQuestionTemplates = () => [
-  {
-    category: "Motivation",
-    priority: "High",
-    difficulty: "Medium",
-    question: "{company} {role} 직무에 지원한 이유를 본인의 경험과 연결해서 설명해주세요.",
-    intent: "지원동기가 추상적인지, 실제 경험과 직무 이해를 바탕으로 이어지는지 확인합니다.",
-    direction: ["지원 계기", "관련 경험", "직무에서 기여할 수 있는 지점", "입사 후 검증하고 싶은 역량 순서로 답변하세요."],
-    followUps: ["그 경험이 왜 {role} 직무와 직접 연결된다고 보나요?", "다른 반도체 직무가 아니라 이 직무를 선택한 기준은 무엇인가요?"],
-  },
-  {
-    category: "Experience_Deep_Dive",
-    priority: "High",
-    difficulty: "Hard",
-    question: "지원서에 적은 프로젝트에서 본인이 직접 판단하고 바꾼 조건은 무엇이었나요?",
-    intent: "프로젝트 참여 수준과 본인 기여도를 구체적으로 검증합니다.",
-    direction: ["문제 상황", "본인이 맡은 역할", "판단 기준", "변경한 조건", "결과와 한계를 구분해서 답변하세요."],
-    followUps: ["그 조건을 바꾸기로 판단한 근거는 무엇이었나요?", "본인이 하지 않았다면 프로젝트 결과가 어떻게 달라졌을까요?"],
-  },
-  {
-    category: "Semiconductor_Process",
-    priority: "High",
-    difficulty: "Hard",
-    question: "공정 조건 변화가 결과에 영향을 준다고 판단한 근거 지표는 무엇이었나요?",
-    intent: "반도체 공정 문제를 데이터 기반으로 이해했는지 확인합니다.",
-    direction: ["확인한 지표", "해당 지표를 먼저 본 이유", "가설", "실험 조건", "결과 해석 순서로 답변하세요."],
-    followUps: ["그 지표 외에 같이 봐야 할 보조 지표는 무엇인가요?", "조건을 바꿨을 때 생길 수 있는 trade-off는 무엇인가요?"],
-  },
-  {
-    category: "Risk_Or_Gap",
-    priority: "High",
-    difficulty: "Hard",
-    question: "지원서에서 성과는 언급했지만 수치나 기준이 부족한 부분이 있습니다. 성과를 어떻게 객관화할 수 있나요?",
-    intent: "성과 표현의 신뢰성과 검증 가능성을 확인합니다.",
-    direction: ["성과 기준", "비교 대상", "측정 방식", "수치가 없다면 대체 근거", "다음에 보완할 점을 말하세요."],
-    followUps: ["정량 지표가 없다면 면접관을 어떻게 설득하겠습니까?", "그 성과가 팀 성과인지 개인 기여인지 어떻게 구분할 수 있나요?"],
-  },
-  {
-    category: "Problem_Solving",
-    priority: "Medium",
-    difficulty: "Medium",
-    question: "문제 원인이 여러 개일 때 우선순위를 어떻게 정했나요?",
-    intent: "복잡한 문제를 체계적으로 좁히는 사고방식을 봅니다.",
-    direction: ["가능한 원인 나열", "우선순위 기준", "검증 순서", "실패한 가설", "최종 판단을 포함하세요."],
-    followUps: ["처음 세운 가설이 틀렸을 때 어떻게 방향을 바꿨나요?", "가장 빨리 제거한 원인은 무엇이고 이유는 무엇인가요?"],
-  },
-  {
-    category: "Collaboration",
-    priority: "Medium",
-    difficulty: "Medium",
-    question: "팀 프로젝트에서 의견이 갈렸을 때 본인은 어떤 방식으로 합의를 만들었나요?",
-    intent: "협업 상황에서 데이터, 소통, 역할 조율을 어떻게 쓰는지 확인합니다.",
-    direction: ["갈등 상황", "각 의견의 근거", "본인이 한 조율", "결정 방식", "결과를 말하세요."],
-    followUps: ["상대 의견이 더 타당하다고 판단한 순간이 있었나요?", "합의가 늦어졌다면 일정 관리는 어떻게 했나요?"],
-  },
-  {
-    category: "Technical_Depth",
-    priority: "High",
-    difficulty: "Hard",
-    question: "지원서에 언급한 반도체 개념을 면접관에게 1분 안에 설명한다면 어떻게 설명하겠습니까?",
-    intent: "개념 암기가 아니라 구조화된 설명 능력이 있는지 확인합니다.",
-    direction: ["정의", "왜 중요한지", "공정/소자/품질과의 연결", "실제 예시 순서로 설명하세요."],
-    followUps: ["그 개념이 실제 양산 문제와 연결되는 지점은 무엇인가요?", "비전공자에게 설명한다면 어떤 비유를 쓰겠습니까?"],
-  },
-  {
-    category: "Experience_Deep_Dive",
-    priority: "High",
-    difficulty: "Medium",
-    question: "가장 어려웠던 순간과 그때 본인이 실제로 취한 행동을 설명해주세요.",
-    intent: "경험의 진정성과 문제 대응 방식을 확인합니다.",
-    direction: ["어려웠던 원인", "당시 제약", "본인 행동", "주변 도움", "배운 점을 분리해서 답변하세요."],
-    followUps: ["다시 같은 상황이 오면 다르게 할 점은 무엇인가요?", "그 행동이 결과에 어떤 영향을 줬나요?"],
-  },
-  {
-    category: "Risk_Or_Gap",
-    priority: "Medium",
-    difficulty: "Hard",
-    question: "지원서 내용만 보면 본인 역할과 팀 역할의 경계가 모호합니다. 본인이 책임진 범위는 어디까지였나요?",
-    intent: "경험 과장 여부와 실무 책임 범위를 확인합니다.",
-    direction: ["팀 목표", "본인 담당", "의사결정 권한", "직접 산출물", "타인 도움을 명확히 구분하세요."],
-    followUps: ["본인이 담당하지 않은 영역은 무엇이었나요?", "본인 기여도를 100점 만점으로 표현하면 몇 점인가요?"],
-  },
-  {
-    category: "Semiconductor_Process",
-    priority: "Medium",
-    difficulty: "Medium",
-    question: "{role} 직무에서 지원서 경험을 실제 업무에 적용한다면 어떤 업무 상황에 가장 먼저 쓰일까요?",
-    intent: "경험을 직무 언어로 전환할 수 있는지 확인합니다.",
-    direction: ["직무 업무 상황", "경험에서 얻은 역량", "적용 방식", "예상 한계", "보완 계획을 말하세요."],
-    followUps: ["실제 라인에서는 어떤 제약이 추가될까요?", "학교/프로젝트 환경과 양산 환경의 차이는 무엇인가요?"],
-  },
-  {
-    category: "Self_Introduction",
-    priority: "Medium",
-    difficulty: "Easy",
-    question: "지원서 핵심 경험을 포함해 1분 자기소개를 해주세요.",
-    intent: "지원자의 핵심 메시지가 직무와 일관되게 연결되는지 확인합니다.",
-    direction: ["한 문장 포지셔닝", "핵심 경험", "직무 연결", "입사 후 기여 순서로 구성하세요."],
-    followUps: ["자기소개에서 가장 강조하고 싶은 한 단어는 무엇인가요?", "면접관이 그 경험에서 꼭 기억해야 할 포인트는 무엇인가요?"],
-  },
-  {
-    category: "Experience_Deep_Dive",
-    priority: "Medium",
-    difficulty: "Medium",
-    question: "지원서에 적은 경험에서 실패하거나 기대와 다르게 나온 결과는 무엇이었나요?",
-    intent: "실패 경험을 숨기지 않고 학습으로 전환하는지 확인합니다.",
-    direction: ["기대 결과", "실제 결과", "차이가 난 원인", "수정한 접근", "이후 적용한 점을 말하세요."],
-    followUps: ["그 실패를 더 빨리 발견할 수 있는 방법은 무엇이었나요?", "실패 원인이 본인에게 있었다면 무엇이었나요?"],
-  },
-  {
-    category: "Technical_Depth",
-    priority: "Medium",
-    difficulty: "Hard",
-    question: "지원서의 기술 경험에서 가장 깊게 이해한 원리 하나를 골라 설명해주세요.",
-    intent: "겉핥기 경험인지, 원리 수준까지 이해했는지 확인합니다.",
-    direction: ["원리 선택", "기본 메커니즘", "실험/프로젝트와의 연결", "오해하기 쉬운 지점을 설명하세요."],
-    followUps: ["그 원리가 깨지는 예외 상황은 무엇인가요?", "관련 변수 중 가장 민감한 변수는 무엇이라고 보나요?"],
-  },
-  {
-    category: "Collaboration",
-    priority: "Low",
-    difficulty: "Medium",
-    question: "팀 안에서 본인이 맡은 커뮤니케이션 방식은 무엇이었고, 결과물 품질에 어떤 영향을 줬나요?",
-    intent: "협업 기여를 추상적 표현이 아니라 행동 단위로 확인합니다.",
-    direction: ["맡은 커뮤니케이션 역할", "공유한 정보", "갈등 예방", "결과물 개선 효과를 말하세요."],
-    followUps: ["소통 방식이 오히려 비효율적이었던 순간은 없었나요?", "다른 팀원에게 받은 피드백은 무엇이었나요?"],
-  },
-  {
-    category: "Risk_Or_Gap",
-    priority: "Medium",
-    difficulty: "Hard",
-    question: "지원서에서 아직 약하게 보이는 역량은 무엇이고, 입사 전까지 어떻게 보완할 계획인가요?",
-    intent: "자기 인식과 보완 계획의 현실성을 확인합니다.",
-    direction: ["약점 인정", "왜 중요한지", "현재 보완 중인 방법", "확인 가능한 목표를 말하세요."],
-    followUps: ["그 약점이 업무에서 문제가 된다면 어떻게 대응하겠습니까?", "보완이 완료됐다고 판단할 기준은 무엇인가요?"],
-  },
-];
-
-const interpolateResumeTemplate = (value, context) =>
-  String(value || "")
-    .replaceAll("{company}", context.company)
-    .replaceAll("{role}", context.roleLabel);
-
-const buildResumeMockQuestions = () => {
-  const company = elements.resumeTargetCompany.value.trim() || "지원 회사";
-  const role = questionBankRoleById(elements.resumeTargetRole.value);
-  const questionCount = 10;
-  const focusArea = "자소서 검증";
-  const runId = createMyInterviewId("resume-run");
-  const sourceSpans = resumeSourceSpansFromText(elements.resumeSourceText.value);
-  const context = {
-    company,
-    roleLabel: role.shortLabel,
-  };
-  const templates = resumeQuestionTemplates();
-  const questions = templates.slice(0, questionCount).map((template, index) => {
-    const evidenceSpan = sourceSpans[index % sourceSpans.length];
-    const questionId = `rq_${String(index + 1).padStart(3, "0")}`;
-    return {
-      questionId,
-      question: interpolateResumeTemplate(template.question, context),
-      category: template.category,
-      priority: template.priority,
-      difficulty: template.difficulty,
-      interviewerIntent: template.intent,
-      evidence: [
-        {
-          sourceSpanId: evidenceSpan.sourceSpanId,
-          quote: evidenceSpan.text,
-          reason: "지원서 문장에서 면접관이 검증할 수 있는 경험 단서가 확인됩니다.",
-        },
-      ],
-      answerDirection: template.direction.map((item) => interpolateResumeTemplate(item, context)),
-      followUpQuestions: template.followUps.map((item) => interpolateResumeTemplate(item, context)),
-      rubricScores: {
-        evidenceFit: index % 4 === 3 ? 4 : 5,
-        roleRelevance: template.category === "Collaboration" ? 4 : 5,
-        specificity: template.priority === "Low" ? 3 : 4,
-        diagnosticValue: template.priority === "High" ? 5 : 4,
-        followUpPotential: 4,
-      },
-      tags: [role.shortLabel, GENERATED_CATEGORY_LABELS[template.category], template.priority, focusArea],
-      targetCompany: company,
-      targetRole: role.shortLabel,
-      focusArea,
-      roleId: role.id,
-      runId,
-    };
-  });
-
-  return { runId, sourceSpans, questions };
-};
-
-const RESUME_GENERATOR_QUESTION_COUNT = 10;
-const RESUME_GENERATOR_MAX_FILE_BYTES = 8 * 1024 * 1024;
-const RESUME_GENERATOR_SUPPORTED_FILE_PATTERN = /\.(pdf|doc|docx|txt)$/i;
-
-const resumeGeneratorAccessToken = () => String(state.auth.session?.access_token || state.auth.session?.accessToken || "").trim();
-
-const normalizeResumeApiQuestion = (question, index, payload = {}) => {
-  const role = questionBankRoleById(question?.roleId || question?.role_id || elements.resumeTargetRole?.value);
-  const category = normalizeGeneratedQuestionCategory(question?.category || question?.generatedCategory || question?.categoryKey);
-  const priority = normalizeGeneratedQuestionPriority(question?.priority);
-  const runId = String(
-    question?.runId ||
-      question?.generationRunId ||
-      question?.generation_run_id ||
-      payload.generationRunId ||
-      payload.generation_run_id ||
-      "",
-  ).trim();
-  const questionId = String(question?.questionId || question?.question_id || `rq_${String(index + 1).padStart(3, "0")}`).trim();
-  const answerDirection = normalizeStringArray(question?.answerDirection || question?.answer_direction, 8);
-  const followUpQuestions = normalizeStringArray(question?.followUpQuestions || question?.follow_up_questions, 6);
-  const evidence = normalizeGeneratedEvidence(question?.evidence);
-  const tags = normalizeStringArray(question?.myInterviewTags || question?.my_interview_tags || question?.tags, 12);
-  const targetRole = String(question?.targetRole || question?.target_role || role.shortLabel || "").trim();
-
-  return {
-    questionId,
-    question: String(question?.question || "").trim(),
-    category,
-    priority,
-    interviewerIntent: String(question?.interviewerIntent || question?.interviewer_intent || "").trim(),
-    evidence,
-    answerDirection,
-    followUpQuestions,
-    rubricScores: normalizeGeneratedRubricScores(question?.rubricScores || question?.rubric_scores),
-    tags: tags.length ? tags : [targetRole, GENERATED_CATEGORY_LABELS[category], GENERATED_PRIORITY_LABELS[priority]].filter(Boolean),
-    targetCompany: String(question?.targetCompany || question?.target_company || payload.targetCompany || payload.target_company || elements.resumeTargetCompany?.value || "").trim(),
-    targetRole,
-    roleId: role.id,
-    sourceDocumentId: String(question?.sourceDocumentId || question?.source_document_id || (runId ? `${runId}:resume-input` : "")).trim(),
-    promptVersion: String(question?.promptVersion || question?.prompt_version || payload.promptVersion || payload.prompt_version || GENERATED_QUESTION_PROMPT_VERSION).trim(),
-    modelVersion: String(question?.modelVersion || question?.model_version || payload.modelVersion || payload.model_version || GENERATED_QUESTION_MODEL_VERSION).trim(),
-    runId,
-  };
-};
-
-const normalizeResumeApiQuestions = (payload = {}) =>
-  (Array.isArray(payload.question_set) ? payload.question_set : Array.isArray(payload.questions) ? payload.questions : [])
-    .map((question, index) => normalizeResumeApiQuestion(question, index, payload))
-    .filter((question) => question.question)
-    .slice(0, RESUME_GENERATOR_QUESTION_COUNT);
-
-const resumeGeneratorSelectedFile = () => elements.resumeFileInput?.files?.[0] || null;
-
-const resumeGeneratorFileIsSupported = (file) => {
-  if (!file) return true;
-  const name = String(file.name || "");
-  return RESUME_GENERATOR_SUPPORTED_FILE_PATTERN.test(name);
-};
-
-const setResumeGeneratorLoading = (loading) => {
-  state.resumeGenerator.loading = loading;
-  if (elements.resumeGenerateMockButton) {
-    elements.resumeGenerateMockButton.disabled = loading;
-  }
-};
-
-const renderResumeGeneratedQuestionCard = (item) => {
-  const selected = state.resumeGenerator.selectedIds.includes(item.questionId);
-  const categoryLabel = GENERATED_CATEGORY_LABELS[item.category] || "자소서 기반";
-  const priorityLabel = GENERATED_PRIORITY_LABELS[item.priority] || "우선순위 보통";
-  const evidence = item.evidence?.[0];
-  return `
-    <article class="resume-question-card ${selected ? "selected" : ""}">
-      <label class="resume-question-select">
-        <input type="checkbox" data-resume-question-select="${escapeHtml(item.questionId)}" ${selected ? "checked" : ""} />
-        <span>선택</span>
-      </label>
-      <div class="resume-question-card-main">
-        <div class="my-bookmark-meta">
-          <span>${escapeHtml(categoryLabel)}</span>
-          <span>${escapeHtml(priorityLabel)}</span>
-        </div>
-        <h3>${escapeHtml(item.question)}</h3>
-        <section>
-          <h4>면접관 의도</h4>
-          <p>${escapeHtml(item.interviewerIntent || "지원서 내용을 바탕으로 실제 역량과 경험의 깊이를 확인하려는 질문입니다.")}</p>
-        </section>
-        ${evidence ? `
-          <section>
-            <h4>지원서 근거</h4>
-            <blockquote>${escapeHtml(evidence.quote)}</blockquote>
-          </section>
-        ` : ""}
-        <section>
-          <h4>답변 방향</h4>
-          ${
-            item.answerDirection.length
-              ? `<ol>${item.answerDirection.map((direction) => `<li>${escapeHtml(direction)}</li>`).join("")}</ol>`
-              : `<p>문제 정의, 본인 역할, 실행 과정, 결과, 배운 점 순서로 답변을 정리하세요.</p>`
-          }
-        </section>
-        <section>
-          <h4>예상 꼬리질문</h4>
-          ${
-            item.followUpQuestions.length
-              ? `<ol>${item.followUpQuestions.map((question) => `<li>${escapeHtml(question)}</li>`).join("")}</ol>`
-              : `<p>저장 후 MY 면접에서 꼬리질문을 직접 추가할 수 있습니다.</p>`
-          }
-        </section>
-      </div>
-      <button class="outline-button" type="button" data-resume-save-one="${escapeHtml(item.questionId)}">이 질문 저장</button>
-    </article>
-  `;
-};
-
-const renderResumeGenerator = () => {
-  if (!elements.resumeGeneratorResults) return;
-  const questions = state.resumeGenerator.questions;
-  elements.resumeGeneratorResults.hidden = !questions.length;
-
-  if (elements.resumeGenerateMockButton) {
-    elements.resumeGenerateMockButton.disabled = state.resumeGenerator.loading;
-  }
-  if (elements.resumeGeneratorStatus) {
-    elements.resumeGeneratorStatus.textContent = state.resumeGenerator.error
-      ? state.resumeGenerator.error
-      : state.resumeGenerator.loading
-        ? "AI가 지원서 내용을 읽고 질문 10개를 생성하고 있습니다."
-        : questions.length
-          ? `${questions.length}개 질문이 준비되었습니다. 저장할 질문을 선택하세요.`
-          : "지원서 파일을 올리거나 핵심 내용을 입력한 뒤 AI 질문 10개를 생성하세요.";
-    elements.resumeGeneratorStatus.dataset.tone = state.resumeGenerator.error ? "danger" : "muted";
-  }
-  if (!questions.length) return;
-
-  const selectedCount = state.resumeGenerator.selectedIds.length;
-  const warningText = state.resumeGenerator.qualityWarnings.length ? ` · 참고 ${state.resumeGenerator.qualityWarnings.length}개` : "";
-  elements.resumeGeneratorSummary.textContent = `면접관 관점 예상 질문 ${questions.length}개`;
-  elements.resumeGeneratorRunMeta.textContent = `${state.resumeGenerator.runId || "AI run"} · 선택 ${selectedCount}개${warningText}`;
-  elements.resumeSaveSelectedButton.disabled = state.resumeGenerator.loading || selectedCount === 0;
-  elements.resumeSelectAllButton.disabled = state.resumeGenerator.loading;
-  elements.resumeSelectAllButton.textContent = selectedCount === questions.length ? "전체 해제" : "전체 선택";
-  elements.resumeGeneratedQuestionList.innerHTML = questions.map(renderResumeGeneratedQuestionCard).join("");
-  renderIcons();
-};
-
-const generateResumeQuestions = async (event) => {
-  event.preventDefault();
-  state.resumeGenerator.error = "";
-
-  if (!requireLoginForMyInterview("resume_generator_generate")) {
-    return;
-  }
-
-  const accessToken = resumeGeneratorAccessToken();
-  if (!accessToken) {
-    state.resumeGenerator.error = "로그인 세션을 확인할 수 없습니다. 다시 로그인한 뒤 시도해주세요.";
-    showAuthModal();
-    renderResumeGenerator();
-    return;
-  }
-
-  const sourceText = elements.resumeSourceText?.value.trim() || "";
-  const resumeFile = resumeGeneratorSelectedFile();
-  if (!sourceText && !resumeFile) {
-    state.resumeGenerator.error = "지원서 파일을 올리거나 핵심 내용을 입력해주세요.";
-    renderResumeGenerator();
-    return;
-  }
-  if (resumeFile?.size > RESUME_GENERATOR_MAX_FILE_BYTES) {
-    state.resumeGenerator.error = "파일은 최대 8MB까지 업로드할 수 있습니다.";
-    renderResumeGenerator();
-    return;
-  }
-  if (!resumeGeneratorFileIsSupported(resumeFile)) {
-    state.resumeGenerator.error = "PDF, DOC, DOCX, TXT 파일만 업로드할 수 있습니다.";
-    renderResumeGenerator();
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append("targetCompany", elements.resumeTargetCompany?.value.trim() || "");
-  formData.append("targetRole", elements.resumeTargetRole?.value || "process");
-  formData.append("interviewType", elements.resumeInterviewType?.value || "종합");
-  formData.append("sourceText", sourceText);
-  if (resumeFile) {
-    formData.append("resumeFile", resumeFile);
-  }
-
-  setResumeGeneratorLoading(true);
-  renderResumeGenerator();
-
-  try {
-    const response = await fetch("/api/resume-question-generate", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: formData,
-    });
-    const payload = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-      if (response.status === 401) {
-        showAuthModal();
-      }
-      throw new Error(payload.message || payload.error || `질문 생성 요청에 실패했습니다. (HTTP ${response.status})`);
-    }
-
-    const questions = normalizeResumeApiQuestions(payload);
-    if (!questions.length) {
-      throw new Error("AI가 생성한 질문을 읽지 못했습니다. 입력 내용을 조금 더 구체적으로 적어 다시 시도해주세요.");
-    }
-
-    state.resumeGenerator.runId = String(payload.generation_run_id || payload.generationRunId || createMyInterviewId("resume-run"));
-    state.resumeGenerator.sourceSpans = Array.isArray(payload.source_spans) ? payload.source_spans : [];
-    state.resumeGenerator.documentSummary = payload.document_summary || null;
-    state.resumeGenerator.qualityWarnings = normalizeStringArray(payload.quality_warnings, 8);
-    state.resumeGenerator.questions = questions;
-    state.resumeGenerator.selectedIds = questions.map((question) => question.questionId);
-    state.resumeGenerator.error = "";
-    trackEvent("resume_generator_ai_generate", {
-      question_count: questions.length,
-      role: elements.resumeTargetRole?.value,
-    });
-  } catch (error) {
-    state.resumeGenerator.error = error?.message || "질문 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
-  } finally {
-    setResumeGeneratorLoading(false);
-    renderResumeGenerator();
-  }
-};
-
-const resumeGeneratedQuestionToMyInterviewItem = (item) => {
-  const categoryLabel = GENERATED_CATEGORY_LABELS[item.category] || "자소서 기반";
-  const evidence = normalizeGeneratedEvidence(item.evidence);
-  return {
-    type: "generated",
-    id: createMyInterviewId("generated"),
-    roleId: questionBankRoleById(item.roleId).id,
-    category: categoryLabel,
-    generatedCategory: item.category,
-    priority: item.priority,
-    generatedDifficulty: "Medium",
-    difficulty: "실전",
-    text: item.question,
-    answer: item.answerDirection.join("\n"),
-    interviewerIntent: item.interviewerIntent,
-    answerDirection: item.answerDirection,
-    evidence,
-    followUps: item.followUpQuestions.map((question) => ({ question, answer: "" })),
-    sourceDocumentId: item.sourceDocumentId || `${item.runId || state.resumeGenerator.runId}:resume-input`,
-    sourceSpanIds: evidence.map((entry) => entry.sourceSpanId),
-    sourceQuotes: evidence.map((entry) => entry.quote),
-    targetCompany: item.targetCompany,
-    targetRole: item.targetRole,
-    tags: normalizeStringArray(item.tags, 12),
-    rubricScores: normalizeGeneratedRubricScores(item.rubricScores),
-    promptVersion: item.promptVersion || GENERATED_QUESTION_PROMPT_VERSION,
-    modelVersion: item.modelVersion || GENERATED_QUESTION_MODEL_VERSION,
-    generationRunId: item.runId || state.resumeGenerator.runId,
-    addedAt: Date.now(),
-  };
-};
-
-const saveResumeQuestionsToMyInterview = (questionIds) => {
-  const selectedQuestions = state.resumeGenerator.questions.filter((question) => questionIds.includes(question.questionId));
-  if (!selectedQuestions.length) {
-    state.resumeGenerator.error = "저장할 질문을 선택해주세요.";
-    renderResumeGenerator();
-    return;
-  }
-  if (!requireLoginForMyInterview("resume_generator_save")) {
-    return;
-  }
-
-  const first = selectedQuestions[0];
-  const set = {
-    id: createMyInterviewId("set"),
-    name: `${first.targetCompany || "지원서"} ${first.targetRole || "직무"} 자소서 질문`,
-    subtitle: `AI 자소서 질문 생성기에서 만든 질문 ${selectedQuestions.length}개입니다.`,
-    items: selectedQuestions.map(resumeGeneratedQuestionToMyInterviewItem),
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
-  };
-  const normalizedSet = normalizeMyInterviewSet(set);
-  if (!normalizedSet) return;
-  state.myInterview.sets.unshift(normalizedSet);
-  state.myInterview.activeSetId = normalizedSet.id;
-  state.myInterview.expandedAnswerKey = "";
-  state.myInterview.answerEditingKey = "";
-  state.myInterview.setDrawerOpen = false;
-  writeMyInterviewSets();
-  trackEvent("resume_generator_save_to_my_interview", {
-    question_count: selectedQuestions.length,
-    run_id: state.resumeGenerator.runId,
-  });
-  setView("my-interview");
-};
-
-const toggleResumeQuestionSelection = (questionId, checked) => {
-  state.resumeGenerator.selectedIds = checked
-    ? [...new Set([...state.resumeGenerator.selectedIds, questionId])]
-    : state.resumeGenerator.selectedIds.filter((id) => id !== questionId);
-  renderResumeGenerator();
-};
-
-const toggleAllResumeQuestionSelection = () => {
-  const allIds = state.resumeGenerator.questions.map((question) => question.questionId);
-  state.resumeGenerator.selectedIds = state.resumeGenerator.selectedIds.length === allIds.length ? [] : allIds;
-  renderResumeGenerator();
-};
-
 const removeMyInterviewQuestion = (itemKey) => {
   const activeSet = myInterviewActiveSet();
   if (!activeSet) return;
@@ -5871,7 +5156,7 @@ const saveMyInterviewAnswerEdit = (itemKey) => {
     return;
   }
   item.followUps = followUps;
-  if (item.type === "custom" || item.type === "generated") {
+  if (item.type === "custom") {
     item.text = questionValue;
     item.answer = answerValue;
   } else {
@@ -7279,21 +6564,6 @@ const bindMyInterviewControls = () => {
   elements.myInterviewCustomForm.addEventListener("submit", (event) => {
     event.preventDefault();
     addCustomQuestionToMyInterview();
-  });
-  elements.resumeGeneratorForm?.addEventListener("submit", generateResumeQuestions);
-  elements.resumeSelectAllButton?.addEventListener("click", toggleAllResumeQuestionSelection);
-  elements.resumeSaveSelectedButton?.addEventListener("click", () => {
-    saveResumeQuestionsToMyInterview(state.resumeGenerator.selectedIds);
-  });
-  elements.resumeGeneratedQuestionList?.addEventListener("change", (event) => {
-    const checkbox = event.target.closest("[data-resume-question-select]");
-    if (!checkbox) return;
-    toggleResumeQuestionSelection(checkbox.dataset.resumeQuestionSelect, checkbox.checked);
-  });
-  elements.resumeGeneratedQuestionList?.addEventListener("click", (event) => {
-    const saveButton = event.target.closest("[data-resume-save-one]");
-    if (!saveButton) return;
-    saveResumeQuestionsToMyInterview([saveButton.dataset.resumeSaveOne]);
   });
 };
 
