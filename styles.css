@@ -4886,9 +4886,14 @@ body.my-interview-active .site-footer {
 
 .my-bookmark-main strong {
   color: var(--ink);
+  display: block;
   font-size: 15px;
   line-height: 1.5;
   word-break: keep-all;
+}
+
+.my-interview-question-item .my-bookmark-main strong {
+  white-space: pre-line;
 }
 
 .my-bookmark-status {

@@ -2730,7 +2730,17 @@ const escapeHtml = (value) =>
     .replaceAll("'", "&#039;");
 
 const answerParagraphs = (answer) => {
-  const cleaned = String(answer || "").replace(/\s+/g, " ").trim();
+  const raw = String(answer || "").replace(/\r\n?/g, "\n").trim();
+  if (!raw) return ["모범 답안 준비중입니다."];
+
+  if (raw.includes("\n")) {
+    return raw
+      .split(/\n+/)
+      .map((line) => line.replace(/[ \t]+/g, " ").trim())
+      .filter(Boolean);
+  }
+
+  const cleaned = raw.replace(/\s+/g, " ").trim();
   if (!cleaned) return ["모범 답안 준비중입니다."];
 
   const sentences = cleaned.split(/(?<=[.!?])\s+/).map((sentence) => sentence.trim()).filter(Boolean);
