@@ -4482,6 +4482,23 @@ const myInterviewMarkCounts = (set) => {
   return counts;
 };
 
+const renderMyInterviewMarkIcon = (id) => {
+  const mark = normalizeMyInterviewMark(id);
+  if (id === "all") {
+    return `
+      <span class="my-interview-mark-filter-icon all" aria-hidden="true">
+        <span class="green"></span>
+        <span class="yellow"></span>
+        <span class="red"></span>
+      </span>
+    `;
+  }
+  if (id === "none") {
+    return `<span class="my-interview-mark-filter-icon none" aria-hidden="true"></span>`;
+  }
+  return `<span class="my-interview-mark-filter-icon ${escapeHtml(mark)}" aria-hidden="true"></span>`;
+};
+
 const renderMyInterviewMarkFilter = (set) => {
   if (!elements.myInterviewMarkFilter) return;
   const bookmarkSet = isMyInterviewBookmarkSet(set);
@@ -4497,9 +4514,8 @@ const renderMyInterviewMarkFilter = (set) => {
   state.myInterview.markFilter = activeFilter;
   elements.myInterviewMarkFilter.innerHTML = MY_INTERVIEW_MARK_FILTERS
     .map((filter) => `
-      <button class="my-interview-mark-filter-button ${filter.id === activeFilter ? "active" : ""} ${filter.tone || ""}" type="button" data-my-interview-mark-filter="${escapeHtml(filter.id)}" aria-pressed="${filter.id === activeFilter}">
-        <span>${escapeHtml(filter.label)}</span>
-        <em>${counts[filter.id] ?? 0}</em>
+      <button class="my-interview-mark-filter-button ${filter.id === activeFilter ? "active" : ""} ${filter.tone || ""}" type="button" data-my-interview-mark-filter="${escapeHtml(filter.id)}" aria-label="${escapeHtml(`${filter.label} ${counts[filter.id] ?? 0}개`)}" title="${escapeHtml(filter.label)}" aria-pressed="${filter.id === activeFilter}">
+        ${renderMyInterviewMarkIcon(filter.id)}
       </button>
     `)
     .join("");
@@ -4518,9 +4534,8 @@ const renderMyInterviewMarkMenu = (item, itemKey, disabled = false) => {
       ${options.map((mark) => {
         const active = currentMark === mark.id;
         return `
-          <button class="my-interview-mark-menu-option ${mark.tone} ${active ? "active" : ""}" type="button" role="menuitemradio" data-my-interview-mark="${escapeHtml(itemKey)}" data-my-interview-mark-value="${escapeHtml(mark.id)}" aria-checked="${active}">
+          <button class="my-interview-mark-menu-option ${mark.tone} ${active ? "active" : ""}" type="button" role="menuitemradio" data-my-interview-mark="${escapeHtml(itemKey)}" data-my-interview-mark-value="${escapeHtml(mark.id)}" aria-label="${escapeHtml(mark.label)}" title="${escapeHtml(mark.label)}" aria-checked="${active}">
             <span class="my-interview-mark-dot"></span>
-            <span>${escapeHtml(mark.label)}</span>
           </button>
         `;
       }).join("")}
@@ -5275,7 +5290,6 @@ const renderMyInterviewQuestionList = (set) => {
       const followUps = normalizeMyInterviewFollowUps(item.followUps);
       const followUpCount = followUps.length;
       const mark = normalizeMyInterviewMark(item.mark);
-      const markBadge = mark ? `<span class="my-interview-mark-badge ${myInterviewMarkClass(mark)}">${escapeHtml(myInterviewMarkLabel(mark))}</span>` : "";
       const difficultyBadge = item.type === "custom" || isPersonalityQuestion(question)
         ? ""
         : `<span class="bank-difficulty-badge ${questionBankDifficultyClass(question.difficulty)}">${escapeHtml(question.difficulty)}</span>`;
@@ -5297,7 +5311,6 @@ const renderMyInterviewQuestionList = (set) => {
           <button class="my-bookmark-main my-question-answer-toggle" type="button" data-my-interview-answer="${escapeHtml(key)}" aria-expanded="${expanded}">
             <span class="my-bookmark-meta">
               <span>${escapeHtml(sourceLabel)}</span>
-              ${markBadge}
               ${difficultyBadge}
               ${myInterviewCategoryBadge(question)}
               ${followUpCount ? `<span>꼬리질문 ${followUpCount}개</span>` : ""}
