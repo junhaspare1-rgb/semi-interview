@@ -3868,6 +3868,106 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
   flex-wrap: wrap;
 }
 
+.my-interview-mark-filter {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 12px;
+}
+
+.my-interview-mark-filter[hidden] {
+  display: none;
+}
+
+.my-interview-mark-filter-button {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0;
+  background: #ffffff;
+  color: #475569;
+  cursor: pointer;
+}
+
+.my-interview-mark-filter-icon {
+  display: grid;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: #ffffff;
+}
+
+.my-interview-mark-filter-icon.green {
+  background: #22c55e;
+}
+
+.my-interview-mark-filter-icon.yellow {
+  background: #f59e0b;
+}
+
+.my-interview-mark-filter-icon.red {
+  background: #ef4444;
+}
+
+.my-interview-mark-filter-icon.none {
+  border: 1px solid #cbd5e1;
+  background: linear-gradient(135deg, transparent 45%, #94a3b8 47%, #94a3b8 53%, transparent 55%);
+}
+
+.my-interview-mark-filter-icon.all {
+  grid-template-columns: repeat(2, 7px);
+  grid-template-rows: repeat(2, 7px);
+  gap: 1px;
+  width: 15px;
+  height: 15px;
+  background: transparent;
+}
+
+.my-interview-mark-filter-icon.all span {
+  border-radius: 999px;
+}
+
+.my-interview-mark-filter-icon.all .green {
+  background: #22c55e;
+}
+
+.my-interview-mark-filter-icon.all .yellow {
+  background: #f59e0b;
+}
+
+.my-interview-mark-filter-icon.all .red {
+  background: #ef4444;
+}
+
+.my-interview-mark-filter-button.active {
+  border-color: var(--blue);
+  background: #eff6ff;
+  box-shadow: inset 0 0 0 1px var(--blue);
+}
+
+.my-interview-mark-filter-button.green.active {
+  border-color: #86efac;
+  background: #dcfce7;
+  box-shadow: inset 0 0 0 1px #22c55e;
+}
+
+.my-interview-mark-filter-button.yellow.active {
+  border-color: #fcd34d;
+  background: #fef3c7;
+  box-shadow: inset 0 0 0 1px #f59e0b;
+}
+
+.my-interview-mark-filter-button.red.active {
+  border-color: #fda4af;
+  background: #ffe4e6;
+  box-shadow: inset 0 0 0 1px #ef4444;
+}
+
 .my-interview-question-list {
   display: grid;
   gap: 8px;
@@ -3894,6 +3994,7 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
 }
 
 .my-interview-question-item {
+  position: relative;
   display: grid;
   grid-template-columns: 34px minmax(0, 1fr) auto;
   align-items: center;
@@ -3904,11 +4005,38 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
   background: #ffffff;
 }
 
+.my-interview-question-item.marked-green {
+  border-color: rgba(34, 197, 94, 0.34);
+  background: rgba(34, 197, 94, 0.08);
+}
+
+.my-interview-question-item.marked-yellow {
+  border-color: rgba(245, 158, 11, 0.36);
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.my-interview-question-item.marked-red {
+  border-color: rgba(239, 68, 68, 0.34);
+  background: rgba(239, 68, 68, 0.08);
+}
+
 .my-interview-question-item.expanded,
 .my-bookmark-item.expanded {
   align-items: start;
   border-color: #bfdbfe;
   background: #f8fbff;
+}
+
+.my-interview-question-item.marked-green.expanded {
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.my-interview-question-item.marked-yellow.expanded {
+  background: rgba(245, 158, 11, 0.12);
+}
+
+.my-interview-question-item.marked-red.expanded {
+  background: rgba(239, 68, 68, 0.1);
 }
 
 .my-interview-question-index {
@@ -3921,6 +4049,12 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
   color: #475569;
   font-size: 12px;
   font-weight: 950;
+}
+
+.my-interview-order-cell {
+  position: relative;
+  align-self: stretch;
+  width: 30px;
 }
 
 .my-interview-drag-handle {
@@ -3962,6 +4096,107 @@ body.question-bank-active.question-bank-sidebar-collapsed .site-footer {
 
 .my-interview-question-item.drag-over-after {
   box-shadow: inset 0 -3px 0 var(--blue);
+}
+
+.my-interview-mark-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 40;
+  display: none;
+  width: max-content;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px;
+  background: #ffffff;
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.16);
+}
+
+.my-interview-mark-menu.open {
+  display: inline-flex;
+  gap: 5px;
+}
+
+.my-interview-mark-menu-option {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.my-interview-mark-menu-option:hover,
+.my-interview-mark-menu-option.active {
+  background: #f8fafc;
+}
+
+.my-interview-mark-menu-option.green.active {
+  box-shadow: inset 0 0 0 2px #22c55e;
+}
+
+.my-interview-mark-menu-option.yellow.active {
+  box-shadow: inset 0 0 0 2px #f59e0b;
+}
+
+.my-interview-mark-menu-option.red.active {
+  box-shadow: inset 0 0 0 2px #ef4444;
+}
+
+.my-interview-mark-menu-option.none.active {
+  box-shadow: inset 0 0 0 2px #94a3b8;
+}
+
+.my-interview-mark-dot {
+  width: 12px;
+  height: 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  background: #ffffff;
+}
+
+.my-interview-mark-menu-option.green .my-interview-mark-dot {
+  background: #22c55e;
+  border-color: #22c55e;
+}
+
+.my-interview-mark-menu-option.yellow .my-interview-mark-dot {
+  background: #f59e0b;
+  border-color: #f59e0b;
+}
+
+.my-interview-mark-menu-option.red .my-interview-mark-dot {
+  background: #ef4444;
+  border-color: #ef4444;
+}
+
+.my-interview-mark-menu-option.none .my-interview-mark-dot {
+  background: linear-gradient(135deg, transparent 45%, #94a3b8 47%, #94a3b8 53%, transparent 55%);
+}
+
+.my-interview-filter-empty {
+  display: grid;
+  gap: 6px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 12px;
+  padding: 24px;
+  background: #ffffff;
+  text-align: center;
+}
+
+.my-interview-filter-empty strong {
+  color: var(--ink);
+  font-size: 17px;
+}
+
+.my-interview-filter-empty p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.55;
 }
 
 .my-interview-question-item > .my-bookmark-main > p {
@@ -4664,6 +4899,15 @@ body.my-interview-active .site-footer {
   .my-interview-detail-actions {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .my-interview-mark-filter {
+    gap: 6px;
+  }
+
+  .my-interview-mark-filter-button {
+    flex: 0 0 34px;
+    padding: 0;
   }
 
   .my-interview-action-button {

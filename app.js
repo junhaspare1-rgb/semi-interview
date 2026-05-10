@@ -154,6 +154,8 @@ const state = {
     existingRole: "all",
     existingSelectedKeys: [],
     setDrawerOpen: false,
+    markFilter: "all",
+    markMenuKey: "",
     expandedAnswerKey: "",
     titleEditing: false,
     subtitleEditing: false,
@@ -247,6 +249,16 @@ const QUESTION_BANK_DIFFICULTY_RANK = {
   실전: 1,
   심화: 2,
 };
+const MY_INTERVIEW_MARKS = [
+  { id: "green", label: "초록", tone: "green" },
+  { id: "yellow", label: "노랑", tone: "yellow" },
+  { id: "red", label: "빨강", tone: "red" },
+];
+const MY_INTERVIEW_MARK_FILTERS = [
+  { id: "all", label: "전체" },
+  ...MY_INTERVIEW_MARKS,
+  { id: "none", label: "미지정" },
+];
 const QUESTION_BANK_ROLES = [
   {
     id: "process",
@@ -323,6 +335,7 @@ const cacheElements = () => {
     "myInterviewStartButton",
     "myInterviewExportButton",
     "myInterviewDeleteSetButton",
+    "myInterviewMarkFilter",
     "myInterviewQuestionList",
     "myInterviewSetEmpty",
     "myInterviewSetModal",
@@ -3598,7 +3611,7 @@ const addBookmarkDestinationToSet = (setId) => {
     renderBookmarkDestinationModal(`"${targetSet.name}" 세트에서 해제했습니다.`);
     return;
   }
-  targetSet.items.push({ type: "bank", key, addedAt: Date.now() });
+  targetSet.items.push({ type: "bank", key, mark: "", addedAt: Date.now() });
   targetSet.updatedAt = Date.now();
   writeMyInterviewSets();
   trackEvent("my_interview_question_add", {
@@ -3640,7 +3653,7 @@ const createBookmarkDestinationSet = () => {
     id: createMyInterviewId("set"),
     name,
     subtitle: "",
-    items: [{ type: "bank", key, addedAt: Date.now() }],
+    items: [{ type: "bank", key, mark: "", addedAt: Date.now() }],
     createdAt: Date.now(),
     updatedAt: Date.now(),
   };
@@ -4041,6 +4054,9 @@ const confirmMyPractice = () => {
 const createMyInterviewId = (prefix) =>
   `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 
+const normalizeMyInterviewMark = (mark) =>
+  MY_INTERVIEW_MARKS.some((item) => item.id === mark) ? mark : "";
+
 const normalizeMyInterviewFollowUps = (followUps) =>
   (Array.isArray(followUps) ? followUps : [])
     .map((followUp) => {
@@ -4065,6 +4081,7 @@ const normalizeMyInterviewItem = (item) => {
       questionOverride: String(item.questionOverride || "").trim(),
       answerOverride: String(item.answerOverride || "").trim(),
       followUps: normalizeMyInterviewFollowUps(item.followUps),
+      mark: normalizeMyInterviewMark(item.mark),
       addedAt: Number(item.addedAt) || Date.now(),
     };
   }
@@ -4078,6 +4095,7 @@ const normalizeMyInterviewItem = (item) => {
       text: String(item.text || "").trim(),
       answer: String(item.answer || "").trim(),
       followUps: normalizeMyInterviewFollowUps(item.followUps),
+      mark: normalizeMyInterviewMark(item.mark),
       addedAt: Number(item.addedAt) || Date.now(),
     };
   }
@@ -4440,6 +4458,91 @@ const myInterviewCategoryBadge = (question) =>
 const myInterviewSourceLabel = (question, item) =>
   item.type === "custom" ? "내 질문" : questionBankRoleById(questionRoleId(question)).shortLabel;
 
+const myInterviewMarkLabel = (mark) =>
+  MY_INTERVIEW_MARKS.find((item) => item.id === mark)?.label || "";
+
+const myInterviewMarkClass = (mark) => normalizeMyInterviewMark(mark) || "none";
+
+const myInterviewMarkMatchesFilter = (item) => {
+  const filter = state.myInterview.markFilter || "all";
+  if (filter === "all") return true;
+  const mark = normalizeMyInterviewMark(item.mark);
+  if (filter === "none") return !mark;
+  return mark === filter;
+};
+
+const myInterviewMarkCounts = (set) => {
+  const counts = { all: 0, none: 0, green: 0, yellow: 0, red: 0 };
+  (set?.items || []).forEach((item) => {
+    if (!myInterviewQuestionFromItem(item)) return;
+    const mark = normalizeMyInterviewMark(item.mark);
+    counts.all += 1;
+    counts[mark || "none"] += 1;
+  });
+  return counts;
+};
+
+const renderMyInterviewMarkIcon = (id) => {
+  const mark = normalizeMyInterviewMark(id);
+  if (id === "all") {
+    return `
+      <span class="my-interview-mark-filter-icon all" aria-hidden="true">
+        <span class="green"></span>
+        <span class="yellow"></span>
+        <span class="red"></span>
+      </span>
+    `;
+  }
+  if (id === "none") {
+    return `<span class="my-interview-mark-filter-icon none" aria-hidden="true"></span>`;
+  }
+  return `<span class="my-interview-mark-filter-icon ${escapeHtml(mark)}" aria-hidden="true"></span>`;
+};
+
+const renderMyInterviewMarkFilter = (set) => {
+  if (!elements.myInterviewMarkFilter) return;
+  const bookmarkSet = isMyInterviewBookmarkSet(set);
+  const counts = myInterviewMarkCounts(set);
+  elements.myInterviewMarkFilter.hidden = bookmarkSet || counts.all === 0;
+  if (elements.myInterviewMarkFilter.hidden) {
+    elements.myInterviewMarkFilter.innerHTML = "";
+    return;
+  }
+  const activeFilter = MY_INTERVIEW_MARK_FILTERS.some((filter) => filter.id === state.myInterview.markFilter)
+    ? state.myInterview.markFilter
+    : "all";
+  state.myInterview.markFilter = activeFilter;
+  elements.myInterviewMarkFilter.innerHTML = MY_INTERVIEW_MARK_FILTERS
+    .map((filter) => `
+      <button class="my-interview-mark-filter-button ${filter.id === activeFilter ? "active" : ""} ${filter.tone || ""}" type="button" data-my-interview-mark-filter="${escapeHtml(filter.id)}" aria-label="${escapeHtml(`${filter.label} ${counts[filter.id] ?? 0}개`)}" title="${escapeHtml(filter.label)}" aria-pressed="${filter.id === activeFilter}">
+        ${renderMyInterviewMarkIcon(filter.id)}
+      </button>
+    `)
+    .join("");
+};
+
+const renderMyInterviewMarkMenu = (item, itemKey, disabled = false) => {
+  if (disabled) return "";
+  const currentMark = normalizeMyInterviewMark(item.mark);
+  const open = state.myInterview.markMenuKey === itemKey;
+  const options = [
+    { id: "", label: "색 없음", tone: "none" },
+    ...MY_INTERVIEW_MARKS,
+  ];
+  return `
+    <div class="my-interview-mark-menu ${open ? "open" : ""}" role="menu" aria-label="질문 색상 선택">
+      ${options.map((mark) => {
+        const active = currentMark === mark.id;
+        return `
+          <button class="my-interview-mark-menu-option ${mark.tone} ${active ? "active" : ""}" type="button" role="menuitemradio" data-my-interview-mark="${escapeHtml(itemKey)}" data-my-interview-mark-value="${escapeHtml(mark.id)}" aria-label="${escapeHtml(mark.label)}" title="${escapeHtml(mark.label)}" aria-checked="${active}">
+            <span class="my-interview-mark-dot"></span>
+          </button>
+        `;
+      }).join("")}
+    </div>
+  `;
+};
+
 const myInterviewExportEntriesForSet = (set) =>
   (set?.items || [])
     .map((item) => {
@@ -4543,6 +4646,7 @@ const renderMyInterviewExportQuestionCard = ({ item, question, index }, includeA
     myInterviewSourceLabel(question, item),
     question.category,
     item.type === "custom" || isPersonalityQuestion(question) ? "" : question.difficulty,
+    myInterviewMarkLabel(item.mark),
     followUps.length ? `꼬리질문 ${followUps.length}개` : "",
   ].filter(Boolean);
 
@@ -5145,6 +5249,7 @@ const renderMyInterviewQuestionList = (set) => {
   }
   renderMyInterviewTitle(set);
   renderMyInterviewSubtitle(set, questions.length);
+  renderMyInterviewMarkFilter(set);
   elements.myInterviewPracticeButton.disabled = questions.length === 0;
   elements.myInterviewStartButton.disabled = questions.length === 0;
   elements.myInterviewExportButton.disabled = questions.length === 0;
@@ -5161,8 +5266,22 @@ const renderMyInterviewQuestionList = (set) => {
         <p>기존 질문을 담거나 직접 만든 질문을 추가해 세트를 완성하세요.</p>
       `;
 
-  elements.myInterviewQuestionList.innerHTML = (set.items || [])
-    .map((item, index) => {
+  const visibleItems = (set.items || [])
+    .map((item, index) => ({ item, index }))
+    .filter(({ item }) => myInterviewQuestionFromItem(item) && (bookmarkSet || myInterviewMarkMatchesFilter(item)));
+
+  if (questions.length > 0 && !visibleItems.length) {
+    elements.myInterviewQuestionList.innerHTML = `
+      <div class="my-interview-filter-empty">
+        <strong>선택한 색상의 질문이 없습니다.</strong>
+        <p>다른 색상 필터를 선택하거나 질문에 색상을 표시해보세요.</p>
+      </div>
+    `;
+    return;
+  }
+
+  elements.myInterviewQuestionList.innerHTML = visibleItems
+    .map(({ item, index }) => {
       const question = myInterviewQuestionFromItem(item);
       if (!question) return "";
       const key = myInterviewItemKey(item);
@@ -5170,20 +5289,24 @@ const renderMyInterviewQuestionList = (set) => {
       const expanded = state.myInterview.expandedAnswerKey === key;
       const followUps = normalizeMyInterviewFollowUps(item.followUps);
       const followUpCount = followUps.length;
+      const mark = normalizeMyInterviewMark(item.mark);
       const difficultyBadge = item.type === "custom" || isPersonalityQuestion(question)
         ? ""
         : `<span class="bank-difficulty-badge ${questionBankDifficultyClass(question.difficulty)}">${escapeHtml(question.difficulty)}</span>`;
       const orderControl = bookmarkSet
         ? `<div class="my-interview-question-index">${index + 1}</div>`
         : `
-          <button class="my-interview-drag-handle" type="button" draggable="true" data-my-interview-drag="${escapeHtml(key)}" aria-label="${index + 1}번 질문 순서 변경" title="순서 변경">
-            <i data-lucide="grip-vertical"></i>
-            <span>${index + 1}</span>
-          </button>
+          <div class="my-interview-order-cell">
+            <button class="my-interview-drag-handle" type="button" draggable="true" data-my-interview-drag="${escapeHtml(key)}" data-my-interview-mark-menu-toggle="${escapeHtml(key)}" aria-label="${index + 1}번 질문 색상 선택 및 순서 변경" aria-haspopup="menu" aria-expanded="${state.myInterview.markMenuKey === key}" title="색상 선택 / 순서 변경">
+              <i data-lucide="grip-vertical"></i>
+              <span>${index + 1}</span>
+            </button>
+            ${renderMyInterviewMarkMenu(item, key, bookmarkSet)}
+          </div>
         `;
       const removeLabel = bookmarkSet ? "북마크 해제" : "세트에서 제거";
       return `
-        <article class="my-interview-question-item ${expanded ? "expanded" : ""} ${bookmarkSet ? "bookmark-set-item" : ""}" data-my-interview-item="${escapeHtml(key)}">
+        <article class="my-interview-question-item ${expanded ? "expanded" : ""} ${bookmarkSet ? "bookmark-set-item" : ""} ${mark ? `marked-${escapeHtml(mark)}` : ""}" data-my-interview-item="${escapeHtml(key)}">
           ${orderControl}
           <button class="my-bookmark-main my-question-answer-toggle" type="button" data-my-interview-answer="${escapeHtml(key)}" aria-expanded="${expanded}">
             <span class="my-bookmark-meta">
@@ -5213,6 +5336,7 @@ const renderMyInterview = () => {
     state.myInterview.subtitleEditing = false;
     state.myInterview.expandedAnswerKey = "";
     state.myInterview.answerEditingKey = "";
+    state.myInterview.markMenuKey = "";
     state.myInterview.draggingKey = "";
     state.myInterview.draggingSetId = "";
   }
@@ -5495,7 +5619,7 @@ const addExistingQuestionsToMyInterview = () => {
   const existingKeys = new Set(activeSet.items.filter((item) => item.type === "bank").map((item) => item.key));
   const nextKeys = state.myInterview.existingSelectedKeys.filter((key) => questionByProgressKey(key) && !existingKeys.has(key));
   if (!nextKeys.length) return;
-  activeSet.items.push(...nextKeys.map((key) => ({ type: "bank", key, addedAt: Date.now() })));
+  activeSet.items.push(...nextKeys.map((key) => ({ type: "bank", key, mark: "", addedAt: Date.now() })));
   activeSet.updatedAt = Date.now();
   state.myInterview.existingSelectedKeys = [];
   state.myInterview.expandedAnswerKey = "";
@@ -5523,6 +5647,7 @@ const addCustomQuestionToMyInterview = () => {
     difficulty: "입문",
     text,
     answer: elements.myInterviewCustomAnswer.value.trim(),
+    mark: "",
     addedAt: Date.now(),
   });
   activeSet.updatedAt = Date.now();
@@ -5547,6 +5672,9 @@ const removeMyInterviewQuestion = (itemKey) => {
     if (state.myInterview.answerEditingKey === itemKey) {
       state.myInterview.answerEditingKey = "";
     }
+    if (state.myInterview.markMenuKey === itemKey) {
+      state.myInterview.markMenuKey = "";
+    }
     clearMyInterviewAnswerEditDraft(itemKey, activeSet.id);
     trackEvent(
       "bookmark_click",
@@ -5567,7 +5695,26 @@ const removeMyInterviewQuestion = (itemKey) => {
   if (state.myInterview.answerEditingKey === itemKey) {
     state.myInterview.answerEditingKey = "";
   }
+  if (state.myInterview.markMenuKey === itemKey) {
+    state.myInterview.markMenuKey = "";
+  }
   clearMyInterviewAnswerEditDraft(itemKey, activeSet.id);
+  writeMyInterviewSets();
+  renderMyInterview();
+};
+
+const setMyInterviewQuestionMark = (itemKey, mark) => {
+  const activeSet = myInterviewActiveSet();
+  const item = findMyInterviewItem(itemKey);
+  if (!activeSet || isMyInterviewBookmarkSet(activeSet) || !item) return;
+  const nextMark = normalizeMyInterviewMark(mark);
+  state.myInterview.markMenuKey = "";
+  if (item.mark === nextMark) {
+    renderMyInterview();
+    return;
+  }
+  item.mark = nextMark;
+  activeSet.updatedAt = Date.now();
   writeMyInterviewSets();
   renderMyInterview();
 };
@@ -6888,6 +7035,7 @@ const bindMyInterviewControls = () => {
       state.myInterview.titleEditing = false;
       state.myInterview.subtitleEditing = false;
       state.myInterview.answerEditingKey = "";
+      state.myInterview.markMenuKey = "";
       state.myInterview.draggingKey = "";
       state.myInterview.draggingSetId = "";
     }
@@ -6949,8 +7097,33 @@ const bindMyInterviewControls = () => {
   elements.myInterviewExportButton.addEventListener("click", showMyInterviewExportModal);
   elements.myInterviewDeleteSetButton.addEventListener("click", deleteMyInterviewActiveSet);
   elements.myInterviewDetailContent.addEventListener("click", (event) => {
+    const markMenuToggle = event.target.closest("[data-my-interview-mark-menu-toggle]");
+    if (markMenuToggle) {
+      const key = markMenuToggle.dataset.myInterviewMarkMenuToggle;
+      state.myInterview.markMenuKey = state.myInterview.markMenuKey === key ? "" : key;
+      renderMyInterview();
+      return;
+    }
+
+    const markFilterButton = event.target.closest("[data-my-interview-mark-filter]");
+    if (markFilterButton) {
+      state.myInterview.markMenuKey = "";
+      state.myInterview.markFilter = MY_INTERVIEW_MARK_FILTERS.some((filter) => filter.id === markFilterButton.dataset.myInterviewMarkFilter)
+        ? markFilterButton.dataset.myInterviewMarkFilter
+        : "all";
+      renderMyInterview();
+      return;
+    }
+
+    const markButton = event.target.closest("[data-my-interview-mark]");
+    if (markButton) {
+      setMyInterviewQuestionMark(markButton.dataset.myInterviewMark, markButton.dataset.myInterviewMarkValue);
+      return;
+    }
+
     const answerEditButton = event.target.closest("[data-my-interview-answer-edit]");
     if (answerEditButton) {
+      state.myInterview.markMenuKey = "";
       startMyInterviewAnswerEdit(answerEditButton.dataset.myInterviewAnswerEdit);
       return;
     }
@@ -7025,6 +7198,7 @@ const bindMyInterviewControls = () => {
 
     const answerButton = event.target.closest("[data-my-interview-answer]");
     if (answerButton) {
+      state.myInterview.markMenuKey = "";
       toggleMyInterviewAnswer(answerButton.dataset.myInterviewAnswer);
     }
   });
